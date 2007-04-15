@@ -758,7 +758,8 @@ msn_userlist_load(MsnSession *session)
 				{
 					user = msn_userlist_find_add_user(session->userlist,
 						b->name,NULL);
-					msn_user_set_op(user,MSN_LIST_FL_OP);
+					b->proto_data = user;
+					msn_user_set_op(user, MSN_LIST_FL_OP);
 				}
 			}
 		}
@@ -767,13 +768,13 @@ msn_userlist_load(MsnSession *session)
 	{
 		user = msn_userlist_find_add_user(session->userlist,
 						(char *)l->data,NULL);
-		msn_user_set_op(user,MSN_LIST_AL_OP);
+		msn_user_set_op(user, MSN_LIST_AL_OP);
 	}
 	for (l = session->account->deny; l != NULL; l = l->next)
 	{
 		user = msn_userlist_find_add_user(session->userlist,
 						(char *)l->data,NULL);
-		msn_user_set_op(user,MSN_LIST_BL_OP);
+		msn_user_set_op(user, MSN_LIST_BL_OP);
 	}
 }
 

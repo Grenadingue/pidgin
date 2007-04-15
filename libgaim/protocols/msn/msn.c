@@ -36,7 +36,7 @@
 #include "util.h"
 #include "cmds.h"
 #include "prpl.h"
-#include "msn-utils.h"
+#include "msnutils.h"
 #include "version.h"
 
 #include "switchboard.h"
@@ -113,13 +113,16 @@ msn_cmd_nudge(GaimConversation *conv, const gchar *cmd, gchar **args, gchar **er
 	return GAIM_CMD_RET_OK;
 }
 
-static void
+void
 msn_act_id(GaimConnection *gc, const char *entry)
 {
 	MsnCmdProc *cmdproc;
 	MsnSession *session;
 	GaimAccount *account;
 	const char *alias;
+
+	char *soapbody;
+	MsnSoapReq *soap_request;
 
 	session = gc->proto_data;
 	cmdproc = session->notification->cmdproc;
@@ -137,9 +140,27 @@ msn_act_id(GaimConnection *gc, const char *entry)
 		return;
 	}
 
-	msn_cmdproc_send(cmdproc, "REA", "%s %s",
-					 gaim_account_get_username(account),
-					 alias);
+	if (*alias == '\0') {
+		alias = gaim_url_encode(gaim_account_get_username(account));
+	}
+
+	msn_cmdproc_send(cmdproc, "PRP", "MFN %s", alias);
+
+	soapbody = g_strdup_printf(MSN_CONTACT_UPDATE_TEMPLATE, alias);
+	/*build SOAP and POST it*/
+	soap_request = msn_soap_request_new(MSN_CONTACT_SERVER,
+										MSN_ADDRESS_BOOK_POST_URL,
+										MSN_CONTACT_UPDATE_SOAP_ACTION,
+										soapbody,
+										NULL,
+										NULL);
+
+	session->contact->soapconn->read_cb = NULL;
+	msn_soap_post(session->contact->soapconn,
+				  soap_request,
+				  msn_contact_connect_init);
+
+	g_free(soapbody);
 }
 
 static void
@@ -524,7 +545,8 @@ msn_status_text(GaimBuddy *buddy)
 {
 	GaimPresence *presence;
 	GaimStatus *status;
-	char *msg, *psm_str, *tmp2, *text, *name;
+	const char *msg, *name;
+	char *psm_str, *tmp2, *text;
 
 	presence = gaim_buddy_get_presence(buddy);
 	status = gaim_presence_get_active_status(presence);
@@ -903,9 +925,8 @@ msn_send_im(GaimConnection *gc, const char *who, const char *message,
 
 		oim = session->oim;
 		friendname = msn_encode_mime(account->username);
-		msn_oim_prep_send_msg_info(oim,
-			gaim_account_get_username(account),friendname,who,
-			message);
+		msn_oim_prep_send_msg_info(oim, gaim_account_get_username(account),
+								   friendname, who,	message);
 		msn_oim_send_msg(oim);
 	}
 	return 1;
