@@ -1,0 +1,9 @@
+Makefile
+Makefile.in
+.*.swp
+.deps
+.libs
+*.dll
+*.la
+*.lo
+music-messaging-bindings.c

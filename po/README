@@ -1,0 +1,54 @@
+Translation README
+
+Updated: 04-October-2003
+------------------
+
+Translated .po files may be submitted in whatever native encoding is
+most convenient (and hopefully canonical).  Please ensure that the
+Content-type: line reflects the proper character set.
+
+
+
+Updated: 19-April-2003
+------------------
+
+To supply a new translation, you first need a copy of gaim.pot.
+This can be built by typing:
+
+./update.pl --pot
+
+from the gaim/po/ directory.
+
+To update an exsting translation, type:
+
+./update.pl LANG
+
+where LANG is the language code to update, such as fr or ja. This will build
+a new gaim.pot and update the translation with the changes. You may then
+begin editing the updated file.
+
+New or updated translations should be sent to the gaim-devel listserv
+(see http://lists.sourceforge.net/lists/listinfo/gaim-devel)
+
+Please check your translations carefully. Make sure you have the same
+number of newlines and %s or other formatting codes in the translation as
+you have in the original.
+
+
+
+Updated: 05-August-2003
+------------------
+
+Before submitting updated or new translations, please run the following 
+command to ensure the file does not contain errors:
+> msgfmt -c --statistics xx.po
+
+The comments at the top of each .po file should appear as follows:
+# Gaim Xxxxx translation
+# Copyright (C) 2002, Another Name <email@something.com>
+# Copyright (C) 2003, Your Name <email@whatever.com>
+#
+# This file is distributed under the same license as the Gaim package.
+#
+
+Thank you for flying Valu-Jet.
