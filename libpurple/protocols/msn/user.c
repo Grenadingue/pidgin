@@ -102,7 +102,7 @@ msn_user_update(MsnUser *user)
 		                          "message", user->statusline, NULL);
 	} else if (user->status != NULL) {
 		if (!strcmp(user->status, "offline") && user->mobile) {
-			purple_prpl_got_user_status(account, user->passport, "available", NULL);
+			purple_prpl_got_user_status(account, user->passport, "offline", NULL);
 			purple_prpl_got_user_status(account, user->passport, "mobile", NULL);
 		} else {
 			purple_prpl_got_user_status(account, user->passport, user->status, NULL);

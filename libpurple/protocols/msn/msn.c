@@ -389,6 +389,15 @@ show_send_to_mobile_cb(PurpleBlistNode *node, gpointer ignored)
 					   data);
 }
 
+static gboolean
+msn_offline_message(const PurpleBuddy *buddy) {
+	MsnUser *user;
+	if (buddy == NULL)
+		return FALSE;
+	user = buddy->proto_data;
+	return user && user->mobile;
+}
+
 static void
 initiate_chat_cb(PurpleBlistNode *node, gpointer data)
 {
@@ -2188,7 +2197,7 @@ static PurplePluginProtocolInfo prpl_info =
 	msn_can_receive_file,	/* can_receive_file */
 	msn_send_file,			/* send_file */
 	msn_new_xfer,			/* new_xfer */
-	NULL,					/* offline_message */
+	msn_offline_message,			/* offline_message */
 	NULL,					/* whiteboard_prpl_ops */
 	NULL,					/* send_raw */
 	NULL,					/* roomlist_room_serialize */
