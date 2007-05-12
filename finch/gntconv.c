@@ -57,6 +57,9 @@
 
 #include "config.h"
 
+static void finch_write_common(PurpleConversation *conv, const char *who,
+		const char *message, PurpleMessageFlags flags, time_t mtime);
+
 static void
 send_typing_notification(GntWidget *w, FinchConv *ggconv)
 {
@@ -268,6 +271,13 @@ update_buddy_typing(PurpleAccount *account, const char *who, gpointer null)
 	g_free(title);
 }
 
+static void
+chat_left_cb(PurpleConversation *conv, gpointer null)
+{
+	finch_write_common(conv, NULL, _("You have left this chat."),
+			PURPLE_MESSAGE_SYSTEM, time(NULL));
+}
+
 static gpointer
 finch_conv_get_handle()
 {
@@ -303,6 +313,11 @@ static void
 get_info_cb(GntMenuItem *item, gpointer ggconv)
 {
 	FinchConv *ggc = ggconv;
+	PurpleNotifyUserInfo *info = purple_notify_user_info_new();
+	purple_notify_user_info_add_pair(info, _("Information"), _("Retrieving..."));
+	purple_notify_userinfo(ggc->active_conv->account->gc, purple_conversation_get_name(ggc->active_conv), info, NULL, NULL);
+	purple_notify_user_info_destroy(info);
+
 	serv_get_info(purple_conversation_get_gc(ggc->active_conv),
 			purple_conversation_get_name(ggc->active_conv));
 }
@@ -396,17 +411,26 @@ gg_create_menu(FinchConv *ggc)
 	gnt_menuitem_set_callback(item, toggle_timestamps_cb, ggc);
 
 	if (purple_conversation_get_type(ggc->active_conv) == PURPLE_CONV_TYPE_IM) {
-		item = gnt_menuitem_new(_("Send File"));
-		gnt_menu_add_item(GNT_MENU(sub), item);
-		gnt_menuitem_set_callback(item, send_file_cb, ggc);
+		PurpleAccount *account = purple_conversation_get_account(ggc->active_conv);
+		PurplePluginProtocolInfo *pinfo = account->gc ? PURPLE_PLUGIN_PROTOCOL_INFO(account->gc->prpl) : NULL;
+
+		if (pinfo && pinfo->get_info) {
+			item = gnt_menuitem_new(_("Get Info"));
+			gnt_menu_add_item(GNT_MENU(sub), item);
+			gnt_menuitem_set_callback(item, get_info_cb, ggc);
+		}
 
 		item = gnt_menuitem_new(_("Add Buddy Pounce..."));
 		gnt_menu_add_item(GNT_MENU(sub), item);
 		gnt_menuitem_set_callback(item, add_pounce_cb, ggc);
 
-		item = gnt_menuitem_new(_("Get Info"));
-		gnt_menu_add_item(GNT_MENU(sub), item);
-		gnt_menuitem_set_callback(item, get_info_cb, ggc);
+		if (pinfo && pinfo->send_file &&
+				(!pinfo->can_receive_file ||
+				 	pinfo->can_receive_file(account->gc, purple_conversation_get_name(ggc->active_conv)))) {
+			item = gnt_menuitem_new(_("Send File"));
+			gnt_menu_add_item(GNT_MENU(sub), item);
+			gnt_menuitem_set_callback(item, send_file_cb, ggc);
+		}
 
 		generate_send_to_menu(ggc);
 	}
@@ -505,10 +529,6 @@ finch_create_conversation(PurpleConversation *conv)
 
 	if (type == PURPLE_CONV_TYPE_IM) {
 		g_signal_connect(G_OBJECT(ggc->entry), "text_changed", G_CALLBACK(send_typing_notification), ggc);
-		purple_signal_connect(purple_conversations_get_handle(), "buddy-typing", finch_conv_get_handle(),
-						PURPLE_CALLBACK(update_buddy_typing), NULL);
-		purple_signal_connect(purple_conversations_get_handle(), "buddy-typing-stopped", finch_conv_get_handle(),
-						PURPLE_CALLBACK(update_buddy_typing), NULL);
 	}
 
 	g_free(title);
@@ -789,7 +809,7 @@ debug_command_cb(PurpleConversation *conv,
 	PurpleCmdStatus status;
 
 	if (!g_ascii_strcasecmp(args[0], "version")) {
-		tmp = g_strdup_printf("me is using %s.", VERSION);
+		tmp = g_strdup_printf("me is using Finch v%s.", VERSION);
 		markup = g_markup_escape_text(tmp, -1);
 
 		status = purple_cmd_do_command(conv, tmp, markup, error);
@@ -930,10 +950,18 @@ void finch_conversation_init()
 	purple_cmd_register("status", "", PURPLE_CMD_P_DEFAULT,
 	                  PURPLE_CMD_FLAG_CHAT | PURPLE_CMD_FLAG_IM, NULL,
 	                  cmd_show_window, _("statuses: Show the savedstatuses window."), finch_savedstatus_show_all);
+
+	purple_signal_connect(purple_conversations_get_handle(), "buddy-typing", finch_conv_get_handle(),
+					PURPLE_CALLBACK(update_buddy_typing), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "buddy-typing-stopped", finch_conv_get_handle(),
+					PURPLE_CALLBACK(update_buddy_typing), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-left", finch_conv_get_handle(),
+					PURPLE_CALLBACK(chat_left_cb), NULL);
 }
 
 void finch_conversation_uninit()
 {
+	purple_signals_disconnect_by_handle(finch_conv_get_handle());
 }
 
 void finch_conversation_set_active(PurpleConversation *conv)
