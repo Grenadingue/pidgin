@@ -158,7 +158,9 @@ void
 msn_xfer_completed_cb(MsnSlpCall *slpcall, const guchar *body,
 					  gsize size)
 {
-	purple_xfer_set_completed(slpcall->xfer, TRUE);
+	PurpleXfer *xfer = slpcall->xfer;
+	purple_xfer_set_completed(xfer, TRUE);
+	purple_xfer_end(xfer);
 }
 
 /**************************************************************************
@@ -955,7 +957,7 @@ msn_queue_buddy_icon_request(MsnUser *user)
 
 	if (obj == NULL)
 	{
-		/* TODO purple_buddy_icons_set_for_user(account, user->passport, NULL, 0, NULL); */
+		purple_buddy_icons_set_for_user(account, user->passport, NULL, 0, NULL);
 		return;
 	}
 

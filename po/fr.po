@@ -5125,7 +5125,7 @@ msgid ""
 "%s on the local list is inside the group \"%s\" but not on the server list. "
 "Do you want this buddy to be added?"
 msgstr ""
-"%s est dans le groupe « %s » sur la liste locale mais pas pas sur le "
+"%s est dans le groupe « %s » sur la liste locale mais pas sur le "
 "serveur. Voulez-vous ajouter ce contact ?"
 
 #: ../libpurple/protocols/msn/dialog.c:124
@@ -5134,7 +5134,7 @@ msgid ""
 "%s is on the local list but not on the server list. Do you want this buddy "
 "to be added?"
 msgstr ""
-"%s est sur la liste locale mais pas pas sur le serveur. Voulez-vous ajouter "
+"%s est sur la liste locale mais pas sur le serveur. Voulez-vous ajouter "
 "ce contact ?"
 
 #: ../libpurple/protocols/msn/error.c:36
@@ -12795,8 +12795,8 @@ msgstr ""
 "<BR><BR>"
 
 #: ../pidgin/gtkdialogs.c:374
-msgid "<FONT SIZE=\"4\">IRC:</FONT> #pidgwin on irc.freenode.net<BR><BR>"
-msgstr "<FONT SIZE=\"4\">IRC :</FONT> #pidgwin sur irc.freenode.net<BR><BR>"
+msgid "<FONT SIZE=\"4\">IRC:</FONT> #pidgin-win32 on irc.freenode.net<BR><BR>"
+msgstr "<FONT SIZE=\"4\">IRC :</FONT> #pidgin-win32 sur irc.freenode.net<BR><BR>"
 
 #: ../pidgin/gtkdialogs.c:377
 msgid "<FONT SIZE=\"4\">IRC:</FONT> #pidgin on irc.freenode.net<BR><BR>"
