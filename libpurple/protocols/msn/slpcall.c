@@ -103,6 +103,9 @@ msn_slp_call_destroy(MsnSlpCall *slpcall)
 	if (slpcall->end_cb != NULL)
 		slpcall->end_cb(slpcall, session);
 
+	if (slpcall->xfer != NULL)
+		purple_xfer_unref(slpcall->xfer);
+
 	g_free(slpcall);
 }
 

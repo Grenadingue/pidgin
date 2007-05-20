@@ -365,6 +365,8 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 			purple_xfer_set_cancel_recv_fnc(xfer, msn_xfer_cancel);
 
 			slpcall->xfer = xfer;
+			purple_xfer_ref(slpcall->xfer);
+
 			xfer->data = slpcall;
 
 			purple_xfer_request(xfer);
