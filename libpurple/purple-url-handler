@@ -1,0 +1,57 @@
+#!/usr/bin/python
+
+import dbus
+import re
+import sys
+import time
+import urllib
+
+obj = dbus.SessionBus().get_object("im.pidgin.purple.PurpleService", "/im/pidgin/purple/PurpleObject")
+purple = dbus.Interface(obj, "im.pidgin.purple.PurpleInterface")
+
+class CheckedObject:
+    def __init__(self, obj):
+        self.obj = obj
+
+    def __getattr__(self, attr):
+        return CheckedAttribute(self, attr)
+
+class CheckedAttribute:
+    def __init__(self, cobj, attr):
+        self.cobj = cobj
+        self.attr = attr
+
+    def __call__(self, *args):
+        # Redirect stderr to suppress the printing of an " Introspect error"
+        # message if nothing is listening on the bus.  We print a friendly
+        # error message ourselves.
+        real_stderr = sys.stderr
+        sys.stderr = None
+        result = self.cobj.obj.__getattr__(self.attr)(*args)
+        sys.stderr = real_stderr
+
+# This can be useful for debugging.
+#        if (result == 0):
+#            print "Error: " + self.attr + " " + str(args) + " returned " + str(result)
+
+        return result
+
+cpurple = CheckedObject(purple)
+
+def main(argv=sys.argv):
+    if len(argv) != 2:
+        print "Usage: %s URI" % argv[0]
+        print "Example: %s \"xmpp:romeo@montague.net?message\"" % argv[0]
+        return
+
+    uri = argv[1]
+
+    print uri
+    try:
+        cpurple.PurpleGotProtocolHandlerUri(uri)
+    except dbus.dbus_bindings.DBusException:
+        print "ERROR: Is there a libpurple-powered client (e.g. Pidgin or Finch) running?"
+
+
+if __name__ == "__main__":
+    main()
