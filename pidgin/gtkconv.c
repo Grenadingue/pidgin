@@ -235,6 +235,10 @@ size_allocate_cb(GtkWidget *w, GtkAllocation *allocation, PidginConversation *gt
 		return FALSE;
 	}
 
+	if (gdk_window_get_state(gtkconv->win->window->window) & GDK_WINDOW_STATE_MAXIMIZED) {
+		return FALSE;
+	}
+
 	/* I find that I resize the window when it has a bunch of conversations in it, mostly so that the
 	 * tab bar will fit, but then I don't want new windows taking up the entire screen.  I check to see
 	 * if there is only one conversation in the window.  This way we'll be setting new windows to the
@@ -6951,6 +6955,9 @@ pidgin_conversations_init(void)
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/tab_side", GTK_POS_TOP);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/scrollback_lines", 4000);
 
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/use_theme_font", TRUE);
+	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/custom_font", "");
+
 	/* Conversations -> Chat */
 	purple_prefs_add_none(PIDGIN_PREFS_ROOT "/conversations/chat");
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/chat/default_width", 410);
@@ -7919,7 +7926,9 @@ alias_double_click_cb(GtkNotebook *notebook, GdkEventButton *event, PidginConver
 	entry = gtk_entry_new();
 	gtk_entry_set_has_frame(GTK_ENTRY(entry), FALSE);
 	gtk_entry_set_width_chars(GTK_ENTRY(entry), 10);
+#if GTK_CHECK_VERSION(2,4,0)
 	gtk_entry_set_alignment(GTK_ENTRY(entry), 0.5);
+#endif
 
 	gtk_box_pack_start(GTK_BOX(gtkconv->tabby), entry, TRUE, TRUE, 0);
 	/* after the tab label */
@@ -8326,7 +8335,9 @@ pidgin_conv_tab_pack(PidginWindow *win, PidginConversation *gtkconv)
 	}
 
 	ebox = gtk_event_box_new();
+#if GTK_CHECK_VERSION(2,4,0)
 	gtk_event_box_set_visible_window(GTK_EVENT_BOX(ebox), FALSE);
+#endif
 	gtk_container_add(GTK_CONTAINER(ebox), gtkconv->tabby);
 	g_signal_connect(G_OBJECT(ebox), "button-press-event",
 					G_CALLBACK(alias_double_click_cb), gtkconv);
