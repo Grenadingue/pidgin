@@ -1598,10 +1598,7 @@ purple_markup_html_to_xhtml(const char *html, char **xhtml_out,
 					pt->dest_tag = "span";
 					tags = g_list_prepend(tags, pt);
 					if(style->len)
-					{
-						if(xhtml)
-							g_string_append_printf(xhtml, "<span style='%s'>", g_strstrip(style->str));
-					}
+						g_string_append_printf(xhtml, "<span style='%s'>", g_strstrip(style->str));
 					else
 						pt->ignore = TRUE;
 					g_string_free(style, TRUE);
