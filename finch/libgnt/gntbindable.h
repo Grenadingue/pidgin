@@ -28,7 +28,6 @@
 #include <glib-object.h>
 #include <ncurses.h>
 
-
 #define GNT_TYPE_BINDABLE				(gnt_bindable_get_gtype())
 #define GNT_BINDABLE(obj)				(G_TYPE_CHECK_INSTANCE_CAST((obj), GNT_TYPE_BINDABLE, GntBindable))
 #define GNT_BINDABLE_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST((klass), GNT_TYPE_BINDABLE, GntBindableClass))

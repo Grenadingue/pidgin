@@ -690,6 +690,7 @@ Section Uninstall
     Delete "$INSTDIR\plugins\iconaway.dll"
     Delete "$INSTDIR\plugins\idle.dll"
     Delete "$INSTDIR\plugins\libaim.dll"
+    Delete "$INSTDIR\plugins\libbonjour.dll"
     Delete "$INSTDIR\plugins\libgg.dll"
     Delete "$INSTDIR\plugins\libicq.dll"
     Delete "$INSTDIR\plugins\libirc.dll"
@@ -1067,6 +1068,7 @@ Function DoWeNeedGtk
 
   have_gtk:
     ; GTK+ is already installed; check version.
+	; Change this to not even run the GTK installer if this version is already installed.
     ${VersionCompare} ${GTK_INSTALL_VERSION} $0 $3
     IntCmp $3 1 +1 good_version good_version
     ${VersionCompare} ${GTK_MIN_VERSION} $0 $3

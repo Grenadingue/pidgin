@@ -4386,7 +4386,7 @@ oscar_set_extendedstatus(PurpleConnection *gc)
 	if (purple_account_get_bool(account, "web_aware", OSCAR_DEFAULT_WEB_AWARE))
 		data |= AIM_ICQ_STATE_WEBAWARE;
 
-	if (!strcmp(status_id, OSCAR_STATUS_ID_AVAILABLE) || !strcmp(status_id, OSCAR_STATUS_ID_AVAILABLE))
+	if (!strcmp(status_id, OSCAR_STATUS_ID_AVAILABLE))
 		data |= AIM_ICQ_STATE_NORMAL;
 	else if (!strcmp(status_id, OSCAR_STATUS_ID_AWAY))
 		data |= AIM_ICQ_STATE_AWAY;
@@ -6493,7 +6493,7 @@ static PurpleAccount *find_acct(const char *prpl, const char *acct_id)
 		if (acct && !purple_account_is_connected(acct))
 			acct = NULL;
 	} else { /* Otherwise find an active account for the protocol */
-		GList *l = purple_accounts_get_all();
+		const GList *l = purple_accounts_get_all();
 		while (l) {
 			if (!strcmp(prpl, purple_account_get_protocol_id(l->data))
 					&& purple_account_is_connected(l->data)) {

@@ -43,6 +43,7 @@ void gnt_main(void);
  */
 gboolean gnt_ascii_only(void);
 
+void gnt_window_present(GntWidget *window);
 /**
  * 
  * @param widget
@@ -137,4 +138,3 @@ gchar * gnt_get_clipboard_string(void);
  * @param string
  */
 void gnt_set_clipboard_string(gchar *string);
-

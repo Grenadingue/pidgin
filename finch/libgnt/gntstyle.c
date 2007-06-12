@@ -23,13 +23,21 @@
 #include "gntstyle.h"
 #include "gntcolors.h"
 
+#include "gntws.h"
+
+#include <glib.h>
 #include <ctype.h>
+#include <glib/gprintf.h>
+#include <stdlib.h>
 #include <string.h>
+
+#define MAX_WORKSPACES 99
 
 #if GLIB_CHECK_VERSION(2,6,0)
 static GKeyFile *gkfile;
 #endif
 
+static GHashTable *unknowns;
 static char * str_styles[GNT_STYLES];
 static int int_styles[GNT_STYLES];
 static int bool_styles[GNT_STYLES];
@@ -37,6 +45,11 @@ static int bool_styles[GNT_STYLES];
 const char *gnt_style_get(GntStyle style)
 {
 	return str_styles[style];
+}
+
+const char *gnt_style_get_from_name(const char *name)
+{
+	return g_hash_table_lookup(unknowns, name);
 }
 
 gboolean gnt_style_get_bool(GntStyle style, gboolean def)
@@ -109,6 +122,45 @@ parse_key(const char *key)
 	return (char *)gnt_key_translate(key);
 }
 
+void gnt_style_read_workspaces(GntWM *wm)
+{
+#if GLIB_CHECK_VERSION(2,6,0)
+	int i;
+	gchar *name;
+	gsize c;
+
+	for (i = 1; i < MAX_WORKSPACES; ++i) {
+		int j;
+		GntWS *ws;
+		gchar **titles;
+		char *group = calloc(12, 1);
+		g_sprintf(group, "Workspace-%d", i);
+		name = g_key_file_get_value(gkfile, group, "name", NULL);
+		if (!name)
+			return;
+
+		ws = g_object_new(GNT_TYPE_WS, NULL);
+		gnt_ws_set_name(ws, name);
+		gnt_wm_add_workspace(wm, ws);
+		g_free(name);
+
+		titles = g_key_file_get_string_list(gkfile, group, "window-names", &c, NULL);
+		if (titles) {
+			for (j = 0; j < c; ++j)
+				g_hash_table_replace(wm->name_places, g_strdup(titles[j]), ws);
+			g_strfreev(titles);
+		}
+
+		titles = g_key_file_get_string_list(gkfile, group, "window-titles", &c, NULL);
+		if (titles) {
+			for (j = 0; j < c; ++j)
+				g_hash_table_replace(wm->title_places, g_strdup(titles[j]), ws);
+			g_strfreev(titles);
+		}
+		g_free(group);
+	}
+#endif
+}
 void gnt_style_read_actions(GType type, GntBindableClass *klass)
 {
 #if GLIB_CHECK_VERSION(2,6,0)
@@ -243,6 +295,9 @@ read_general_style(GKeyFile *kfile)
 			str_styles[styles[i].en] =
 					g_key_file_get_string(kfile, "general", styles[i].style, NULL);
 		}
+		for (i = 0; i < nkeys; i++)
+			g_hash_table_replace(unknowns, g_strdup(keys[i]),
+					g_strdup(g_key_file_get_string(kfile, "general", keys[i], NULL)));
 	}
 	g_strfreev(keys);
 }
@@ -253,6 +308,7 @@ void gnt_style_read_configure_file(const char *filename)
 #if GLIB_CHECK_VERSION(2,6,0)
 	GError *error = NULL;
 	gkfile = g_key_file_new();
+	unknowns = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 
 	if (!g_key_file_load_from_file(gkfile, filename, G_KEY_FILE_NONE, &error))
 	{
