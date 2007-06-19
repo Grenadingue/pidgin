@@ -413,7 +413,7 @@ add_status_to_saved_status_list(GtkListStore *model, PurpleSavedStatus *saved_st
 static void
 populate_saved_status_list(StatusWindow *dialog)
 {
-	const GList *saved_statuses;
+	GList *saved_statuses;
 
 	gtk_list_store_clear(dialog->model);
 
@@ -1065,7 +1065,7 @@ status_editor_add_account(StatusEditor *dialog, PurpleAccount *account,
 static void
 status_editor_populate_list(StatusEditor *dialog, PurpleSavedStatus *saved_status)
 {
-	const GList *iter;
+	GList *iter;
 	PurpleSavedStatusSub *substatus;
 
 	gtk_list_store_clear(dialog->model);
@@ -1446,7 +1446,7 @@ edit_substatus(StatusEditor *status_editor, PurpleAccount *account)
 	GtkTreeIter iter;
 	GtkCellRenderer *rend;
 	const char *status_id = NULL;
-	const GList *list;
+	GList *list;
 	gboolean select = FALSE;
 
 	g_return_if_fail(status_editor != NULL);

@@ -161,9 +161,9 @@ void purple_savedstatus_delete_by_status(PurpleSavedStatus *saved_status);
 /**
  * Returns all saved statuses.
  *
- * @return A list of saved statuses.
+ * @constreturn A list of saved statuses.
  */
-const GList *purple_savedstatuses_get_all(void);
+GList *purple_savedstatuses_get_all(void);
 
 /**
  * Returns the n most popular saved statuses.  "Popularity" is
