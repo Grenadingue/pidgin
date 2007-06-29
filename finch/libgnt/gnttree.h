@@ -1,4 +1,8 @@
 /**
+ * @file gnttree.h Tree API
+ * @ingroup gnt
+ */
+/*
  * GNT - The GLib Ncurses Toolkit
  *
  * GNT is the legal property of its developers, whose names are too numerous
@@ -296,6 +300,15 @@ GntTreeRow * gnt_tree_create_row_from_list(GntTree *tree, GList *list);
  * @param width
  */
 void gnt_tree_set_col_width(GntTree *tree, int col, int width);
+
+/**
+ * Set the title for a column.
+ *
+ * @param tree   The tree
+ * @param index  The index of the column
+ * @param title  The title for the column
+ */
+void gnt_tree_set_column_title(GntTree *tree, int index, const char *title);
 
 /**
  * 
