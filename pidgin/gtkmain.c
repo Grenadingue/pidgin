@@ -127,7 +127,7 @@ dologin_named(const char *name)
 		}
 		g_strfreev(names);
 	} else { /* no name given, use the first account */
-		const GList *accounts;
+		GList *accounts;
 
 		accounts = purple_accounts_get_all();
 		if (accounts != NULL)
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
 	char *opt_session_arg = NULL;
 	int dologin_ret = -1;
 	char *search_path;
-	const GList *accounts;
+	GList *accounts;
 #ifdef HAVE_SIGNAL_H
 	int sig_indx;	/* for setting up signal catching */
 	sigset_t sigset;
