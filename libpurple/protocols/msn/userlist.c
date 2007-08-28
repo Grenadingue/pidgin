@@ -460,6 +460,7 @@ msn_userlist_find_user(MsnUserList *userlist, const char *passport)
 	for (l = userlist->users; l != NULL; l = l->next)
 	{
 		MsnUser *user = (MsnUser *)l->data;
+
 //		purple_debug_info("MsnUserList","user passport:%s,passport:%s\n",user->passport,passport);
 		g_return_val_if_fail(user->passport != NULL, NULL);
 
@@ -476,7 +477,6 @@ void
 msn_userlist_add_group(MsnUserList *userlist, MsnGroup *group)
 {
 	userlist->groups = g_list_append(userlist->groups, group);
-	
 }
 
 void

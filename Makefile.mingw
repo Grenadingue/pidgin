@@ -51,6 +51,7 @@ EXTERNAL_DLLS = \
 	silc.dll \
 	silcclient.dll \
 	softokn3.dll \
+	smime3.dll \
 	ssl3.dll
 
 #build an expression for `find` to use to ignore the above files
@@ -67,6 +68,7 @@ install: all $(PIDGIN_INSTALL_DIR)
 	$(MAKE) -C $(PURPLE_TOP) -f $(MINGW_MAKEFILE) install
 	$(MAKE) -C $(PIDGIN_TOP) -f $(MINGW_MAKEFILE) install
 	$(MAKE) -C $(PURPLE_PO_TOP) -f $(MINGW_MAKEFILE) install
+	$(MAKE) -C share -f $(MINGW_MAKEFILE) install
 
 create_release_install_dir: install
 	rm -rf $(PIDGIN_INSTALL_DIR).release
