@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
 /* this file should be all that prpls need to include. therefore, by including
@@ -357,7 +357,7 @@ struct _PurplePluginProtocolInfo
 	gboolean (*send_attention)(PurpleConnection *gc, const char *username, guint type);
 	GList *(*attention_types)(PurpleAccount *acct);
 
-	void (*_purple_reserved3)(void);
+	void (*_purple_reserved1)(void);
 };
 
 #define PURPLE_IS_PROTOCOL_PLUGIN(plugin) \

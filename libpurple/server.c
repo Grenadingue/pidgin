@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
 
@@ -272,6 +272,7 @@ serv_send_attention(PurpleConnection *gc, const char *who, guint type_code)
 	PurpleAttentionType *attn;
 	PurpleMessageFlags flags;
 	PurplePlugin *prpl;
+	PurpleConversation *conv;
 	gboolean (*send_attention)(PurpleConnection *, const char *, guint);
 	
 	gchar *description;
@@ -302,8 +303,8 @@ serv_send_attention(PurpleConnection *gc, const char *who, guint type_code)
 	if (!send_attention(gc, who, type_code))
 		return;
 
-	/* TODO: icons, sound, shaking... same as serv_got_attention(). */
-	serv_got_im(gc, who, description, flags, mtime);
+	conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, gc->account, who);
+	purple_conv_im_write(PURPLE_CONV_IM(conv), NULL, description, flags, mtime);
 
 	g_free(description);
 }

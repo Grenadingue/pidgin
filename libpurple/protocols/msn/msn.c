@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 #define PHOTO_SUPPORT 1
 
@@ -2138,6 +2138,7 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* whiteboard_prpl_ops */
 	NULL,					/* send_raw */
 	NULL,					/* roomlist_room_serialize */
+	NULL,					/* unregister_user */
 
 #ifdef MSN_USE_ATTENTION_API
 	msn_send_attention,                     /* send_attention */
@@ -2147,7 +2148,6 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,
 	NULL,
 #endif
-	NULL,
 	NULL
 };
 
