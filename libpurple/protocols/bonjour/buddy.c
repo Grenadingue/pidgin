@@ -11,14 +11,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301, USA.
  */
 
 #include <glib.h>
 #include <stdlib.h>
 
 #include "internal.h"
-#include "cipher.h"
 #include "buddy.h"
 #include "account.h"
 #include "blist.h"
@@ -122,9 +121,8 @@ bonjour_buddy_check(BonjourBuddy *buddy)
  * the buddy.
  */
 void
-bonjour_buddy_add_to_purple(BonjourBuddy *bonjour_buddy)
+bonjour_buddy_add_to_purple(BonjourBuddy *bonjour_buddy, PurpleBuddy *buddy)
 {
-	PurpleBuddy *buddy;
 	PurpleGroup *group;
 	PurpleAccount *account = bonjour_buddy->account;
 	const char *status_id, *old_hash, *new_hash;
@@ -148,7 +146,8 @@ bonjour_buddy_add_to_purple(BonjourBuddy *bonjour_buddy)
 	}
 
 	/* Make sure the buddy exists in our buddy list */
-	buddy = purple_find_buddy(account, bonjour_buddy->name);
+	if (buddy == NULL)
+		buddy = purple_find_buddy(account, bonjour_buddy->name);
 
 	if (buddy == NULL) {
 		buddy = purple_buddy_new(account, bonjour_buddy->name, NULL);
@@ -204,23 +203,21 @@ bonjour_buddy_add_to_purple(BonjourBuddy *bonjour_buddy)
  */
 void bonjour_buddy_got_buddy_icon(BonjourBuddy *buddy, gconstpointer data, gsize len) {
 	/* Recalculate the hash instead of using the current phsh to make sure it is accurate for the icon. */
-	int i;
-	gchar *enc;
-	char *p, hash[41];
-	unsigned char hashval[20];
+	char *p, *hash;
 
 	if (data == NULL || len == 0)
 		return;
 
-	enc = purple_base64_encode(data, len);
+	/* Take advantage of the fact that we use a SHA-1 hash of the data as the filename. */
+	hash = purple_util_get_image_filename(data, len);
 
-	purple_cipher_digest_region("sha1", data,
-				    len, sizeof(hashval),
-				    hashval, NULL);
+	/* Get rid of the extension */
+	if (!(p = strchr(hash, '.'))) {
+		g_free(hash);
+		return;
+	}
 
-	p = hash;
-	for(i=0; i<20; i++, p+=2)
-		snprintf(p, 3, "%02x", hashval[i]);
+	*p = '\0';
 
 	purple_debug_info("bonjour", "Got buddy icon for %s icon hash='%s' phsh='%s'.\n", buddy->name,
 			  hash, buddy->phsh ? buddy->phsh : "(null)");
@@ -228,7 +225,7 @@ void bonjour_buddy_got_buddy_icon(BonjourBuddy *buddy, gconstpointer data, gsize
 	purple_buddy_icons_set_for_user(buddy->account, buddy->name,
 		g_memdup(data, len), len, hash);
 
-	g_free(enc);
+	g_free(hash);
 }
 
 /**
