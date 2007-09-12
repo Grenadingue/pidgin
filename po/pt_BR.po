@@ -11386,7 +11386,7 @@ msgid "Activate which ID?"
 msgstr "Ativar qual ID?"
 
 #: ../libpurple/protocols/yahoo/yahoo.c:3345
-msgid "Join who in chat?"
+msgid "Join whom in chat?"
 msgstr "Juntar-se a quem no bate-papo?"
 
 #: ../libpurple/protocols/yahoo/yahoo.c:3357
@@ -14207,7 +14207,7 @@ msgstr ""
 "Favor especificar o que você estava fazendo na hora em que o erro ocorreu\n"
 "e enviar o backtrace do arquivo de core.  Se você não sabe\n"
 "como obter o backtrace, favor ler as instruções em\n"
-"%swiki/GetABackTrace\n"
+"%swiki/GetABacktrace\n"
 "\n"
 "Se você precisa de assistência adicional, mande uma mensagem instantânea\n"
 "para o SeanEgn ou o LSchiere (via AIM e em inglês).  Informações de contato\n"

@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
 #include "internal.h"
@@ -240,7 +240,7 @@ pidgin_prefs_dropdown_from_list(GtkWidget *box, const gchar *title,
 
 	if (label != NULL) {
 		gtk_label_set_mnemonic_widget(GTK_LABEL(label), dropdown);
-		pidgin_set_accessible_label (dropdown, label);
+		pidgin_set_accessible_relations (dropdown, label);
 	}
 
 	if (type == PURPLE_PREF_INT)
@@ -888,7 +888,7 @@ interface_page()
 
 	ret = gtk_vbox_new(FALSE, PIDGIN_HIG_CAT_SPACE);
 	gtk_container_set_border_width(GTK_CONTAINER(ret), PIDGIN_HIG_BORDER);
-	
+
 	sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
 	vbox = pidgin_make_frame(ret, _("System Tray Icon"));
@@ -900,7 +900,7 @@ interface_page()
 					NULL);
 	gtk_size_group_add_widget(sg, label);
         gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-	
+
 	vbox = pidgin_make_frame(ret, _("Conversation Window Hiding"));
 	label = pidgin_prefs_dropdown(vbox, _("_Hide new IM conversations:"),
 					PURPLE_PREF_STRING, PIDGIN_PREFS_ROOT "/conversations/im/hide_new",
@@ -910,11 +910,11 @@ interface_page()
 					NULL);
 	gtk_size_group_add_widget(sg, label);
         gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-			
+
 
 	/* All the tab options! */
 	vbox = pidgin_make_frame(ret, _("Tabs"));
-	
+
 	pidgin_prefs_checkbox(_("Show IMs and chats in _tabbed windows"),
 							PIDGIN_PREFS_ROOT "/conversations/tabs", vbox);
 
@@ -945,12 +945,12 @@ interface_page()
 					NULL);
 	gtk_size_group_add_widget(sg, label);
         gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-		
+
 	names = pidgin_conv_placement_get_options();
 	label = pidgin_prefs_dropdown_from_list(vbox2, _("N_ew conversations:"),
 				PURPLE_PREF_STRING, PIDGIN_PREFS_ROOT "/conversations/placement", names);
 	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-			
+
 	gtk_size_group_add_widget(sg, label);
 
 	g_list_free(names);
@@ -1037,12 +1037,14 @@ conv_page()
 		gtk_widget_set_sensitive(hbox, FALSE);
 	g_signal_connect(G_OBJECT(fontpref), "clicked", G_CALLBACK(pidgin_toggle_sensitive), hbox);
 	g_signal_connect(G_OBJECT(font_button), "font-set", G_CALLBACK(pidgin_custom_font_set), NULL);
+	gtk_widget_show_all(hbox);
 #endif
 
 	vbox = pidgin_make_frame(ret, _("Default Formatting"));
 	gtk_box_set_child_packing(GTK_BOX(vbox->parent), vbox, TRUE, TRUE, 0, GTK_PACK_START);
 
 	frame = pidgin_create_imhtml(TRUE, &imhtml, &toolbar, NULL);
+	gtk_widget_show(frame);
 	gtk_widget_set_name(imhtml, "pidgin_prefs_font_imhtml");
 	gtk_widget_set_size_request(frame, 300, -1);
 	gtk_imhtml_set_whole_buffer_formatting_only(GTK_IMHTML(imhtml), TRUE);
@@ -1069,7 +1071,7 @@ conv_page()
 					 G_CALLBACK(formatting_clear_cb), NULL);
 
 
-	gtk_widget_show_all(ret);
+	gtk_widget_show(ret);
 
 	return ret;
 }
@@ -1509,6 +1511,7 @@ sound_changed2_cb(const char *name, PurplePrefType type,
 
 	gtk_widget_set_sensitive(vbox, strcmp(method, "none"));
 }
+#endif /* !_WIN32 */
 
 #ifdef USE_GSTREAMER
 static void
@@ -1523,7 +1526,6 @@ sound_changed3_cb(const char *name, PurplePrefType type,
 			!strcmp(method, "esd"));
 }
 #endif /* USE_GSTREAMER */
-#endif /* !_WIN32 */
 
 
 static void
@@ -1621,7 +1623,7 @@ static void select_sound(GtkWidget *button, gpointer being_NULL_is_fun)
 		filename = NULL;
 
 	purple_request_file(prefs, _("Sound Selection"), filename, FALSE,
-					  G_CALLBACK(sound_chosen_cb), NULL, 
+					  G_CALLBACK(sound_chosen_cb), NULL,
 					  NULL, NULL, NULL, "preferences",
 					  GINT_TO_POINTER(sound_row_sel));
 }
@@ -1692,9 +1694,11 @@ sound_page()
 	int j;
 	const char *file;
 	char *pref;
+#if !defined _WIN32 || defined USE_GSTREAMER
+	GtkWidget *label;
+#endif
 #ifndef _WIN32
 	GtkWidget *dd;
-	GtkWidget *label;
 	GtkWidget *entry;
 	const char *cmd;
 #endif
@@ -2011,7 +2015,7 @@ away_page()
 	return ret;
 }
 
-static int 
+static int
 prefs_notebook_add_page(const char *text,
   		        GtkWidget *page,
 			int ind) {
@@ -2165,6 +2169,8 @@ pidgin_prefs_init(void)
 	/* Smiley Callbacks */
 	purple_prefs_connect_callback(prefs, PIDGIN_PREFS_ROOT "/smileys/theme",
 								smiley_theme_pref_cb, NULL);
+
+	pidgin_prefs_update_old();
 }
 
 void pidgin_prefs_update_old()

@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 #ifndef _PURPLE_REQUEST_H_
 #define _PURPLE_REQUEST_H_
@@ -190,13 +190,13 @@ typedef struct
 						   PurpleAccount *account, const char *who, PurpleConversation *conv,
 						   const char *ui_hint, void *user_data);
 	void *(*request_choice)(const char *title, const char *primary,
-							const char *secondary, unsigned int default_value,
+							const char *secondary, int default_value,
 							const char *ok_text, GCallback ok_cb,
 							const char *cancel_text, GCallback cancel_cb,
 							PurpleAccount *account, const char *who, PurpleConversation *conv,
 							const char *ui_hint, void *user_data, va_list choices);
 	void *(*request_action)(const char *title, const char *primary,
-							const char *secondary, unsigned int default_action,
+							const char *secondary, int default_action,
 							PurpleAccount *account, const char *who, PurpleConversation *conv,
 							const char *ui_hint, void *user_data, size_t action_count,
 							va_list actions);
@@ -1186,7 +1186,6 @@ PurpleFilterAccountFunc purple_request_field_account_get_filter(
  * @param account		The PurpleAccount associated with this request, or NULL if none is
  * @param who			The username of the buddy assocaited with this request, or NULL if none is
  * @param conv			The PurpleConversation associated with this request, or NULL if none is
- * @param ui_hint       UI hint
  * @param user_data     The data to pass to the callback.
  *
  * @return A UI-specific handle.
@@ -1198,7 +1197,7 @@ void *purple_request_input(void *handle, const char *title,
 						 const char *ok_text, GCallback ok_cb,
 						 const char *cancel_text, GCallback cancel_cb,
 						 PurpleAccount *account, const char *who, PurpleConversation *conv,
-						 const char *ui_hint, void *user_data);
+						 void *user_data);
 
 /**
  * Prompts the user for multiple-choice input.
@@ -1226,7 +1225,7 @@ void *purple_request_input(void *handle, const char *title,
  */
 void *purple_request_choice(void *handle, const char *title,
 						  const char *primary, const char *secondary,
-						  unsigned int default_value,
+						  int default_value,
 						  const char *ok_text, GCallback ok_cb,
 						  const char *cancel_text, GCallback cancel_cb,
 						  PurpleAccount *account, const char *who, PurpleConversation *conv,
@@ -1258,7 +1257,7 @@ void *purple_request_choice(void *handle, const char *title,
  */
 void *purple_request_choice_varg(void *handle, const char *title,
 							   const char *primary, const char *secondary,
-							   unsigned int default_value,
+							   int default_value,
 							   const char *ok_text, GCallback ok_cb,
 							   const char *cancel_text, GCallback cancel_cb,
 							   PurpleAccount *account, const char *who, PurpleConversation *conv,
@@ -1294,7 +1293,7 @@ void *purple_request_choice_varg(void *handle, const char *title,
  */
 void *purple_request_action(void *handle, const char *title,
 						  const char *primary, const char *secondary,
-						  unsigned int default_action,
+						  int default_action,
 						  PurpleAccount *account, const char *who, PurpleConversation *conv,
 						  const char *ui_hint, void *user_data, size_t action_count, ...);
 
@@ -1322,7 +1321,7 @@ void *purple_request_action(void *handle, const char *title,
  */
 void *purple_request_action_varg(void *handle, const char *title,
 							   const char *primary, const char *secondary,
-							   unsigned int default_action,
+							   int default_action,
 							   PurpleAccount *account, const char *who, PurpleConversation *conv,
 							   const char *ui_hint, void *user_data, size_t action_count,
 							   va_list actions);
@@ -1451,7 +1450,7 @@ void *purple_request_file(void *handle, const char *title, const char *filename,
 void *purple_request_folder(void *handle, const char *title, const char *dirname,
 						GCallback ok_cb, GCallback cancel_cb,
 						PurpleAccount *account, const char *who, PurpleConversation *conv,
-						const char *ui_hint, void *user_data);
+						void *user_data);
 
 /*@}*/
 
