@@ -17,7 +17,7 @@ Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public
 License along with this application; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111-1301
 USA
 """
 
@@ -128,6 +128,9 @@ class Feed(gobject.GObject):
         self.hash = {}
         self.pending = False
         self._refresh = {'time' : 30, 'id' : 0}
+
+    def __del__(self):
+        pass
 
     def do_set_property(self, property, value):
         if property.name == 'link':
