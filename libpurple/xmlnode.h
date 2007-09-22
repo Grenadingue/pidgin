@@ -1,8 +1,9 @@
 /**
  * @file xmlnode.h XML DOM functions
  * @ingroup core
- *
- * purple
+ */
+
+/* purple
  *
  * Purple is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -128,7 +129,7 @@ void xmlnode_insert_data(xmlnode *node, const char *data, gssize size);
  *
  * @param node The node to get data from.
  *
- * @return The data from the node.  This data is in raw escaped format.
+ * @return The data from the node or NULL. This data is in raw escaped format.
  *         You must g_free this string when finished using it.
  */
 char *xmlnode_get_data(xmlnode *node);

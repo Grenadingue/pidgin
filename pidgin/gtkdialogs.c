@@ -1,8 +1,9 @@
 /*
  * @file gtkdialogs.c GTK+ Dialogs
  * @ingroup pidgin
- *
- * pidgin
+ */
+
+/* pidgin
  *
  * Pidgin is the legal property of its developers, whose names are too numerous
  * to list here.  Please refer to the COPYRIGHT file distributed with this
@@ -285,6 +286,7 @@ static void destroy_about()
 	about = NULL;
 }
 
+#if 0
 /* This function puts the version number onto the pixmap we use in the 'about' 
  * screen in Pidgin. */
 static void
@@ -322,6 +324,7 @@ pidgin_logo_versionize(GdkPixbuf **original, GtkWidget *widget) {
 											 width, height);
 	g_object_unref(G_OBJECT(pixmap));
 }
+#endif
 
 void pidgin_dialogs_about(GtkWindow *parent)
 {
@@ -369,7 +372,9 @@ void pidgin_dialogs_about(GtkWindow *parent)
 	filename = g_build_filename(DATADIR, "pixmaps", "pidgin", "logo.png", NULL);
 	pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
 	g_free(filename);
+#if 0  /* Don't versionize the logo when the logo has the version in it */
 	pidgin_logo_versionize(&pixbuf, logo);
+#endif
 	gtk_widget_destroy(logo);
 	logo = gtk_image_new_from_pixbuf(pixbuf);
 	gdk_pixbuf_unref(pixbuf);
@@ -385,6 +390,9 @@ void pidgin_dialogs_about(GtkWindow *parent)
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
 	str = g_string_sized_new(4096);
+
+	g_string_append_printf(str,
+		"<CENTER><FONT SIZE=\"4\"><B>%s %s</B></FONT></CENTER><BR><BR>", PIDGIN_NAME, VERSION);
 
 	g_string_append_printf(str,
 		_("%s is a graphical modular messaging client based on "
@@ -460,7 +468,7 @@ void pidgin_dialogs_about(GtkWindow *parent)
 		if (retired_patch_writers[i].email != NULL) {
 			g_string_append_printf(str, "  %s &lt;<a href=\"mailto:%s\">%s</a>&gt;<br/>",
 					retired_patch_writers[i].name,
-					retired_patch_writers[i].email, patch_writers[i].email);
+					retired_patch_writers[i].email, retired_patch_writers[i].email);
 		} else {
 			g_string_append_printf(str, "  %s<br/>",
 					retired_patch_writers[i].name);
