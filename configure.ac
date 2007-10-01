@@ -46,7 +46,7 @@ AC_PREREQ([2.50])
 m4_define([purple_lt_current], [2])
 m4_define([purple_major_version], [2])
 m4_define([purple_minor_version], [2])
-m4_define([purple_micro_version], [1])
+m4_define([purple_micro_version], [2])
 m4_define([purple_version_suffix], [])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
@@ -55,7 +55,7 @@ m4_define([purple_display_version], purple_version[]m4_ifdef([purple_version_suf
 m4_define([gnt_lt_current], [2])
 m4_define([gnt_major_version], [2])
 m4_define([gnt_minor_version], [2])
-m4_define([gnt_micro_version], [1])
+m4_define([gnt_micro_version], [2])
 m4_define([gnt_version_suffix], [])
 m4_define([gnt_version],
           [gnt_major_version.gnt_minor_version.gnt_micro_version])
@@ -352,13 +352,19 @@ If you only want to build Finch then specify --disable-gtkui when running config
 	dnl #######################################################################
 	if test "x$with_x" = "xyes" ; then
 		PKG_CHECK_MODULES(X11, x11,
-			[AC_DEFINE(HAVE_X, 1, [Define to 1 if you have X11])],
+			[AC_DEFINE(HAVE_X11, 1, [Define to 1 if you have X11])],
 			[AC_MSG_RESULT(no)
-			with_x=no])
+				if test "x$x_incpath_add" != "x" -a "x$x_libpath_add" != "x"; then
+					X11_LIBS="$x_libpath_add"
+					X11_CFLAGS="$x_incpath_add"
+				else
+					with_x=no
+				fi
+			])
 		AC_SUBST(X11_LIBS)
 		AC_SUBST(X11_CFLAGS)
 	fi
-	
+
 	dnl #######################################################################
 	dnl # Check for XScreenSaver
 	dnl #######################################################################
@@ -1454,7 +1460,7 @@ AC_ARG_ENABLE(nss,
 	[enable_nss="$enableval"],
 	[enable_nss="yes"])
 
-msg_ssl="None (MSN and Google Talk will not work without SSL!)"
+msg_ssl="None. MSN, Novell Groupwise and Google Talk will not work without GnuTLS or NSS. OpenSSL is NOT usable!"
 
 dnl #
 dnl # Check for GnuTLS if it's specified.

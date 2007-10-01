@@ -64,8 +64,7 @@ jabber_gmail_parse(JabberStream *js, xmlnode *packet, gpointer nul)
 	message = xmlnode_get_child(child, "mail-thread-info");
 
 	if (count == 0 || !message) {
-		if (count > 0)
-			purple_notify_emails(js->gc, count, FALSE, NULL, NULL, (const char**) default_tos, NULL, NULL, NULL);
+		purple_notify_emails(js->gc, count, FALSE, NULL, NULL, (const char**) default_tos, NULL, NULL, NULL);
 		g_free(default_tos[0]);
 		return;
 	}
