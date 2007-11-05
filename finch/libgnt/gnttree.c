@@ -363,17 +363,17 @@ update_row_text(GntTree *tree, GntTreeRow *row)
 		notfirst = TRUE;
 
 		if (len > width) {
-			len = width - 1;
+			len = MAX(1, width - 1);
 			cut = TRUE;
 		}
 
 		if (RIGHT_ALIGNED(tree, i) && len < tree->columns[i].width) {
-			g_string_append_printf(string, "%*s", width - len, "");
+			g_string_append_printf(string, "%*s", width - len - cut, "");
 		}
 
 		text = gnt_util_onscreen_width_to_pointer(display, len - fl, NULL);
 		string = g_string_append_len(string, display, text - display);
-		if (cut) { /* ellipsis */
+		if (cut && width > 1) { /* ellipsis */
 			if (gnt_ascii_only())
 				g_string_append_c(string, '~');
 			else
@@ -1492,7 +1492,8 @@ void gnt_tree_change_text(GntTree *tree, gpointer key, int colno, const char *te
 			col->text = g_strdup(text ? text : "");
 		}
 
-		if (get_distance(tree->top, row) >= 0 && get_distance(row, tree->bottom) >= 0)
+		if (GNT_WIDGET_IS_FLAG_SET(GNT_WIDGET(tree), GNT_WIDGET_MAPPED) &&
+			get_distance(tree->top, row) >= 0 && get_distance(row, tree->bottom) >= 0)
 			redraw_tree(tree);
 	}
 }
