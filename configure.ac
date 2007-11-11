@@ -929,6 +929,7 @@ AM_CONDITIONAL(USE_INTERNAL_LIBGADU, test "x$gadu_libs" != "xyes")
 AC_SUBST(GADU_LIBS)
 AC_SUBST(GADU_CFLAGS)
 
+AC_ARG_ENABLE(msnp14,[AC_HELP_STRING([--disable-msnp14], [Disable the newer MSNP14 protocol])],,enable_msnp14=yes)
 
 AC_ARG_ENABLE(distrib,,,enable_distrib=no)
 AM_CONDITIONAL(DISTRIB, test "x$enable_distrib" = "xyes")
@@ -948,6 +949,9 @@ if test "x$avahiincludes" != "xyes" -o "x$avahilibs" != "xyes"; then
 	if test "x$howlincludes" != "xyes" -o "x$howllibs" != "xyes"; then
 		STATIC_PRPLS=`echo $STATIC_PRPLS | $sedpath 's/bonjour//'`
 	fi
+fi
+if test "x$enable_msnp14" != "xyes" ; then
+	STATIC_PRPLS=`echo $STATIC_PRPLS | $sedpath 's/msn/msnp9/'`
 fi
 if test "x$silcincludes" != "xyes" -o "x$silcclient" != "xyes"; then
 	STATIC_PRPLS=`echo $STATIC_PRPLS | $sedpath 's/silc/silc10/'`
@@ -973,6 +977,8 @@ for i in $STATIC_PRPLS ; do
 			STATIC_LINK_LIBS="$STATIC_LINK_LIBS \$(top_builddir)/libpurple/protocols/$i/lib${i}purple.a"
 		elif test "x$i" = "xsilc10"; then
 			STATIC_LINK_LIBS="$STATIC_LINK_LIBS \$(top_builddir)/libpurple/protocols/$i/libsilcpurple.a"
+		elif test "x$i" = "xmsnp9"; then
+			STATIC_LINK_LIBS="$STATIC_LINK_LIBS \$(top_builddir)/libpurple/protocols/$i/libmsn.a"
 		else
 			STATIC_LINK_LIBS="$STATIC_LINK_LIBS \$(top_builddir)/libpurple/protocols/$i/lib$i.a"
 		fi
@@ -985,6 +991,7 @@ for i in $STATIC_PRPLS ; do
 		irc)		static_irc=yes ;;
 		jabber)		static_jabber=yes ;;
 		msn)		static_msn=yes ;;
+		msnp9)		static_msn=yes ;;
 		myspace)	static_myspace=yes ;;
 		novell)		static_novell=yes ;;
 		oscar)		static_oscar=yes ;;
@@ -1032,6 +1039,9 @@ if test "x$avahiincludes" != "xyes" -o "x$avahilibs" != "xyes"; then
 		DYNAMIC_PRPLS=`echo $DYNAMIC_PRPLS | $sedpath 's/bonjour//'`
 	fi
 fi
+if test "x$enable_msnp14" != "xyes" ; then
+	DYNAMIC_PRPLS=`echo $DYNAMIC_PRPLS | $sedpath 's/msn/msnp9/'`
+fi
 if test "x$silcincludes" != "xyes" -o "x$silcclient" != "xyes"; then
 	DYNAMIC_PRPLS=`echo $DYNAMIC_PRPLS | $sedpath 's/silc/silc10/'`
 fi
@@ -1046,6 +1056,7 @@ for i in $DYNAMIC_PRPLS ; do
 		irc)		dynamic_irc=yes ;;
 		jabber)		dynamic_jabber=yes ;;
 		msn)		dynamic_msn=yes ;;
+		msnp9)		dynamic_msn=yes ;;
 		myspace)	dynamic_myspace=yes ;;
 		novell)		dynamic_novell=yes ;;
 		oscar)		dynamic_oscar=yes ;;
@@ -2003,9 +2014,12 @@ AC_SUBST(LIBS)
 if test "x$enable_plugins" = "xyes" ; then
 	AC_DEFINE(PURPLE_PLUGINS, 1, [Define if plugins are enabled.])
 	AM_CONDITIONAL(PLUGINS, true)
+	PLUGINS_DEFINE="#define PURPLE_PLUGINS 1"
 else
 	AM_CONDITIONAL(PLUGINS, false)
+	PLUGINS_DEFINE="#undef PURPLE_PLUGINS"
 fi
+AC_SUBST(PLUGINS_DEFINE)
 
 dnl #######################################################################
 dnl # Check for Cyrus-SASL (for Jabber)
@@ -2203,35 +2217,8 @@ AC_OUTPUT([Makefile
 		   pidgin/pidgin-uninstalled.pc
 		   pidgin/pixmaps/Makefile
 		   pidgin/pixmaps/buddy_icons/qq/Makefile
-		   pidgin/pixmaps/dialogs/16/Makefile
-		   pidgin/pixmaps/dialogs/64/Makefile
-		   pidgin/pixmaps/emblems/16/Makefile
 		   pidgin/pixmaps/emotes/default/24/Makefile
 		   pidgin/pixmaps/emotes/none/Makefile
-		   pidgin/pixmaps/icons/16/Makefile
-		   pidgin/pixmaps/icons/22/Makefile
-		   pidgin/pixmaps/icons/24/Makefile
-		   pidgin/pixmaps/icons/32/Makefile
-		   pidgin/pixmaps/icons/48/Makefile
-		   pidgin/pixmaps/protocols/16/Makefile
-		   pidgin/pixmaps/protocols/22/Makefile
-		   pidgin/pixmaps/protocols/48/Makefile
-		   pidgin/pixmaps/status/11/Makefile
-		   pidgin/pixmaps/status/11/rtl/Makefile
-		   pidgin/pixmaps/status/16/Makefile
-		   pidgin/pixmaps/status/16/rtl/Makefile
-		   pidgin/pixmaps/status/22/Makefile
-		   pidgin/pixmaps/status/22/rtl/Makefile
-		   pidgin/pixmaps/status/32/Makefile
-		   pidgin/pixmaps/status/32/rtl/Makefile
-		   pidgin/pixmaps/status/48/Makefile
-		   pidgin/pixmaps/status/48/rtl/Makefile
-		   pidgin/pixmaps/toolbar/16/Makefile
-		   pidgin/pixmaps/toolbar/22/Makefile
-		   pidgin/pixmaps/tray/16/Makefile
-		   pidgin/pixmaps/tray/22/Makefile
-		   pidgin/pixmaps/tray/32/Makefile
-		   pidgin/pixmaps/tray/48/Makefile
 		   pidgin/plugins/Makefile
 		   pidgin/plugins/cap/Makefile
 		   pidgin/plugins/gestures/Makefile
@@ -2259,6 +2246,7 @@ AC_OUTPUT([Makefile
 		   libpurple/protocols/irc/Makefile
 		   libpurple/protocols/jabber/Makefile
 		   libpurple/protocols/msn/Makefile
+		   libpurple/protocols/msnp9/Makefile
 		   libpurple/protocols/myspace/Makefile
 		   libpurple/protocols/novell/Makefile
 		   libpurple/protocols/null/Makefile
@@ -2272,6 +2260,7 @@ AC_OUTPUT([Makefile
 		   libpurple/protocols/yahoo/Makefile
 		   libpurple/protocols/zephyr/Makefile
 		   libpurple/tests/Makefile
+		   libpurple/purple.h
 		   libpurple/version.h
 		   share/Makefile
 		   share/sounds/Makefile
