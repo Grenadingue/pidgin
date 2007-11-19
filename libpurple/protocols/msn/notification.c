@@ -465,15 +465,12 @@ ubm_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload,
 	if(!strcmp(content_type,"text/plain")){
 		const char *value;
 		const char *body;
-		char *body_str;
 		char *body_enc;
 		char *body_final = NULL;
 		size_t body_len;
 
 		body = msn_message_get_bin_data(msg, &body_len);
-		body_str = g_strndup(body, body_len);
-		body_enc = g_markup_escape_text(body_str, -1);
-		g_free(body_str);
+		body_enc = g_markup_escape_text(body, body_len);
 
 		if ((value = msn_message_get_attr(msg, "X-MMS-IM-Format")) != NULL)	{
 			char *pre, *post;
@@ -486,6 +483,7 @@ ubm_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload,
 		}
 		g_free(body_enc);
 		serv_got_im(gc, passport, body_final, 0, time(NULL));
+		g_free(body_final);
 	}
 	if(!strcmp(content_type,"text/x-msmsgscontrol")){
 		if(msn_message_get_attr(msg, "TypingUser") != NULL){
@@ -1413,7 +1411,7 @@ url_cmd(MsnCmdProc *cmdproc, MsnCommand *cmd)
 	{
 		purple_debug_error("msn",
 						 "Error opening temp passport file: %s\n",
-						 strerror(errno));
+						 g_strerror(errno));
 	}
 	else
 	{
@@ -1462,7 +1460,7 @@ url_cmd(MsnCmdProc *cmdproc, MsnCommand *cmd)
 		{
 			purple_debug_error("msn",
 							 "Error closing temp passport file: %s\n",
-							 strerror(errno));
+							 g_strerror(errno));
 
 			g_unlink(session->passport_info.file);
 			g_free(session->passport_info.file);
@@ -1617,10 +1615,8 @@ ubx_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload,
 	PurpleAccount *account;
 	MsnUser *user;
 	const char *passport;
-	char *psm_str, *currentmedia_str, *str;
-
-	/*get the payload content*/
-//	purple_debug_info("MSNP14","UBX {%s} payload{%s}\n",cmd->params[0], cmd->payload);
+	char *psm_str, *str;
+	CurrentMedia media = {NULL, NULL, NULL};
 
 	session = cmdproc->session;
 	account = session->account;
@@ -1629,16 +1625,17 @@ ubx_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload,
 	user = msn_userlist_find_user(session->userlist, passport);
 	
 	psm_str = msn_get_psm(cmd->payload,len);
-	currentmedia_str = msn_parse_currentmedia(
-	                                 str = msn_get_currentmedia(cmd->payload, len));
+	msn_user_set_statusline(user, psm_str);
+	g_free(psm_str);
+
+	str = msn_get_currentmedia(cmd->payload, len);
+	if (msn_parse_currentmedia(str, &media))
+		msn_user_set_currentmedia(user, &media);
+	else
+		msn_user_set_currentmedia(user, NULL);
 	g_free(str);
 
-	msn_user_set_statusline(user, psm_str);
-	msn_user_set_currentmedia(user, currentmedia_str);
 	msn_user_update(user);
-
-	g_free(psm_str);
-	g_free(currentmedia_str);
 }
 
 static void
@@ -1792,7 +1789,7 @@ initial_mdata_msg(MsnCmdProc *cmdproc, MsnMessage *msg)
 		return;
 
 	/*new a oim session*/
-	session->oim = msn_oim_new(session);
+//	session->oim = msn_oim_new(session);
 //	msn_oim_connect(session->oim);
 
 	table = msn_message_get_hashtable_from_body(msg);

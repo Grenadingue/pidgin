@@ -359,7 +359,7 @@ debug_command_cb(PurpleConversation *conv,
 	PurpleCmdStatus status;
 
 	if (!g_ascii_strcasecmp(args[0], "version")) {
-		tmp = g_strdup_printf("me is using %s v%s.", "Pidgin", VERSION);
+		tmp = g_strdup_printf("me is using %s v%s.", "Pidgin", DISPLAY_VERSION);
 		markup = g_markup_escape_text(tmp, -1);
 
 		status = purple_cmd_do_command(conv, tmp, markup, error);
@@ -3074,6 +3074,9 @@ populate_menu_with_options(GtkWidget *menu, PidginConversation *gtkconv, gboolea
 					chat, (GDestroyNotify)purple_blist_remove_chat);
 		}
 	} else {
+		if (!purple_account_is_connected(conv->account))
+			return FALSE;
+
 		buddy = purple_find_buddy(conv->account, conv->name);
 
 		/* gotta remain bug-compatible :( libpurple < 2.0.2 didn't handle
@@ -5040,7 +5043,6 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	gtkconv->send_history = g_list_append(NULL, NULL);
 
 	/* Setup some initial variables. */
-	gtkconv->sg       = gtk_size_group_new(GTK_SIZE_GROUP_BOTH);
 	gtkconv->tooltips = gtk_tooltips_new();
 	gtkconv->unseen_state = PIDGIN_UNSEEN_NONE;
 	gtkconv->unseen_count = 0;
@@ -6577,13 +6579,13 @@ pidgin_conv_update_fields(PurpleConversation *conv, PidginConvFields fields)
 			style = "color=\"#c4a000\"";
 		} else if (gtkconv->unseen_state == PIDGIN_UNSEEN_NICK)	{
 			atk_object_set_description(accessibility_obj, _("Nick Said"));
-			style = "color=\"#cc0000\"";
+			style = "color=\"#204a87\"";
 		} else if (gtkconv->unseen_state == PIDGIN_UNSEEN_TEXT)	{
 			atk_object_set_description(accessibility_obj, _("Unread Messages"));
 			if (gtkconv->active_conv->type == PURPLE_CONV_TYPE_CHAT)
-				style = "color=\"#204a87\"";
-			else
 				style = "color=\"#cc0000\"";
+			else
+				style = "color=\"#204a87\"";
 		} else if (gtkconv->unseen_state == PIDGIN_UNSEEN_EVENT) {
 			atk_object_set_description(accessibility_obj, _("New Event"));
 			style = "color=\"#888a85\"";
@@ -7424,6 +7426,17 @@ update_chat_topic(PurpleConversation *conv, const char *old, const char *new)
 	pidgin_conv_update_fields(conv, PIDGIN_CONV_TOPIC);
 }
 
+/* Message history stuff */
+
+/* Compare two PurpleConvMessage's, according to time in ascending order. */
+static int
+message_compare(gconstpointer p1, gconstpointer p2)
+{
+	const PurpleConvMessage *m1 = p1, *m2 = p2;
+	return (m1->when > m2->when);
+}
+
+/* Adds some message history to the gtkconv. This happens in a idle-callback. */
 static gboolean
 add_message_history_to_gtkconv(gpointer data)
 {
@@ -7431,50 +7444,107 @@ add_message_history_to_gtkconv(gpointer data)
 	int count = 0;
 	int timer = gtkconv->attach.timer;
 	time_t when = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(gtkconv->entry), "attach-start-time"));
+	gboolean im = (gtkconv->active_conv->type == PURPLE_CONV_TYPE_IM);
 
 	gtkconv->attach.timer = 0;
 	while (gtkconv->attach.current && count < 100) {  /* XXX: 100 is a random value here */
 		PurpleConvMessage *msg = gtkconv->attach.current->data;
-		if (when && when < msg->when) {
+		if (!im && when && when < msg->when) {
 			gtk_imhtml_append_text(GTK_IMHTML(gtkconv->imhtml), "<BR><HR>", 0);
 			g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time", NULL);
 		}
-		pidgin_conv_write_conv(gtkconv->active_conv, msg->who, msg->who, msg->what, msg->flags, msg->when);
-		gtkconv->attach.current = gtkconv->attach.current->prev;
+		pidgin_conv_write_conv(msg->conv, msg->who, msg->alias, msg->what, msg->flags, msg->when);
+		if (im) {
+			gtkconv->attach.current = g_list_delete_link(gtkconv->attach.current, gtkconv->attach.current);
+		} else {
+			gtkconv->attach.current = gtkconv->attach.current->prev;
+		}
 		count++;
 	}
 	gtkconv->attach.timer = timer;
 	if (gtkconv->attach.current)
 		return TRUE;
 
+	g_source_remove(gtkconv->attach.timer);
+	gtkconv->attach.timer = 0;
+	if (im) {
+		/* Print any message that was sent while the old history was being added back. */
+		GList *msgs = NULL;
+		GList *iter = gtkconv->convs;
+		for (; iter; iter = iter->next) {
+			PurpleConversation *conv = iter->data;
+			GList *history = purple_conversation_get_message_history(conv);
+			for (; history; history = history->next) {
+				PurpleConvMessage *msg = history->data;
+				if (msg->when > when)
+					msgs = g_list_prepend(msgs, msg);
+			}
+		}
+		msgs = g_list_sort(msgs, message_compare);
+		for (; msgs; msgs = g_list_delete_link(msgs, msgs)) {
+			PurpleConvMessage *msg = msgs->data;
+			pidgin_conv_write_conv(msg->conv, msg->who, msg->alias, msg->what, msg->flags, msg->when);
+		}
+		gtk_imhtml_append_text(GTK_IMHTML(gtkconv->imhtml), "<BR><HR>", 0);
+		g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time", NULL);
+	}
+
 	g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time", NULL);
 	purple_signal_emit(pidgin_conversations_get_handle(),
 			"conversation-displayed", gtkconv);
-	g_source_remove(gtkconv->attach.timer);
-	gtkconv->attach.timer = 0;
 	return FALSE;
+}
+
+static void
+pidgin_conv_attach(PurpleConversation *conv)
+{
+	int timer;
+	purple_conversation_set_data(conv, "unseen-count", NULL);
+	purple_conversation_set_data(conv, "unseen-state", NULL);
+	purple_conversation_set_ui_ops(conv, pidgin_conversations_get_conv_ui_ops());
+	private_gtkconv_new(conv, FALSE);
+	timer = GPOINTER_TO_INT(purple_conversation_get_data(conv, "close-timer"));
+	if (timer)
+		purple_timeout_remove(timer);
 }
 
 gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 {
 	GList *list;
 	PidginConversation *gtkconv;
-	int timer;
 
 	if (PIDGIN_IS_PIDGIN_CONVERSATION(conv))
 		return FALSE;
 
-	purple_conversation_set_data(conv, "unseen-count", NULL);
-	purple_conversation_set_data(conv, "unseen-state", NULL);
-	purple_conversation_set_ui_ops(conv, pidgin_conversations_get_conv_ui_ops());
-	private_gtkconv_new(conv, FALSE);
+	pidgin_conv_attach(conv);
 	gtkconv = PIDGIN_CONVERSATION(conv);
 
 	list = purple_conversation_get_message_history(conv);
 	if (list) {
+		switch (purple_conversation_get_type(conv)) {
+			case PURPLE_CONV_TYPE_IM: 
+			{
+				GList *convs;
+				list = g_list_copy(list);
+				for (convs = purple_get_ims(); convs; convs = convs->next)
+					if (convs->data != conv &&
+							pidgin_conv_find_gtkconv(convs->data) == gtkconv) {
+						pidgin_conv_attach(convs->data);
+						list = g_list_concat(list, g_list_copy(purple_conversation_get_message_history(convs->data)));
+					}
+				list = g_list_sort(list, message_compare);
+				gtkconv->attach.current = list;
+				list = g_list_last(list);
+				break;
+			}
+			case PURPLE_CONV_TYPE_CHAT:
+				gtkconv->attach.current = g_list_last(list);
+				break;
+			default:
+				g_return_val_if_reached(TRUE);
+		}
 		g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time",
 				GINT_TO_POINTER(((PurpleConvMessage*)(list->data))->when));
-		gtkconv->attach.current = g_list_last(list);
 		gtkconv->attach.timer = g_idle_add(add_message_history_to_gtkconv, gtkconv);
 	} else {
 		purple_signal_emit(pidgin_conversations_get_handle(),
@@ -7486,9 +7556,6 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 		pidgin_conv_chat_add_users(conv, PURPLE_CONV_CHAT(conv)->in_room, TRUE);
 	}
 
-	timer = GPOINTER_TO_INT(purple_conversation_get_data(conv, "close-timer"));
-	if (timer)
-		purple_timeout_remove(timer);
 	return TRUE;
 }
 
@@ -7554,7 +7621,7 @@ pidgin_conversations_init(void)
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/im/show_buddy_icons", TRUE);
 
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/im/hide_new", "never");
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/im/close_immediately", FALSE);
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/im/close_immediately", TRUE);
 
 #ifdef _WIN32
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/win32/minimize_new_convs", FALSE);
@@ -8828,6 +8895,9 @@ pidgin_conv_window_new()
 	GtkPositionType pos;
 	GtkWidget *testidea;
 	GtkWidget *menubar;
+#if GTK_CHECK_VERSION(2,6,0)
+	GdkModifierType state;
+#endif
 
 	win = g_malloc0(sizeof(PidginWindow));
 
@@ -8835,6 +8905,10 @@ pidgin_conv_window_new()
 
 	/* Create the window. */
 	win->window = pidgin_create_window(NULL, 0, "conversation", TRUE);
+#if GTK_CHECK_VERSION(2,6,0)
+	if (!gtk_get_current_event_state(&state))
+		gtk_window_set_focus_on_map(GTK_WINDOW(win->window), FALSE);
+#endif
 	pidgin_conv_restore_position(win);
 
 	if (available_list == NULL) {
@@ -8907,7 +8981,8 @@ pidgin_conv_window_new()
 	g_signal_connect(G_OBJECT(win->window), "show",
 	                 G_CALLBACK(winpidgin_ensure_onscreen), win->window);
 
-	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/win32/minimize_new_convs"))
+	if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/win32/minimize_new_convs")
+			&& !gtk_get_current_event_state(&state))
 		gtk_window_iconify(GTK_WINDOW(win->window));
 #endif
 
@@ -9850,4 +9925,5 @@ generate_nick_colors(guint *color_count, GdkColor background)
 
 	return colors;
 }
+
 

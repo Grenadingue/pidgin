@@ -482,6 +482,7 @@ void purple_blist_merge_contact(PurpleContact *source, PurpleBlistNode *node);
  */
 PurpleBuddy *purple_contact_get_priority_buddy(PurpleContact *contact);
 
+#ifndef PURPLE_DISABLE_DEPRECATED
 /**
  * Sets the alias for a contact.
  *
@@ -491,6 +492,7 @@ PurpleBuddy *purple_contact_get_priority_buddy(PurpleContact *contact);
  * @deprecated Use purple_blist_alias_contact() instead.
  */
 void purple_contact_set_alias(PurpleContact *contact, const char *alias);
+#endif
 
 /**
  * Gets the alias for a contact.
@@ -517,8 +519,11 @@ gboolean purple_contact_on_account(PurpleContact *contact, PurpleAccount *accoun
  * @param contact  The contact
  */
 void purple_contact_invalidate_priority_buddy(PurpleContact *contact);
+
 /**
  * Removes a buddy from the buddy list and frees the memory allocated to it.
+ * This doesn't actually try to remove the buddy from the server list, nor does
+ * it clean up the prpl_data.
  *
  * @param buddy   The buddy to be removed
  */
