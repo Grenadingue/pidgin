@@ -1096,8 +1096,8 @@ static void gtk_imhtmltoolbar_create_old_buttons(GtkIMHtmlToolbar *toolbar)
 		{PIDGIN_STOCK_TOOLBAR_TEXT_SMALLER, do_small, &toolbar->smaller_size, _("Decrease Font Size")},
 		{"", NULL, NULL, NULL},
 		{PIDGIN_STOCK_TOOLBAR_FONT_FACE, toggle_font, &toolbar->font, _("Font Face")},
-		{PIDGIN_STOCK_TOOLBAR_FGCOLOR, toggle_bg_color, &toolbar->bgcolor, _("Background Color")},
-		{PIDGIN_STOCK_TOOLBAR_BGCOLOR, toggle_fg_color, &toolbar->fgcolor, _("Foreground Color")},
+		{PIDGIN_STOCK_TOOLBAR_BGCOLOR, toggle_bg_color, &toolbar->bgcolor, _("Background Color")},
+		{PIDGIN_STOCK_TOOLBAR_FGCOLOR, toggle_fg_color, &toolbar->fgcolor, _("Foreground Color")},
 		{"", NULL, NULL, NULL},
 		{PIDGIN_STOCK_CLEAR, clear_formatting_cb, &toolbar->clear, _("Reset Formatting")},
 		{"", NULL, NULL, NULL},
@@ -1315,7 +1315,9 @@ static void gtk_imhtmltoolbar_init (GtkIMHtmlToolbar *toolbar)
 
 	purple_prefs_connect_callback(toolbar, PIDGIN_PREFS_ROOT "/conversations/toolbar/wide",
 			imhtmltoolbar_view_pref_changed, toolbar);
-	purple_prefs_trigger_callback(PIDGIN_PREFS_ROOT "/conversations/toolbar/wide");
+	g_signal_connect_data(G_OBJECT(toolbar), "realize",
+			G_CALLBACK(purple_prefs_trigger_callback), PIDGIN_PREFS_ROOT "/conversations/toolbar/wide",
+			NULL, G_CONNECT_AFTER | G_CONNECT_SWAPPED);
 
 #if GTK_CHECK_VERSION(2,4,0)
 	gtk_event_box_set_visible_window(GTK_EVENT_BOX(event), FALSE);

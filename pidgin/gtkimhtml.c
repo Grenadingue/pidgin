@@ -838,28 +838,6 @@ static void hijack_menu_cb(GtkIMHtml *imhtml, GtkMenu *menu, gpointer data)
 	gtk_menu_shell_insert(GTK_MENU_SHELL(menu), menuitem, 5);
 
 	g_signal_connect(G_OBJECT(menuitem), "activate", G_CALLBACK(clear_formatting_cb), imhtml);
-	
-	mi = gtk_menu_item_new();
-	gtk_widget_show(mi);
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);
-
-	img = gtk_image_new_from_stock(PIDGIN_STOCK_TOOLBAR_SMILEY, GTK_ICON_SIZE_MENU);
-	mi = gtk_image_menu_item_new_with_label(_("_Smile!"));
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi), img);
-	gtk_widget_show(mi);
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);
-
-	img = gtk_image_new_from_stock(PIDGIN_STOCK_TOOLBAR_INSERT, GTK_ICON_SIZE_MENU);
-	mi = gtk_image_menu_item_new_with_label(_("_Insert"));
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi), img);
-	gtk_widget_show(mi);
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);
-
-	img = gtk_image_new_from_stock(GTK_STOCK_BOLD, GTK_ICON_SIZE_MENU);
-	mi = gtk_image_menu_item_new_with_label(_("_Font"));
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi), img);
-	gtk_widget_show(mi);
-	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);
 }
 
 static char *
@@ -1418,6 +1396,22 @@ static void gtk_imhtml_class_init (GtkIMHtmlClass *klass)
 	gtk_widget_class_install_style_property(widget_class, g_param_spec_boxed("hyperlink-prelight-color",
 	                                        _("Hyperlink prelight color"),
 	                                        _("Color to draw hyperlinks when mouse is over them."),
+	                                        GDK_TYPE_COLOR, G_PARAM_READABLE));
+	gtk_widget_class_install_style_property(widget_class, g_param_spec_boxed("send-name-color",
+	                                        _("Sent Message Name Color"),
+	                                        _("Color to draw the name of a message you sent."),
+	                                        GDK_TYPE_COLOR, G_PARAM_READABLE));
+	gtk_widget_class_install_style_property(widget_class, g_param_spec_boxed("receive-name-color",
+	                                        _("Received Message Name Color"),
+	                                        _("Color to draw the name of a message you received."),
+	                                        GDK_TYPE_COLOR, G_PARAM_READABLE));
+	gtk_widget_class_install_style_property(widget_class, g_param_spec_boxed("highlight-name-color",
+	                                        _("\"Attention\" Name Color"),
+	                                        _("Color to draw the name of a message you received containing your name."),
+	                                        GDK_TYPE_COLOR, G_PARAM_READABLE));
+	gtk_widget_class_install_style_property(widget_class, g_param_spec_boxed("action-name-color",
+	                                        _("Action Message Name Color"),
+	                                        _("Color to draw the name of an action message."),
 	                                        GDK_TYPE_COLOR, G_PARAM_READABLE));
 
 	binding_set = gtk_binding_set_by_class (parent_class);
@@ -4291,19 +4285,19 @@ static void populate_popup_cb(GtkTextView *textview, GtkMenu *menu, gpointer nul
 	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);
 
 	img = gtk_image_new_from_stock(GTK_STOCK_BOLD, GTK_ICON_SIZE_MENU);
-	mi = gtk_image_menu_item_new_with_label(_("_Font"));
+	mi = gtk_image_menu_item_new_with_mnemonic(_("_Font"));
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi), img);
 	gtk_widget_show(mi);
 	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);
 
 	img = gtk_image_new_from_stock(PIDGIN_STOCK_TOOLBAR_INSERT, GTK_ICON_SIZE_MENU);
-	mi = gtk_image_menu_item_new_with_label(_("_Insert"));
+	mi = gtk_image_menu_item_new_with_mnemonic(_("_Insert"));
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi), img);
 	gtk_widget_show(mi);
 	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);
 
 	img = gtk_image_new_from_stock(PIDGIN_STOCK_TOOLBAR_SMILEY, GTK_ICON_SIZE_MENU);
-	mi = gtk_image_menu_item_new_with_label(_("_Smile!"));
+	mi = gtk_image_menu_item_new_with_mnemonic(_("S_mile!"));
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(mi), img);
 	gtk_widget_show(mi);
 	gtk_menu_shell_prepend(GTK_MENU_SHELL(menu), mi);

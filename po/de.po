@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-27 10:57+0100\n"
-"PO-Revision-Date: 2007-11-27 10:57+0100\n"
+"POT-Creation-Date: 2007-12-06 15:10+0100\n"
+"PO-Revision-Date: 2007-12-06 15:10+0100\n"
 "Last-Translator: Jochen Kemnade <jochenkemnade@web.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,6 +21,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
+#. Translators may want to transliterate the name.
+#. It is not to be translated.
 msgid "Finch"
 msgstr "Finch"
 
@@ -2333,6 +2335,12 @@ msgstr "Mono-Plugin-Lader"
 
 msgid "Loads .NET plugins with Mono."
 msgstr "Lädt .NET-Plugins mit Mono."
+
+msgid "Add new line in IMs"
+msgstr "Neue Zeile in IMs einfügen"
+
+msgid "Add new line in Chats"
+msgstr "Neue Zeile in Chats einfügen"
 
 #. *< magic
 #. *< major version
@@ -5758,6 +5766,12 @@ msgstr "Server-Adresse"
 msgid "Server port"
 msgstr "Server-Port"
 
+msgid "Could not join chat room"
+msgstr "Konnte Chatraum nicht betreten"
+
+msgid "Invalid chat room name"
+msgstr "Ungültiger Chatraumname"
+
 msgid "Server closed the connection."
 msgstr "Der Server hat die Verbindung beendet."
 
@@ -6561,9 +6575,6 @@ msgstr "Autorisierung abgelehnt"
 msgid "_Exchange:"
 msgstr "A_ustausch:"
 
-msgid "Invalid chat name specified."
-msgstr "Ungültiger Chat-Name angegeben."
-
 msgid "Your IM Image was not sent. You cannot send IM Images in AIM chats."
 msgstr ""
 "Ihr IM-Bild wurde nicht gesendet. Sie können keine IM-Bilder in AIM-Chats "
@@ -6699,11 +6710,13 @@ msgid "Show how long you have been idle"
 msgstr "Anzeigen, wie lange ich untätig war"
 
 msgid ""
-"Always use ICQ proxy server for file transfers\n"
-"(slower, but does not reveal your IP address)"
+"Always use AIM/ICQ proxy server for\n"
+"file transfers and direct IM (slower,\n"
+"but does not reveal your IP address)"
 msgstr ""
-"Benutze immer den AIM/ICQ-Proxyserver\n"
-"(langsamer, aber zeigt Ihre IP-Adresse nicht)"
+"Benutze immer den AIM/ICQ-Proxyserver für\n"
+"Dateiübertragungen und Direkt-IM (langsamer,\n"
+"aber zeigt Ihre IP-Adresse nicht)"
 
 #, c-format
 msgid "Asking %s to connect to us at %s:%hu for Direct IM."
@@ -9793,6 +9806,9 @@ msgstr ""
 msgid "_Merge"
 msgstr "_Zusammenführen"
 
+msgid "Room _List"
+msgstr "Ra_umliste"
+
 msgid ""
 "Please enter the appropriate information about the chat you would like to "
 "join.\n"
@@ -9984,6 +10000,17 @@ msgstr ""
 "\n"
 "<b>Konto:</b> %s"
 
+#, c-format
+msgid ""
+"\n"
+"<b>Topic:</b> %s"
+msgstr ""
+"\n"
+"<b>Thema:</b> %s"
+
+msgid "(no topic set)"
+msgstr "(kein Thema gesetzt)"
+
 msgid "Buddy Alias"
 msgstr "Buddy-Alias"
 
@@ -10163,11 +10190,11 @@ msgstr ""
 "Bitte geben Sie einen Alias und geeignete Informationen über den Chat ein, "
 "den Sie in Ihre Buddy-Liste aufnehmen wollen.\n"
 
-msgid "Autojoin when account becomes online."
-msgstr "Automatisch beitreten, wenn das Konto online geht."
+msgid "Auto_join when account becomes online."
+msgstr "Automatisch _beitreten, wenn das Konto online geht."
 
-msgid "Hide chat when the window is closed."
-msgstr "Chat verstecken, wenn das Fenster geschlossen wird."
+msgid "_Hide chat when the window is closed."
+msgstr "_Chat verstecken, wenn das Fenster geschlossen wird."
 
 msgid "Please enter the name of the group to be added."
 msgstr "Bitte geben Sie den Namen der Gruppe ein, die hinzugefügt werden soll."
@@ -11110,6 +11137,15 @@ msgstr "Bild speichern"
 msgid "_Save Image..."
 msgstr "Bild _speichern..."
 
+msgid "_Font"
+msgstr "_Schrift"
+
+msgid "_Insert"
+msgstr "_Einfügen"
+
+msgid "S_mile!"
+msgstr "_Lächeln!"
+
 msgid "Select Font"
 msgstr "Schriftart wählen"
 
@@ -11138,9 +11174,6 @@ msgstr "Bitte geben Sie die URL des Links an, den Sie einfügen möchten."
 msgid "Insert Link"
 msgstr "Link einfügen"
 
-msgid "_Insert"
-msgstr "_Einfügen"
-
 #, c-format
 msgid "Failed to store image: %s\n"
 msgstr "Speichern des Bildes fehlgeschlagen: %s\n"
@@ -11154,9 +11187,6 @@ msgstr "Dieses Thema verfügt über keine Smileys."
 #. show everything
 msgid "Smile!"
 msgstr "Lächeln!"
-
-msgid "_Font"
-msgstr "_Schrift"
 
 msgid "Group Items"
 msgstr "Elemente gruppieren"
@@ -11624,9 +11654,6 @@ msgstr "N_eue Unterhaltungen:"
 msgid "Show _formatting on incoming messages"
 msgstr "Zeige _Formatierung bei ankommenden Nachrichten"
 
-msgid "Close IMs immediately when the tab is closed"
-msgstr "Schließe IMs sofort, wenn der Reiter geschlossen wird"
-
 msgid "Show _detailed information"
 msgstr "_Detaillierte Informationen anzeigen"
 
@@ -11690,6 +11717,9 @@ msgstr "Öffentliche _IP:"
 
 msgid "Ports"
 msgstr "Ports"
+
+msgid "_Enable automatic router port forwarding"
+msgstr "Automatischer _Router-Port-Weiterleitung aktivieren"
 
 msgid "_Manually specify range of ports to listen on"
 msgstr "Port-Bereich, auf dem gehört werden soll, _manuell bestimmen"
