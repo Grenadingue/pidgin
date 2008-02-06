@@ -84,9 +84,9 @@
  * http://settings.myspace.com/index.cfm?fuseaction=user.changepassword
  * (though curiously, not on the 'current password' field). */
 
-/* Not defined; instead have the client reject the password, until libpurple
- * supports specifying a length limit on the protocol's password. */
-/* #define MSIM_MAX_PASSWORD_LENGTH    10	*/
+/* After login fails, if password is greater than this many characters,
+ * warn user that it may be too long. */
+#define MSIM_MAX_PASSWORD_LENGTH    10
 
 /* Build version of MySpaceIM to report to servers (1.0.xxx.0) */
 #define MSIM_CLIENT_VERSION         697
@@ -180,7 +180,9 @@
 #define MSIM_CONTACT_LIST_IMPORT_ALL_FRIENDS	1
 #define MSIM_CONTACT_LIST_IMPORT_TOP_FRIENDS	2
 
-#define MsimAttentionType PurpleAttentionType
+/* Error codes */
+#define MSIM_ERROR_INCORRECT_PASSWORD           260
+#define MSIM_ERROR_LOGGED_IN_ELSEWHERE          6
 
 /* Functions */
 gboolean msim_load(PurplePlugin *plugin);
@@ -200,6 +202,8 @@ void msim_set_idle(PurpleConnection *gc, int time);
 
 void msim_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group);
 void msim_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group);
+
+const char *msim_normalize(const PurpleAccount *account, const char *str);
 
 gboolean msim_offline_message(const PurpleBuddy *buddy);
 
