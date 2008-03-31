@@ -2,7 +2,7 @@
 # Pidgin German translation
 # Copyright (C) 2001, Daniel Seifert <gaim-translation@dseifert.de>
 # Copyright (C) 2002, Karsten Weiss <knweiss@gmx.de>
-# Copyright (C) 2002-2007, Björn Voigt <bjoern@cs.tu-berlin.de>,
+# Copyright (C) 2002-2008, Björn Voigt <bjoern@cs.tu-berlin.de>,
 #                     Jochen Kemnade <jochenkemnade@web.de>
 #
 # This file is distributed under the same license as the Pidgin package.
@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-15 09:48+0100\n"
-"PO-Revision-Date: 2008-03-15 09:48+0100\n"
-"Last-Translator: Jochen Kemnade <jochenkemnade@web.de>\n"
+"POT-Creation-Date: 2008-03-30 22:16+0200\n"
+"PO-Revision-Date: 2008-03-24 23:02+0100\n"
+"Last-Translator: Bjoern Voigt <bjoern@cs.tu-berlin.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -4439,6 +4439,9 @@ msgstr "Erzwinge altes SSL (Port 5223)"
 
 msgid "Allow plaintext auth over unencrypted streams"
 msgstr "Erlaube Klartext-Authentifikation über einen unverschlüsselten Kanal"
+
+msgid "Use GSSAPI (Kerberos v5) for authentication"
+msgstr "GSSAPI (Kerberos v5) für Authentifizierung benutzen"
 
 msgid "Connect port"
 msgstr "Verbindungsport"
@@ -9988,9 +9991,6 @@ msgstr ""
 "auseinandernehmen, wenn Sie auf 'Expandieren' im Kontextmenü des Kontakts "
 "klicken"
 
-msgid "_Merge"
-msgstr "_Zusammenführen"
-
 msgid "Room _List"
 msgstr "Ra_umliste"
 
@@ -10020,10 +10020,10 @@ msgid "I_M"
 msgstr "I_M"
 
 msgid "_Send File..."
-msgstr "Datei ver_senden..."
+msgstr "_Datei versenden..."
 
 msgid "Add Buddy _Pounce..."
-msgstr "Buddy-_Alarm hinzufügen..."
+msgstr "_Buddy-Alarm hinzufügen..."
 
 msgid "View _Log"
 msgstr "Mi_tschnitt anzeigen"
@@ -10094,7 +10094,7 @@ msgid "/Buddies/Join a _Chat..."
 msgstr "/Buddys/Einen _Chat betreten..."
 
 msgid "/Buddies/Get User _Info..."
-msgstr "/Buddys/B_enutzer-Info abrufen..."
+msgstr "/Buddys/Benu_tzer-Info abrufen..."
 
 msgid "/Buddies/View User _Log..."
 msgstr "/Buddys/Benutzer-_Mitschnitt ansehen..."
@@ -10168,7 +10168,7 @@ msgid "/Tools/System _Log"
 msgstr "/Werkzeuge/_System-Mitschnitt"
 
 msgid "/Tools/Mute _Sounds"
-msgstr "/Werkzeuge/_Stummschalten"
+msgstr "/Werkzeuge/S_tummschalten"
 
 #. Help
 msgid "/_Help"
@@ -10344,26 +10344,17 @@ msgstr "/Buddys/Anzeigen/Untätigkeitszeiten"
 msgid "/Buddies/Show/Protocol Icons"
 msgstr "/Buddys/Anzeigen/Protokoll-Icons"
 
-msgid ""
-"Please enter the screen name of the person you would like to add to your "
-"buddy list. You may optionally enter an alias, or nickname,  for the buddy. "
-"The alias will be displayed in place of the screen name whenever possible.\n"
-msgstr ""
-"Bitte geben Sie den Benutzernamen der Person ein, die Sie zur Buddy-Liste "
-"hinzufügen möchten. Sie können optional einen Alias oder Spitzname für den "
-"Buddy eingeben. Der Alias wird anstelle des Benutzernamens ausgegeben,  wann "
-"immer es möglich ist.\n"
+msgid "Add a buddy.\n"
+msgstr "Einen Buddy hinzufügen.\n"
 
-#. Set up stuff for the account box
-msgid "A_ccount:"
-msgstr "_Konto:"
+msgid "Buddy's _screen name:"
+msgstr "_Benutzername des Buddys:"
 
-#. End of account box
-msgid "_Screen name:"
-msgstr "_Benutzername:"
+msgid "(Optional) A_lias:"
+msgstr "(Optionaler) A_lias:"
 
-msgid "A_lias:"
-msgstr "A_lias:"
+msgid "Add buddy to _group:"
+msgstr "Buddy zu folgender _Gruppe hinzufügen:"
 
 msgid "This protocol does not support chat rooms."
 msgstr "Dieses Protokoll unterstützt keine Chaträume."
@@ -10379,6 +10370,9 @@ msgid ""
 msgstr ""
 "Bitte geben Sie einen Alias und geeignete Informationen über den Chat ein, "
 "den Sie in Ihre Buddy-Liste aufnehmen wollen.\n"
+
+msgid "A_lias:"
+msgstr "A_lias:"
 
 msgid "Auto_join when account becomes online."
 msgstr "Automatisch _beitreten, wenn das Konto online geht."
@@ -10509,7 +10503,7 @@ msgid "/Conversation/View _Log"
 msgstr "/Unterhaltung/Betrachte _Mitschnitt"
 
 msgid "/Conversation/_Save As..."
-msgstr "/Unterhaltung/_Speichern als..."
+msgstr "/Unterhaltung/S_peichern als..."
 
 msgid "/Conversation/Clea_r Scrollback"
 msgstr "/Unterhaltung/_Leeren"
@@ -10518,16 +10512,16 @@ msgid "/Conversation/Se_nd File..."
 msgstr "/Unterhaltung/Datei _senden..."
 
 msgid "/Conversation/Add Buddy _Pounce..."
-msgstr "/Unterhaltung/Buddy-Alar_m hinzufügen..."
+msgstr "/Unterhaltung/_Buddy-Alarm hinzufügen..."
 
 msgid "/Conversation/_Get Info"
-msgstr "/Unterhaltung/B_enutzer-Info abrufen"
+msgstr "/Unterhaltung/Ben_utzer-Info abrufen"
 
 msgid "/Conversation/In_vite..."
 msgstr "/Unterhaltung/_Einladen..."
 
 msgid "/Conversation/M_ore"
-msgstr "/Unterhaltung/M_ehr"
+msgstr "/Unterhaltung/Me_hr"
 
 msgid "/Conversation/Al_ias..."
 msgstr "/Unterhaltung/Al_ias..."
@@ -10567,7 +10561,7 @@ msgid "/Options/Show Formatting _Toolbars"
 msgstr "/Optionen/Zeige _Werkzeugleisten für Formatierung"
 
 msgid "/Options/Show Ti_mestamps"
-msgstr "/Optionen/Zeige Zeitste_mpel"
+msgstr "/Optionen/Zeige _Zeitstempel"
 
 msgid "/Conversation/More"
 msgstr "/Unterhaltung/Mehr"
@@ -10644,7 +10638,7 @@ msgstr ""
 
 #. Build the Send To menu
 msgid "S_end To"
-msgstr "S_enden an"
+msgstr "Se_nden an"
 
 msgid "_Send"
 msgstr "Ab_schicken"
