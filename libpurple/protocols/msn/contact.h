@@ -579,7 +579,7 @@
 	"</soap:Body>"\
 "</soap:Envelope>"
 
-typedef enum 
+typedef enum
 {
 	MSN_ADD_BUDDY			= 0x01,
 	MSN_MOVE_BUDDY			= 0x02,
@@ -604,7 +604,7 @@ struct _MsnCallbackState
 	MsnSession *session;
 };
 
-typedef enum 
+typedef enum
 {
 	MSN_PS_INITIAL,
 	MSN_PS_SAVE_CONTACT,
@@ -622,34 +622,34 @@ void msn_callback_state_set_who(MsnCallbackState *state, const gchar *who);
 void msn_callback_state_set_uid(MsnCallbackState *state, const gchar *uid);
 void msn_callback_state_set_old_group_name(MsnCallbackState *state,
 					   const gchar *old_group_name);
-void msn_callback_state_set_new_group_name(MsnCallbackState *state, 
+void msn_callback_state_set_new_group_name(MsnCallbackState *state,
 					   const gchar *new_group_name);
 void msn_callback_state_set_guid(MsnCallbackState *state, const gchar *guid);
 void msn_callback_state_set_list_id(MsnCallbackState *state, MsnListId list_id);
-void msn_callback_state_set_action(MsnCallbackState *state, 
+void msn_callback_state_set_action(MsnCallbackState *state,
 				   MsnCallbackAction action);
 
 void msn_contact_connect(MsnSession *session);
 void msn_get_contact_list(MsnSession *session,
 			  const MsnSoapPartnerScenario partner_scenario,
 			  const char *update);
-void msn_get_address_book(MsnSession *session, 
+void msn_get_address_book(MsnSession *session,
 			  const MsnSoapPartnerScenario partner_scenario,
 			  const char * update, const char * gupdate);
 
 /* contact SOAP operations */
 void msn_update_contact(MsnSession *session, const char* nickname);
 
-void msn_add_contact(MsnSession *session, MsnCallbackState *state, 
+void msn_add_contact(MsnSession *session, MsnCallbackState *state,
 		     const char *passport);
 void msn_delete_contact(MsnSession *session, const char *contactId);
 
-void msn_add_contact_to_group(MsnSession *session, MsnCallbackState *state, 
+void msn_add_contact_to_group(MsnSession *session, MsnCallbackState *state,
 			      const char *passport, const char *groupId);
-void msn_del_contact_from_group(MsnSession *session, const char *passport, 
+void msn_del_contact_from_group(MsnSession *session, const char *passport,
 				const char *group_name);
 /* group operations */
-void msn_add_group(MsnSession *session, MsnCallbackState *state, 
+void msn_add_group(MsnSession *session, MsnCallbackState *state,
 					const char* group_name);
 void msn_del_group(MsnSession *session, const gchar *group_name);
 void msn_contact_rename_group(MsnSession *session, const char *old_group_name,

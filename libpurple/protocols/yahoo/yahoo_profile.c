@@ -745,6 +745,7 @@ static char *yahoo_get_photo_url(const char *url_text, const char *name) {
 				p += 1; /* skip only the ' ' */
 				q = strchr(p, ' ');
 				if (q) {
+					g_free(it);
 					it = g_strndup(p, q - p);
 				}
 			}
@@ -946,11 +947,6 @@ static void yahoo_got_info(PurpleUtilFetchUrlData *url_data, gpointer user_data,
 				FALSE, yahoo_got_photo, info2_data);
 		if (url_data != NULL)
 			yd->url_datas = g_slist_prepend(yd->url_datas, url_data);
-		else {
-			g_free(info2_data->info_data->name);
-			g_free(info2_data->info_data);
-			g_free(info2_data);
-		}
 	} else {
 		/* Emulate a callback */
 		yahoo_got_photo(NULL, info2_data, NULL, 0, NULL);
@@ -1065,7 +1061,7 @@ yahoo_got_photo(PurpleUtilFetchUrlData *url_data, gpointer data,
 	/* extract their Email address and put it in */
 	found |= purple_markup_extract_info_field(stripped, stripped_len, user_info,
 			strings->my_email_string, (yd->jp ? 4 : 1), " ", 0,
-			strings->private_string, _("E-Mail"), 0, NULL, NULL);
+			strings->private_string, _("Email"), 0, NULL, NULL);
 
 	/* extract the Nickname if it exists */
 	found |= purple_markup_extract_info_field(stripped, stripped_len, user_info,
@@ -1286,10 +1282,6 @@ void yahoo_get_info(PurpleConnection *gc, const char *name)
 	url_data = purple_util_fetch_url(url, TRUE, NULL, FALSE, yahoo_got_info, data);
 	if (url_data != NULL)
 		yd->url_datas = g_slist_prepend(yd->url_datas, url_data);
-	else {
-		g_free(data->name);
-		g_free(data);
-	}
 
 	g_free(url);
 }

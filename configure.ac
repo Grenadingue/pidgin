@@ -43,19 +43,19 @@ AC_PREREQ([2.50])
 #
 # Make sure to update finch/libgnt/configure.ac with libgnt version changes.
 #
-m4_define([purple_lt_current], [4])
+m4_define([purple_lt_current], [5])
 m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [4])
-m4_define([purple_micro_version], [2])
+m4_define([purple_minor_version], [5])
+m4_define([purple_micro_version], [0])
 m4_define([purple_version_suffix], [devel])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
 m4_define([purple_display_version], purple_version[]m4_ifdef([purple_version_suffix],[purple_version_suffix]))
 
-m4_define([gnt_lt_current], [4])
+m4_define([gnt_lt_current], [5])
 m4_define([gnt_major_version], [2])
-m4_define([gnt_minor_version], [4])
-m4_define([gnt_micro_version], [2])
+m4_define([gnt_minor_version], [5])
+m4_define([gnt_micro_version], [0])
 m4_define([gnt_version_suffix], [devel])
 m4_define([gnt_version],
           [gnt_major_version.gnt_minor_version.gnt_micro_version])
@@ -108,13 +108,14 @@ AC_DEFINE_UNQUOTED(CONFIG_ARGS, "$ac_configure_args", [configure arguments])
 
 dnl Checks for programs.
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_DISABLE_STATIC
-AM_PROG_LIBTOOL
+AC_PROG_LIBTOOL
 LIBTOOL="$LIBTOOL --silent"
 AC_PROG_INSTALL
 AC_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
-
+AC_FUNC_ALLOCA
 GETTEXT_PACKAGE=pidgin
 AC_SUBST(GETTEXT_PACKAGE)
 
@@ -144,7 +145,7 @@ darwin*)
 	;;
 esac
 
-ALL_LINGUAS="af am ar az be@latin bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr gl gu he hi hu id it ja ka kn ko ku lo lt mk my_MM nb ne nl nn pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
+ALL_LINGUAS="af am ar az be@latin bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr gl gu he hi hu id it ja ka kn ko ku lo lt mk my_MM nb ne nl nn oc pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
 AM_GLIB_GNU_GETTEXT
 
 dnl If we don't have msgfmt, then po/ is going to fail -- ensure that
@@ -210,7 +211,7 @@ AC_CHECK_FUNC(getaddrinfo,
 		[Define to 1 if you have the getaddrinfo function.])],
 	[AC_CHECK_LIB(socket, getaddrinfo,
 		[AC_DEFINE([HAVE_GETADDRINFO]) LIBS="-lsocket -lsnl $LIBS"], , , -lnsl)])
-
+AC_CHECK_FUNCS(inet_ntop)
 dnl Check for socklen_t (in Unix98)
 AC_MSG_CHECKING(for socklen_t)
 AC_TRY_COMPILE([
@@ -233,6 +234,12 @@ AC_TRY_COMPILE([
 		AC_DEFINE(socklen_t, int, [socklen_t size])
 	])
 ])
+
+dnl Some systems do not have sa_len field for struct sockaddr.
+AC_CHECK_MEMBER([struct sockaddr.sa_len],
+	[AC_DEFINE([HAVE_STRUCT_SOCKADDR_SA_LEN],[1],
+	[Define if struct sockaddr has an sa_len member])],[:],
+	[#include <sys/socket.h>])
 
 dnl to prevent the g_stat()/g_unlink() crash,
 dnl (09:50:07) Robot101: LSchiere2: it's easy. +LC_SYS_LARGEFILE somewhere in configure.ac
@@ -948,9 +955,8 @@ AM_CONDITIONAL(USE_INTERNAL_LIBGADU, test "x$gadu_libs" != "xyes")
 AC_SUBST(GADU_LIBS)
 AC_SUBST(GADU_CFLAGS)
 
-# uncomment the next line to make MSNP14 the available
-# AC_ARG_ENABLE(msnp14,[AC_HELP_STRING([--enable-msnp14], [Disable the newer MSNP14 protocol])],,enable_msnp14=no)
-enable_msnp14=no
+# change the next line to make MSNP14 the default (s/enable/disable/; s/no/yes/;)
+AC_ARG_ENABLE(msnp14,[AC_HELP_STRING([--enable-msnp14], [Enable the newer MSNP14 protocol (unsupported)])],,enable_msnp14=no)
 
 AC_ARG_ENABLE(distrib,,,enable_distrib=no)
 AM_CONDITIONAL(DISTRIB, test "x$enable_distrib" = "xyes")
@@ -1623,14 +1629,14 @@ if test "x$enable_gnutls" != "xno"; then
 			*) with_gnutls_libs="-L$with_gnutls_libs" ;;
 		esac
 
-		AC_CACHE_CHECK([for GnuTLS libraries], gnutls_libs,
+		AC_CACHE_CHECK([for GnuTLS libraries], ac_cv_gnutls_libs,
 		[
 			LIBS="$LIBS $with_gnutls_libs -lgnutls -lgcrypt"
-			AC_TRY_LINK_FUNC(gnutls_init, gnutls_libs="yes", gnutls_libs="no")
+			AC_TRY_LINK_FUNC(gnutls_init, ac_cv_gnutls_libs="yes", ac_cv_gnutls_libs="no")
 			LIBS="$LIBS_save"
 		])
 
-		if test "x$gnutls_libs" != "xno"; then
+		if test "x$ac_cv_gnutls_libs" != "xno"; then
 			AC_DEFINE(HAVE_GNUTLS, 1, [Define if you have GnuTLS])
 			AC_DEFINE(HAVE_SSL)
 			msg_gnutls="GnuTLS"
@@ -1783,7 +1789,7 @@ if test "x$enable_nss" != "xno"; then
 				nsprlibs="$LIBDL -lplc4 -lplds4 -lnspr4 $PTHREAD_LIB"
 			fi
 
-			AC_CACHE_CHECK([for Mozilla nspr libraries], moz_nspr_libs,
+			AC_CACHE_CHECK([for Mozilla nspr libraries], ac_cv_moz_nspr_libs,
 			[
 				LIBS_save=$LIBS
 				CFLAGS="$CFLAGS $NSPR_CFLAGS"
@@ -1797,15 +1803,15 @@ if test "x$enable_nss" != "xno"; then
 				fi
 
 				AC_TRY_LINK_FUNC(PR_Init,
-					[moz_nspr_libs="yes"],
-					[moz_nspr_libs="no"])
+					[ac_cv_moz_nspr_libs="yes"],
+					[ac_cv_moz_nspr_libs="no"])
 
 				CFLAGS=$CFLAGS_save
 				LDFLAGS=$LDFLAGS_save
 				LIBS=$LIBS_save
 			])
 
-			if test "x$moz_nspr_libs" != "xno"; then
+			if test "x$ac_cv_moz_nspr_libs" != "xno"; then
 				have_nspr_libs="yes"
 				NSPR_LIBS="-L$with_nspr_libs $nsprlibs"
 			else
@@ -1878,30 +1884,30 @@ if test "x$enable_nss" != "xno"; then
 				nsslibs="-lssl3 -lsmime3 -lnss3 -lsoftokn3"
 			fi
 
-			AC_CACHE_CHECK([for Mozilla nss libraries], moz_nss_libs,
+			AC_CACHE_CHECK([for Mozilla nss libraries], ac_cv_moz_nss_libs,
 			[
 				LIBS_save=$LIBS
 				LDFLAGS="$LDFLAGS -L$with_nspr_libs -L$with_nss_libs"
 				LIBS="$nsslibs $nsprlibs"
 
 				AC_TRY_LINK_FUNC(NSS_Init,
-					[moz_nss_libs="yes"],
-					[moz_nss_libs="no"])
+					[ac_cv_moz_nss_libs="yes"],
+					[ac_cv_moz_nss_libs="no"])
 
-				if test "x$moz_nss_libs" = "xno"; then
+				if test "x$ac_cv_moz_nss_libs" = "xno"; then
 					nsslibs="-lssl3 -lsmime3 -lnss3 -lsoftokn3"
 					LDFLAGS="$LDFLAGS -L$with_nspr_libs -L$with_nss_libs" 
 					LIBS="$LIBS $nsslibs"
 					AC_TRY_LINK_FUNC(NSS_Init,
-						[moz_nss_libs="yes"],
-						[moz_nss_libs="no"])
+						[ac_cv_moz_nss_libs="yes"],
+						[ac_cv_moz_nss_libs="no"])
 				fi
 
 				LDFLAGS=$LDFLAGS_save
 				LIBS=$LIBS_save
 			])
 
-			if test "x$moz_nss_libs" != "xno"; then
+			if test "x$ac_cv_moz_nss_libs" != "xno"; then
 				AC_DEFINE(HAVE_NSS)
 				AC_DEFINE(HAVE_SSL)
 
@@ -2230,11 +2236,7 @@ fi
 dnl #######################################################################
 dnl # Check for check
 dnl #######################################################################
-PKG_CHECK_MODULES(CHECK,[check >= 0.9.4],:,[
-					ifdef([[AM_PATH_CHECK]],
-					[AM_PATH_CHECK(0.8.2,:,:)],
-					[AC_MSG_RESULT([no, testing is disabled])])
-				  ])
+PKG_CHECK_MODULES(CHECK, [check >= 0.9.4], , [AC_MSG_RESULT([no, testing is disabled])])
 AM_CONDITIONAL(HAVE_CHECK, [test "x$CHECK_LIBS" != "x"])
 AC_SUBST(CHECK_CFLAGS)
 AC_SUBST(CHECK_LIBS)

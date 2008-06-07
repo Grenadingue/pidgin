@@ -1,6 +1,29 @@
 Pidgin and Finch: The Pimpin' Penguin IM Clients That're Good for the Soul
 
-version 2.x.x:
+version 2.5.0 (??/??/2008):
+	libpurple:
+	* Ability to create custom smileys (currently only the MSN protocol
+	  utilizes the feature). (Thanks to Mauro Sérgio Ferreira Brasil,
+	  Marcus Lundblad, Jorge Villaseñor and other contributors)
+	* Yahoo! Japan now uses UTF-8, matching the behavior of official clients
+	  and restoring compatibility with the web messenger (Yusuke Odate)
+
+	Pidgin:
+	* Custom buddy icons can now be added and removed to buddy list
+	  entries via the buddy list entry right-click menu.
+	* Resize large incoming custom smileys to a maximum of 96px on either
+	  side.
+
+	General:
+	* Group and Chat buddy list entries can now be given custom buddy
+	  icons.
+
+	Finch:
+	* Added "Invite..." menu to chats.
+	* Added "View All Logs" menu in the buddylist to display a list of all IM
+	  logs.
+
+version 2.4.2 (05/17/2008):
 	libpurple:
 	* In MySpaceIM, messages from spambots are discarded (Justin Williams)
 	* Strip mIRC formatting codes from quit and part messages.
@@ -15,9 +38,13 @@ version 2.x.x:
 	  libnm-glib.  Hopefully it's stable now.  It will now compile by
 	  default if you have D-Bus support and NetworkManager.h. (Elliott
 	  Sales de Andrade)
-	* MSN buddy list synchronization is now more forgiving, only asking about
-	  buddies who have disappeared completely from the server list and not
-	  those that have simply moved groups.
+	* MSN buddy list synchronization is now more forgiving, only asking
+	  about buddies who have disappeared completely from the server list
+	  and not those that have simply moved groups.
+	* IRC will now try to append 1-9 to your nick if it is in use, instead
+	  of substituting the last character with 1-9 where possible.
+	* Bonjour buddies will be saved persistently if they're moved out of
+	  the "Bonjour" group. (Eion Robb)
 
 	Pidgin:
 	* The typing notification in the conversation history can be disabled or
@@ -42,6 +69,7 @@ version 2.x.x:
 	  lines.
 	* Moved the "Local alias" field in the Modify Account dialog to be below
 	  the "User Options" heading on the "Basic" tab.
+	* Number of room occupants is now shown in chat tooltips where possible
 
 	General:
 	* The configure script now dies on more absent dependencies.  The
