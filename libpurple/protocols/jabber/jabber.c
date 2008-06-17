@@ -627,7 +627,7 @@ jabber_login(PurpleAccount *account)
 	js->write_buffer = purple_circ_buffer_new(512);
 	js->old_length = 0;
 	js->keepalive_timeout = -1;
-	js->certificate_CN = g_strdup(connect_server[0] ? connect_server : js->user->domain);
+	js->certificate_CN = g_strdup(connect_server[0] ? connect_server : js->user ? js->user->domain : NULL);
 
 	if(!js->user) {
 		purple_connection_error_reason (gc,
@@ -995,7 +995,7 @@ void jabber_register_parse(JabberStream *js, xmlnode *packet)
 		purple_request_field_group_add_field(group, field);
 	}
 	if(xmlnode_get_child(query, "email")) {
-		field = purple_request_field_string_new("email", _("E-mail"), NULL, FALSE);
+		field = purple_request_field_string_new("email", _("Email"), NULL, FALSE);
 		purple_request_field_group_add_field(group, field);
 	}
 	if(xmlnode_get_child(query, "nick")) {
@@ -1504,8 +1504,7 @@ void jabber_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboole
 
 		if (full) {
 			PurpleStatus *status;
-			PurpleValue *value;
-			
+
 			if(jb->subscription & JABBER_SUB_FROM) {
 				if(jb->subscription & JABBER_SUB_TO)
 					sub = _("Both");
@@ -1521,17 +1520,17 @@ void jabber_tooltip_text(PurpleBuddy *b, PurpleNotifyUserInfo *user_info, gboole
 				else
 					sub = _("None");
 			}
-			
+
 			purple_notify_user_info_add_pair(user_info, _("Subscription"), sub);
-			
+
 			status = purple_presence_get_active_status(presence);
-			value = purple_status_get_attr_value(status, "mood");
-			if (value && purple_value_get_type(value) == PURPLE_TYPE_STRING && (mood = purple_value_get_string(value))) {
-				
-				value = purple_status_get_attr_value(status, "moodtext");
-				if(value && purple_value_get_type(value) == PURPLE_TYPE_STRING) {
-					char *moodplustext = g_strdup_printf("%s (%s)",mood,purple_value_get_string(value));
-					
+			mood = purple_status_get_attr_string(status, "mood");
+			if(mood != NULL) {
+				const char *moodtext;
+				moodtext = purple_status_get_attr_string(status, "moodtext");
+				if(moodtext != NULL) {
+					char *moodplustext = g_strdup_printf("%s (%s)", mood, moodtext);
+
 					purple_notify_user_info_add_pair(user_info, _("Mood"), moodplustext);
 					g_free(moodplustext);
 				} else
