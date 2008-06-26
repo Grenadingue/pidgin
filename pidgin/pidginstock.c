@@ -168,6 +168,7 @@ static struct SizedStockIcon {
 	{ PIDGIN_STOCK_TOOLBAR_UNBLOCK, "toolbar", "unblock.png", FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL  },
 	{ PIDGIN_STOCK_TOOLBAR_SELECT_AVATAR, "toolbar", "select-avatar.png", FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, NULL  },
 	{ PIDGIN_STOCK_TOOLBAR_SEND_FILE, "toolbar", "send-file.png", FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL  },
+	{ PIDGIN_STOCK_TOOLBAR_TRANSFER, "toolbar", "transfer.png", FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL  },
 
 #ifdef USE_VV
 	{ PIDGIN_STOCK_TOOLBAR_AUDIO_CALL, "toolbar", "audio-call.png", FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, NULL  },
@@ -214,39 +215,39 @@ add_sized_icon(GtkIconSet *iconset, GtkIconSize sizeid, const char *dir,
 
 	filename = g_build_filename(DATADIR, "pixmaps", "pidgin", dir, size, file, NULL);
 	source = gtk_icon_source_new();
-	gtk_icon_source_set_filename(source, filename);
+        gtk_icon_source_set_filename(source, filename);
 	gtk_icon_source_set_direction(source, GTK_TEXT_DIR_LTR);
-	gtk_icon_source_set_direction_wildcarded(source, !rtl);
+        gtk_icon_source_set_direction_wildcarded(source, !rtl);
 	gtk_icon_source_set_size(source, sizeid);
-	gtk_icon_source_set_size_wildcarded(source, FALSE);
-	gtk_icon_source_set_state_wildcarded(source, TRUE);
-	gtk_icon_set_add_source(iconset, source);
+        gtk_icon_source_set_size_wildcarded(source, FALSE);
+        gtk_icon_source_set_state_wildcarded(source, TRUE);
+        gtk_icon_set_add_source(iconset, source);
 	gtk_icon_source_free(source);
 
 	if (sizeid == gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL)) {
 		source = gtk_icon_source_new();
-		gtk_icon_source_set_filename(source, filename);
-		gtk_icon_source_set_direction_wildcarded(source, TRUE);
-		gtk_icon_source_set_size(source, GTK_ICON_SIZE_MENU);
-		gtk_icon_source_set_size_wildcarded(source, FALSE);
-		gtk_icon_source_set_state_wildcarded(source, TRUE);
-		gtk_icon_set_add_source(iconset, source);
-		gtk_icon_source_free(source);
+	        gtk_icon_source_set_filename(source, filename);
+        	gtk_icon_source_set_direction_wildcarded(source, TRUE);
+	        gtk_icon_source_set_size(source, GTK_ICON_SIZE_MENU);
+	        gtk_icon_source_set_size_wildcarded(source, FALSE);
+        	gtk_icon_source_set_state_wildcarded(source, TRUE);
+	        gtk_icon_set_add_source(iconset, source);
+	        gtk_icon_source_free(source);
 	}
-	g_free(filename);
+        g_free(filename);
 
-	if (rtl) {
+       if (rtl) {
 		filename = g_build_filename(DATADIR, "pixmaps", "pidgin", dir, size, "rtl", file, NULL);
-		source = gtk_icon_source_new();
-		gtk_icon_source_set_filename(source, filename);
-		gtk_icon_source_set_direction(source, GTK_TEXT_DIR_RTL);
-		gtk_icon_source_set_size(source, sizeid);
-		gtk_icon_source_set_size_wildcarded(source, FALSE);
-		gtk_icon_source_set_state_wildcarded(source, TRUE);
-		gtk_icon_set_add_source(iconset, source);
+                source = gtk_icon_source_new();
+                gtk_icon_source_set_filename(source, filename);
+                gtk_icon_source_set_direction(source, GTK_TEXT_DIR_RTL);
+                gtk_icon_source_set_size(source, sizeid);
+                gtk_icon_source_set_size_wildcarded(source, FALSE);
+                gtk_icon_source_set_state_wildcarded(source, TRUE);
+                gtk_icon_set_add_source(iconset, source);
 		g_free(filename);
 		gtk_icon_source_free(source);
-	}
+        }
 
 
 }

@@ -566,6 +566,7 @@ TOOLBAR_16 = \
 		toolbar/16/message-new.png \
 		toolbar/16/plugins.png \
 		toolbar/16/send-file.png \
+		toolbar/16/transfer.png \
 		toolbar/16/unblock.png \
 		toolbar/16/video-call.png
 

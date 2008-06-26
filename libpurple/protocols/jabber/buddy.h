@@ -96,8 +96,6 @@ void jabber_buddy_resource_free(JabberBuddyResource *jbr);
 void jabber_buddy_remove_resource(JabberBuddy *jb, const char *resource);
 const char *jabber_buddy_get_status_msg(JabberBuddy *jb);
 void jabber_buddy_get_info(PurpleConnection *gc, const char *who);
-void jabber_buddy_get_info_chat(PurpleConnection *gc, int id,
-		const char *resource);
 
 gboolean jabber_buddy_has_capability(JabberBuddy *jb, const gchar *cap);
 
