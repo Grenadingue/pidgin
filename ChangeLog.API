@@ -6,7 +6,7 @@ version ?.?.? (??/??/????):
 		* PurpleMedia API
 		* xmlnode_get_parent
 
-version 2.5.0 (08/17/2008):
+version 2.5.0 (08/18/2008):
 	libpurple:
 		Added:
 		* Connection flag PURPLE_CONNECTION_ALLOW_CUSTOM_SMILEY to indicate
