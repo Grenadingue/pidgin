@@ -4384,10 +4384,12 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL, /* send_raw */
 	NULL, /* roomlist_room_serialize */
 	NULL, /* unregister_user */
+
 	yahoo_send_attention,
 	yahoo_attention_types,
+
 	sizeof(PurplePluginProtocolInfo),       /* struct_size */
-	NULL, /* get_account_text_table */
+	yahoo_get_account_text_table,    /* get_account_text_table */
 	NULL, /* initiate_media */
 	NULL  /* can_do_media */
 };
@@ -4482,4 +4484,3 @@ init_plugin(PurplePlugin *plugin)
 }
 
 PURPLE_INIT_PLUGIN(yahoo, init_plugin, info);
-
