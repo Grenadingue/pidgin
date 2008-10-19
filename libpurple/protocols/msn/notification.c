@@ -306,7 +306,7 @@ ver_cmd(MsnCmdProc *cmdproc, MsnCommand *cmd)
 	 * to see the Local ID
 	 */
 	msn_cmdproc_send(cmdproc, "CVR",
-					"0x0409 winnt 5.1 i386 MSNMSGR 8.5.1288 msmsgs %s",
+					"0x0409 winnt 5.1 i386 MSNMSGR 8.5.1302 BC01 %s",
 					 purple_account_get_username(account));
 }
 
@@ -613,11 +613,14 @@ msn_notification_dump_contact(MsnSession *session)
 	xmlnode_set_attrib(adl_node, "l", "1");
 
 	/*get the userlist*/
-	for (l = session->userlist->users; l != NULL; l = l->next){
+	for (l = session->userlist->users; l != NULL; l = l->next) {
 		user = l->data;
 
 		/* skip RL & PL during initial dump */
 		if (!(user->list_op & MSN_LIST_OP_MASK))
+			continue;
+
+		if (user->passport && !strcmp(user->passport, "messenger@microsoft.com"))
 			continue;
 
 		msn_add_contact_xml(session, adl_node, user->passport,
@@ -1060,7 +1063,8 @@ ipg_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload, size_t len)
 {
 	PurpleConnection *gc;
 	MsnUserList *userlist;
-	char *who = NULL, *text = NULL;
+	const char *who = NULL;
+	char *text = NULL;
 	const char *id = NULL;
 	xmlnode *payloadNode, *from, *msg, *textNode;
 
@@ -1104,13 +1108,18 @@ ipg_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload, size_t len)
 	   </NOTIFICATION>
 	*/
 
-	if (!(payloadNode = xmlnode_from_str(payload, len)) ||
-		!(from = xmlnode_get_child(payloadNode, "FROM")) ||
-		!(msg = xmlnode_get_child(payloadNode, "MSG")) ||
-		!(textNode = xmlnode_get_child(msg, "BODY/TEXT")))
+	payloadNode = xmlnode_from_str(payload, len);
+	if (!payloadNode)
 		return;
 
-	who = g_strdup(xmlnode_get_attrib(from, "name"));
+	if (!(from = xmlnode_get_child(payloadNode, "FROM")) ||
+		!(msg = xmlnode_get_child(payloadNode, "MSG")) ||
+		!(textNode = xmlnode_get_child(msg, "BODY/TEXT"))) {
+		xmlnode_free(payloadNode);
+		return;
+	}
+
+	who = xmlnode_get_attrib(from, "name");
 	if (!who) return;
 
 	text = xmlnode_get_data(textNode);
@@ -1121,10 +1130,8 @@ ipg_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload, size_t len)
 		MsnUser *user =
 			msn_userlist_find_user_with_mobile_phone(userlist, who + 4);
 
-		if(user && user->passport) {
-			g_free(who);
-			who = g_strdup(user->passport);
-		}
+		if (user && user->passport)
+			who = user->passport;
 	}
 
 	id = xmlnode_get_attrib(msg, "id");
@@ -1143,7 +1150,6 @@ ipg_cmd_post(MsnCmdProc *cmdproc, MsnCommand *cmd, char *payload, size_t len)
 	}
 
 	g_free(text);
-	g_free(who);
 	xmlnode_free(payloadNode);
 }
 
