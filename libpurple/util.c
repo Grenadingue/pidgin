@@ -3700,9 +3700,7 @@ url_fetch_recv_cb(gpointer url_data, gint source, PurpleInputCondition cond)
 	while((len = read(source, buf, sizeof(buf))) > 0) {
 
 		if(gfud->max_len != -1 && (gfud->len + len) > gfud->max_len) {
-			/* TODO: Fix this when not string frozen */
-			/*purple_util_fetch_url_error(gfud, _("Error reading from %s: response too long (%d bytes limit)"),*/
-			purple_util_fetch_url_error(gfud, "Error reading from %s: response too long (%d bytes limit)",
+			purple_util_fetch_url_error(gfud, _("Error reading from %s: response too long (%d bytes limit)"),
 						    gfud->website.address, gfud->max_len);
 			return;
 		}
@@ -3918,6 +3916,13 @@ purple_util_fetch_url_request(const char *url, gboolean full,
 					     callback, user_data);
 }
 
+static gboolean
+url_fetch_connect_failed(gpointer data)
+{
+	url_fetch_connect_cb(data, -1, "");
+	return FALSE;
+}
+
 PurpleUtilFetchUrlData *
 purple_util_fetch_url_request_len(const char *url, gboolean full,
 		const char *user_agent, gboolean http11,
@@ -3955,9 +3960,8 @@ purple_util_fetch_url_request_len(const char *url, gboolean full,
 
 	if (gfud->connect_data == NULL)
 	{
-		purple_util_fetch_url_error(gfud, _("Unable to connect to %s"),
-				gfud->website.address);
-		return NULL;
+		/* Trigger the connect_cb asynchronously. */
+		purple_timeout_add(10, url_fetch_connect_failed, gfud);
 	}
 
 	return gfud;
