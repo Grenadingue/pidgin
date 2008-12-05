@@ -24,6 +24,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  *
  */
+#define _PIDGIN_GTKCONV_C_
+
 #include "internal.h"
 #include "pidgin.h"
 
@@ -969,7 +971,9 @@ savelog_writefile_cb(void *user_data, const char *filename)
 	}
 
 	name = purple_conversation_get_name(conv);
-	fprintf(fp, "<html>\n<head><title>%s</title></head>\n<body>", name);
+	fprintf(fp, "<html>\n<head>\n");
+	fprintf(fp, "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n");
+	fprintf(fp, "<title>%s</title>\n</head>\n<body>\n", name);
 	fprintf(fp, _("<h1>Conversation with %s</h1>\n"), name);
 
 	lines = gtk_imhtml_get_markup_lines(
@@ -2755,26 +2759,16 @@ saveicon_writefile_cb(void *user_data, const char *filename)
 {
 	PidginConversation *gtkconv = (PidginConversation *)user_data;
 	PurpleConversation *conv = gtkconv->active_conv;
-	FILE *fp;
 	PurpleBuddyIcon *icon;
 	const void *data;
 	size_t len;
 
-	if ((fp = g_fopen(filename, "wb")) == NULL) {
-		purple_notify_error(gtkconv, NULL, _("Unable to open file."), NULL);
-		return;
-	}
-
 	icon = purple_conv_im_get_icon(PURPLE_CONV_IM(conv));
 	data = purple_buddy_icon_get_data(icon, &len);
 
-	if ((len <= 0) || (data == NULL) || (fwrite(data, 1, len, fp) != len)) {
+	if ((len <= 0) || (data == NULL) || !purple_util_write_data_to_file_absolute(filename, data, len)) {
 		purple_notify_error(gtkconv, NULL, _("Unable to save icon file to disk."), NULL);
-		fclose(fp);
-		g_unlink(filename);
-		return;
 	}
-	fclose(fp);
 }
 
 static void

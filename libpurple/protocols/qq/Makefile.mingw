@@ -6,7 +6,6 @@
 
 PIDGIN_TREE_TOP := ../../..
 include $(PIDGIN_TREE_TOP)/libpurple/win32/global.mak
-
 CURRENT_REVISION=$(shell \
 		 if [ -e ./.hg_archival.txt ]; then \
 		   awk 'BEGIN {"grep node .hg_archival.txt" | getline rev; \

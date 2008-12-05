@@ -261,7 +261,7 @@ void qq_process_group_cmd_join_group(guint8 *data, gint len, PurpleConnection *g
 		break;
 	case QQ_ROOM_JOIN_NEED_AUTH:
 		purple_debug_info("QQ",
-			   "Fail joining room ext id %u %s, needs authentication\n",
+			   "Failed to join room ext id %u %s, needs authentication\n",
 			   rmd->ext_id, rmd->title_utf8);
 		rmd->my_role = QQ_ROOM_ROLE_NO;
 		do_room_join_request(gc, rmd);
@@ -273,7 +273,7 @@ void qq_process_group_cmd_join_group(guint8 *data, gint len, PurpleConnection *g
 		break;
 	default:
 		purple_debug_info("QQ",
-			   "Failed joining room ext id %u %s, unknown reply: 0x%02x\n",
+			   "Failed to join room ext id %u %s, unknown reply: 0x%02x\n",
 			   rmd->ext_id, rmd->title_utf8, reply);
 
 		purple_notify_info(gc, _("QQ Qun Operation"), _("Failed:"), _("Join Qun, Unknow Reply"));

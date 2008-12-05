@@ -418,8 +418,8 @@ static void info_modify_dialogue(PurpleConnection *gc, gchar **segments, int icl
 			utf8_title = g_strdup(_("Modify Address"));
 			utf8_prim = g_strdup_printf("%s for %s", _("Modify Address"), segments[0]);
 		case QQ_FIELD_EXT:
-			utf8_title = g_strdup(_("Modify Extend Information"));
-			utf8_prim = g_strdup_printf("%s for %s", _("Modify Extend Information"), segments[0]);
+			utf8_title = g_strdup(_("Modify Extended Information"));
+			utf8_prim = g_strdup_printf("%s for %s", _("Modify Extended Information"), segments[0]);
 			break;
 		case QQ_FIELD_BASE:
 		default:
@@ -457,7 +457,7 @@ void qq_process_change_info(PurpleConnection *gc, guint8 *data, gint data_len)
 	data[data_len] = '\0';
 	if (qd->uid != atoi((gchar *) data)) {	/* return should be my uid */
 		purple_debug_info("QQ", "Failed Updating info\n");
-		qq_got_message(gc, _("Failed changing buddy information."));
+		qq_got_attention(gc, _("Could not change buddy information."));
 	}
 }
 
@@ -483,43 +483,21 @@ static void request_set_buddy_icon(PurpleConnection *gc, gint face_num)
 
 void qq_change_icon_cb(PurpleConnection *gc, const char *filepath)
 {
-	gchar **segments;
-	const gchar *filename;
-	gint index;
+	gchar *basename;
+	size_t index;
 	gint face;
-	gchar *error;
 
 	g_return_if_fail(filepath != NULL);
 
 	purple_debug_info("QQ", "Change my icon to %s\n", filepath);
-	segments = g_strsplit_set(filepath, G_DIR_SEPARATOR_S, 0);
 
-#if 0
-	for (index = 0; segments[index] != NULL; index++) {
-		purple_debug_info("QQ", "Split to %s\n", segments[index]);
-	}
-#endif
-
-	index = g_strv_length(segments) - 1;
-	if (index < 0) {
-		g_strfreev(segments);
-		return;
-	}
-
-	filename = segments[index];
-	index = strcspn (filename, "0123456789");
-	if (index < 0 || index >= strlen(filename)) {
-		error = g_strdup_printf(_("Can not get face number in file name (%s)"), filename);
-		purple_notify_error(gc, _("QQ Buddy"), _("Failed change icon"), error);
-		g_free(error);
-		return;
-	}
-	face = strtol(filename+index, NULL, 10);
+	basename = g_path_get_basename(filepath);
+	index = strcspn(basename, "0123456789");
+	face = strtol(basename + index, NULL, 10);
+	g_free(basename);
 	purple_debug_info("QQ", "Set face to %d\n", face);
 
 	request_set_buddy_icon(gc, face);
-
-	g_strfreev(segments);
 }
 
 void qq_set_custom_icon(PurpleConnection *gc, PurpleStoredImage *img)
@@ -531,6 +509,10 @@ void qq_set_custom_icon(PurpleConnection *gc, PurpleStoredImage *img)
 
 	g_return_if_fail(icon_path != NULL);
 
+	/* Fixme:
+	 *  icon_path is always null
+	 *  purple_imgstore_get_filename is always new file
+	 *  QQ buddy may set custom icon if level is over 16 */
 	purple_debug_info("QQ", "Change my icon to %s\n", icon_path);
 	segments = g_strsplit_set(icon_path, G_DIR_SEPARATOR_S, 0);
 	for (index = 0; segments[index] != NULL; index++) {
@@ -856,7 +838,7 @@ static void process_level_2007(PurpleConnection *gc, guint8 *data, gint data_len
 
 	bd = qq_buddy_data_find(gc, uid);
 	if (bd == NULL) {
-		purple_debug_error("QQ", "Got levels of %u not in my buddy list\n", uid);
+		purple_debug_error("QQ", "Got levels of %d not in my buddy list\n", uid);
 		return;
 	}
 

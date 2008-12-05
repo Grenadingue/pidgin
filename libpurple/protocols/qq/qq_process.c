@@ -1005,7 +1005,7 @@ guint8 qq_proc_login_cmds(PurpleConnection *gc,  guint16 cmd, guint16 seq,
 				return ret_8;
 			}
 
-			purple_connection_update_progress(gc, _("Logined"), QQ_CONNECT_STEPS - 1, QQ_CONNECT_STEPS);
+			purple_connection_update_progress(gc, _("Logging in"), QQ_CONNECT_STEPS - 1, QQ_CONNECT_STEPS);
 			purple_debug_info("QQ", "Login replies OK; everything is fine\n");
 			purple_connection_set_state(gc, PURPLE_CONNECTED);
 			qd->is_login = TRUE;	/* must be defined after sev_finish_login */

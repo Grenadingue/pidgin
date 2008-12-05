@@ -126,8 +126,8 @@ static gboolean set_new_server(qq_data *qd)
 	/* get new server */
 	index  = rand() % count;
 	it = g_list_nth(qd->servers, index);
-    qd->curr_server = it->data;		/* do not free server_name */
-    if (qd->curr_server == NULL || strlen(qd->curr_server) <= 0 ) {
+	qd->curr_server = it->data;		/* do not free server_name */
+	if (qd->curr_server == NULL || strlen(qd->curr_server) <= 0 ) {
 		purple_debug_info("QQ", "Server name at %d is empty\n", index);
 		return FALSE;
 	}
@@ -204,7 +204,7 @@ gboolean qq_connect_later(gpointer data)
 		if ( set_new_server(qd) != TRUE) {
 			purple_connection_error_reason(gc,
 					PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-					_("Failed to connect all servers"));
+					_("Unable to connect."));
 			return FALSE;
 		}
 		qd->connect_retry = QQ_CONNECT_MAX;
@@ -456,9 +456,6 @@ static void tcp_pending(gpointer data, gint source, PurpleInputCondition cond)
 			conn->tcp_rxqueue = NULL;
 		}
 
-		if (pkt == NULL) {
-			continue;
-		}
 		/* packet_process may call disconnect and destory data like conn
 		 * do not call packet_process before jump,
 		 * break if packet_process return FALSE */

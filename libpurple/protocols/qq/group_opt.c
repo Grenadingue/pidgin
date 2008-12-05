@@ -204,7 +204,7 @@ void qq_group_process_modify_members_reply(guint8 *data, gint len, PurpleConnect
 
 	purple_debug_info("QQ", "Succeed in modify members for room %u\n", rmd->ext_id);
 
-	qq_room_got_chat_in(gc, id, 0, _("Successed changing Qun member"), now);
+	qq_room_got_chat_in(gc, id, 0, _("Successfully changed Qun member"), now);
 }
 
 void qq_room_change_info(PurpleConnection *gc, qq_room_data *rmd)
@@ -246,9 +246,9 @@ void qq_group_process_modify_info_reply(guint8 *data, gint len, PurpleConnection
 	bytes += qq_get32(&id, data + bytes);
 	g_return_if_fail(id > 0);
 
-	purple_debug_info("QQ", "Succeed modify room info of %u\n", id);
+	purple_debug_info("QQ", "Successfully modified room info of %u\n", id);
 
-	qq_room_got_chat_in(gc, id, 0, _("Successed changing Qun information"), now);
+	qq_room_got_chat_in(gc, id, 0, _("Successfully changed Qun information"), now);
 }
 
 /* we create a very simple room first, and then let the user to modify */
@@ -519,7 +519,7 @@ void qq_process_room_buddy_approved(guint8 *data, gint len, guint32 id, PurpleCo
 		rmd->my_role = QQ_ROOM_ROLE_YES;
 	}
 
-	msg = g_strdup_printf(_("<b>Joinning Qun %u is approved by Admin %u for %s</b>"),
+	msg = g_strdup_printf(_("<b>Joinning Qun %u is approved by admin %u for %s</b>"),
 			ext_id, admin_uid, reason);
 	now = time(NULL);
 	qq_room_got_chat_in(gc, id, 0, msg, now);
