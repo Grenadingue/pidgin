@@ -20,6 +20,8 @@
 #ifndef _MYSPACE_SESSION_H
 #define _MYSPACE_SESSION_H
 
+#include "account.h"
+
 /* Random number in every MsimSession, to ensure it is valid. */
 #define MSIM_SESSION_STRUCT_MAGIC       0xe4a6752b
 
@@ -51,7 +53,6 @@ typedef struct _MsimSession
 
 /* Check if an MsimSession is valid */
 #define MSIM_SESSION_VALID(s) (session != NULL && session->magic == MSIM_SESSION_STRUCT_MAGIC)
-
 
 MsimSession *msim_session_new(PurpleAccount *acct);
 void msim_session_destroy(MsimSession *session);
