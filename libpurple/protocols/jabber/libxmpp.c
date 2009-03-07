@@ -44,6 +44,7 @@
 #include "usertune.h"
 #include "caps.h"
 #include "data.h"
+#include "ibb.h"
 
 static PurplePluginProtocolInfo prpl_info =
 {
@@ -137,7 +138,7 @@ static gboolean load_plugin(PurplePlugin *plugin)
 			     purple_marshal_VOID__POINTER_POINTER, NULL, 2,
 			     purple_value_new(PURPLE_TYPE_SUBTYPE, PURPLE_SUBTYPE_CONNECTION),
 			     purple_value_new_outgoing(PURPLE_TYPE_STRING));
-	
+
 	return TRUE;
 }
 
@@ -146,12 +147,14 @@ static gboolean unload_plugin(PurplePlugin *plugin)
 	purple_signal_unregister(plugin, "jabber-receiving-xmlnode");
 
 	purple_signal_unregister(plugin, "jabber-sending-xmlnode");
-	
+
 	purple_signal_unregister(plugin, "jabber-sending-text");
 
 	/* reverse order of init_plugin */
 	jabber_bosh_uninit();
 	jabber_data_uninit();
+	jabber_si_uninit();
+	jabber_ibb_uninit();
 	/* PEP things should be uninit via jabber_pep_uninit, not here */
 	jabber_pep_uninit();
 	jabber_caps_uninit();
@@ -212,24 +215,19 @@ init_plugin(PurplePlugin *plugin)
 #endif
 	PurpleAccountUserSplit *split;
 	PurpleAccountOption *option;
-	
 	/* Translators: 'domain' is used here in the context of Internet domains, e.g. pidgin.im */
 	split = purple_account_user_split_new(_("Domain"), NULL, '@');
 	purple_account_user_split_set_reverse(split, FALSE);
 	prpl_info.user_splits = g_list_append(prpl_info.user_splits, split);
-	
 	split = purple_account_user_split_new(_("Resource"), NULL, '/');
 	purple_account_user_split_set_reverse(split, FALSE);
 	prpl_info.user_splits = g_list_append(prpl_info.user_splits, split);
-	
 	option = purple_account_option_bool_new(_("Require SSL/TLS"), "require_tls", FALSE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
 											   option);
-	
 	option = purple_account_option_bool_new(_("Force old (port 5223) SSL"), "old_ssl", FALSE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
 											   option);
-	
 	option = purple_account_option_bool_new(
 						_("Allow plaintext auth over unencrypted streams"),
 						"auth_plain_in_clear", FALSE);
@@ -292,11 +290,15 @@ init_plugin(PurplePlugin *plugin)
 
 	#warning implement adding and retrieving own features via IPC API
 
+	jabber_ibb_init();
+	jabber_si_init();
+
 	jabber_add_feature(AVATARNAMESPACEMETA, jabber_pep_namespace_only_when_pep_enabled_cb);
 	jabber_add_feature(AVATARNAMESPACEDATA, jabber_pep_namespace_only_when_pep_enabled_cb);
 	jabber_add_feature("http://www.xmpp.org/extensions/xep-0224.html#ns",
 					   jabber_buzz_isenabled);
 	jabber_add_feature(XEP_0231_NAMESPACE, jabber_custom_smileys_isenabled);
+	jabber_add_feature(XEP_0047_NAMESPACE, NULL);
 
 	jabber_pep_register_handler(AVATARNAMESPACEMETA, jabber_buddy_avatar_update_metadata);
 }

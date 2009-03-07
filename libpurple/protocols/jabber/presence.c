@@ -111,7 +111,7 @@ void jabber_set_status(PurpleAccount *account, PurpleStatus *status)
 	}
 
 	gc = purple_account_get_connection(account);
-	js = gc->proto_data;
+	js = purple_connection_get_protocol_data(gc);
 	jabber_presence_send(js, FALSE);
 }
 
@@ -139,7 +139,7 @@ void jabber_presence_send(JabberStream *js, gboolean force)
 	}
 
 	purple_status_to_jabber(status, &state, &stripped, &priority);
-	
+
 	/* check for buzz support */
 	allowBuzz = purple_status_get_attr_boolean(status,"buzz");
 	/* changing the buzz state has to trigger a re-broadcasting of the presence for caps */
@@ -148,7 +148,7 @@ void jabber_presence_send(JabberStream *js, gboolean force)
 	if (js->googletalk && !stripped && purple_status_is_active(tune)) {
 		stripped = jabber_google_presence_outgoing(tune);
 	}
-	
+
 #define CHANGED(a,b) ((!a && b) || (a && a[0] == '\0' && b && b[0] != '\0') || \
 					  (a && !b) || (a && a[0] != '\0' && b && b[0] == '\0') || (a && b && strcmp(a,b)))
 	/* check if there are any differences to the <presence> and send them in that case */
@@ -171,9 +171,9 @@ void jabber_presence_send(JabberStream *js, gboolean force)
 
 		g_hash_table_foreach(js->chats, chats_send_presence_foreach, presence);
 		xmlnode_free(presence);
-		
+
 		/* update old values */
-		
+
 		if(js->old_msg)
 			g_free(js->old_msg);
 		if(js->old_avatarhash)
@@ -195,7 +195,7 @@ void jabber_presence_send(JabberStream *js, gboolean force)
 		length = (!purple_status_get_attr_value(tune, PURPLE_TUNE_TIME)) ? -1 :
 				purple_status_get_attr_int(tune, PURPLE_TUNE_TIME);
 	}
-	
+
 	if(CHANGED(artist, js->old_artist) || CHANGED(title, js->old_title) || CHANGED(source, js->old_source) ||
 	   CHANGED(uri, js->old_uri) || CHANGED(track, js->old_track) || (length != js->old_length)) {
 		PurpleJabberTuneInfo tuneinfo = {
@@ -207,7 +207,7 @@ void jabber_presence_send(JabberStream *js, gboolean force)
 			(char*)uri
 		};
 		jabber_tune_set(js->gc, &tuneinfo);
-		
+
 		/* update old values */
 		g_free(js->old_artist);
 		g_free(js->old_title);
@@ -279,21 +279,21 @@ xmlnode *jabber_presence_create_js(JabberStream *js, JabberBuddyState state, con
 		char extlist[1024];
 		unsigned remaining = 1023; /* one less for the \0 */
 		GList *feature;
-		
+
 		extlist[0] = '\0';
 		for(feature = jabber_features; feature && remaining > 0; feature = feature->next) {
 			JabberFeature *feat = (JabberFeature*)feature->data;
 			unsigned featlen;
-			
-			if(feat->is_enabled != NULL && feat->is_enabled(js, feat->namespace) == FALSE)
+
+			if(feat->is_enabled != NULL && feat->is_enabled(js, feat->shortname, feat->namespace) == FALSE)
 				continue; /* skip this feature */
-			
+
 			featlen = strlen(feat->shortname);
-			
+
 			/* cut off when we don't have any more space left in our buffer (too bad) */
 			if(featlen > remaining)
 				break;
-			
+
 			strncat(extlist,feat->shortname,remaining);
 			remaining -= featlen;
 			if(feature->next) { /* no space at the end */

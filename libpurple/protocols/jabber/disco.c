@@ -88,6 +88,7 @@ jabber_disco_bytestream_server_cb(JabberStream *js, xmlnode *packet, gpointer da
 void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 	const char *from = xmlnode_get_attrib(packet, "from");
 	const char *type = xmlnode_get_attrib(packet, "type");
+
 	if(!from || !type)
 		return;
 
@@ -118,6 +119,13 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 		if(node)
 			xmlnode_set_attrib(query, "node", node);
 
+		if(!node || !strcmp(node, CAPS0115_NODE "#" VERSION)) {
+			identity = xmlnode_new_child(query, "identity");
+			xmlnode_set_attrib(identity, "category", "client");
+			xmlnode_set_attrib(identity, "type", "pc"); /* XXX: bot, console,
+														 * handheld, pc, phone,
+														 * web */
+			xmlnode_set_attrib(identity, "name", PACKAGE);
 
 		if(!node || !strcmp(node, node_uri)) {
 			GList *features, *identities;
@@ -226,6 +234,10 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 				else if(!strcmp(var, "http://jabber.org/protocol/commands")) {
 					capabilities |= JABBER_CAP_ADHOC;
 				}
+				else if(!strcmp(var, "http://jabber.org/protocol/ibb")) {
+					purple_debug_info("jabber", "remote supports IBB\n");
+					capabilities |= JABBER_CAP_IBB;
+				}
 			}
 		}
 
@@ -269,7 +281,7 @@ void jabber_disco_items_parse(JabberStream *js, xmlnode *packet) {
 	if(type && !strcmp(type, "get")) {
 		JabberIq *iq = jabber_iq_new_query(js, JABBER_IQ_RESULT,
 				"http://jabber.org/protocol/disco#items");
-		
+
 		/* preserve node */
 		xmlnode *iq_query = xmlnode_get_child_with_namespace(iq->node,"query","http://jabber.org/protocol/disco#items");
 		if(iq_query) {
