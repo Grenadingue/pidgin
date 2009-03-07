@@ -34,6 +34,7 @@
 #include "ping.h"
 #include "adhoccommands.h"
 #include "data.h"
+#include "ibb.h"
 
 #ifdef _WIN32
 #include "utsname.h"
@@ -432,4 +433,3 @@ void jabber_iq_uninit(void)
 	g_hash_table_destroy(iq_handlers);
 	iq_handlers = NULL;
 }
-

@@ -32,5 +32,7 @@ void jabber_si_parse(JabberStream *js, const char *from, JabberIqType type,
                      const char *id, xmlnode *si);
 PurpleXfer *jabber_si_new_xfer(PurpleConnection *gc, const char *who);
 void jabber_si_xfer_send(PurpleConnection *gc, const char *who, const char *file);
+void jabber_si_init(void);
+void jabber_si_uninit(void);
 
 #endif /* _PURPLE_JABBER_SI_H_ */
