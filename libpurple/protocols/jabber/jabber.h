@@ -42,7 +42,8 @@ typedef enum {
 
 	JABBER_CAP_PING			  = 1 << 11,
 	JABBER_CAP_ADHOC		  = 1 << 12,
-	
+	JABBER_CAP_BLOCKING       = 1 << 13,
+
 	JABBER_CAP_RETRIEVED      = 1 << 31
 } JabberCapabilities;
 
@@ -53,8 +54,11 @@ typedef struct _JabberStream JabberStream;
 #include "circbuffer.h"
 #include "connection.h"
 #include "dnssrv.h"
+#include "media.h"
+#include "mediamanager.h"
 #include "roomlist.h"
 #include "sslconn.h"
+#include "dnsquery.h"
 
 #include "jutil.h"
 #include "xmlnode.h"
@@ -202,7 +206,7 @@ struct _JabberStream
 	gboolean unregistration;
 	PurpleAccountUnregistrationCb unregistration_cb;
 	void *unregistration_user_data;
-	
+
 	gboolean vcard_fetched;
 
 	/* does the local server support PEP? */
@@ -210,16 +214,16 @@ struct _JabberStream
 
 	/* Is Buzz enabled? */
 	gboolean allowBuzz;
-	
+
 	/* A list of JabberAdHocCommands supported by the server */
 	GList *commands;
-	
+
 	/* last presence update to check for differences */
 	JabberBuddyState old_state;
 	char *old_msg;
 	int old_priority;
 	char *old_avatarhash;
-	
+
 	/* same for user tune */
 	char *old_artist;
 	char *old_title;
@@ -227,9 +231,9 @@ struct _JabberStream
 	char *old_uri;
 	int old_length;
 	char *old_track;
-	
+
 	char *certificate_CN;
-	
+
 	/* A purple timeout tag for the keepalive */
 	int keepalive_timeout;
 
@@ -241,6 +245,15 @@ struct _JabberStream
 	 * for when we lookup buddy icons from a url
 	 */
 	GSList *url_datas;
+
+	/* keep a hash table of JingleSessions */
+	GHashTable *sessions;
+
+	/* maybe this should only be present when USE_VV? */
+	gchar *stun_ip;
+	int stun_port;
+	PurpleDnsQueryData *stun_query;
+	/* later add stuff to handle TURN relays... */
 };
 
 typedef gboolean (JabberFeatureEnabled)(JabberStream *js, const gchar *shortname, const gchar *namespace);
@@ -294,6 +307,9 @@ GList *jabber_status_types(PurpleAccount *account);
 void jabber_login(PurpleAccount *account);
 void jabber_close(PurpleConnection *gc);
 void jabber_idle_set(PurpleConnection *gc, int idle);
+void jabber_request_block_list(JabberStream *js);
+void jabber_add_deny(PurpleConnection *gc, const char *who);
+void jabber_rem_deny(PurpleConnection *gc, const char *who);
 void jabber_keepalive(PurpleConnection *gc);
 void jabber_register_gateway(JabberStream *js, const char *gateway);
 void jabber_register_account(PurpleAccount *account);
@@ -305,6 +321,9 @@ PurpleChat *jabber_find_blist_chat(PurpleAccount *account, const char *name);
 gboolean jabber_offline_message(const PurpleBuddy *buddy);
 int jabber_prpl_send_raw(PurpleConnection *gc, const char *buf, int len);
 GList *jabber_actions(PurplePlugin *plugin, gpointer context);
+gboolean jabber_initiate_media(PurpleConnection *gc, const char *who,
+		PurpleMediaSessionType type);
+PurpleMediaCaps jabber_get_media_caps(PurpleConnection *gc, const char *who);
 void jabber_register_commands(void);
 void jabber_init_plugin(PurplePlugin *plugin);
 

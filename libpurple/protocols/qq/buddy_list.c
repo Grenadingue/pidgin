@@ -31,6 +31,7 @@
 #include "utils.h"
 #include "packet_parse.h"
 #include "buddy_info.h"
+#include "buddy_memo.h"
 #include "buddy_list.h"
 #include "buddy_opt.h"
 #include "char_conv.h"
@@ -46,7 +47,6 @@
 #define QQ_GET_ONLINE_BUDDY_03          0x03	/* unknown function */
 
 typedef struct _qq_buddy_online {
-	qq_buddy_status bs;
 	guint16 unknown1;
 	guint8 ext_flag;
 	guint8 comm_flag;
@@ -55,7 +55,7 @@ typedef struct _qq_buddy_online {
 } qq_buddy_online;
 
 /* get a list of online_buddies */
-void qq_request_get_buddies_online(PurpleConnection *gc, guint8 position, gint update_class)
+void qq_request_get_buddies_online(PurpleConnection *gc, guint8 position, guint32 update_class)
 {
 	qq_data *qd;
 	guint8 *raw_data;
@@ -81,7 +81,7 @@ void qq_request_get_buddies_online(PurpleConnection *gc, guint8 position, gint u
 
 /* position starts with 0x0000,
  * server may return a position tag if list is too long for one packet */
-void qq_request_get_buddies(PurpleConnection *gc, guint16 position, gint update_class)
+void qq_request_get_buddies(PurpleConnection *gc, guint16 position, guint32 update_class)
 {
 	qq_data *qd;
 	guint8 raw_data[16] = {0};
@@ -105,7 +105,7 @@ void qq_request_get_buddies(PurpleConnection *gc, guint16 position, gint update_
 }
 
 /* get all list, buddies & Quns with groupsid support */
-void qq_request_get_buddies_and_rooms(PurpleConnection *gc, guint32 position, gint update_class)
+void qq_request_get_buddies_and_rooms(PurpleConnection *gc, guint32 position, guint32 update_class)
 {
 	guint8 raw_data[16] = {0};
 	gint bytes = 0;
@@ -148,10 +148,9 @@ static gint get_buddy_status(qq_buddy_status *bs, guint8 *data)
 	/* 015-030: unknown key */
 	bytes += qq_getdata(&(bs->unknown_key[0]), QQ_KEY_LENGTH, data + bytes);
 
-	purple_debug_info("QQ_STATUS",
-			"uid: %d, U1: %d, ip: %s:%d, U2:%d, status:%d, U3:%04X\n",
-			bs->uid, bs->unknown1, inet_ntoa(bs->ip), bs->port,
-			bs->unknown2, bs->status, bs->unknown3);
+	purple_debug_info("QQ", "Status:%d, uid: %u, ip: %s:%d, U: %d - %d - %04X\n",
+			bs->status, bs->uid, inet_ntoa(bs->ip), bs->port,
+			bs->unknown1, bs->unknown2, bs->unknown3);
 
 	return bytes;
 }
@@ -163,6 +162,8 @@ guint8 qq_process_get_buddies_online(guint8 *data, gint data_len, PurpleConnecti
 	gint bytes, bytes_start;
 	gint count;
 	guint8  position;
+	gchar *who;
+	PurpleBuddy *buddy;
 	qq_buddy_data *bd;
 	int entry_len = 38;
 
@@ -220,17 +221,23 @@ guint8 qq_process_get_buddies_online(guint8 *data, gint data_len, PurpleConnecti
 		}	/* check if it is a valid entry */
 
 		if (bs.uid == qd->uid) {
-			purple_debug_warning("QQ", "I am in online list %d\n", bs.uid);
+			purple_debug_warning("QQ", "I am in online list %u\n", bs.uid);
 		}
 
 		/* update buddy information */
-		bd = qq_buddy_data_find(gc, bs.uid);
+		who = uid_to_purple_name(bs.uid);
+		buddy = purple_find_buddy(gc->account, who);
+		g_free(who);
+		if (buddy == NULL) {
+			/* create no-auth buddy */
+			buddy = qq_buddy_new(gc, bs.uid);
+		}
+		bd = (buddy == NULL) ? NULL : (qq_buddy_data *)purple_buddy_get_protocol_data(buddy);
 		if (bd == NULL) {
 			purple_debug_error("QQ",
-					"Got an online buddy %d, but not in my buddy list\n", bs.uid);
+					"Got an online buddy %u, but not in my buddy list\n", bs.uid);
 			continue;
 		}
-		/* we find one and update qq_buddy_data */
 		/*
 		if(0 != fe->s->client_tag)
 			q_bud->client_tag = fe->s->client_tag;
@@ -313,7 +320,8 @@ guint16 qq_process_get_buddies(guint8 *data, gint data_len, PurpleConnection *gc
 
 		if (bd.uid == 0 || (bytes - buddy_bytes) != bytes_expected) {
 			purple_debug_info("QQ",
-					"Buddy entry, expect %d bytes, read %d bytes\n", bytes_expected, bytes - buddy_bytes);
+					"Buddy entry, expect %d bytes, read %d bytes\n",
+					bytes_expected, bytes - buddy_bytes);
 			g_free(bd.nickname);
 			continue;
 		} else {
@@ -326,7 +334,7 @@ guint16 qq_process_get_buddies(guint8 *data, gint data_len, PurpleConnection *gc
 #endif
 
 		buddy = qq_buddy_find_or_new(gc, bd.uid);
-		if (buddy == NULL || buddy->proto_data == NULL) {
+		if (buddy == NULL || purple_buddy_get_protocol_data(buddy) == NULL) {
 			g_free(bd.nickname);
 			continue;
 		}
@@ -334,10 +342,12 @@ guint16 qq_process_get_buddies(guint8 *data, gint data_len, PurpleConnection *gc
 		bd.last_update = time(NULL);
 		qq_update_buddy_status(gc, bd.uid, bd.status, bd.comm_flag);
 
-		g_memmove(buddy->proto_data, &bd, sizeof(qq_buddy_data));
+		g_memmove(purple_buddy_get_protocol_data(buddy), &bd, sizeof(qq_buddy_data));
 		/* nickname has been copy to buddy_data do not free
 		   g_free(bd.nickname);
 		*/
+		/*qq_request_buddy_memo(gc, ((qq_buddy_data*)buddy->proto_data)->uid, 0, QQ_BUDDY_MEMO_GET);*/
+		qq_request_buddy_memo(gc, bd.uid, bd.uid, QQ_BUDDY_MEMO_GET);
 	}
 
 	if(bytes > data_len) {
@@ -387,7 +397,7 @@ guint32 qq_process_get_buddies_and_rooms(guint8 *data, gint data_len, PurpleConn
 		/* 05: skip unknow 0x00 */
 		bytes += 1;
 		if (uid == 0 || (type != 0x1 && type != 0x4)) {
-			purple_debug_info("QQ", "Buddy entry, uid=%d, type=%d", uid, type);
+			purple_debug_info("QQ", "Buddy entry, uid=%u, type=%d", uid, type);
 			continue;
 		}
 		if(0x1 == type) { /* a buddy */
@@ -397,7 +407,7 @@ guint32 qq_process_get_buddies_and_rooms(guint8 *data, gint data_len, PurpleConn
 		} else { /* a group */
 			rmd = qq_room_data_find(gc, uid);
 			if(rmd == NULL) {
-				purple_debug_info("QQ", "Unknow room id %d", uid);
+				purple_debug_info("QQ", "Unknow room id %u", uid);
 				qq_send_room_cmd_only(gc, QQ_ROOM_CMD_GET_INFO, uid);
 			} else {
 				rmd->my_role = QQ_ROOM_ROLE_YES;
@@ -452,7 +462,7 @@ static guint8  get_status_from_purple(PurpleConnection *gc)
 }
 
 /* send a packet to change my online status */
-void qq_request_change_status(PurpleConnection *gc, gint update_class)
+void qq_request_change_status(PurpleConnection *gc, guint32 update_class)
 {
 	qq_data *qd;
 	guint8 raw_data[16] = {0};
@@ -528,6 +538,8 @@ void qq_process_buddy_change_status(guint8 *data, gint data_len, PurpleConnectio
 	qq_data *qd;
 	gint bytes;
 	guint32 my_uid;
+	gchar *who;
+	PurpleBuddy *buddy;
 	qq_buddy_data *bd;
 	qq_buddy_status bs;
 
@@ -549,9 +561,17 @@ void qq_process_buddy_change_status(guint8 *data, gint data_len, PurpleConnectio
 	 * QQ_BUDDY_ONLINE_INVISIBLE */
 	bytes += qq_get32(&my_uid, data + bytes);
 
-	bd = qq_buddy_data_find(gc, bs.uid);
+	/* update buddy information */
+	who = uid_to_purple_name(bs.uid);
+	buddy = purple_find_buddy(gc->account, who);
+	g_free(who);
+	if (buddy == NULL) {
+		/* create no-auth buddy */
+		buddy = qq_buddy_new(gc, bs.uid);
+	}
+	bd = (buddy == NULL) ? NULL : (qq_buddy_data *)purple_buddy_get_protocol_data(buddy);
 	if (bd == NULL) {
-		purple_debug_warning("QQ", "Get status of unknown buddy %d\n", bs.uid);
+		purple_debug_warning("QQ", "Got status of no-auth buddy %u\n", bs.uid);
 		return;
 	}
 
@@ -582,8 +602,6 @@ void qq_update_buddy_status(PurpleConnection *gc, guint32 uid, guint8 status, gu
 
 	g_return_if_fail(uid != 0);
 
-	who = uid_to_purple_name(uid);
-
 	/* purple supports signon and idle time
 	 * but it is not much use for QQ, I do not use them */
 	/* serv_got_update(gc, name, online, 0, q_bud->signon, q_bud->idle, bud->uc); */
@@ -612,7 +630,9 @@ void qq_update_buddy_status(PurpleConnection *gc, guint32 uid, guint8 status, gu
 		purple_debug_error("QQ", "unknown status: 0x%X\n", status);
 		break;
 	}
-	purple_debug_info("QQ", "Update buddy %s status as %s\n", who, status_id);
+
+	purple_debug_info("QQ", "buddy %u status = %s\n", uid, status_id);
+	who = uid_to_purple_name(uid);
 	purple_prpl_got_user_status(gc->account, who, status_id, NULL);
 
 	if (flag & QQ_COMM_FLAG_MOBILE && status != QQ_BUDDY_OFFLINE)
@@ -641,9 +661,10 @@ void qq_update_buddyies_status(PurpleConnection *gc)
 	for (it = buddies; it; it = it->next) {
 		buddy = it->data;
 		if (buddy == NULL) continue;
-		if (buddy->proto_data == NULL) continue;
 
-		bd = (qq_buddy_data *)buddy->proto_data;
+		bd = purple_buddy_get_protocol_data(buddy);
+		if (bd == NULL) continue;
+
 		if (bd->uid == 0) continue;
 		if (bd->uid == qd->uid) continue;	/* my status is always online in my buddy list */
 		if (tm_limit < bd->last_update) continue;
@@ -663,16 +684,20 @@ void qq_buddy_data_free_all(PurpleConnection *gc)
 	GSList *buddies, *it;
 	gint count = 0;
 
-	qd = (qq_data *) (gc->proto_data);
+	qd = (qq_data *)purple_connection_get_protocol_data(gc);
 
 	buddies = purple_find_buddies(purple_connection_get_account(gc), NULL);
 	for (it = buddies; it; it = it->next) {
+		qq_buddy_data *qbd = NULL;
+
 		buddy = it->data;
 		if (buddy == NULL) continue;
-		if (buddy->proto_data == NULL) continue;
 
-		qq_buddy_data_free(buddy->proto_data);
-		buddy->proto_data = NULL;
+		qbd = purple_buddy_get_protocol_data(buddy);
+		if (qbd == NULL) continue;
+
+		qq_buddy_data_free(qbd);
+		purple_buddy_set_protocol_data(buddy, NULL);
 
 		count++;
 	}

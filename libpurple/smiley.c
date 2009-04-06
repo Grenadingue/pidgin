@@ -288,7 +288,7 @@ enum
 {
 	PROP_0,
 	PROP_SHORTCUT,
-	PROP_IMGSTORE,
+	PROP_IMGSTORE
 };
 
 #define PROP_SHORTCUT_S "shortcut"
@@ -722,7 +722,7 @@ purple_smiley_new_from_file(const char *shortcut, const char *filepath)
 		smiley = purple_smiley_new_from_stream(shortcut, smiley_data,
 				smiley_data_len);
 	}
-	
+
 	return smiley;
 }
 

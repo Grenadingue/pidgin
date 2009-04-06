@@ -384,7 +384,7 @@ static void jabber_auth_start_cyrus(JabberStream *js)
 					}
 					/* Remove space which separated this mech from the next */
 					if (strlen(js->sasl_mechs->str) > 0 && ((js->sasl_mechs->str)[0] == ' ')) {
-						g_string_erase(js->sasl_mechs, 0, 1);	
+						g_string_erase(js->sasl_mechs, 0, 1);
 					}
 					again = TRUE;
 				}
@@ -397,7 +397,7 @@ static void jabber_auth_start_cyrus(JabberStream *js)
 		auth = xmlnode_new("auth");
 		xmlnode_set_namespace(auth, "urn:ietf:params:xml:ns:xmpp-sasl");
 		xmlnode_set_attrib(auth, "mechanism", js->current_mech);
-		
+
 		xmlnode_set_attrib(auth, "xmlns:ga", "http://www.google.com/talk/protocol/auth");
 		xmlnode_set_attrib(auth, "ga:client-uses-full-bind-result", "true");
 
@@ -613,9 +613,7 @@ static void auth_old_cb(JabberStream *js, xmlnode *packet, gpointer data)
 	} else if(!strcmp(type, "result")) {
 		query = xmlnode_get_child(packet, "query");
 		if(js->stream_id && xmlnode_get_child(query, "digest")) {
-			unsigned char hashval[20];
-			char *s, h[41], *p;
-			int i;
+			char *s, *hash;
 
 			iq = jabber_iq_new_query(js, JABBER_IQ_SET, "jabber:iq:auth");
 			query = xmlnode_get_child(iq->node, "query");
@@ -626,14 +624,9 @@ static void auth_old_cb(JabberStream *js, xmlnode *packet, gpointer data)
 
 			x = xmlnode_new_child(query, "digest");
 			s = g_strdup_printf("%s%s", js->stream_id, pw);
-
-			purple_cipher_digest_region("sha1", (guchar *)s, strlen(s),
-									  sizeof(hashval), hashval, NULL);
-
-			p = h;
-			for(i=0; i<20; i++, p+=2)
-				snprintf(p, 3, "%02x", hashval[i]);
-			xmlnode_insert_data(x, h, -1);
+			hash = jabber_calculate_data_sha1sum(s, strlen(s));
+			xmlnode_insert_data(x, hash, -1);
+			g_free(hash);
 			g_free(s);
 			jabber_iq_set_callback(iq, auth_old_result_cb, NULL);
 			jabber_iq_send(iq);
@@ -756,8 +749,8 @@ static GHashTable* parse_challenge(const char *challenge)
 
 				val_end = cur;
 				while (val_end != val_start && (*val_end == ' ' || *val_end == ',' || *val_end == '\t'
-						|| *val_end == '\r' || *val_start == '\n'
-						|| *val_end == '"'))
+						|| *val_end == '\r' || *val_end == '\n'
+						|| *val_end == '"'  || *val_end == '\0'))
 					val_end--;
 
 				if (val_start != val_end)
@@ -1064,13 +1057,13 @@ void jabber_auth_handle_failure(JabberStream *js, xmlnode *packet)
 			}
 			/* Remove space which separated this mech from the next */
 			if (strlen(js->sasl_mechs->str) > 0 && ((js->sasl_mechs->str)[0] == ' ')) {
-				g_string_erase(js->sasl_mechs, 0, 1);	
-			}			
+				g_string_erase(js->sasl_mechs, 0, 1);
+			}
 		}
 		if (strlen(js->sasl_mechs->str)) {
 			/* If we have remaining mechs to try, do so */
 			sasl_dispose(&js->sasl);
-			
+
 			jabber_auth_start_cyrus(js);
 			return;
 		}

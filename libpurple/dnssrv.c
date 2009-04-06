@@ -175,9 +175,11 @@ resolve(int in, int out)
 
 end:
 	size = g_list_length(ret);
+	/* TODO: Check return value */
 	write(out, &size, sizeof(int));
 	while (ret != NULL)
 	{
+		/* TODO: Check return value */
 		write(out, ret->data, sizeof(PurpleSrvResponse));
 		g_free(ret->data);
 		ret = g_list_remove(ret, ret->data);
@@ -335,6 +337,12 @@ purple_srv_resolve(const char *protocol, const char *transport, const char *doma
 	GError* err = NULL;
 	static gboolean initialized = FALSE;
 #endif
+
+	if (!protocol || !*protocol || !transport || !*transport || !domain || !*domain) {
+		purple_debug_error("dnssrv", "Wrong arguments\n");
+		cb(NULL, 0, extradata);
+		g_return_val_if_reached(NULL);
+	}
 
 	query = g_strdup_printf("_%s._%s.%s", protocol, transport, domain);
 	purple_debug_info("dnssrv","querying SRV record for %s\n", query);

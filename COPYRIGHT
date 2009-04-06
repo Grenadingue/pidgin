@@ -1,5 +1,5 @@
 Pidgin, Finch, and libpurple
-Copyright (C) 1998-2007 by the following:
+Copyright (C) 1998-2008 by the following:
 
 If you have contributed to this project then you deserve to be on this
 list.  Contact us (see: AUTHORS) and we'll add you.
@@ -8,15 +8,18 @@ Saleem Abdulrasool
 Dave Ahlswede
 Manuel Amador
 Matt Amato
+Josef Andrysek
 Geoffrey Antos
 Daniel Atallah
 Paul Aurich
 Patrick Aussems
 Anibal Avelar
 Ali Albazaz
+Kosta Arvanitis
 Christopher Ayoup
 Alex Badea
 John Bailey
+Arunan Balasubramaniam
 R. Tyler Ballance
 Chris Banal
 Luca Barbato
@@ -56,6 +59,7 @@ Jeffery Brown
 Philip Brown
 Dan Bruce
 Norbert Buchmuller
+Johannes Buchner
 Sean Burke
 Thomas Butter
 Trevor Caira
@@ -63,8 +67,10 @@ Andrea Canciani
 Damien Carbery
 Michael Carlson
 Keegan Carruthers-Smith
+Ludovico Cavedon
 Steve Cavilia
 Julien Cegarra
+Matěj Cepl
 Cerulean Studios, LLC
 Jonathan Champ
 Christophe Chapuis
@@ -84,6 +90,7 @@ Jono Cole
 Lorenzo Colitti
 Collabora Ltd.
 Jeff Connelly
+Chris Connett
 Nathan Conrad
 Felipe Contreras
 Alex Converse
@@ -140,6 +147,7 @@ Francesco Fracassi
 Adam Fritzler
 Takao Fujiwara
 Max G.
+Martin von Gagern
 François Gagné
 Andrew Gaul
 Evgueni V. Gavrilov
@@ -204,6 +212,7 @@ Intel Corporation
 Andrew Ivanov
 Scott Jackson
 Hans Petter Jansson
+David Jedelsky
 Henry Jen
 Benjamin Kahn
 Anders Kaseorg
@@ -211,7 +220,11 @@ Praveen Karadakal
 Tomáš Kebert
 John Kelm
 Jochen Kemnade
+Yann Kerherve
+Gordian Klein
 Akuke Kok
+Kir Kolyshkin
+F.W. Kong
 Konstantin Korikov
 Cole Kowalski
 Matt Kramer
@@ -229,6 +242,7 @@ Joe LaPenna
 Steve Láposi
 Daniel Larsson
 Peter Lawler
+Vadim Lebedev
 Ho-seok Lee
 Jean-Yves Lefort
 Moses Lei
@@ -251,6 +265,7 @@ Iain MacDonnell
 Lucio Maciel
 Brian Macke
 Paolo Maggi
+Sulabh Mahajan
 Willian T. Mahan
 Kris Marsh
 Fidel Martinez
@@ -273,6 +288,7 @@ Arkadiusz Miskiewicz
 David Mohr
 Andrew Molloy
 Michael Monreal
+Laurent Montaron
 Marco Monteiro
 Benjamin Moody
 John Moody
@@ -310,6 +326,7 @@ Havoc Pennington
 Ted Percival
 Eduardo Pérez
 Matt Perry
+Luke Petre
 Diego Petten
 Nathan Peterson
 Sebastián E. Peyrott
@@ -345,6 +362,7 @@ Rhett Robinson
 Luciano Miguel Ferreira Rocha
 Andrew Rodland
 Miguel Rodríguez (migrax)
+Martin Rosinski
 Bob Rossi
 Jason Roth
 Jean-Francois Roy
@@ -412,14 +430,17 @@ Adam Strzelecki
 Andreas Stührk
 Oleg Sukhodolsky
 Sun Microsystems
+Marcus Sundberg
 Mårten Svantesson (fursten)
 Amir Szekely (kichik)
 Robert T.
 Greg Taeger
+Rob Taft
 Peter Tang
 Brian Tarricone
 Peter Teichman
 Philip Tellis
+Michael Terry
 Arun A. Tharuvai
 Cestonaro Thilo
 Will Thompson
@@ -438,6 +459,7 @@ Tom Tromey
 Todd Troxell
 Brad Turcotte
 Kyle Turman
+Jon Turney
 Junichi Uekawa
 Igor Vlasenko
 István Váradi
@@ -472,7 +494,9 @@ Jason Willis
 Alex Willmer
 Matt Wilson
 Dan Winship
+Michal Witkowski
 Scott Wolchok
+Rogier Wolff
 The Written Word, Inc.
 Kevin Wu Won
 Pui Lam Wong

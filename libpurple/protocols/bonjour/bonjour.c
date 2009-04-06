@@ -102,7 +102,7 @@ bonjour_login(PurpleAccount *account)
 
 	/* Start waiting for jabber connections (iChat style) */
 	bd->jabber_data = g_new0(BonjourJabber, 1);
-	bd->jabber_data->port = BONJOUR_DEFAULT_PORT_INT;
+	bd->jabber_data->port = purple_account_get_int(account, "port", BONJOUR_DEFAULT_PORT);
 	bd->jabber_data->account = account;
 
 	if (bonjour_jabber_start(bd->jabber_data) == -1) {
@@ -261,9 +261,10 @@ bonjour_fake_add_buddy(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *gr
 
 
 static void bonjour_remove_buddy(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group) {
-	if (buddy->proto_data) {
-		bonjour_buddy_delete(buddy->proto_data);
-		buddy->proto_data = NULL;
+	BonjourBuddy *bb = purple_buddy_get_protocol_data(buddy);
+	if (bb) {
+		bonjour_buddy_delete(bb);
+		purple_buddy_set_protocol_data(buddy, NULL);
 	}
 }
 
@@ -303,7 +304,7 @@ bonjour_convo_closed(PurpleConnection *connection, const char *who)
 	PurpleBuddy *buddy = purple_find_buddy(connection->account, who);
 	BonjourBuddy *bb;
 
-	if (buddy == NULL || buddy->proto_data == NULL)
+	if (buddy == NULL || (bb = purple_buddy_get_protocol_data(buddy)) == NULL)
 	{
 		/*
 		 * This buddy is not in our buddy list, and therefore does not really
@@ -312,7 +313,6 @@ bonjour_convo_closed(PurpleConnection *connection, const char *who)
 		return;
 	}
 
-	bb = buddy->proto_data;
 	bonjour_jabber_close_conversation(bb->conversation);
 	bb->conversation = NULL;
 }
@@ -351,7 +351,7 @@ bonjour_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboole
 {
 	PurplePresence *presence;
 	PurpleStatus *status;
-	BonjourBuddy *bb = buddy->proto_data;
+	BonjourBuddy *bb = purple_buddy_get_protocol_data(buddy);
 	const char *status_description;
 	const char *message;
 
@@ -376,20 +376,20 @@ bonjour_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboole
 	}
 
 	/* Only show first/last name if there is a nickname set (to avoid duplication) */
-	if (bb->nick != NULL) {
-		if (bb->first != NULL)
+	if (bb->nick != NULL && *bb->nick != '\0') {
+		if (bb->first != NULL && *bb->first != '\0')
 			purple_notify_user_info_add_pair(user_info, _("First name"), bb->first);
-		if (bb->first != NULL)
+		if (bb->last != NULL && *bb->last != '\0')
 			purple_notify_user_info_add_pair(user_info, _("Last name"), bb->last);
 	}
 
-	if (bb->email != NULL)
+	if (bb->email != NULL && *bb->email != '\0')
 		purple_notify_user_info_add_pair(user_info, _("Email"), bb->email);
 
-	if (bb->AIM != NULL)
+	if (bb->AIM != NULL && *bb->AIM != '\0')
 		purple_notify_user_info_add_pair(user_info, _("AIM Account"), bb->AIM);
 
-	if (bb->jid!= NULL)
+	if (bb->jid != NULL && *bb->jid != '\0')
 		purple_notify_user_info_add_pair(user_info, _("XMPP Account"), bb->jid);
 }
 
@@ -417,8 +417,7 @@ bonjour_can_receive_file(PurpleConnection *connection, const char *who)
 {
 	PurpleBuddy *buddy = purple_find_buddy(connection->account, who);
 
-	return (buddy != NULL && buddy->proto_data != NULL);
-
+	return (buddy != NULL && purple_buddy_get_protocol_data(buddy) != NULL);
 }
 
 static gboolean
@@ -499,13 +498,13 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,                                                    /* whiteboard_prpl_ops */
 	NULL,                                                    /* send_raw */
 	NULL,                                                    /* roomlist_room_serialize */
-
-	/* padding */
-	NULL,
-	NULL,
-	NULL,
-	sizeof(PurplePluginProtocolInfo),       /* struct_size */
-	NULL
+	NULL,                                                    /* unregister_user */
+	NULL,                                                    /* send_attention */
+	NULL,                                                    /* get_attention_types */
+	sizeof(PurplePluginProtocolInfo),                        /* struct_size */
+	NULL,                                                    /* get_account_text_table */
+	NULL,                                                    /* initiate_media */
+	NULL                                                     /* can_do_media */
 };
 
 static PurplePluginInfo info =
@@ -706,6 +705,9 @@ init_plugin(PurplePlugin *plugin)
 	prpl_info.user_splits = g_list_append(prpl_info.user_splits, split);
 
 	/* Creating the options for the protocol */
+	option = purple_account_option_int_new(_("Local Port"), "port", BONJOUR_DEFAULT_PORT);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
 	option = purple_account_option_string_new(_("First name"), "first", default_firstname);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 

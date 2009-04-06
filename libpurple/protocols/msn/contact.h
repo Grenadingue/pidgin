@@ -30,7 +30,7 @@
 
 #define MSN_APPLICATION_ID "CFE80F9D-180F-4399-82AB-413F33A1FA11"
 
-#define MSN_CONTACT_SERVER	"contacts.msn.com"
+#define MSN_CONTACT_SERVER	"omega.contacts.msn.com"
 
 /* Get Contact List */
 
@@ -52,7 +52,7 @@
 		 "</ABApplicationHeader>"\
 		"<ABAuthHeader xmlns=\"http://www.msn.com/webservices/AddressBook\">"\
 			"<ManagedGroupRequest xmlns=\"http://www.msn.com/webservices/AddressBook\">false</ManagedGroupRequest>"\
-			"<TicketToken>%s</TicketToken>"\
+			"<TicketToken>EMPTY</TicketToken>"\
 		"</ABAuthHeader>"\
 	"</soap:Header>"\
 	"<soap:Body xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"\
@@ -94,7 +94,7 @@
 		"</ABApplicationHeader>"\
 		"<ABAuthHeader xmlns=\"http://www.msn.com/webservices/AddressBook\">"\
 			"<ManagedGroupRequest>false</ManagedGroupRequest>"\
-			"<TicketToken>%s</TicketToken>"\
+			"<TicketToken>EMPTY</TicketToken>"\
 		"</ABAuthHeader>"\
 	"</soap:Header>"\
 	"<soap:Body>"\
@@ -135,7 +135,7 @@
 		"</ABApplicationHeader>"\
 		"<ABAuthHeader xmlns=\"http://www.msn.com/webservices/AddressBook\">"\
 			"<ManagedGroupRequest>false</ManagedGroupRequest>"\
-			"<TicketToken>%s</TicketToken>"\
+			"<TicketToken>EMPTY</TicketToken>"\
 		"</ABAuthHeader>"\
 	"</soap:Header>"\
 	"<soap:Body>"\
@@ -211,6 +211,27 @@
 		"</contactInfo>"\
 	"</Contact>"
 
+#define MSN_CONTACT_ID_XML \
+	"<Contact>"\
+		"<contactId>%s</contactId>"\
+	"</Contact>"
+
+#define MSN_CONTACT_EMAIL_XML \
+	"<Contact>"\
+		"<contactInfo>"\
+			"<emails>"\
+				"<ContactEmail>"\
+					"<contactEmailType>%s</contactEmailType>"\
+					"<email>%s</email>"\
+					"<isMessengerEnabled>true</isMessengerEnabled>"\
+					"<Capability>%d</Capability>"\
+					"<MessengerEnabledExternally>false</MessengerEnabledExternally>"\
+					"<propertiesChanged/>"\
+				"</ContactEmail>"\
+			"</emails>"\
+		"</contactInfo>"\
+	"</Contact>"
+
 #define MSN_ADD_CONTACT_TEMPLATE	"<?xml version=\"1.0\" encoding=\"utf-8\"?>"\
 "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\""\
 	" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""\
@@ -275,7 +296,6 @@
 
 /* Delete a contact from the Contact List */
 #define MSN_CONTACT_DEL_SOAP_ACTION	"http://www.msn.com/webservices/AddressBook/ABContactDelete"
-#define MSN_CONTACT_ID_XML		"<Contact><contactId>%s</contactId></Contact>"
 #define MSN_DEL_CONTACT_TEMPLATE	"<?xml version=\"1.0\" encoding=\"utf-8\"?>"\
 "<soap:Envelope"\
 	" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\""\
@@ -376,22 +396,22 @@
 #define MSN_DELETE_MEMBER_FROM_LIST_SOAP_ACTION	"http://www.msn.com/webservices/AddressBook/DeleteMember"
 
 #define MSN_MEMBER_PASSPORT_XML	\
-	"<Member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"PassportMember\">"\
-		"<Type>Passport</Type>"\
+	"<Member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"%s\">"\
+		"<Type>%s</Type>"\
 		"<State>Accepted</State>"\
-		"<PassportName>%s</PassportName>"\
+		"<%s>%s</%s>"\
 	"</Member>"
 
 #define MSN_MEMBER_MEMBERSHIPID_XML	\
-	"<Member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"PassportMember\">"\
-		"<Type>Passport</Type>"\
+	"<Member xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"%s\">"\
+		"<Type>%s</Type>"\
 		"<MembershipId>%u</MembershipId>"\
 		"<State>Accepted</State>"\
 	"</Member>"
 
 /* first delete contact from allow list */
 
-#define MSN_CONTACT_DELECT_FROM_LIST_TEMPLATE "<?xml version=\"1.0\" encoding=\"utf-8\"?>"\
+#define MSN_CONTACT_DELETE_FROM_LIST_TEMPLATE "<?xml version=\"1.0\" encoding=\"utf-8\"?>"\
 "<soap:Envelope"\
 	" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\""\
 	" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""\
@@ -586,8 +606,17 @@ typedef enum
 	MSN_ADD_GROUP       = 0x10,
 	MSN_DEL_GROUP       = 0x20,
 	MSN_RENAME_GROUP    = 0x40,
-	MSN_UPDATE_INFO     = 0x80,
+	MSN_UPDATE_INFO     = 0x80
 } MsnCallbackAction;
+
+typedef enum
+{
+	MSN_PS_INITIAL,
+	MSN_PS_SAVE_CONTACT,
+	MSN_PS_PENDING_LIST,
+	MSN_PS_CONTACT_API,
+	MSN_PS_BLOCK_UNBLOCK
+} MsnSoapPartnerScenario;
 
 typedef struct _MsnCallbackState MsnCallbackState;
 
@@ -606,16 +635,9 @@ struct _MsnCallbackState
 	const gchar *post_action;
 	const gchar *post_url;
 	MsnSoapCallback cb;
+	/* For msn_get_contact_list only */
+	MsnSoapPartnerScenario partner_scenario;
 };
-
-typedef enum
-{
-	MSN_PS_INITIAL,
-	MSN_PS_SAVE_CONTACT,
-	MSN_PS_PENDING_LIST,
-	MSN_PS_CONTACT_API,
-	MSN_PS_BLOCK_UNBLOCK
-} MsnSoapPartnerScenario;
 
 typedef enum
 {

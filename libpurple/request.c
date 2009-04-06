@@ -139,6 +139,23 @@ purple_request_fields_is_field_required(const PurpleRequestFields *fields,
 	return purple_request_field_is_required(field);
 }
 
+gpointer
+purple_request_field_get_ui_data(const PurpleRequestField *field)
+{
+	g_return_val_if_fail(field != NULL, NULL);
+
+	return field->ui_data;
+}
+
+void
+purple_request_field_set_ui_data(PurpleRequestField *field,
+                                 gpointer ui_data)
+{
+	g_return_if_fail(field != NULL);
+
+	field->ui_data = ui_data;
+}
+
 gboolean
 purple_request_fields_all_required_filled(const PurpleRequestFields *fields)
 {
@@ -443,6 +460,14 @@ purple_request_field_get_type(const PurpleRequestField *field)
 	g_return_val_if_fail(field != NULL, PURPLE_REQUEST_FIELD_NONE);
 
 	return field->type;
+}
+
+PurpleRequestFieldGroup *
+purple_request_field_get_group(const PurpleRequestField *field)
+{
+	g_return_val_if_fail(field != NULL, NULL);
+
+	return field->group;
 }
 
 const char *

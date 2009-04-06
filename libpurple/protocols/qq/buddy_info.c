@@ -58,7 +58,7 @@ static const gchar *blood_types[] = {
 
 #define QQ_PUBLISH_SIZE 3
 static const gchar *publish_types[] = {
-	N_("Visible"), N_("Firend Only"), N_("Private")
+	N_("Visible"), N_("Friend Only"), N_("Private")
 };
 
 #define QQ_GENDER_SIZE 3
@@ -87,7 +87,7 @@ enum {
 	QQ_INFO_UNKNOW3, QQ_INFO_UNKNOW4, QQ_INFO_UNKNOW5,
 	QQ_INFO_IS_PUB_MOBILE, QQ_INFO_IS_PUB_CONTACT, QQ_INFO_COLLEGE, QQ_INFO_HOROSCOPE,
 	QQ_INFO_ZODIAC, QQ_INFO_BLOOD, QQ_INFO_SHOW, QQ_INFO_UNKNOW6,
-	QQ_INFO_LAST_2007, QQ_INFO_LAST,
+	QQ_INFO_LAST_2007, QQ_INFO_LAST
 };
 
 enum {
@@ -95,7 +95,7 @@ enum {
 };
 
 enum {
-	QQ_FIELD_LABEL = 0, QQ_FIELD_STRING, QQ_FIELD_MULTI, QQ_FIELD_BOOL, QQ_FIELD_CHOICE,
+	QQ_FIELD_LABEL = 0, QQ_FIELD_STRING, QQ_FIELD_MULTI, QQ_FIELD_BOOL, QQ_FIELD_CHOICE
 };
 
 typedef struct {
@@ -108,41 +108,41 @@ typedef struct {
 } QQ_FIELD_INFO;
 
 static const QQ_FIELD_INFO field_infos[] = {
-	{ QQ_FIELD_BASE, 		QQ_FIELD_STRING, "uid", 			N_("QQ Number"), NULL, 0 },
-	{ QQ_FIELD_BASE, 		QQ_FIELD_STRING, "nick", 			N_("Nickname"), NULL, 0 },
-	{ QQ_FIELD_ADDR, 		QQ_FIELD_STRING, "country", 	N_("Country/Region"), NULL, 0 },
-	{ QQ_FIELD_ADDR, 		QQ_FIELD_STRING, "province", 	N_("Province/State"), NULL, 0 },
-	{ QQ_FIELD_ADDR, 		QQ_FIELD_STRING, "zipcode", 	N_("Zipcode"), NULL, 0 },
-	{ QQ_FIELD_ADDR, 		QQ_FIELD_STRING, "address", 	N_("Address"), NULL, 0 },
-	{ QQ_FIELD_CONTACT, QQ_FIELD_STRING, "tel", 				N_("Phone Number"), NULL, 0 },
-	{ QQ_FIELD_BASE, 		QQ_FIELD_STRING, "age", 			N_("Age"), NULL, 0 },
-	{ QQ_FIELD_BASE, 		QQ_FIELD_CHOICE, "gender", 		N_("Gender"), genders, QQ_GENDER_SIZE },
-	{ QQ_FIELD_BASE, 		QQ_FIELD_STRING, "name", 			N_("Name"), NULL, 0 },
-	{ QQ_FIELD_CONTACT, QQ_FIELD_STRING, "email", 			N_("Email"), NULL, 0 },
-	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_sn",		"Pager Serial Num", NULL, 0 },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_STRING, "uid", 	N_("QQ Number"), NULL, 0 },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_STRING, "nick", 	N_("Nickname"), NULL, 0 },
+	{ QQ_FIELD_ADDR, 	QQ_FIELD_STRING, "country", 	N_("Country/Region"), NULL, 0 },
+	{ QQ_FIELD_ADDR, 	QQ_FIELD_STRING, "province", 	N_("Province/State"), NULL, 0 },
+	{ QQ_FIELD_ADDR, 	QQ_FIELD_STRING, "zipcode", 	N_("Zipcode"), NULL, 0 },
+	{ QQ_FIELD_ADDR, 	QQ_FIELD_STRING, "address", 	N_("Address"), NULL, 0 },
+	{ QQ_FIELD_CONTACT, 	QQ_FIELD_STRING, "tel", 	N_("Phone Number"), NULL, 0 },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_STRING, "age", 	N_("Age"), NULL, 0 },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_CHOICE, "gender", 	N_("Gender"), genders, QQ_GENDER_SIZE },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_STRING, "name", 	N_("Name"), NULL, 0 },
+	{ QQ_FIELD_CONTACT, 	QQ_FIELD_STRING, "email", 	N_("Email"), NULL, 0 },
+	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_sn",	"Pager Serial Num", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_num",	"Pager Num", NULL, 0 },
-	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_sp",		"Pager Serivce Provider", NULL, 0 },
-	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_sta",		"Pager Station Num", NULL, 0 },
+	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_sp",	"Pager Serivce Provider", NULL, 0 },
+	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_sta",	"Pager Station Num", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "pg_type",	"Pager Type", NULL, 0 },
-	{ QQ_FIELD_BASE, 		QQ_FIELD_STRING, "occupation", 	N_("Occupation"), NULL, 0 },
-	{ QQ_FIELD_CONTACT, QQ_FIELD_STRING, "homepage", 		N_("Homepage"), NULL, 0 },
-	{ QQ_FIELD_BASE, 		QQ_FIELD_BOOL, 	"auth", 				N_("Authorize adding"), NULL, 0 },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_STRING, "occupation", 	N_("Occupation"), NULL, 0 },
+	{ QQ_FIELD_CONTACT, 	QQ_FIELD_STRING, "homepage", 	N_("Homepage"), NULL, 0 },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_BOOL, 	"auth", 	N_("Authorize adding"), NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "unknow1",	"Unknow1", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "unknow2",	"Unknow2", NULL, 0 },
-	{ QQ_FIELD_UNUSED, 		QQ_FIELD_STRING, "face",				"Face", NULL, 0 },
-	{ QQ_FIELD_CONTACT, QQ_FIELD_STRING, "mobile",		N_("Cellphone Number"), NULL, 0 },
-	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "mobile_type","Cellphone Type", NULL, 0 },
-	{ QQ_FIELD_BASE, 		QQ_FIELD_MULTI, 	"intro", 		N_("Personal Introduction"), NULL, 0 },
-	{ QQ_FIELD_ADDR, 		QQ_FIELD_STRING, "city",			N_("City/Area"), NULL, 0 },
+	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "face",	"Face", NULL, 0 },
+	{ QQ_FIELD_CONTACT, 	QQ_FIELD_STRING, "mobile",	N_("Cellphone Number"), NULL, 0 },
+	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "mobile_type", "Cellphone Type", NULL, 0 },
+	{ QQ_FIELD_BASE, 	QQ_FIELD_MULTI,  "intro", 	N_("Personal Introduction"), NULL, 0 },
+	{ QQ_FIELD_ADDR, 	QQ_FIELD_STRING, "city",	N_("City/Area"), NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "unknow3",	"Unknow3", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "unknow4",	"Unknow4", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "unknow5",	"Unknow5", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_CHOICE, "pub_mobile",	N_("Publish Mobile"), publish_types, QQ_PUBLISH_SIZE },
-	{ QQ_FIELD_CONTACT, QQ_FIELD_CHOICE, "pub_contact",	N_("Publish Contact"), publish_types, QQ_PUBLISH_SIZE },
-	{ QQ_FIELD_EXT, 		QQ_FIELD_STRING, "college",			N_("College"), NULL, 0 },
-	{ QQ_FIELD_EXT, 		QQ_FIELD_CHOICE, "horoscope",	N_("Horoscope"), horoscope_names, QQ_HOROSCOPE_SIZE },
-	{ QQ_FIELD_EXT, 		QQ_FIELD_CHOICE, "zodiac",		N_("Zodiac"), zodiac_names, QQ_ZODIAC_SIZE },
-	{ QQ_FIELD_EXT, 		QQ_FIELD_CHOICE, "blood",			N_("Blood"), blood_types, QQ_BLOOD_SIZE },
+	{ QQ_FIELD_CONTACT, 	QQ_FIELD_CHOICE, "pub_contact",	N_("Publish Contact"), publish_types, QQ_PUBLISH_SIZE },
+	{ QQ_FIELD_EXT, 	QQ_FIELD_STRING, "college",	N_("College"), NULL, 0 },
+	{ QQ_FIELD_EXT, 	QQ_FIELD_CHOICE, "horoscope",	N_("Horoscope"), horoscope_names, QQ_HOROSCOPE_SIZE },
+	{ QQ_FIELD_EXT, 	QQ_FIELD_CHOICE, "zodiac",	N_("Zodiac"), zodiac_names, QQ_ZODIAC_SIZE },
+	{ QQ_FIELD_EXT, 	QQ_FIELD_CHOICE, "blood",	N_("Blood"), blood_types, QQ_BLOOD_SIZE },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "qq_show",	"QQ Show", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "unknow6",	"Unknow6", NULL, 0 },
 	{ QQ_FIELD_UNUSED, 	QQ_FIELD_STRING, "LAST_2005",	"LAST_2005", NULL, 0 }
@@ -196,7 +196,9 @@ static void info_display_only(PurpleConnection *gc, gchar **segments)
 				break;
 			case QQ_FIELD_CHOICE:
 				choice_num = strtol(segments[index], NULL, 10);
-				if (choice_num < 0 || choice_num >= field_infos[index].choice_size)	choice_num = 0;
+				if (choice_num < 0 || choice_num >= field_infos[index].choice_size) {
+					choice_num = 0;
+				}
 
 				purple_notify_user_info_add_pair(user_info, field_infos[index].text, field_infos[index].choice[choice_num]);
 				break;
@@ -220,7 +222,7 @@ static void info_display_only(PurpleConnection *gc, gchar **segments)
 }
 
 void qq_request_buddy_info(PurpleConnection *gc, guint32 uid,
-		gint update_class, int action)
+		guint32 update_class, int action)
 {
 	qq_data *qd;
 	gchar raw_data[16] = {0};
@@ -228,7 +230,7 @@ void qq_request_buddy_info(PurpleConnection *gc, guint32 uid,
 	g_return_if_fail(uid != 0);
 
 	qd = (qq_data *) gc->proto_data;
-	g_snprintf(raw_data, sizeof(raw_data), "%d", uid);
+	g_snprintf(raw_data, sizeof(raw_data), "%u", uid);
 	qq_send_cmd_mess(gc, QQ_CMD_GET_BUDDY_INFO, (guint8 *) raw_data, strlen(raw_data),
 			update_class, action);
 }
@@ -457,7 +459,7 @@ void qq_process_change_info(PurpleConnection *gc, guint8 *data, gint data_len)
 	data[data_len] = '\0';
 	if (qd->uid != atoi((gchar *) data)) {	/* return should be my uid */
 		purple_debug_info("QQ", "Failed Updating info\n");
-		qq_got_attention(gc, _("Could not change buddy information."));
+		qq_got_message(gc, _("Could not change buddy information."));
 	}
 }
 
@@ -553,7 +555,7 @@ gchar *qq_get_icon_path(gchar *icon_name)
 	return icon_path;
 }
 
-static void update_buddy_icon(PurpleAccount *account, const gchar *who, gint face)
+void qq_update_buddy_icon(PurpleAccount *account, const gchar *who, gint face)
 {
 	PurpleBuddy *buddy;
 	const gchar *icon_name_prev = NULL;
@@ -564,19 +566,21 @@ static void update_buddy_icon(PurpleAccount *account, const gchar *who, gint fac
 
 	g_return_if_fail(account != NULL && who != NULL);
 
-	purple_debug_info("QQ", "Update %s icon to %d\n", who, face);
+	/* purple_debug_info("QQ", "Update %s icon to %d\n", who, face); */
 
 	icon_name = qq_get_icon_name(face);
-	purple_debug_info("QQ", "icon file name is %s\n", icon_name);
+	g_return_if_fail(icon_name != NULL);
+	/* purple_debug_info("QQ", "icon file name is %s\n", icon_name); */
 
 	if ((buddy = purple_find_buddy(account, who))) {
 		icon_name_prev = purple_buddy_icons_get_checksum_for_user(buddy);
-		if (icon_name_prev != NULL) {
-			purple_debug_info("QQ", "Previous icon is %s\n", icon_name_prev);
-		}
+		/*
+		purple_debug_info("QQ", "Previous icon is %s\n",
+				icon_name_prev != NULL ? icon_name_prev : "(NULL)");
+		*/
 	}
 	if (icon_name_prev != NULL && !strcmp(icon_name, icon_name_prev)) {
-		purple_debug_info("QQ", "Icon is not changed\n");
+		/* purple_debug_info("QQ", "Icon is not changed\n"); */
 		g_free(icon_name);
 		return;
 	}
@@ -590,6 +594,8 @@ static void update_buddy_icon(PurpleAccount *account, const gchar *who, gint fac
 	if (!g_file_get_contents(icon_path, &icon_file_content, &icon_file_size, NULL)) {
 		purple_debug_error("QQ", "Failed reading icon file %s\n", icon_path);
 	} else {
+		purple_debug_info("QQ", "Update %s icon to %d (%s)\n",
+				who, face, icon_path);
 		purple_buddy_icons_set_for_user(account, who,
 				icon_file_content, icon_file_size, icon_name);
 	}
@@ -608,9 +614,9 @@ static void update_buddy_info(PurpleConnection *gc, gchar **segments)
 	gchar *alias_utf8;
 	PurpleAccount *account = purple_connection_get_account(gc);
 
-	qd = (qq_data *) gc->proto_data;
+	qd = (qq_data *)purple_connection_get_protocol_data(gc);
 
-	uid = strtol(segments[QQ_INFO_UID], NULL, 10);
+	uid = strtoul(segments[QQ_INFO_UID], NULL, 10);
 	who = uid_to_purple_name(uid);
 
 	qq_filter_str(segments[QQ_INFO_NICK]);
@@ -627,15 +633,16 @@ static void update_buddy_info(PurpleConnection *gc, gchar **segments)
 		buddy = purple_find_buddy(gc->account, who);
 	}
 
-	if (buddy == NULL || buddy->proto_data == NULL) {
+	/* if the buddy is null, the api will catch it and return null here */
+	bd = purple_buddy_get_protocol_data(buddy);
+
+	if (buddy == NULL || bd) {
 		g_free(who);
 		g_free(alias_utf8);
 		return;
 	}
 
 	/* update buddy list (including myself, if myself is the buddy) */
-	bd = (qq_buddy_data *)buddy->proto_data;
-
 	bd->age = strtol(segments[QQ_INFO_AGE], NULL, 10);
 	bd->gender = strtol(segments[QQ_INFO_GENDER], NULL, 10);
 	bd->face = strtol(segments[QQ_INFO_FACE], NULL, 10);
@@ -648,7 +655,7 @@ static void update_buddy_info(PurpleConnection *gc, gchar **segments)
 	purple_blist_server_alias_buddy(buddy, bd->nickname);
 
 	/* convert face num from packet (0-299) to local face (1-100) */
-	update_buddy_icon(gc->account, who, bd->face);
+	qq_update_buddy_icon(gc->account, who, bd->face);
 
 	g_free(who);
 	g_free(alias_utf8);
@@ -746,7 +753,7 @@ void qq_request_get_level_2007(PurpleConnection *gc, guint32 uid)
 	qq_send_cmd(gc, QQ_CMD_GET_LEVEL, buf, bytes);
 }
 
-void qq_request_get_buddies_level(PurpleConnection *gc, gint update_class)
+void qq_request_get_buddies_level(PurpleConnection *gc, guint32 update_class)
 {
 	qq_data *qd = (qq_data *) gc->proto_data;
 	PurpleBuddy *buddy;
@@ -764,8 +771,7 @@ void qq_request_get_buddies_level(PurpleConnection *gc, gint update_class)
 	for (it = buddies; it; it = it->next) {
 		buddy = it->data;
 		if (buddy == NULL) continue;
-		if (buddy->proto_data == NULL) continue;
-		bd = (qq_buddy_data *)buddy->proto_data;
+		if ((bd = purple_buddy_get_protocol_data(buddy)) == NULL) continue;
 		if (bd->uid == 0) continue;	/* keep me as end of packet*/
 		if (bd->uid == qd->uid) continue;
 		bytes += qq_put32(buf + bytes, bd->uid);
@@ -786,12 +792,12 @@ static void process_level(PurpleConnection *gc, guint8 *data, gint data_len)
 		bytes += qq_get32(&onlineTime, data + bytes);
 		bytes += qq_get16(&level, data + bytes);
 		bytes += qq_get16(&timeRemainder, data + bytes);
-		purple_debug_info("QQ_LEVEL", "%d, tmOnline: %d, level: %d, tmRemainder: %d\n",
-				uid, onlineTime, level, timeRemainder);
+		purple_debug_info("QQ", "level: %d, uid %u, tmOnline: %d, tmRemainder: %d\n",
+				level, uid, onlineTime, timeRemainder);
 
 		bd = qq_buddy_data_find(gc, uid);
 		if (bd == NULL) {
-			purple_debug_error("QQ", "Got levels of %d not in my buddy list\n", uid);
+			purple_debug_error("QQ", "Got levels of %u not in my buddy list\n", uid);
 			continue;
 		}
 
@@ -821,12 +827,12 @@ static void process_level_2007(PurpleConnection *gc, guint8 *data, gint data_len
 	bytes += qq_get32(&onlineTime, data + bytes);
 	bytes += qq_get16(&level, data + bytes);
 	bytes += qq_get16(&timeRemainder, data + bytes);
-	purple_debug_info("QQ_LEVEL", "%d, tmOnline: %d, level: %d, tmRemainder: %d\n",
-			uid, onlineTime, level, timeRemainder);
+	purple_debug_info("QQ", "level: %d, uid %u, tmOnline: %d, tmRemainder: %d\n",
+			level, uid, onlineTime, timeRemainder);
 
 	bd = qq_buddy_data_find(gc, uid);
 	if (bd == NULL) {
-		purple_debug_error("QQ", "Got levels of %d not in my buddy list\n", uid);
+		purple_debug_error("QQ", "Got levels of %u not in my buddy list\n", uid);
 		return;
 	}
 

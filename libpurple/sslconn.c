@@ -57,7 +57,7 @@ ssl_init(void)
 		return FALSE;
 	}
 
-	return ops->init();
+	return (_ssl_initialized = ops->init());
 }
 
 gboolean
@@ -216,7 +216,7 @@ purple_ssl_connect_with_host_fd(PurpleAccount *account, int fd,
 	/* TODO: Move this elsewhere */
 	gsc->verifier = purple_certificate_find_verifier("x509","tls_cached");
 
-    
+
 	ops = purple_ssl_get_ops();
 	ops->connectfunc(gsc);
 

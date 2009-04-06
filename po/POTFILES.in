@@ -8,6 +8,7 @@ finch/gntconv.c
 finch/gntdebug.c
 finch/gntft.c
 finch/gntlog.c
+finch/gntmedia.c
 finch/gntnotify.c
 finch/gntplugin.c
 finch/gntpounce.c
@@ -62,6 +63,7 @@ libpurple/plugins/log_reader.c
 libpurple/plugins/mono/loader/mono.c
 libpurple/plugins/newline.c
 libpurple/plugins/offlinemsg.c
+libpurple/plugins/one_time_password.c
 libpurple/plugins/perl/perl.c
 libpurple/plugins/psychic.c
 libpurple/plugins/signals-test.c
@@ -86,6 +88,7 @@ libpurple/protocols/jabber/auth.c
 libpurple/protocols/jabber/buddy.c
 libpurple/protocols/jabber/chat.c
 libpurple/protocols/jabber/jabber.c
+libpurple/protocols/jabber/jingle.c
 libpurple/protocols/jabber/libxmpp.c
 libpurple/protocols/jabber/message.c
 libpurple/protocols/jabber/parser.c
@@ -134,6 +137,7 @@ libpurple/protocols/oscar/oscar.c
 libpurple/protocols/oscar/peer.c
 libpurple/protocols/qq/buddy_info.c
 libpurple/protocols/qq/buddy_list.c
+libpurple/protocols/qq/buddy_memo.c
 libpurple/protocols/qq/buddy_opt.c
 libpurple/protocols/qq/group.c
 libpurple/protocols/qq/group_im.c
@@ -165,7 +169,6 @@ libpurple/protocols/silc10/silc.c
 libpurple/protocols/silc10/util.c
 libpurple/protocols/silc10/wb.c
 libpurple/protocols/simple/simple.c
-libpurple/protocols/toc/toc.c
 libpurple/protocols/yahoo/yahoo.c
 libpurple/protocols/yahoo/yahoo_doodle.c
 libpurple/protocols/yahoo/yahoo_filexfer.c
@@ -184,6 +187,7 @@ libpurple/sslconn.c
 libpurple/status.c
 libpurple/util.c
 libpurple/win32/libc_interface.c
+libpurple/xmlnode.c
 pidgin.desktop.in
 pidgin/eggtrayicon.c
 pidgin/gtkaccount.c
@@ -201,6 +205,7 @@ pidgin/gtkimhtml.c
 pidgin/gtkimhtmltoolbar.c
 pidgin/gtklog.c
 pidgin/gtkmain.c
+pidgin/gtkmedia.c
 pidgin/gtknotify.c
 pidgin/gtkplugin.c
 pidgin/gtkpounce.c

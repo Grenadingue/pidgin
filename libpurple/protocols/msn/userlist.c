@@ -184,10 +184,6 @@ msn_got_add_user(MsnSession *session, MsnUser *user,
 		{
 			msn_user_add_group_id(user, group_id);
 		}
-		else
-		{
-			/* session->sync->fl_users_count++; */
-		}
 	}
 	else if (list_id == MSN_LIST_AL)
 	{
@@ -252,10 +248,6 @@ msn_got_rem_user(MsnSession *session, MsnUser *user,
 		{
 			msn_user_remove_group_id(user, group_id);
 			return;
-		}
-		else
-		{
-			/* session->sync->fl_users_count--; */
 		}
 	}
 	else if (list_id == MSN_LIST_AL)
@@ -676,7 +668,7 @@ msn_userlist_rem_buddy_from_list(MsnUserList *userlist, const char *who,
 
 	msn_user_unset_op(user, list_op);
 
-	msn_notification_rem_buddy_from_list(userlist->session->notification, list_id, who);
+	msn_notification_rem_buddy_from_list(userlist->session->notification, list_id, user);
 }
 
 /*add buddy*/
@@ -756,6 +748,69 @@ msn_userlist_add_buddy(MsnUserList *userlist, const char *who, const char *group
 	msn_add_contact_to_group(userlist->session, state, who, group_id);
 }
 
+/*
+ * Save a buddy address/group until we get back response from FQY
+ */
+void
+msn_userlist_save_pending_buddy(MsnUserList *userlist,
+                               const char *who,
+                               const char *group_name)
+{
+	MsnUser *user;
+
+	g_return_if_fail(userlist != NULL);
+
+	user = msn_user_new(userlist, who, NULL);
+	msn_user_set_pending_group(user, group_name);
+	msn_user_set_network(user, MSN_NETWORK_UNKNOWN);
+	userlist->pending = g_list_prepend(userlist->pending, user);
+}
+
+/*
+ * Actually adds a buddy once we have the response from FQY
+ */
+void
+msn_userlist_add_pending_buddy(MsnSession *session,
+                               const char *who,
+                               /*MsnNetwork*/ int network)
+{
+	MsnUserList *userlist = session->userlist;
+	MsnUser *user = NULL;
+	MsnUser *user2;
+	GList *l;
+	char *group;
+
+	for (l = userlist->pending; l != NULL; l = l->next)
+	{
+		user = (MsnUser *)l->data;
+
+		if (!g_strcasecmp(who, user->passport)) {
+			userlist->pending = g_list_delete_link(userlist->pending, l);
+			break;
+		}
+	}
+
+	if (user == NULL) {
+		purple_debug_error("msn", "Attempting to add a pending user that does not exist.\n");
+		return;
+	}
+
+	group = msn_user_remove_pending_group(user);
+
+	user2 = msn_userlist_find_user(userlist, who);
+	if (user2 != NULL) {
+		/* User already in userlist, so just update it. */
+		msn_user_destroy(user);
+		user = user2;
+	} else {
+		msn_userlist_add_user(userlist, user);
+	}
+
+	msn_user_set_network(user, network);
+	msn_userlist_add_buddy(userlist, who, group);
+	g_free(group);
+}
+
 void
 msn_userlist_add_buddy_to_list(MsnUserList *userlist, const char *who,
 							MsnListId list_id)
@@ -781,7 +836,7 @@ msn_userlist_add_buddy_to_list(MsnUserList *userlist, const char *who,
 
 	msn_user_set_op(user, list_op);
 
-	msn_notification_add_buddy_to_list(userlist->session->notification, list_id, who);
+	msn_notification_add_buddy_to_list(userlist->session->notification, list_id, user);
 }
 
 gboolean
@@ -803,7 +858,7 @@ msn_userlist_add_buddy_to_group(MsnUserList *userlist, const char *who,
 	}
 
 	if ( (user = msn_userlist_find_user(userlist, who)) == NULL) {
-		purple_debug_error("msn", "User %s not found!", who);
+		purple_debug_error("msn", "User %s not found!\n", who);
 		return FALSE;
 	}
 
@@ -832,7 +887,7 @@ msn_userlist_rem_buddy_from_group(MsnUserList *userlist, const char *who,
 	}
 
 	if ( (user = msn_userlist_find_user(userlist, who)) == NULL) {
-		purple_debug_error("msn", "User %s not found!", who);
+		purple_debug_error("msn", "User %s not found!\n", who);
 		return FALSE;
 	}
 
@@ -876,31 +931,37 @@ void
 msn_userlist_load(MsnSession *session)
 {
 	PurpleBlistNode *gnode, *cnode, *bnode;
-	PurpleConnection *gc = purple_account_get_connection(session->account);
+	PurpleAccount *account = session->account;
+	PurpleConnection *gc = purple_account_get_connection(account);
 	GSList *l;
 	MsnUser * user;
 
 	g_return_if_fail(gc != NULL);
 
-	for (gnode = purple_get_blist()->root; gnode; gnode = gnode->next)
+	for (gnode = purple_blist_get_root(); gnode;
+			gnode = purple_blist_node_get_sibling_next(gnode))
 	{
 		if (!PURPLE_BLIST_NODE_IS_GROUP(gnode))
 			continue;
-		for (cnode = gnode->child; cnode; cnode = cnode->next)
+		for (cnode = purple_blist_node_get_first_child(gnode);
+				cnode;
+				cnode = purple_blist_node_get_sibling_next(cnode))
 		{
 			if (!PURPLE_BLIST_NODE_IS_CONTACT(cnode))
 				continue;
-			for (bnode = cnode->child; bnode; bnode = bnode->next)
+			for (bnode = purple_blist_node_get_first_child(cnode);
+					bnode;
+					bnode = purple_blist_node_get_sibling_next(bnode))
 			{
 				PurpleBuddy *b;
 				if (!PURPLE_BLIST_NODE_IS_BUDDY(bnode))
 					continue;
 				b = (PurpleBuddy *)bnode;
-				if (b->account == gc->account)
+				if (purple_buddy_get_account(b) == account)
 				{
 					user = msn_userlist_find_add_user(session->userlist,
-						b->name,NULL);
-					b->proto_data = user;
+						purple_buddy_get_name(b), NULL);
+					purple_buddy_set_protocol_data(b, user);
 					msn_user_set_op(user, MSN_LIST_FL_OP);
 				}
 			}

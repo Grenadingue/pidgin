@@ -33,6 +33,7 @@
 #include "prpl.h"
 #include "request.h"
 #include "util.h"
+#include "core.h"
 
 #include "gtkblist.h"
 #include "gtkdialogs.h"
@@ -100,6 +101,7 @@ static const struct developer developers[] = {
 
 /* Order: Alphabetical by Last Name */
 static const struct developer patch_writers[] = {
+	{"Paul 'darkrain42' Aurich", NULL, NULL },
 	{"Marcus 'malu' Lundblad", NULL, NULL},
 	{"Dennis 'EvilDennisR' Ristuccia",	N_("Senior Contributor/QA"),	NULL},
 	{"Peter 'Fmoo' Ruibal",		NULL,	NULL},
@@ -143,6 +145,7 @@ static const struct translator translators[] = {
 	{N_("Belarusian Latin"),    "be@latin", "Ihar Hrachyshka", "ihar.hrachyshka@gmail.com"},
 	{N_("Bulgarian"),           "bg", "Vladimira Girginova", "missing@here.is"},
 	{N_("Bulgarian"),           "bg", "Vladimir (Kaladan) Petkov", "vpetkov@i-space.org"},
+	{N_("Bengali"),             "bn", "Israt Jahan", "israt@ankur.org.bd"},
 	{N_("Bengali"),             "bn", "INDRANIL DAS GUPTA", "indradg@l2c2.org"},
 	{N_("Bengali"),             "bn", "Jamil Ahmed", "jamil@bengalinux.org"},
 	{N_("Bengali"),             "bn", "Samia Nimatullah", "mailsamia2001@yahoo.com"},
@@ -186,6 +189,7 @@ static const struct translator translators[] = {
 	{N_("Italian"),             "it", "Claudio Satriano", "satriano@na.infn.it"},
 	{N_("Japanese"),            "ja", "Takashi Aihana", "aihana@gnome.gr.jp"},
 	{N_("Georgian"),            "ka", N_("Ubuntu Georgian Translators"), "alexander.didebulidze@stusta.mhn.de"},
+	{N_("Khmer"),               "km", "Khoem Sokhem", "khoemsokhem@khmeros.info"},
 	{N_("Kannada"),             "kn", N_("Kannada Translation team"), "translation@sampada.info"},
 	{N_("Korean"),              "ko", "Sushizang", "sushizang@empal.com"},
 	{N_("Kurdish"),             "ku", "Erdal Ronahi", "erdal.ronahi@gmail.com"},
@@ -196,21 +200,19 @@ static const struct translator translators[] = {
 	{N_("Macedonian"),          "mk", "Arangel Angov ", "arangel@linux.net.mk"},
 	{N_("Macedonian"),          "mk", "Ivana Kirkovska", "ivana.kirkovska@gmail.com"},
 	{N_("Macedonian"),          "mk", "Jovan Naumovski", "jovan@lugola.net"},
-	{"Mongolian",               "mn", "gooyo", NULL},
-	{N_("Bokmål Norwegian"),    "nb", "Espen Stefansen", "espenas@gmail.com"},
+	{N_("Mongolian"),           "mn", "gooyo", NULL},
+	{N_("Bokmål Norwegian"),    "nb", "Hans Fredrik Nordhaug", "hans@nordhaug.priv.no"},
 	{N_("Nepali"),              "ne", "Shyam Krishna Bal", "shyamkrishna_bal@yahoo.com"},
 	{N_("Dutch, Flemish"),      "nl", "Vincent van Adrighem", "V.vanAdrighem@dirck.mine.nu"},
 	{N_("Norwegian Nynorsk"),   "nn", "Yngve Spjeld Landro", "nynorsk@strilen.net"},
 	{N_("Occitan"),             "oc", "Yannig Marchegay", "yannig@marchegay.org"},
 	{N_("Punjabi"),             "pa", "Amanpreet Singh Alam", "aalam@users.sf.net"},
-	{N_("Polish"),              "pl", "Emil Nowak", "emil5@go2.pl"},
-	{N_("Polish"),              "pl", "Paweł Godlewski", "pawel@bajk.pl"},
-	{N_("Polish"),              "pl", "Krzysztof Foltman", "krzysztof@foltman.com"},
+	{N_("Polish"),              "pl", "Piotr Makowski", "pmakowski@aviary.pl"},
 	{N_("Portuguese"),          "pt", "Duarte Henriques", "duarte_henriques@myrealbox.com"},
 	{N_("Portuguese-Brazil"),   "pt_BR", "Rodrigo Luiz Marques Flores", "rodrigomarquesflores@gmail.com"},
 	{N_("Pashto"),              "ps", "Kashif Masood", "masudmails@yahoo.com"},
 	{N_("Romanian"),            "ro", "Mişu Moldovan", "dumol@gnome.ro"},
-	{N_("Russian"),             "ru", "Dmitry Beloglazov", "dmaa@users.sf.net"},
+	{N_("Russian"),             "ru", "Антон Самохвалов", "samant.ua@mail.ru"},
 	{N_("Slovak"),              "sk", "Jozef Káčer", "quickparser@gmail.com"},
 	{N_("Slovak"),              "sk", "loptosko", "loptosko@gmail.com"},
 	{N_("Slovenian"),           "sl", "Martin Srebotnjak", "miles@filmsi.net"},
@@ -270,8 +272,13 @@ static const struct translator past_translators[] = {
 	{N_("Macedonian"),          "mk", "Tomislav Markovski", NULL},
 	{N_("Bokmål Norwegian"),    "nb", "Hallvard Glad", "hallvard.glad@gmail.com"},
 	{N_("Bokmål Norwegian"),    "nb", "Petter Johan Olsen", NULL},
+	{N_("Bokmål Norwegian"),    "nb", "Espen Stefansen", "espenas@gmail.com"},
+	{N_("Polish"),              "pl", "Emil Nowak", "emil5@go2.pl"},
+	{N_("Polish"),              "pl", "Paweł Godlewski", "pawel@bajk.pl"},
+	{N_("Polish"),              "pl", "Krzysztof Foltman", "krzysztof@foltman.com"},
 	{N_("Polish"),              "pl", "Przemysław Sułek", NULL},
 	{N_("Portuguese-Brazil"),   "pt_BR", "Maurício de Lemos Rodrigues Collares Neto", "mauricioc@gmail.com"},
+	{N_("Russian"),             "ru", "Dmitry Beloglazov", "dmaa@users.sf.net"},
 	{N_("Russian"),             "ru", "Alexandre Prokoudine", NULL},
 	{N_("Russian"),             "ru", "Sergey Volozhanin", NULL},
 	{N_("Slovak"),              "sk", "Daniel Režný", NULL},
@@ -344,7 +351,7 @@ static void destroy_about(void)
 }
 
 #if 0
-/* This function puts the version number onto the pixmap we use in the 'about' 
+/* This function puts the version number onto the pixmap we use in the 'about'
  * screen in Pidgin. */
 static void
 pidgin_logo_versionize(GdkPixbuf **original, GtkWidget *widget) {
@@ -435,7 +442,7 @@ void pidgin_dialogs_about()
 	str = g_string_sized_new(4096);
 
 	g_string_append_printf(str,
-		"<CENTER><FONT SIZE=\"4\"><B>%s %s</B></FONT></CENTER><BR><BR>", PIDGIN_NAME, DISPLAY_VERSION);
+		"<CENTER><FONT SIZE=\"4\"><B>%s %s</B></FONT></CENTER><BR>(libpurple %s)<BR><BR>", PIDGIN_NAME, DISPLAY_VERSION, purple_core_get_version());
 
 	g_string_append_printf(str,
 		_("%s is a graphical modular messaging client based on "
@@ -452,12 +459,17 @@ void pidgin_dialogs_about()
 		  "warranty for this program.<BR><BR>"), PIDGIN_NAME, PIDGIN_NAME, PIDGIN_NAME);
 
 	g_string_append(str, "<FONT SIZE=\"4\">URL:</FONT> <A HREF=\""
-					PURPLE_WEBSITE "\">" PURPLE_WEBSITE "</A><BR/><BR/>");
-	g_string_append(str, "<FONT SIZE=\"4\">FAQ:</FONT> <A HREF=\""
-			"http://developer.pidgin.im/wiki/FAQ\">"
-			"http://developer.pidgin.im/wiki/FAQ</A><BR/><BR/>");
-	g_string_append_printf(str, _("<FONT SIZE=\"4\">IRC:</FONT> "
-						   "#pidgin on irc.freenode.net<BR><BR>"));
+				PURPLE_WEBSITE "\">" PURPLE_WEBSITE "</A><BR/><BR/>");
+	g_string_append_printf(str, _("<FONT SIZE=\"4\">FAQ:</FONT> <A HREF=\""
+				"http://developer.pidgin.im/wiki/FAQ\">"
+				"http://developer.pidgin.im/wiki/FAQ</A><BR/><BR/>"));
+	g_string_append_printf(str, _("<FONT SIZE=\"4\">Help via e-mail:</FONT>"
+				" <A HREF=\"mailto:support@pidgin.im\">support@pidgin.im</A>"
+				"<BR/><BR/>"));
+	g_string_append_printf(str, _("<FONT SIZE=\"4\">IRC Channel:</FONT> "
+				"#pidgin on irc.freenode.net<BR><BR>"));
+	g_string_append_printf(str, _("<FONT SIZE=\"4\">XMPP MUC:</FONT> "
+				"devel@conference.pidgin.im<BR><BR>"));
 
 	/* Current Developers */
 	g_string_append_printf(str, "<FONT SIZE=\"4\">%s:</FONT><BR/>",
@@ -482,7 +494,7 @@ void pidgin_dialogs_about()
 						   _("Retired Crazy Patch Writers"));
 	add_developers(str, retired_patch_writers);
 	g_string_append(str, "<BR/>");
-			
+
 	/* Current Translators */
 	g_string_append_printf(str, "<FONT SIZE=\"4\">%s:</FONT><BR/>",
 						   _("Current Translators"));
@@ -631,6 +643,12 @@ if (purple_plugins_find_with_id("core-tcl") != NULL) {
 	g_string_append(str, "    <b>Tcl:</b> Disabled<br/>");
 	g_string_append(str, "    <b>Tk:</b> Disabled<br/>");
 }
+
+#ifdef USE_VV
+	g_string_append(str, "    <b>Voice and Video:</b> Enabled<br/>");
+#else
+	g_string_append(str, "    <b>Voice and Video:</b> Disabled<br/>");
+#endif
 
 #ifndef _WIN32
 #ifdef USE_SM
@@ -1056,8 +1074,8 @@ pidgin_dialogs_remove_contact(PurpleContact *contact)
 	g_return_if_fail(contact != NULL);
 	g_return_if_fail(buddy != NULL);
 
-	if (((PurpleBlistNode*)contact)->child == (PurpleBlistNode*)buddy &&
-			!((PurpleBlistNode*)buddy)->next) {
+	if (PURPLE_BLIST_NODE(contact)->child == PURPLE_BLIST_NODE(buddy) &&
+	    PURPLE_BLIST_NODE(buddy)->next == NULL) {
 		pidgin_dialogs_remove_buddy(buddy);
 	} else {
 		gchar *text;
@@ -1111,7 +1129,7 @@ pidgin_dialogs_merge_groups(PurpleGroup *source, const char *new_name)
 	ggp = g_new(struct _PidginGroupMergeObject, 1);
 	ggp->parent = source;
 	ggp->new_name = g_strdup(new_name);
-	
+
 	purple_request_action(source, NULL, _("Merge Groups"), text, 0,
 			NULL, NULL, NULL,
 			ggp, 2,

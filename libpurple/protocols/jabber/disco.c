@@ -28,6 +28,7 @@
 #include "iq.h"
 #include "disco.h"
 #include "jabber.h"
+#include "jingle/jingle.h"
 #include "presence.h"
 #include "roster.h"
 #include "pep.h"
@@ -132,9 +133,7 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 			SUPPORT_FEATURE("http://jabber.org/protocol/bytestreams")
 			SUPPORT_FEATURE("http://jabber.org/protocol/disco#info")
 			SUPPORT_FEATURE("http://jabber.org/protocol/disco#items")
-#if 0
-				SUPPORT_FEATURE("http://jabber.org/protocol/ibb")
-#endif
+			SUPPORT_FEATURE("http://jabber.org/protocol/ibb");
 			SUPPORT_FEATURE("http://jabber.org/protocol/muc")
 			SUPPORT_FEATURE("http://jabber.org/protocol/muc#user")
 			SUPPORT_FEATURE("http://jabber.org/protocol/si")
@@ -142,7 +141,7 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 			SUPPORT_FEATURE("http://jabber.org/protocol/xhtml-im")
 			SUPPORT_FEATURE("urn:xmpp:ping")
 			SUPPORT_FEATURE("http://www.xmpp.org/extensions/xep-0199.html#ns")
-			
+
 			if(!node) { /* non-caps disco#info, add all enabled extensions */
 				GList *features;
 				for(features = jabber_features; features; features = features->next) {
@@ -151,6 +150,16 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 						SUPPORT_FEATURE(feat->namespace);
 				}
 			}
+#ifdef USE_VV
+		} else if (node && !strcmp(node, CAPS0115_NODE "#voice-v1")) {
+			SUPPORT_FEATURE("http://www.google.com/xmpp/protocol/session");
+			SUPPORT_FEATURE("http://www.google.com/xmpp/protocol/voice/v1");
+			SUPPORT_FEATURE(JINGLE);
+			SUPPORT_FEATURE(JINGLE_APP_RTP_SUPPORT_AUDIO);
+			SUPPORT_FEATURE(JINGLE_APP_RTP_SUPPORT_VIDEO);
+			SUPPORT_FEATURE(JINGLE_TRANSPORT_RAWUDP);
+			SUPPORT_FEATURE(JINGLE_TRANSPORT_ICEUDP);
+#endif
 		} else {
 			const char *ext = NULL;
 			unsigned pos;
@@ -168,7 +177,7 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 					} else if(node[pos] != CAPS0115_NODE[pos])
 					break;
 				}
-				
+
 				if(ext != NULL) {
 					/* look for that ext */
 					GList *features;
@@ -183,14 +192,14 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 						ext = NULL;
 				}
 			}
-			
+
 			if(ext == NULL) {
 				xmlnode *error, *inf;
-				
+
 				/* XXX: gross hack, implement jabber_iq_set_type or something */
 				xmlnode_set_attrib(iq->node, "type", "error");
 				iq->type = JABBER_IQ_ERROR;
-				
+
 				error = xmlnode_new_child(query, "error");
 				xmlnode_set_attrib(error, "code", "404");
 				xmlnode_set_attrib(error, "type", "cancel");
@@ -273,6 +282,10 @@ void jabber_disco_info_parse(JabberStream *js, xmlnode *packet) {
 				else if(!strcmp(var, "http://jabber.org/protocol/commands")) {
 					capabilities |= JABBER_CAP_ADHOC;
 				}
+				else if(!strcmp(var, "http://jabber.org/protocol/ibb")) {
+					purple_debug_info("jabber", "remote supports IBB\n");
+					capabilities |= JABBER_CAP_IBB;
+				}
 			}
 		}
 
@@ -316,7 +329,7 @@ void jabber_disco_items_parse(JabberStream *js, xmlnode *packet) {
 	if(type && !strcmp(type, "get")) {
 		JabberIq *iq = jabber_iq_new_query(js, JABBER_IQ_RESULT,
 				"http://jabber.org/protocol/disco#items");
-		
+
 		/* preserve node */
 		xmlnode *iq_query = xmlnode_get_child_with_namespace(iq->node,"query","http://jabber.org/protocol/disco#items");
 		if(iq_query) {
@@ -353,6 +366,11 @@ jabber_disco_finish_server_info_result_cb(JabberStream *js)
 	if (js->server_caps & JABBER_CAP_ADHOC) {
 		/* The server supports ad-hoc commands, so let's request the list */
 		jabber_adhoc_server_get_list(js);
+	}
+
+	/* If the server supports blocking, request the block list */
+	if (js->server_caps & JABBER_CAP_BLOCKING) {
+		jabber_request_block_list(js);
 	}
 
 	/* If there are manually specified bytestream proxies, query them */
@@ -436,6 +454,11 @@ jabber_disco_server_info_result_cb(JabberStream *js, xmlnode *packet, gpointer d
 		if (!strcmp(name, "Google Talk")) {
 			purple_debug_info("jabber", "Google Talk!\n");
 			js->googletalk = TRUE;
+
+			/* autodiscover stun and relays */
+			jabber_google_send_jingle_info(js);
+		} else {
+			/* TODO: add external service discovery here... */
 		}
 	}
 
@@ -454,6 +477,8 @@ jabber_disco_server_info_result_cb(JabberStream *js, xmlnode *packet, gpointer d
 			jabber_google_roster_init(js);
 		} else if (!strcmp("http://jabber.org/protocol/commands", var)) {
 			js->server_caps |= JABBER_CAP_ADHOC;
+		} else if (!strcmp("urn:xmpp:blocking", var)) {
+			js->server_caps |= JABBER_CAP_BLOCKING;
 		}
 	}
 

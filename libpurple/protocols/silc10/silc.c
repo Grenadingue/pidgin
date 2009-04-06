@@ -39,19 +39,19 @@ silcpurple_away_states(PurpleAccount *account)
 	PurpleStatusType *type;
 	GList *types = NULL;
 
-	type = purple_status_type_new_full(PURPLE_STATUS_AVAILABLE, SILCPURPLE_STATUS_ID_AVAILABLE, NULL, FALSE, TRUE, FALSE);
+	type = purple_status_type_new_full(PURPLE_STATUS_AVAILABLE, SILCPURPLE_STATUS_ID_AVAILABLE, NULL, TRUE, TRUE, FALSE);
 	types = g_list_append(types, type);
-	type = purple_status_type_new_full(PURPLE_STATUS_AVAILABLE, SILCPURPLE_STATUS_ID_HYPER, _("Hyper Active"), FALSE, TRUE, FALSE);
+	type = purple_status_type_new_full(PURPLE_STATUS_AVAILABLE, SILCPURPLE_STATUS_ID_HYPER, _("Hyper Active"), TRUE, TRUE, FALSE);
 	types = g_list_append(types, type);
-	type = purple_status_type_new_full(PURPLE_STATUS_AWAY, SILCPURPLE_STATUS_ID_AWAY, NULL, FALSE, TRUE, FALSE);
+	type = purple_status_type_new_full(PURPLE_STATUS_AWAY, SILCPURPLE_STATUS_ID_AWAY, NULL, TRUE, TRUE, FALSE);
 	types = g_list_append(types, type);
-	type = purple_status_type_new_full(PURPLE_STATUS_UNAVAILABLE, SILCPURPLE_STATUS_ID_BUSY, _("Busy"), FALSE, TRUE, FALSE);
+	type = purple_status_type_new_full(PURPLE_STATUS_UNAVAILABLE, SILCPURPLE_STATUS_ID_BUSY, _("Busy"), TRUE, TRUE, FALSE);
 	types = g_list_append(types, type);
-	type = purple_status_type_new_full(PURPLE_STATUS_AWAY, SILCPURPLE_STATUS_ID_INDISPOSED, _("Indisposed"), FALSE, TRUE, FALSE);
+	type = purple_status_type_new_full(PURPLE_STATUS_AWAY, SILCPURPLE_STATUS_ID_INDISPOSED, _("Indisposed"), TRUE, TRUE, FALSE);
 	types = g_list_append(types, type);
-	type = purple_status_type_new_full(PURPLE_STATUS_AWAY, SILCPURPLE_STATUS_ID_PAGE, _("Wake Me Up"), FALSE, TRUE, FALSE);
+	type = purple_status_type_new_full(PURPLE_STATUS_AWAY, SILCPURPLE_STATUS_ID_PAGE, _("Wake Me Up"), TRUE, TRUE, FALSE);
 	types = g_list_append(types, type);
-	type = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, SILCPURPLE_STATUS_ID_OFFLINE, NULL, FALSE, TRUE, FALSE);
+	type = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, SILCPURPLE_STATUS_ID_OFFLINE, NULL, TRUE, TRUE, FALSE);
 	types = g_list_append(types, type);
 
 	return types;
@@ -1836,12 +1836,13 @@ static PurplePluginProtocolInfo prpl_info =
 	&silcpurple_wb_ops,			/* whiteboard_prpl_ops */
 	NULL,                       /* send_raw */
 	NULL,                       /* roomlist_room_serialize */
-
-	NULL,
-	NULL,
-	NULL,
+	NULL,                       /* unregister_user */
+	NULL,                       /* send_attention */
+	NULL,                       /* get_attention_types */
 	sizeof(PurplePluginProtocolInfo),       /* struct_size */
-	NULL
+	NULL,                       /* get_account_text_table */
+	NULL,                       /* initiate_media */
+	NULL                       /* can_do_media */
 };
 
 static PurplePluginInfo info =
@@ -1956,4 +1957,4 @@ init_plugin(PurplePlugin *plugin)
 #endif
 }
 
-PURPLE_INIT_PLUGIN(silc, init_plugin, info);
+PURPLE_INIT_PLUGIN(silc10, init_plugin, info);

@@ -43,19 +43,19 @@ AC_PREREQ([2.50])
 #
 # Make sure to update finch/libgnt/configure.ac with libgnt version changes.
 #
-m4_define([purple_lt_current], [5])
+m4_define([purple_lt_current], [6])
 m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [5])
-m4_define([purple_micro_version], [3])
+m4_define([purple_minor_version], [6])
+m4_define([purple_micro_version], [0])
 m4_define([purple_version_suffix], [devel])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
 m4_define([purple_display_version], purple_version[]m4_ifdef([purple_version_suffix],[purple_version_suffix]))
 
-m4_define([gnt_lt_current], [5])
+m4_define([gnt_lt_current], [6])
 m4_define([gnt_major_version], [2])
-m4_define([gnt_minor_version], [5])
-m4_define([gnt_micro_version], [3])
+m4_define([gnt_minor_version], [6])
+m4_define([gnt_micro_version], [0])
 m4_define([gnt_version_suffix], [devel])
 m4_define([gnt_version],
           [gnt_major_version.gnt_minor_version.gnt_micro_version])
@@ -144,7 +144,7 @@ darwin*)
 	;;
 esac
 
-ALL_LINGUAS="af am ar az be@latin bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr ga gl gu he hi hu id it ja ka kn ko ku lo lt mk mn my_MM nb ne nl nn oc pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
+ALL_LINGUAS="af am ar az be@latin bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr ga gl gu he hi hu id it ja ka km kn ko ku lo lt mk mn my_MM nb ne nl nn oc pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
 AM_GLIB_GNU_GETTEXT
 
 dnl If we don't have msgfmt, then po/ is going to fail -- ensure that
@@ -323,6 +323,9 @@ I can find them.
 ])])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
+
+GLIB_GENMARSHAL=`pkg-config --variable=glib_genmarshal glib-2.0`
+AC_SUBST(GLIB_GENMARSHAL)
 
 AC_ARG_WITH([extraversion],
 			AC_HELP_STRING([--with-extraversion=STRING],
@@ -745,6 +748,63 @@ Use --disable-gstreamer if you do not need GStreamer (sound) support.
 fi
 
 dnl #######################################################################
+dnl # Check for Farsight
+dnl #######################################################################
+AC_ARG_ENABLE(farsight,
+	[AC_HELP_STRING([--disable-farsight], [compile without farsight support])],
+	enable_farsight="$enableval", enable_farsight="yes")
+if test "x$enable_farsight" != "xno"; then
+	PKG_CHECK_MODULES(FARSIGHT, [farsight2-0.10 >= 0.0.8 gstreamer-0.10 gstreamer-plugins-base-0.10 libxml-2.0], [
+		AC_DEFINE(USE_FARSIGHT, 1, [Use Farsight for voice and video])
+		AC_SUBST(FARSIGHT_CFLAGS)
+		AC_SUBST(FARSIGHT_LIBS)
+	], [
+		enable_farsight="no"
+	])
+fi
+
+dnl #######################################################################
+dnl # Check for GStreamer-properties
+dnl #######################################################################
+AC_ARG_ENABLE(gstprops,
+	[AC_HELP_STRING([--disable-gstprops], [compile without gstreamer props])],
+	enable_gstprops="$enableval", enable_gstprops="yes")
+if test "x$enable_gstprops" != "xno";
+then
+  dnl gstreamer-libs-$GST_MAJORMINOR
+  dnl gstreamer-gconf-$GST_MAJORMINOR
+  PKG_CHECK_MODULES(GSTPROPS, [gstreamer-0.10 gstreamer-plugins-base-0.10 libxml-2.0], [
+  		GSTPROPS_LIBS="$GSTPROPS_LIBS -lgstinterfaces-0.10"	   
+  		AC_DEFINE(USE_GSTPROPS, 1, [Use GStreamer property probe for finding devices])
+  		AC_SUBST(GSTPROPS_LIBS)
+  		AC_SUBST(GSTPROPS_CFLAGS)
+  ], [
+		enable_gstprops="no"
+  ])
+fi
+
+dnl #######################################################################
+dnl # Check for Voice and Video support
+dnl #######################################################################
+AC_ARG_ENABLE(vv,
+	[AC_HELP_STRING([--disable-vv], [compile without voice and video support])],
+	[enable_vv="$enableval" force_vv=$enableval], [enable_vv="yes" enable_vv=no])
+if test "x$enable_vv" != "xno"; then
+	if test "x$enable_farsight" != "xno" -a "x$enable_gstprops" != "xno"; then
+		AC_DEFINE(USE_VV, 1, [Use voice and video])
+	else
+		enable_vv="no"
+		if test "x$force_vv" = "xyes"; then
+			AC_MSG_ERROR([
+
+Dependencies for voice/video were not met. Install the necessary gstreamer and farsight packages first.
+
+			])
+		fi
+	fi
+fi
+
+dnl #######################################################################
 dnl # Check for Meanwhile headers (for Sametime)
 dnl #######################################################################
 AC_ARG_ENABLE(meanwhile,
@@ -1048,7 +1108,6 @@ for i in $STATIC_PRPLS ; do
 		silc)		static_silc=yes ;;
 		silc10)		static_silc=yes ;;
 		simple)		static_simple=yes ;;
-		toc)		static_toc=yes ;;
 		yahoo)		static_yahoo=yes ;;
 		zephyr)		static_zephyr=yes ;;
 		*)			echo "Invalid static protocol $i!!" ; exit ;;
@@ -1066,7 +1125,6 @@ AM_CONDITIONAL(STATIC_QQ, test "x$static_qq" = "xyes")
 AM_CONDITIONAL(STATIC_SAMETIME, test "x$static_sametime" = "xyes" -a "x$have_meanwhile" = "xyes")
 AM_CONDITIONAL(STATIC_SILC, test "x$static_silc" = "xyes" -a "x$have_silc" = "xyes")
 AM_CONDITIONAL(STATIC_SIMPLE, test "x$static_simple" = "xyes")
-AM_CONDITIONAL(STATIC_TOC, test "x$static_toc" = "xyes")
 AM_CONDITIONAL(STATIC_YAHOO, test "x$static_yahoo" = "xyes")
 AM_CONDITIONAL(STATIC_ZEPHYR, test "x$static_zephyr" = "xyes")
 AC_SUBST(STATIC_LINK_LIBS)
@@ -1103,6 +1161,7 @@ for i in $DYNAMIC_PRPLS ; do
 		msnp9)		dynamic_msn=yes ;;
 		myspace)	dynamic_myspace=yes ;;
 		novell)		dynamic_novell=yes ;;
+		null)		dynamic_null=yes ;;
 		oscar)		dynamic_oscar=yes ;;
 		aim)		dynamic_oscar=yes ;;
 		icq)		dynamic_oscar=yes ;;
@@ -1111,27 +1170,11 @@ for i in $DYNAMIC_PRPLS ; do
 		silc)		dynamic_silc=yes ;;
 		silc10)		dynamic_silc=yes ;;
 		simple)		dynamic_simple=yes ;;
-		toc)		dynamic_toc=yes ;;
 		yahoo)		dynamic_yahoo=yes ;;
 		zephyr)		dynamic_zephyr=yes ;;
 		*)			echo "Invalid dynamic protocol $i!!" ; exit ;;
 	esac
 done
-AM_CONDITIONAL(DYNAMIC_BONJOUR, test "x$dynamic_bonjour" = "xyes"  -a [ "x$avahiincludes" = "xyes" -a "x$avahilibs " = "xyes" ] )
-AM_CONDITIONAL(DYNAMIC_GG, test "x$dynamic_gg" = "xyes")
-AM_CONDITIONAL(DYNAMIC_IRC, test "x$dynamic_irc" = "xyes")
-AM_CONDITIONAL(DYNAMIC_JABBER, test "x$dynamic_jabber" = "xyes")
-AM_CONDITIONAL(DYNAMIC_MSN, test "x$dynamic_msn" = "xyes")
-AM_CONDITIONAL(DYNAMIC_MYSPACE, test "x$dynamic_myspace" = "xyes")
-AM_CONDITIONAL(DYNAMIC_NOVELL, test "x$dynamic_novell" = "xyes")
-AM_CONDITIONAL(DYNAMIC_OSCAR, test "x$dynamic_oscar" = "xyes")
-AM_CONDITIONAL(DYNAMIC_QQ, test "x$dynamic_qq" = "xyes")
-AM_CONDITIONAL(DYNAMIC_SAMETIME, test "x$dynamic_sametime" = "xyes" -a "x$have_meanwhile" = "xyes")
-AM_CONDITIONAL(DYNAMIC_SILC, test "x$dynamic_silc" = "xyes" -a "x$have_silc" = "xyes")
-AM_CONDITIONAL(DYNAMIC_SIMPLE, test "x$dynamic_simple" = "xyes")
-AM_CONDITIONAL(DYNAMIC_TOC, test "x$dynamic_toc" = "xyes")
-AM_CONDITIONAL(DYNAMIC_YAHOO, test "x$dynamic_yahoo" = "xyes")
-AM_CONDITIONAL(DYNAMIC_ZEPHYR, test "x$dynamic_zephyr" = "xyes")
 
 AC_ARG_ENABLE(plugins, [AC_HELP_STRING([--disable-plugins], [compile without plugin support])], , enable_plugins=yes)
 AC_ARG_WITH(krb4, [AC_HELP_STRING([--with-krb4=PREFIX], [compile Zephyr plugin with Kerberos 4 support])], kerberos="$withval", kerberos="no")
@@ -1173,6 +1216,8 @@ if test "x$GCC" = "xyes"; then
 			"-Wendif-labels" \
 			"-Werror-implicit-function-declaration" \
 			"-Wextra -Wno-sign-compare -Wno-unused-parameter" \
+			"-Wformat-security" \
+				"-Werror=format-security" \
 			"-Winit-self" \
 			"-Wmissing-declarations" \
 			"-Wmissing-noreturn" \
@@ -1699,6 +1744,22 @@ fi
 
 AC_SUBST(GNUTLS_CFLAGS)
 AC_SUBST(GNUTLS_LIBS)
+
+if test "x$enable_gnutls" = "xyes"; then
+	AC_MSG_CHECKING(for gnutls_priority_set_direct)
+	LIBS_save="$LIBS"
+	LIBS="$LIBS $GNUTLS_LIBS"
+	CPPFLAGS_save="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $GNUTLS_CFLAGS"
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <gnutls/gnutls.h>],
+                                        [gnutls_session s; gnutls_priority_set_direct(s, NULL, NULL);])],
+	               [AC_DEFINE([HAVE_GNUTLS_PRIORITY_FUNCS], 1,
+                                  [Define if your gnutls has gnutls_priority_set_direct and friends])
+	                AC_MSG_RESULT(yes)],
+	               [AC_MSG_RESULT(no)])
+	CPPFLAGS="$CPPFLAGS_save"
+        LIBS="$LIBS_save"
+fi
 
 AM_CONDITIONAL(USE_GNUTLS, test "x$enable_gnutls" = "xyes")
 
@@ -2283,6 +2344,30 @@ if test $ac_cv_struct_tm_gmtoff = yes; then
         AC_DEFINE(HAVE_TM_GMTOFF, 1, [Define if you have a tm_gmtoff member in struct tm])
 fi
 
+AC_CACHE_CHECK([whether va_lists can be copied by value], ac_cv_va_val_copy,[
+	AC_TRY_RUN([#include <stdarg.h>
+#include <stdlib.h>
+	void f (int i, ...) {
+	va_list args1, args2;
+	va_start (args1, i);
+	args2 = args1;
+	if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
+	  exit (1);
+	va_end (args1); va_end (args2);
+	}
+	int main() {
+	  f (0, 42);
+	  return 0;
+	}],
+	[ac_cv_va_val_copy=yes],
+	[ac_cv_va_val_copy=no],
+	[ac_cv_va_val_copy=yes])
+])
+
+if test "x$ac_cv_va_val_copy" = "xno"; then
+	AC_DEFINE(VA_COPY_AS_ARRAY, 1, ['va_lists' cannot be copied as values])
+fi
+
 dnl #######################################################################
 dnl # Check for check
 dnl #######################################################################
@@ -2310,15 +2395,15 @@ dnl # Check for Doxygen and dot (part of GraphViz)
 dnl #######################################################################
 AC_ARG_ENABLE(doxygen,
 	[AC_HELP_STRING([--disable-doxygen],
-		[enable documentation with doxygen])],
+		[disable documentation with doxygen])],
 	enable_doxygen="$enableval", enable_doxygen="yes")
 AC_ARG_ENABLE(dot,
-	[AC_HELP_STRING([--enable-dot],
-		[enable graphs in doxygen via 'dot'])],
+	[AC_HELP_STRING([--disable-dot],
+		[disable graphs in doxygen via 'dot'])],
 	enable_dot="$enableval", enable_dot="yes")
 AC_ARG_ENABLE(devhelp,
-	[AC_HELP_STRING([--enable-devhelp],
-		[enable building index for devhelp documentation browser])],
+	[AC_HELP_STRING([--disable-devhelp],
+		[disable building index for devhelp documentation browser])],
 	enable_devhelp="$enableval", enable_devhelp="yes")
 
 if test "x$enable_doxygen" = xyes; then
@@ -2422,7 +2507,6 @@ AC_OUTPUT([Makefile
 		   libpurple/protocols/silc/Makefile
 		   libpurple/protocols/silc10/Makefile
 		   libpurple/protocols/simple/Makefile
-		   libpurple/protocols/toc/Makefile
 		   libpurple/protocols/yahoo/Makefile
 		   libpurple/protocols/zephyr/Makefile
 		   libpurple/tests/Makefile
@@ -2454,6 +2538,7 @@ echo Protocols to link statically.. : $STATIC_PRPLS
 echo
 echo Build with GStreamer support.. : $enable_gst
 echo Build with D-Bus support...... : $enable_dbus
+echo Build with voice and video.... : $enable_vv
 if test "x$enable_dbus" = "xyes" ; then
 	eval eval echo D-Bus services directory...... : $DBUS_SERVICES_DIR
 fi

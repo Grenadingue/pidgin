@@ -755,18 +755,29 @@ static void ggp_change_passwd(PurplePluginAction *action)
 
 /* ----- CONFERENCES ---------------------------------------------------- */
 
-static void ggp_callback_add_to_chat_ok(PurpleConnection *gc, PurpleRequestFields *fields)
+static void ggp_callback_add_to_chat_ok(PurpleBuddy *buddy, PurpleRequestFields *fields)
 {
+	GGPInfo *info;
+	PurpleConnection *conn;
 	PurpleRequestField *field;
 	GList *sel;
 
+	conn = purple_account_get_connection(purple_buddy_get_account(buddy));
+
+	g_return_if_fail(conn != NULL);
+
+	info = conn->proto_data;
+
 	field = purple_request_fields_get_field(fields, "name");
 	sel = purple_request_field_list_get_selected(field);
-	if (sel == NULL || sel->data == NULL)
-		return;
 
-	ggp_confer_participants_add_uin(gc, sel->data,
-		GPOINTER_TO_INT(purple_request_field_list_get_data(field, sel->data)));
+	if (sel == NULL) {
+		purple_debug_error("gg", "No chat selected\n");
+		return;
+	}
+
+	ggp_confer_participants_add_uin(conn, sel->data,
+					ggp_str_to_uin(purple_buddy_get_name(buddy)));
 }
 
 static void ggp_bmenu_add_to_chat(PurpleBlistNode *node, gpointer ignored)
@@ -793,8 +804,7 @@ static void ggp_bmenu_add_to_chat(PurpleBlistNode *node, gpointer ignored)
 	field = purple_request_field_list_new("name", "Chat name");
 	for (l = info->chats; l != NULL; l = l->next) {
 		GGPChat *chat = l->data;
-		purple_request_field_list_add_icon(field, chat->name, NULL,
-			GINT_TO_POINTER(ggp_str_to_uin(purple_buddy_get_name(buddy))));
+		purple_request_field_list_add(field, chat->name, chat->name);
 	}
 	purple_request_field_group_add_field(group, field);
 
@@ -807,8 +817,8 @@ static void ggp_bmenu_add_to_chat(PurpleBlistNode *node, gpointer ignored)
 			fields,
 			_("Add"), G_CALLBACK(ggp_callback_add_to_chat_ok),
 			_("Cancel"), NULL,
-			purple_connection_get_account(gc), NULL, NULL,			  
-			gc);
+			purple_connection_get_account(gc), NULL, NULL,
+			buddy);
 	g_free(msg);
 }
 
@@ -1696,14 +1706,20 @@ static GList *ggp_blist_node_menu(PurpleBlistNode *node)
 {
 	PurpleMenuAction *act;
 	GList *m = NULL;
+	PurpleAccount *account;
+	GGPInfo *info;
 
 	if (!PURPLE_BLIST_NODE_IS_BUDDY(node))
 		return NULL;
 
-	act = purple_menu_action_new(_("Add to chat"),
-	                           PURPLE_CALLBACK(ggp_bmenu_add_to_chat),
-	                           NULL, NULL);
-	m = g_list_append(m, act);
+	account = purple_buddy_get_account((PurpleBuddy *) node);
+	info = purple_account_get_connection(account)->proto_data;
+	if (info->chats) {
+		act = purple_menu_action_new(_("Add to chat"),
+			PURPLE_CALLBACK(ggp_bmenu_add_to_chat),
+			NULL, NULL);
+		m = g_list_append(m, act);
+	}
 
 	/* Using a blist node boolean here is also wrong.
 	 * Once the Block and Unblock actions are added to the core,
@@ -2036,11 +2052,12 @@ static void ggp_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup 
 {
 	PurpleAccount *account;
 	GGPInfo *info = gc->proto_data;
+	const gchar *name = purple_buddy_get_name(buddy);
 
-	gg_add_notify(info->session, ggp_str_to_uin(buddy->name));
+	gg_add_notify(info->session, ggp_str_to_uin(name));
 
 	account = purple_connection_get_account(gc);
-	if (strcmp(purple_account_get_username(account), buddy->name) == 0) {
+	if (strcmp(purple_account_get_username(account), name) == 0) {
 		ggp_status_fake_to_self(account);
 	}
 }
@@ -2050,7 +2067,7 @@ static void ggp_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
 {
 	GGPInfo *info = gc->proto_data;
 
-	gg_remove_notify(info->session, ggp_str_to_uin(buddy->name));
+	gg_remove_notify(info->session, ggp_str_to_uin(purple_buddy_get_name(buddy)));
 }
 
 static void ggp_join_chat(PurpleConnection *gc, GHashTable *data)
@@ -2276,13 +2293,13 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,				/* whiteboard_prpl_ops */
 	NULL,				/* send_raw */
 	NULL,				/* roomlist_room_serialize */
-
-	/* padding */
-	NULL,
-	NULL,
-	NULL,
+	NULL,				/* unregister_user */
+	NULL,				/* send_attention */
+	NULL,				/* get_attention_types */
 	sizeof(PurplePluginProtocolInfo),       /* struct_size */
-	NULL
+	NULL,                           /* get_account_text_table */
+	NULL,                           /* initiate_media */
+	NULL                            /* can_do_media */
 };
 
 static PurplePluginInfo info = {

@@ -28,12 +28,14 @@
 #include "disco.h"
 #include "google.h"
 #include "iq.h"
+#include "jingle/jingle.h"
 #include "oob.h"
 #include "roster.h"
 #include "si.h"
 #include "ping.h"
 #include "adhoccommands.h"
 #include "data.h"
+#include "ibb.h"
 
 #ifdef _WIN32
 #include "utsname.h"
@@ -371,6 +373,13 @@ void jabber_iq_parse(JabberStream *js, xmlnode *packet)
 		}
 	}
 
+#ifdef USE_VV
+	if (xmlnode_get_child_with_namespace(packet, "session", "http://www.google.com/session")) {
+		jabber_google_session_parse(js, packet);
+		return;
+	}
+#endif
+
 	if(xmlnode_get_child_with_namespace(packet, "si", "http://jabber.org/protocol/si")) {
 		jabber_si_parse(js, packet);
 		return;
@@ -390,6 +399,18 @@ void jabber_iq_parse(JabberStream *js, xmlnode *packet)
 
 	if (xmlnode_get_child_with_namespace(packet, "data", XEP_0231_NAMESPACE)) {
 		jabber_data_parse(js, packet);
+		return;
+	}
+
+	if (xmlnode_get_child_with_namespace(packet, "data", XEP_0047_NAMESPACE)
+		|| xmlnode_get_child_with_namespace(packet, "close", XEP_0047_NAMESPACE)
+		|| xmlnode_get_child_with_namespace(packet, "open", XEP_0047_NAMESPACE)) {
+		jabber_ibb_parse(js, packet);
+		return;
+	}
+
+	if (xmlnode_get_child_with_namespace(packet, "jingle", JINGLE)) {
+		jingle_parse(js, packet);
 		return;
 	}
 
@@ -432,6 +453,11 @@ void jabber_iq_init(void)
 	jabber_iq_register_handler("http://jabber.org/protocol/disco#items", jabber_disco_items_parse);
 	jabber_iq_register_handler("jabber:iq:register", jabber_register_parse);
 	jabber_iq_register_handler("urn:xmpp:ping", urn_xmpp_ping_parse);
+	jabber_iq_register_handler(JINGLE, jingle_parse);
+
+	/* handle Google jingleinfo */
+	jabber_iq_register_handler(GOOGLE_JINGLE_INFO_NAMESPACE, 
+		jabber_google_handle_jingle_info);
 }
 
 void jabber_iq_uninit(void)

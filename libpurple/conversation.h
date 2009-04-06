@@ -84,7 +84,7 @@ typedef enum
 	PURPLE_CONV_UPDATE_TITLE,
 	PURPLE_CONV_UPDATE_CHATLEFT,
 
-	PURPLE_CONV_UPDATE_FEATURES, /**< The features for a chat have changed */
+	PURPLE_CONV_UPDATE_FEATURES  /**< The features for a chat have changed */
 
 } PurpleConvUpdateType;
 
@@ -126,7 +126,7 @@ typedef enum
 	PURPLE_MESSAGE_NOTIFY      = 0x2000, /**< Message is a notification */
 	PURPLE_MESSAGE_NO_LINKIFY  = 0x4000, /**< Message should not be auto-
 										   linkified @since 2.1.0 */
-	PURPLE_MESSAGE_INVISIBLE   = 0x8000, /**< Message should not be displayed */
+	PURPLE_MESSAGE_INVISIBLE   = 0x8000  /**< Message should not be displayed */
 } PurpleMessageFlags;
 
 /**
@@ -139,7 +139,7 @@ typedef enum
 	PURPLE_CBFLAGS_HALFOP        = 0x0002, /**< Half-op                      */
 	PURPLE_CBFLAGS_OP            = 0x0004, /**< Channel Op or Moderator      */
 	PURPLE_CBFLAGS_FOUNDER       = 0x0008, /**< Channel Founder              */
-	PURPLE_CBFLAGS_TYPING        = 0x0010, /**< Currently typing             */
+	PURPLE_CBFLAGS_TYPING        = 0x0010  /**< Currently typing             */
 
 } PurpleConvChatBuddyFlags;
 
@@ -1350,7 +1350,7 @@ void purple_conv_chat_cb_destroy(PurpleConvChatBuddy *cb);
  * Retrieves the extended menu items for the conversation.
  *
  * @param conv The conversation.
- * 
+ *
  * @return  A list of PurpleMenuAction items, harvested by the
  *          chat-extended-menu signal. The list and the menuaction
  *          items should be freed by the caller.

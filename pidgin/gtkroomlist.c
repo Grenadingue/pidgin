@@ -64,7 +64,6 @@ typedef struct _PidginRoomlist {
 	gint num_rooms, total_rooms;
 	GtkWidget *tipwindow;
 	GdkRectangle tip_rect;
-	guint timeout;
 	PangoLayout *tip_layout;
 	PangoLayout *tip_name_layout;
 	int tip_height;
@@ -488,7 +487,7 @@ static gboolean account_filter_func(PurpleAccount *account)
 	PurpleConnection *conn = purple_account_get_connection(account);
 	PurplePluginProtocolInfo *prpl_info = NULL;
 
-	if (conn)
+	if (conn && PURPLE_CONNECTION_IS_CONNECTED(conn))
 		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(conn->prpl);
 
 	return (prpl_info && prpl_info->roomlist_get_list != NULL);

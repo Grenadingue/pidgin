@@ -66,7 +66,9 @@ enum {
 	QQ_CMD_TOKEN  = 0x0062, 		/* get login token */
 	QQ_CMD_RECV_MSG_SYS = 0x0080,			/* receive a system message */
 	QQ_CMD_BUDDY_CHANGE_STATUS = 0x0081,	/* buddy change status */
-	/* for QQ2007*/
+	QQ_CMD_BUDDY_MEMO = 0x003E,    /* the message about buddy memo */
+
+    /* for QQ2007*/
 	QQ_CMD_GET_SERVER = 0x0091,					/* select login server */
 	QQ_CMD_TOKEN_EX = 0x00BA,						/* get LOGIN token */
 	QQ_CMD_CHECK_PWD = 0x00DD,				/* Password verify */
@@ -74,7 +76,7 @@ enum {
 	QQ_CMD_ADD_BUDDY_NO_AUTH_EX = 0x00A7,			/* add friend without auth */
 	QQ_CMD_ADD_BUDDY_AUTH_EX = 0x00A8, 				/* add buddy with auth */
 	QQ_CMD_BUDDY_CHECK_CODE =  0x00B5,
-	QQ_CMD_BUDDY_QUESTION =  0x00B7,
+	QQ_CMD_BUDDY_QUESTION =  0x00B7
 };
 
 const gchar *qq_get_cmd_desc(gint type);
@@ -89,7 +91,7 @@ enum {
 	QQ_ROOM_CMD_JOIN = 0x07,
 	QQ_ROOM_CMD_AUTH = 0x08,
 	QQ_ROOM_CMD_QUIT = 0x09,
-	QQ_ROOM_CMD_SEND_MSG = 0x0a,
+	QQ_ROOM_CMD_SEND_IM = 0x0a,
 	QQ_ROOM_CMD_GET_ONLINES = 0x0b,
 	QQ_ROOM_CMD_GET_BUDDIES = 0x0c,
 
@@ -104,7 +106,7 @@ enum {
 	QQ_ROOM_CMD_TEMP_QUIT = 0x32,
 	QQ_ROOM_CMD_TEMP_GET_INFO = 0x33,
 	QQ_ROOM_CMD_TEMP_SEND_IM = 0x35,
-	QQ_ROOM_CMD_TEMP_GET_MEMBERS = 0x37,
+	QQ_ROOM_CMD_TEMP_GET_MEMBERS = 0x37
 };
 
 const gchar *qq_get_room_cmd_desc(gint room_cmd);
@@ -119,7 +121,7 @@ enum {
 	QQ_SERVER_BUDDY_ADDING_EX = 40,
 	QQ_SERVER_BUDDY_ADD_REQUEST_EX = 41,
 	QQ_SERVER_BUDDY_ADDED_ANSWER = 42,
-	QQ_SERVER_BUDDY_ADDED_EX = 43,
+	QQ_SERVER_BUDDY_ADDED_EX = 43
 };
 
 enum {
@@ -128,8 +130,9 @@ enum {
 	QQ_BUDDY_CHANGE_TO_OFFLINE = 20,
 	QQ_BUDDY_ONLINE_AWAY = 30,
 	QQ_BUDDY_ONLINE_INVISIBLE = 40,
-	QQ_BUDDY_ONLINE_BUSY = 50,
+	QQ_BUDDY_ONLINE_BUSY = 50
 };
+
 
 gboolean is_online(guint8 status);
 

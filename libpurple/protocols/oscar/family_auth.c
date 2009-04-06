@@ -229,7 +229,7 @@ aim_send_login(OscarData *od, FlapConnection *conn, const char *sn, const char *
 
 	/* Truncate ICQ and AOL passwords, if necessary */
 	password_len = strlen(password);
-	if (aim_snvalid_icq(sn) && (password_len > MAXICQPASSLEN))
+	if (oscar_util_valid_name_icq(sn) && (password_len > MAXICQPASSLEN))
 		password_len = MAXICQPASSLEN;
 	else if (truncate_pass && password_len > 8)
 		password_len = 8;
@@ -293,12 +293,11 @@ parse(OscarData *od, FlapConnection *conn, aim_module_t *mod, FlapFrame *frame, 
 	tlvlist = aim_tlvlist_read(bs);
 
 	/*
-	 * No matter what, we should have a screen name.
+	 * No matter what, we should have a username.
 	 */
-	memset(od->sn, 0, sizeof(od->sn));
 	if (aim_tlv_gettlv(tlvlist, 0x0001, 1)) {
-		info->sn = aim_tlv_getstr(tlvlist, 0x0001, 1);
-		strncpy(od->sn, info->sn, sizeof(od->sn));
+		info->bn = aim_tlv_getstr(tlvlist, 0x0001, 1);
+		purple_connection_set_display_name(od->gc, info->bn);
 	}
 
 	/*
@@ -395,7 +394,7 @@ parse(OscarData *od, FlapConnection *conn, aim_module_t *mod, FlapFrame *frame, 
 
 #if 0
 	/*
-	 * Unknown.  Seen on an @mac.com screen name with value of 0x003f
+	 * Unknown.  Seen on an @mac.com username with value of 0x003f
 	 */
 	if (aim_tlv_gettlv(tlvlist, 0x0055, 1)) {
 		/* Unhandled */
@@ -422,7 +421,7 @@ parse(OscarData *od, FlapConnection *conn, aim_module_t *mod, FlapFrame *frame, 
  *   - connect
  *   - server sends flap version
  *   - client sends flap version
- *   - client sends screen name (17/6)
+ *   - client sends username (17/6)
  *   - server sends hash key (17/7)
  *   - client sends auth request (17/2 -- aim_send_login)
  *   - server yells
@@ -461,7 +460,7 @@ goddamnicq(OscarData *od, FlapConnection *conn, const char *sn)
  * Subtype 0x0006
  *
  * In AIM 3.5 protocol, the first stage of login is to request login from the
- * Authorizer, passing it the screen name for verification.  If the name is
+ * Authorizer, passing it the username for verification.  If the name is
  * invalid, a 0017/0003 is spit back, with the standard error contents.  If
  * valid, a 0017/0007 comes back, which is the signal to send it the main
  * login command (0017/0002).
@@ -528,7 +527,7 @@ keyparse(OscarData *od, FlapConnection *conn, aim_module_t *mod, FlapFrame *fram
 	/*
 	 * If the truncate_pass TLV exists then we should truncate the
 	 * user's password to 8 characters.  This flag is sent to us
-	 * when logging in with an AOL user's screen name.
+	 * when logging in with an AOL user's username.
 	 */
 	truncate_pass = aim_tlv_gettlv(tlvlist, 0x0026, 1) != NULL;
 
@@ -598,18 +597,18 @@ auth_shutdown(OscarData *od, aim_module_t *mod)
 {
 	if (od->authinfo != NULL)
 	{
-		free(od->authinfo->sn);
-		free(od->authinfo->bosip);
-		free(od->authinfo->errorurl);
-		free(od->authinfo->email);
-		free(od->authinfo->chpassurl);
-		free(od->authinfo->latestrelease.name);
-		free(od->authinfo->latestrelease.url);
-		free(od->authinfo->latestrelease.info);
-		free(od->authinfo->latestbeta.name);
-		free(od->authinfo->latestbeta.url);
-		free(od->authinfo->latestbeta.info);
-		free(od->authinfo);
+		g_free(od->authinfo->bn);
+		g_free(od->authinfo->bosip);
+		g_free(od->authinfo->errorurl);
+		g_free(od->authinfo->email);
+		g_free(od->authinfo->chpassurl);
+		g_free(od->authinfo->latestrelease.name);
+		g_free(od->authinfo->latestrelease.url);
+		g_free(od->authinfo->latestrelease.info);
+		g_free(od->authinfo->latestbeta.name);
+		g_free(od->authinfo->latestbeta.url);
+		g_free(od->authinfo->latestbeta.info);
+		g_free(od->authinfo);
 	}
 }
 

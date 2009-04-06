@@ -79,6 +79,7 @@ static void irc_connected(struct irc_conn *irc, const char *nick)
 	PurpleConnection *gc;
 	PurpleStatus *status;
 	PurpleBlistNode *gnode, *cnode, *bnode;
+	PurpleAccount *account;
 
 	if ((gc = purple_account_get_connection(irc->account)) == NULL
 	    || PURPLE_CONNECTION_IS_CONNECTED(gc))
@@ -86,6 +87,7 @@ static void irc_connected(struct irc_conn *irc, const char *nick)
 
 	purple_connection_set_display_name(gc, nick);
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
+	account = purple_connection_get_account(gc);
 
 	/* If we're away then set our away message */
 	status = purple_account_get_active_status(irc->account);
@@ -95,20 +97,29 @@ static void irc_connected(struct irc_conn *irc, const char *nick)
 	}
 
 	/* this used to be in the core, but it's not now */
-	for (gnode = purple_get_blist()->root; gnode; gnode = gnode->next) {
+	for (gnode = purple_blist_get_root();
+	     gnode;
+	     gnode = purple_blist_node_get_sibling_next(gnode))
+	{
 		if(!PURPLE_BLIST_NODE_IS_GROUP(gnode))
 			continue;
-		for(cnode = gnode->child; cnode; cnode = cnode->next) {
+		for(cnode = purple_blist_node_get_first_child(gnode);
+		    cnode;
+		    cnode = purple_blist_node_get_sibling_next(cnode))
+		{
 			if(!PURPLE_BLIST_NODE_IS_CONTACT(cnode))
 				continue;
-			for(bnode = cnode->child; bnode; bnode = bnode->next) {
+			for(bnode = purple_blist_node_get_first_child(cnode);
+			    bnode;
+			    bnode = purple_blist_node_get_sibling_next(bnode))
+			{
 				PurpleBuddy *b;
 				if(!PURPLE_BLIST_NODE_IS_BUDDY(bnode))
 					continue;
 				b = (PurpleBuddy *)bnode;
-				if(b->account == gc->account) {
+				if(purple_buddy_get_account(b) == account) {
 					struct irc_buddy *ib = g_new0(struct irc_buddy, 1);
-					ib->name = g_strdup(b->name);
+					ib->name = g_strdup(purple_buddy_get_name(b));
 					g_hash_table_insert(irc->buddies, ib->name, ib);
 				}
 			}
@@ -325,7 +336,11 @@ void irc_msg_whois(struct irc_conn *irc, const char *name, const char *from, cha
 		if (args[3])
 			irc->whois.signon = (time_t)atoi(args[3]);
 	} else if (!strcmp(name, "319")) {
-		irc->whois.channels = g_strdup(args[2]);
+		if (irc->whois.channels == NULL) {
+			irc->whois.channels = g_string_new(args[2]);
+		} else {
+			irc->whois.channels = g_string_append(irc->whois.channels, args[2]);
+		}
 	} else if (!strcmp(name, "320")) {
 		irc->whois.identified = 1;
 	}
@@ -380,8 +395,8 @@ void irc_msg_endwhois(struct irc_conn *irc, const char *name, const char *from, 
 		g_free(irc->whois.serverinfo);
 	}
 	if (irc->whois.channels) {
-		purple_notify_user_info_add_pair(user_info, _("Currently on"), irc->whois.channels);
-		g_free(irc->whois.channels);
+		purple_notify_user_info_add_pair(user_info, _("Currently on"), irc->whois.channels->str);
+		g_string_free(irc->whois.channels, TRUE);
 	}
 	if (irc->whois.idle) {
 		gchar *timex = purple_str_seconds_to_string(irc->whois.idle);

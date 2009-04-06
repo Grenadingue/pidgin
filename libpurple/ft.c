@@ -700,7 +700,7 @@ purple_xfer_set_completed(PurpleXfer *xfer, gboolean completed)
 			msg = g_strdup_printf(_("Transfer of file %s complete"),
 								purple_xfer_get_filename(xfer));
 		else
-			msg = g_strdup_printf(_("File transfer complete"));
+			msg = g_strdup(_("File transfer complete"));
 		purple_xfer_conversation_write(xfer, msg, FALSE);
 		g_free(msg);
 	}
@@ -857,8 +857,12 @@ purple_xfer_read(PurpleXfer *xfer, guchar **buffer)
 	else
 		s = MIN(purple_xfer_get_bytes_remaining(xfer), xfer->current_buffer_size);
 
-	if (xfer->ops.read != NULL)
+	if (xfer->ops.read != NULL)	{
 		r = (xfer->ops.read)(buffer, xfer);
+		if ((purple_xfer_get_size(xfer) > 0) &&
+			((purple_xfer_get_bytes_sent(xfer)+r) >= purple_xfer_get_size(xfer)))
+			purple_xfer_set_completed(xfer, TRUE);
+	}
 	else {
 		*buffer = g_malloc0(s);
 
@@ -1140,7 +1144,7 @@ purple_xfer_cancel_local(PurpleXfer *xfer)
 	}
 	else
 	{
-		msg = g_strdup_printf(_("File transfer cancelled"));
+		msg = g_strdup(_("File transfer cancelled"));
 	}
 	purple_xfer_conversation_write(xfer, msg, FALSE);
 	g_free(msg);
