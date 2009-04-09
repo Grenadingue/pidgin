@@ -104,6 +104,7 @@ pidgin_SOURCES = \
 	gtkimhtmltoolbar.c \
 	gtklog.c \
 	gtkmain.c \
+	gtkmedia.c \
 	gtkmenutray.c \
 	gtknotify.c \
 	gtkplugin.c \
@@ -162,6 +163,7 @@ pidgin_headers = \
 	gtkimhtml.h \
 	gtkimhtmltoolbar.h \
 	gtklog.h \
+	gtkmedia.h \
 	gtkmenutray.h \
 	gtknickcolors.h \
 	gtknotify.h \

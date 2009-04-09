@@ -1,6 +1,7 @@
 EXTRA_DIST = \
 		dbus-analyze-functions.py \
 		dbus-analyze-types.py \
+		marshallers.list \
 		purple-notifications-example \
 		purple-remote \
 		purple-send \
@@ -52,6 +53,9 @@ purple_coresources = \
 	idle.c \
 	imgstore.c \
 	log.c \
+	marshallers.c \
+	media.c \
+	mediamanager.c \
 	mime.c \
 	nat-pmp.c \
 	network.c \
@@ -111,6 +115,10 @@ purple_coreheaders = \
 	idle.h \
 	imgstore.h \
 	log.h \
+	marshallers.h \
+	media.h \
+	media-gst.h \
+	mediamanager.h \
 	mime.h \
 	nat-pmp.h \
 	network.h \
@@ -149,6 +157,15 @@ purple_coreheaders = \
 
 purple_builtheaders = purple.h version.h
 
+marshallers.h: marshallers.list
+	@echo "Generating marshallers.h"
+	$(GLIB_GENMARSHAL) --prefix=purple_smarshal $(srcdir)/marshallers.list --header > marshallers.h
+
+marshallers.c: marshallers.list marshallers.h
+	@echo "Generating marshallers.c"
+	echo "#include \"marshallers.h\"" > marshallers.c
+	$(GLIB_GENMARSHAL) --prefix=purple_smarshal $(srcdir)/marshallers.list --body >> marshallers.c
+
 if ENABLE_DBUS
 
 CLEANFILES = \
@@ -157,6 +174,8 @@ CLEANFILES = \
 	dbus-client-binding.h \
 	dbus-types.c \
 	dbus-types.h \
+	marshallers.c \
+	marshallers.h \
 	purple-client-bindings.c \
 	purple-client-bindings.h \
 	purple.service
@@ -227,6 +246,8 @@ BUILT_SOURCES = $(purple_builtheaders) \
 	dbus-types.c \
 	dbus-types.h \
 	dbus-bindings.c \
+	marshallers.c \
+	marshallers.h \
 	purple-client-bindings.c \
 	purple-client-bindings.h
 
@@ -260,6 +281,9 @@ libpurple_la_LIBADD = \
 	$(LIBXML_LIBS) \
 	$(NETWORKMANAGER_LIBS) \
 	$(INTLLIBS) \
+	$(FARSIGHT_LIBS) \
+	$(GSTREAMER_LIBS) \
+	$(GSTINTERFACES_LIBS) \
 	-lm
 
 AM_CPPFLAGS = \
@@ -272,6 +296,9 @@ AM_CPPFLAGS = \
 	$(DEBUG_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(LIBXML_CFLAGS) \
+	$(FARSIGHT_CFLAGS) \
+	$(GSTREAMER_CFLAGS) \
+	$(GSTINTERFACES_CFLAGS) \
 	$(NETWORKMANAGER_CFLAGS)
 
 # INSTALL_SSL_CERTIFICATES is true when SSL_CERTIFICATES_DIR is empty.
