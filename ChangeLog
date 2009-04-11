@@ -9,12 +9,15 @@ version 2.6.0 (??/??/2009):
 	* Removed the unmaintained and unneeded toc protocol plugin.
 	* Fixed NTLM authentication on big-endian systems.
 
+	libpurple:
+	* Various memory cleanups when unloading libpurple. (Nick Hebner)
+
 	XMPP:
 	* Add voice & video support with Jingle (XEP-0166, 0167, 0176, & 0177),
 	  and voice support with GTalk and GMail. (Mike "Maiku" Ruprecht)
 	* Add support for in-band bytestreams for file transfers (XEP-0047).
-	* Add support for sending attentions (equivalent to "buzz" and "nudge")
-	  using the command /buzz (XEP-0224).
+	* Add support for sending and receiving attentions (equivalent to "buzz" 
+	  and "nudge") using the command /buzz (XEP-0224).
 	* A buddy's local time is displayed in the Get Info dialog if the remote
 	  client supports it.
 
@@ -40,6 +43,7 @@ version 2.6.0 (??/??/2009):
 	Finch:
 	* The hardware cursor is updated correctly. This will be useful
 	  especially for users of braille terminals, screen readers etc.
+	* Added a TinyURL plugin, which aids copying longer URLs.
 
 version 2.5.5 (03/01/2009):
 	libpurple:
