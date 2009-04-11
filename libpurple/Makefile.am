@@ -113,7 +113,6 @@ purple_coreheaders = \
 	idle.h \
 	imgstore.h \
 	log.h \
-	marshallers.h \
 	media.h \
 	media-gst.h \
 	mediamanager.h \
@@ -153,7 +152,7 @@ purple_coreheaders = \
 	xmlnode.h \
 	whiteboard.h
 
-purple_builtheaders = purple.h version.h
+purple_builtheaders = purple.h version.h marshallers.h
 
 marshallers.h: marshallers.list
 	@echo "Generating marshallers.h"
@@ -280,8 +279,8 @@ libpurple_la_LIBADD = \
 	$(NETWORKMANAGER_LIBS) \
 	$(INTLLIBS) \
 	$(FARSIGHT_LIBS) \
-	$(GSTPROPS_LIBS) \
 	$(GSTREAMER_LIBS) \
+	$(GSTINTERFACES_LIBS) \
 	-lm
 
 AM_CPPFLAGS = \
@@ -295,8 +294,8 @@ AM_CPPFLAGS = \
 	$(DBUS_CFLAGS) \
 	$(LIBXML_CFLAGS) \
 	$(FARSIGHT_CFLAGS) \
-	$(GSTPROPS_CFLAGS) \
 	$(GSTREAMER_CFLAGS) \
+	$(GSTINTERFACES_CFLAGS) \
 	$(NETWORKMANAGER_CFLAGS)
 
 # INSTALL_SSL_CERTIFICATES is true when SSL_CERTIFICATES_DIR is empty.
