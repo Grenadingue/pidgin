@@ -2636,7 +2636,7 @@ gboolean jabber_offline_message(const PurpleBuddy *buddy)
 
 #ifdef USE_VV
 typedef struct {
-	PurpleConnection *pc;
+	PurpleAccount *account;
 	gchar *who;
 	PurpleMediaSessionType type;
 	
@@ -2659,7 +2659,7 @@ jabber_media_ok_cb(JabberMediaRequest *request, PurpleRequestFields *fields)
 	GList *labels = purple_request_field_choice_get_labels(field);
 	gchar *who = g_strdup_printf("%s/%s", request->who,
 			(gchar*)g_list_nth_data(labels, selected_id));
-	jabber_initiate_media(request->pc, who, request->type);
+	jabber_initiate_media(request->account, who, request->type);
 
 	g_free(who);
 	g_free(request->who);
@@ -2668,11 +2668,12 @@ jabber_media_ok_cb(JabberMediaRequest *request, PurpleRequestFields *fields)
 #endif
 
 gboolean
-jabber_initiate_media(PurpleConnection *gc, const char *who, 
+jabber_initiate_media(PurpleAccount *account, const char *who, 
 		      PurpleMediaSessionType type)
 {
 #ifdef USE_VV
-	JabberStream *js = (JabberStream *) gc->proto_data;
+	JabberStream *js = (JabberStream *)
+			purple_account_get_connection(account)->proto_data;
 	JabberBuddy *jb;
 	JabberBuddyResource *jbr = NULL;
 	char *resource;
@@ -2697,11 +2698,9 @@ jabber_initiate_media(PurpleConnection *gc, const char *who,
 				JINGLE_APP_RTP_SUPPORT_AUDIO) &&
 				jabber_resource_has_capability(jbr,
 				GOOGLE_VOICE_CAP))
-			return jabber_google_session_initiate(
-					gc->proto_data, who, type);
+			return jabber_google_session_initiate(js, who, type);
 		else
-			return jingle_rtp_initiate_media(
-					gc->proto_data, who, type);
+			return jingle_rtp_initiate_media(js, who, type);
 	}
 
 	jb = jabber_buddy_find(js, who, FALSE);
@@ -2720,7 +2719,7 @@ jabber_initiate_media(PurpleConnection *gc, const char *who,
 			msg = g_strdup_printf(_("Unable to initiate media with %s: not subscribed to user presence"), who);
 		}
 
-		purple_notify_error(js->gc, _("Media Initiation Failed"),
+		purple_notify_error(account, _("Media Initiation Failed"),
 				_("Media Initiation Failed"), msg);
 		g_free(msg);
 		return FALSE;
@@ -2731,7 +2730,7 @@ jabber_initiate_media(PurpleConnection *gc, const char *who,
 		gboolean result;
 		jbr = jb->resources->data;
 		name = g_strdup_printf("%s/%s", who, jbr->name);
-		result = jabber_initiate_media(gc, name, type);
+		result = jabber_initiate_media(account, name, type);
 		g_free(name);
 		return result;
 	} else {
@@ -2751,7 +2750,7 @@ jabber_initiate_media(PurpleConnection *gc, const char *who,
 			PurpleMediaCaps caps;
 			gchar *name;
 			name = g_strdup_printf("%s/%s", who, ljbr->name);
-			caps = jabber_get_media_caps(gc, name);
+			caps = jabber_get_media_caps(account, name);
 			g_free(name);
 
 			if ((type & PURPLE_MEDIA_AUDIO) &&
@@ -2786,7 +2785,7 @@ jabber_initiate_media(PurpleConnection *gc, const char *who,
 			gboolean result;
 			purple_request_field_destroy(field);
 			name = g_strdup_printf("%s/%s", who, jbr->name);
-			result = jabber_initiate_media(gc, name, type);
+			result = jabber_initiate_media(account, name, type);
 			g_free(name);
 			return result;
 		}
@@ -2795,17 +2794,17 @@ jabber_initiate_media(PurpleConnection *gc, const char *who,
 		fields = purple_request_fields_new();
 		group =	purple_request_field_group_new(NULL);
 		request = g_new0(JabberMediaRequest, 1);
-		request->pc = gc;
+		request->account = account;
 		request->who = g_strdup(who);
 		request->type = type;
 
 		purple_request_field_group_add_field(group, field);
 		purple_request_fields_add_group(fields, group);
-		purple_request_fields(gc, _("Select a Resource"), msg, NULL,
-				fields,	_("Initiate Media"),
+		purple_request_fields(account, _("Select a Resource"), msg,
+				NULL, fields, _("Initiate Media"),
 				G_CALLBACK(jabber_media_ok_cb), _("Cancel"),
 				G_CALLBACK(jabber_media_cancel_cb),
-				gc->account, who, NULL, request);
+				account, who, NULL, request);
 
 		g_free(msg);
 		return TRUE;
@@ -2814,10 +2813,11 @@ jabber_initiate_media(PurpleConnection *gc, const char *who,
 	return FALSE;
 }
 
-PurpleMediaCaps jabber_get_media_caps(PurpleConnection *gc, const char *who)
+PurpleMediaCaps jabber_get_media_caps(PurpleAccount *account, const char *who)
 {
 #ifdef USE_VV
-	JabberStream *js = (JabberStream *) gc->proto_data;
+	JabberStream *js = (JabberStream *)
+			purple_account_get_connection(account)->proto_data;
 	JabberBuddy *jb;
 	JabberBuddyResource *jbr;
 	PurpleMediaCaps caps = PURPLE_MEDIA_CAPS_NONE;
@@ -2883,7 +2883,7 @@ PurpleMediaCaps jabber_get_media_caps(PurpleConnection *gc, const char *who)
 		gchar *name;
 		jbr = jb->resources->data;
 		name = g_strdup_printf("%s/%s", who, jbr->name);
-		caps = jabber_get_media_caps(gc, name);
+		caps = jabber_get_media_caps(account, name);
 		g_free(name);
 	} else {
 		/* we've got multiple resources, combine their caps */
@@ -2894,7 +2894,7 @@ PurpleMediaCaps jabber_get_media_caps(PurpleConnection *gc, const char *who)
 			gchar *name;
 			jbr = l->data;
 			name = g_strdup_printf("%s/%s", who, jbr->name);
-			caps |= jabber_get_media_caps(gc, name);
+			caps |= jabber_get_media_caps(account, name);
 			g_free(name);
 		}
 	}
