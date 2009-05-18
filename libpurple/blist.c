@@ -125,7 +125,7 @@ value_to_xmlnode(gpointer key, gpointer hvalue, gpointer user_data)
 	const char *name;
 	PurpleValue *value;
 	xmlnode *node, *child;
-	char buf[20];
+	char buf[21];
 
 	name    = (const char *)key;
 	value   = (PurpleValue *)hvalue;
@@ -138,7 +138,7 @@ value_to_xmlnode(gpointer key, gpointer hvalue, gpointer user_data)
 
 	if (purple_value_get_type(value) == PURPLE_TYPE_INT) {
 		xmlnode_set_attrib(child, "type", "int");
-		snprintf(buf, sizeof(buf), "%d", purple_value_get_int(value));
+		g_snprintf(buf, sizeof(buf), "%d", purple_value_get_int(value));
 		xmlnode_insert_data(child, buf, -1);
 	}
 	else if (purple_value_get_type(value) == PURPLE_TYPE_STRING) {
@@ -147,7 +147,7 @@ value_to_xmlnode(gpointer key, gpointer hvalue, gpointer user_data)
 	}
 	else if (purple_value_get_type(value) == PURPLE_TYPE_BOOLEAN) {
 		xmlnode_set_attrib(child, "type", "bool");
-		snprintf(buf, sizeof(buf), "%d", purple_value_get_boolean(value));
+		g_snprintf(buf, sizeof(buf), "%d", purple_value_get_boolean(value));
 		xmlnode_insert_data(child, buf, -1);
 	}
 }
@@ -303,7 +303,7 @@ accountprivacy_to_xmlnode(PurpleAccount *account)
 	node = xmlnode_new("account");
 	xmlnode_set_attrib(node, "proto", purple_account_get_protocol_id(account));
 	xmlnode_set_attrib(node, "name", purple_account_get_username(account));
-	snprintf(buf, sizeof(buf), "%d", account->perm_deny);
+	g_snprintf(buf, sizeof(buf), "%d", account->perm_deny);
 	xmlnode_set_attrib(node, "mode", buf);
 
 	for (cur = account->permit; cur; cur = cur->next)
@@ -1468,6 +1468,9 @@ void purple_blist_add_chat(PurpleChat *chat, PurpleGroup *group, PurpleBlistNode
 
 	if (ops && ops->update)
 		ops->update(purplebuddylist, (PurpleBlistNode *)cnode);
+
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-added",
+			cnode);
 }
 
 void purple_blist_add_buddy(PurpleBuddy *buddy, PurpleContact *contact, PurpleGroup *group, PurpleBlistNode *node)
@@ -1615,6 +1618,9 @@ void purple_blist_add_buddy(PurpleBuddy *buddy, PurpleContact *contact, PurpleGr
 
 	/* Signal that the buddy has been added */
 	purple_signal_emit(purple_blist_get_handle(), "buddy-added", buddy);
+
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-added",
+			PURPLE_BLIST_NODE(buddy));
 }
 
 PurpleContact *purple_contact_new()
@@ -1952,6 +1958,9 @@ void purple_blist_add_group(PurpleGroup *group, PurpleBlistNode *node)
 		for (node = gnode->child; node; node = node->next)
 			ops->update(purplebuddylist, node);
 	}
+
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-added",
+			gnode);
 }
 
 void purple_blist_remove_contact(PurpleContact *contact)
@@ -1993,6 +2002,9 @@ void purple_blist_remove_contact(PurpleContact *contact)
 		/* Update the UI */
 		if (ops && ops->remove)
 			ops->remove(purplebuddylist, node);
+
+		purple_signal_emit(purple_blist_get_handle(), "blist-node-removed",
+				PURPLE_BLIST_NODE(contact));
 
 		/* Delete the node */
 		purple_contact_destroy(contact);
@@ -2066,6 +2078,9 @@ void purple_blist_remove_buddy(PurpleBuddy *buddy)
 	/* Signal that the buddy has been removed before freeing the memory for it */
 	purple_signal_emit(purple_blist_get_handle(), "buddy-removed", buddy);
 
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-removed",
+			PURPLE_BLIST_NODE(buddy));
+
 	purple_buddy_destroy(buddy);
 
 	/* If the contact is empty then remove it */
@@ -2109,6 +2124,9 @@ void purple_blist_remove_chat(PurpleChat *chat)
 	if (ops && ops->remove)
 		ops->remove(purplebuddylist, node);
 
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-removed",
+			PURPLE_BLIST_NODE(chat));
+
 	/* Delete the node */
 	purple_chat_destroy(chat);
 }
@@ -2140,6 +2158,9 @@ void purple_blist_remove_group(PurpleGroup *group)
 	/* Update the UI */
 	if (ops && ops->remove)
 		ops->remove(purplebuddylist, node);
+
+	purple_signal_emit(purple_blist_get_handle(), "blist-node-removed",
+			PURPLE_BLIST_NODE(group));
 
 	/* Remove the group from all accounts that are online */
 	for (l = purple_connections_get_all(); l != NULL; l = l->next)
@@ -2699,14 +2720,24 @@ purple_blist_request_add_group(void)
 static void
 purple_blist_node_destroy(PurpleBlistNode *node)
 {
+	PurpleBlistUiOps *ui_ops;
 	PurpleBlistNode *child, *next_child;
 
+	ui_ops = purple_blist_get_ui_ops();
 	child = node->child;
 	while (child) {
 		next_child = child->next;
 		purple_blist_node_destroy(child);
 		child = next_child;
 	}
+
+	/* Allow the UI to free data */
+	node->parent = NULL;
+	node->child  = NULL;
+	node->next   = NULL;
+	node->prev   = NULL;
+	if (ui_ops && ui_ops->remove)
+		ui_ops->remove(purplebuddylist, node);
 
 	if (PURPLE_BLIST_NODE_IS_BUDDY(node))
 		purple_buddy_destroy((PurpleBuddy*)node);
@@ -2973,6 +3004,16 @@ purple_blist_init(void)
 						 purple_value_new(PURPLE_TYPE_SUBTYPE,
 										PURPLE_SUBTYPE_BLIST_BUDDY));
 
+	purple_signal_register(handle, "blist-node-added",
+						 purple_marshal_VOID__POINTER, NULL, 1,
+						 purple_value_new(PURPLE_TYPE_SUBTYPE,
+										PURPLE_SUBTYPE_BLIST_NODE));
+
+	purple_signal_register(handle, "blist-node-removed",
+						 purple_marshal_VOID__POINTER, NULL, 1,
+						 purple_value_new(PURPLE_TYPE_SUBTYPE,
+										PURPLE_SUBTYPE_BLIST_NODE));
+
 	purple_signal_register(handle, "buddy-added",
 						 purple_marshal_VOID__POINTER, NULL, 1,
 						 purple_value_new(PURPLE_TYPE_SUBTYPE,
@@ -3017,6 +3058,10 @@ void
 purple_blist_uninit(void)
 {
 	PurpleBlistNode *node, *next_node;
+
+	/* This happens if we quit before purple_set_blist is called. */
+	if (purplebuddylist == NULL)
+		return;
 
 	if (save_timer != 0) {
 		purple_timeout_remove(save_timer);
