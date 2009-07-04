@@ -2399,30 +2399,32 @@ purple_markup_linkify(const char *text)
 	return g_string_free(ret, FALSE);
 }
 
-char *
-purple_unescape_html(const char *html) {
-	if (html != NULL) {
-		const char *c = html;
-		GString *ret = g_string_new("");
-		while (*c) {
-			int len;
-			const char *ent;
+char *purple_unescape_html(const char *html)
+{
+	GString *ret;
+	const char *c = html;
 
-			if ((ent = purple_markup_unescape_entity(c, &len)) != NULL) {
-				ret = g_string_append(ret, ent);
-				c += len;
-			} else if (!strncmp(c, "<br>", 4)) {
-				ret = g_string_append_c(ret, '\n');
-				c += 4;
-			} else {
-				ret = g_string_append_c(ret, *c);
-				c++;
-			}
+	if (html == NULL)
+		return NULL;
+
+	ret = g_string_new("");
+	while (*c) {
+		int len;
+		const char *ent;
+
+		if ((ent = purple_markup_unescape_entity(c, &len)) != NULL) {
+			g_string_append(ret, ent);
+			c += len;
+		} else if (!strncmp(c, "<br>", 4)) {
+			g_string_append_c(ret, '\n');
+			c += 4;
+		} else {
+			g_string_append_c(ret, *c);
+			c++;
 		}
-		return g_string_free(ret, FALSE);
 	}
 
-	return NULL;
+	return g_string_free(ret, FALSE);
 }
 
 char *
@@ -3812,7 +3814,10 @@ process_chunked_data(char *data, gsize *len)
 		}
 
 		/* Advance to the start of the data */
-		s = strstr(s, "\r\n") + 2;
+		s = strstr(s, "\r\n");
+		if (s == NULL)
+			break;
+		s += 2;
 
 		if (s + sz > data + *len) {
 			purple_debug_error("util", "Error processing chunked data: "
