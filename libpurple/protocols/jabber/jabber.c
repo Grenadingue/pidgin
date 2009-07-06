@@ -596,7 +596,7 @@ jabber_login_callback_ssl(gpointer data, PurpleSslConnection *gsc,
 }
 
 static void
-txt_resolved_cb(GSList *responses, gpointer data)
+txt_resolved_cb(GList *responses, gpointer data)
 {
 	JabberStream *js = data;
 
@@ -624,7 +624,7 @@ txt_resolved_cb(GSList *responses, gpointer data)
 		}
 		g_strfreev(token);
 		purple_txt_response_destroy(resp);
-		responses = g_slist_delete_link(responses, responses);
+		responses = g_list_delete_link(responses, responses);
 	}
 
 	if (js->bosh) {
@@ -634,8 +634,8 @@ txt_resolved_cb(GSList *responses, gpointer data)
 	}
 
 	if (responses) {
-		g_slist_foreach(responses, (GFunc)purple_txt_response_destroy, NULL);
-		g_slist_free(responses);
+		g_list_foreach(responses, (GFunc)purple_txt_response_destroy, NULL);
+		g_list_free(responses);
 	}
 }
 
@@ -758,6 +758,8 @@ jabber_login(PurpleAccount *account)
 	PurpleConnection *gc = purple_account_get_connection(account);
 	const char *connect_server = purple_account_get_string(account,
 			"connect_server", "");
+	const char *bosh_url = purple_account_get_string(account,
+			"bosh_url", "");
 	JabberStream *js;
 	PurplePresence *presence;
 	PurpleStoredImage *image;
@@ -824,20 +826,24 @@ jabber_login(PurpleAccount *account)
 	jabber_stream_set_state(js, JABBER_STREAM_CONNECTING);
 
 	/* TODO: Just use purple_url_parse? */
-	if (!g_ascii_strncasecmp(connect_server, "http://", 7) || !g_ascii_strncasecmp(connect_server, "https://", 8)) {
+	/* If both BOSH and a Connect Server are specified, we prefer BOSH. I'm not
+	 * attached to that choice, though.
+	 */
+	if (*bosh_url) {
 		js->use_bosh = TRUE;
-		js->bosh = jabber_bosh_connection_init(js, connect_server);
-		if (!js->bosh) {
+		js->bosh = jabber_bosh_connection_init(js, bosh_url);
+		if (js->bosh)
+			jabber_bosh_connection_connect(js->bosh);
+		else {
 			purple_connection_error_reason (js->gc,
 				PURPLE_CONNECTION_ERROR_INVALID_SETTINGS,
-				_("Malformed BOSH Connect Server"));
-			return;
+				_("Malformed BOSH URL"));
 		}
-		jabber_bosh_connection_connect(js->bosh);
+
 		return;
-	} else {
-		js->certificate_CN = g_strdup(connect_server[0] ? connect_server : js->user->domain);
 	}
+
+	js->certificate_CN = g_strdup(connect_server[0] ? connect_server : js->user->domain);
 
 	/* if they've got old-ssl mode going, we probably want to ignore SRV lookups */
 	if(purple_account_get_bool(js->gc->account, "old_ssl", FALSE)) {
@@ -901,8 +907,8 @@ jabber_registration_result_cb(JabberStream *js, const char *from,
 
 	if (type == JABBER_IQ_RESULT) {
 		if(js->registration) {
-		buf = g_strdup_printf(_("Registration of %s@%s successful"),
-				js->user->node, js->user->domain);
+			buf = g_strdup_printf(_("Registration of %s@%s successful"),
+					js->user->node, js->user->domain);
 			if(account->registration_cb)
 				(account->registration_cb)(account, TRUE, account->registration_cb_user_data);
 		} else {
