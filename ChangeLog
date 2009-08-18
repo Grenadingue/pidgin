@@ -72,8 +72,10 @@ version 2.6.0 (08/18/2009):
 	  Klinikowski)
 
 	MSN:
-	* Add support for receiving handwritten (ink) messages on MSN.
-	* Add support for receiving audio clips on MSN.
+	* Add support for receiving handwritten (ink) messages on MSN.  (Chris
+	  Stafford, Gal Topper, and Elliott Sales de Andrade)
+	* Add support for receiving audio clips on MSN.  (Chris Stafford, Gal
+	  Topper, and Elliott Sales de Andrade)
 	* Show the invite message for buddies that requested authorization
 	  from you on MSN.
 	* Support sending an invite message to buddies when requesting authorization
