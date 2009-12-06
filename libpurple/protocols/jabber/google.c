@@ -30,6 +30,7 @@
 #include "google.h"
 #include "jabber.h"
 #include "presence.h"
+#include "roster.h"
 #include "iq.h"
 #include "chat.h"
 
@@ -949,6 +950,18 @@ void jabber_gmail_init(JabberStream *js) {
 	jabber_iq_send(iq);
 }
 
+static void
+roster_init_cb(JabberStream *js, const char *from, JabberIqType type,
+               const char *id, xmlnode *packet, gpointer data)
+{
+	xmlnode *query = xmlnode_get_child(packet, "query");
+
+	if (type == JABBER_IQ_RESULT && query)
+		jabber_roster_parse(js, from, type, id, query);
+
+	jabber_stream_set_state(js, JABBER_STREAM_CONNECTED);
+}
+
 void jabber_google_roster_init(JabberStream *js)
 {
 	JabberIq *iq;
@@ -960,6 +973,7 @@ void jabber_google_roster_init(JabberStream *js)
 	xmlnode_set_attrib(query, "xmlns:gr", "google:roster");
 	xmlnode_set_attrib(query, "gr:ext", "2");
 
+	jabber_iq_set_callback(iq, roster_init_cb, NULL);
 	jabber_iq_send(iq);
 }
 
@@ -1032,9 +1046,9 @@ gboolean jabber_google_roster_incoming(JabberStream *js, xmlnode *item)
 	return TRUE;
 }
 
-void jabber_google_roster_add_deny(PurpleConnection *gc, const char *who)
+void jabber_google_roster_add_deny(JabberStream *js, const char *who)
 {
-	JabberStream *js;
+	PurpleAccount *account;
 	GSList *buddies;
 	JabberIq *iq;
 	xmlnode *query;
@@ -1044,14 +1058,10 @@ void jabber_google_roster_add_deny(PurpleConnection *gc, const char *who)
 	JabberBuddy *jb;
 	const char *balias;
 
-	js = (JabberStream*)(gc->proto_data);
-
-	if (!js || !(js->server_caps & JABBER_CAP_GOOGLE_ROSTER))
-		return;
-
 	jb = jabber_buddy_find(js, who, TRUE);
 
-	buddies = purple_find_buddies(js->gc->account, who);
+	account = purple_connection_get_account(js->gc);
+	buddies = purple_find_buddies(account, who);
 	if(!buddies)
 		return;
 
@@ -1098,12 +1108,11 @@ void jabber_google_roster_add_deny(PurpleConnection *gc, const char *who)
 		}
 	}
 
-	purple_prpl_got_user_status(purple_connection_get_account(gc), who, "offline", NULL);
+	purple_prpl_got_user_status(account, who, "offline", NULL);
 }
 
-void jabber_google_roster_rem_deny(PurpleConnection *gc, const char *who)
+void jabber_google_roster_rem_deny(JabberStream *js, const char *who)
 {
-	JabberStream *js;
 	GSList *buddies;
 	JabberIq *iq;
 	xmlnode *query;
@@ -1111,14 +1120,6 @@ void jabber_google_roster_rem_deny(PurpleConnection *gc, const char *who)
 	xmlnode *group;
 	PurpleBuddy *b;
 	const char *balias;
-
-	g_return_if_fail(gc != NULL);
-	g_return_if_fail(who != NULL);
-
-	js = (JabberStream*)(gc->proto_data);
-
-	if (!js || !(js->server_caps & JABBER_CAP_GOOGLE_ROSTER))
-		return;
 
 	buddies = purple_find_buddies(purple_connection_get_account(js->gc), who);
 	if(!buddies)

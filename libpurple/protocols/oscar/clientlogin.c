@@ -275,13 +275,20 @@ static void send_start_oscar_session(OscarData *od, const char *token, const cha
 	char *query_string, *signature, *url;
 	gboolean use_tls = purple_account_get_bool(purple_connection_get_account(od->gc), "use_ssl", OSCAR_DEFAULT_USE_SSL);
 
-	/* Construct the GET parameters */
+	/*
+	 * Construct the GET parameters.  0x00000611 is the distid given to
+	 * us by AOL for use as the default libpurple distid.
+	 */
 	query_string = g_strdup_printf("a=%s"
+			"&distId=%d"
 			"&f=xml"
 			"&k=%s"
 			"&ts=%" PURPLE_TIME_T_MODIFIER
 			"&useTLS=%d",
-			purple_url_encode(token), get_client_key(od), hosttime, use_tls);
+			purple_url_encode(token),
+			oscar_get_ui_info_int(od->icq ? "prpl-icq-distid"
+					: "prpl-aim-distid", 0x00000611),
+			get_client_key(od), hosttime, use_tls);
 	signature = generate_signature("GET", URL_START_OSCAR_SESSION,
 			query_string, session_key);
 	url = g_strdup_printf(URL_START_OSCAR_SESSION "?%s&sig_sha256=%s",
@@ -386,6 +393,10 @@ static gboolean parse_client_login_response(PurpleConnection *gc, const gchar *r
 			purple_connection_error_reason(gc,
 					PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
 					_("Incorrect password"));
+		} else if (status_code == 330 && status_detail_code == 3015) {
+			purple_connection_error_reason(gc,
+					PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+					_("CAPTCHA requested. Logging into the AIM/ICQ website may fix this."));
 		} else if (status_code == 401 && status_detail_code == 3019) {
 			purple_connection_error_reason(gc,
 					PURPLE_CONNECTION_ERROR_OTHER_ERROR,

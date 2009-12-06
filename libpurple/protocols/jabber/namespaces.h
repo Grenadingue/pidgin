@@ -85,6 +85,9 @@
 /* XEP-0231 BoB (Bits of Binary) */
 #define NS_BOB "urn:xmpp:bob"
 
+/* XEP-0237 Roster Versioning */
+#define NS_ROSTER_VERSIONING "urn:xmpp:features:rosterver"
+
 /* XEP-0264 File Transfer Thumbnails (Thumbs) */
 #define NS_THUMBS "urn:xmpp:thumbs:0"
 
