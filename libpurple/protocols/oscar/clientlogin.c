@@ -36,11 +36,11 @@
  * http://dev.aol.com/authentication_for_clients
  */
 
-#include "cipher.h"
-#include "core.h"
-
 #include "oscar.h"
 #include "oscarcommon.h"
+
+#include "cipher.h"
+#include "core.h"
 
 #define URL_CLIENT_LOGIN "https://api.screenname.aol.com/auth/clientLogin"
 #define URL_START_OSCAR_SESSION "http://api.oscar.aol.com/aim/startOSCARSession"
@@ -393,10 +393,6 @@ static gboolean parse_client_login_response(PurpleConnection *gc, const gchar *r
 			purple_connection_error_reason(gc,
 					PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
 					_("Incorrect password"));
-		} else if (status_code == 330 && status_detail_code == 3015) {
-			purple_connection_error_reason(gc,
-					PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
-					_("CAPTCHA requested. Logging into the AIM/ICQ website may fix this."));
 		} else if (status_code == 401 && status_detail_code == 3019) {
 			purple_connection_error_reason(gc,
 					PURPLE_CONNECTION_ERROR_OTHER_ERROR,

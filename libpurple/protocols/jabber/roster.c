@@ -77,18 +77,20 @@ static void roster_request_cb(JabberStream *js, const char *from,
 void jabber_roster_request(JabberStream *js)
 {
 	PurpleAccount *account;
-	const char *ver;
 	JabberIq *iq;
 	xmlnode *query;
 
 	account = purple_connection_get_account(js->gc);
-	ver = purple_account_get_string(account, "roster_ver", "");
 
 	iq = jabber_iq_new_query(js, JABBER_IQ_GET, "jabber:iq:roster");
 	query = xmlnode_get_child(iq->node, "query");
-	xmlnode_set_attrib(query, "ver", ver);
-	jabber_iq_set_callback(iq, roster_request_cb, NULL);
 
+	if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER) {
+		xmlnode_set_attrib(query, "xmlns:gr", NS_GOOGLE_ROSTER);
+		xmlnode_set_attrib(query, "gr:ext", "2");
+	}
+
+	jabber_iq_set_callback(iq, roster_request_cb, NULL);
 	jabber_iq_send(iq);
 }
 
@@ -218,18 +220,18 @@ void jabber_roster_parse(JabberStream *js, const char *from,
 			continue;
 
 		if(subscription) {
-			if (jb == js->user_jb)
-				jb->subscription = JABBER_SUB_BOTH;
-			else if(!strcmp(subscription, "none"))
-				jb->subscription = JABBER_SUB_NONE;
-			else if(!strcmp(subscription, "to"))
-				jb->subscription = JABBER_SUB_TO;
-			else if(!strcmp(subscription, "from"))
-				jb->subscription = JABBER_SUB_FROM;
-			else if(!strcmp(subscription, "both"))
-				jb->subscription = JABBER_SUB_BOTH;
-			else if(!strcmp(subscription, "remove"))
+			if (g_str_equal(subscription, "remove"))
 				jb->subscription = JABBER_SUB_REMOVE;
+			else if (jb == js->user_jb)
+				jb->subscription = JABBER_SUB_BOTH;
+			else if (g_str_equal(subscription, "none"))
+				jb->subscription = JABBER_SUB_NONE;
+			else if (g_str_equal(subscription, "to"))
+				jb->subscription = JABBER_SUB_TO;
+			else if (g_str_equal(subscription, "from"))
+				jb->subscription = JABBER_SUB_FROM;
+			else if (g_str_equal(subscription, "both"))
+				jb->subscription = JABBER_SUB_BOTH;
 		}
 
 		if(purple_strequal(ask, "subscribe"))
@@ -334,7 +336,7 @@ static void jabber_roster_update(JabberStream *js, const char *name,
 
 	if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER) {
 		jabber_google_roster_outgoing(js, query, item);
-		xmlnode_set_attrib(query, "xmlns:gr", "google:roster");
+		xmlnode_set_attrib(query, "xmlns:gr", NS_GOOGLE_ROSTER);
 		xmlnode_set_attrib(query, "gr:ext", "2");
 	}
 	jabber_iq_send(iq);
