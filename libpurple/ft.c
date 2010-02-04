@@ -69,7 +69,7 @@ purple_xfer_priv_data_destroy(gpointer data)
 
 	if (priv->buffer)
 		g_byte_array_free(priv->buffer, TRUE);
-	
+
 	g_free(priv);
 }
 
@@ -128,14 +128,14 @@ purple_xfer_new(PurpleAccount *account, PurpleXferType type, const char *who)
 
 	priv = g_new0(PurpleXferPrivData, 1);
 	priv->ready = PURPLE_XFER_READY_NONE;
-	
+
 	if (ui_ops && ui_ops->data_not_sent) {
 		/* If the ui will handle unsent data no need for buffer */
 		priv->buffer = NULL;
 	} else {
 		priv->buffer = g_byte_array_sized_new(FT_INITIAL_BUFFER_SIZE);
 	}
-	
+
 	g_hash_table_insert(xfers_data, xfer, priv);
 
 	ui_ops = purple_xfer_get_ui_ops(xfer);
@@ -157,6 +157,9 @@ purple_xfer_destroy(PurpleXfer *xfer)
 	PurpleXferUiOps *ui_ops;
 
 	g_return_if_fail(xfer != NULL);
+
+	if (purple_debug_is_verbose())
+		purple_debug_info("xfer", "destroyed %p [%d]\n", xfer, xfer->ref);
 
 	/* Close the file browser, if it's open */
 	purple_request_close_with_handle(xfer);
@@ -1096,29 +1099,29 @@ do_transfer(PurpleXfer *xfer)
 			return;
 		}
 
-		if (priv->buffer) {		
-			s = s - priv->buffer->len;
-		} 
-
 		if (ui_ops && ui_ops->ui_read) {
 			gssize tmp = ui_ops->ui_read(xfer, &buffer, s);
 			if (tmp == 0) {
 				/*
-				 * UI isn't ready to send data. It will call
-				 * purple_xfer_ui_ready when ready, which sets back up this
-				 * watcher.
+				 * The UI claimed it was ready, but didn't have any data for
+				 * us...  It will call purple_xfer_ui_ready when ready, which
+				 * sets back up this watcher.
 				 */
 				if (xfer->watcher != 0) {
 					purple_input_remove(xfer->watcher);
 					xfer->watcher = 0;
 				}
-				/* 
+
+				/* Need to indicate the prpl is still ready... */
+				priv->ready |= PURPLE_XFER_READY_PRPL;
+
+				/*
 				 * if we requested 0 bytes it's only normal that end up here 
 				 * we shouldn't return as we still have something to 
 				 * write in priv->buffer
 				 */
 				if (s != 0)
-					return;
+					g_return_if_reached();
 			} else if (tmp < 0) {
 				purple_debug_error("filetransfer", "Unable to read whole buffer.\n");
 				purple_xfer_cancel_local(xfer);
@@ -1136,14 +1139,14 @@ do_transfer(PurpleXfer *xfer)
 				return;
 			}
 		}
-		
+	
 		if (priv->buffer) {
 			priv->buffer = g_byte_array_append(priv->buffer, buffer, result);
 			g_free(buffer);
 			buffer = priv->buffer->data;
 			result = priv->buffer->len;
 		}
-		
+	
 		r = purple_xfer_write(xfer, buffer, result);
 
 		if (r == -1) {
@@ -1189,11 +1192,8 @@ do_transfer(PurpleXfer *xfer)
 				purple_xfer_get_progress(xfer));
 	}
 
-	if ((purple_xfer_get_size(xfer) > 0) &&		
-              	((purple_xfer_get_bytes_sent(xfer)) >= purple_xfer_get_size(xfer))) {		
-		purple_xfer_set_completed(xfer, TRUE);
+	if (purple_xfer_is_completed(xfer))
 		purple_xfer_end(xfer);
-	}
 }
 
 static void
@@ -1213,6 +1213,8 @@ transfer_cb(gpointer data, gint source, PurpleInputCondition condition)
 			purple_debug_misc("xfer", "prpl is ready on ft %p, waiting for UI\n", xfer);
 			return;
 		}
+
+		priv->ready = PURPLE_XFER_READY_NONE;
 	}
 
 	do_transfer(xfer);

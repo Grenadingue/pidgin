@@ -2229,7 +2229,7 @@ pidgin_conv_switch_active_conversation(PurpleConversation *conv)
 		conv);
 	gtk_imhtmltoolbar_switch_active_conversation(GTK_IMHTMLTOOLBAR(gtkconv->toolbar), 
 		conv);
-	
+
 	if (old_conv == conv)
 		return;
 
@@ -4551,6 +4551,8 @@ static gboolean resize_imhtml_cb(PidginConversation *gtkconv)
 	int max_height = total_height / 2;
 	int min_lines = purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/minimum_entry_lines");
 	int min_height;
+	gboolean interior_focus;
+	int focus_width;
 
 	pad_top = gtk_text_view_get_pixels_above_lines(GTK_TEXT_VIEW(gtkconv->entry));
 	pad_bottom = gtk_text_view_get_pixels_below_lines(GTK_TEXT_VIEW(gtkconv->entry));
@@ -4576,6 +4578,13 @@ static gboolean resize_imhtml_cb(PidginConversation *gtkconv)
 	 * is the beginning of a new paragraph. */
 	min_height = min_lines * (oneline.height + MAX(pad_inside, pad_top + pad_bottom));
 	height = CLAMP(height, MIN(min_height, max_height), max_height);
+
+	gtk_widget_style_get(gtkconv->entry,
+	                     "interior-focus", &interior_focus,
+	                     "focus-line-width", &focus_width,
+	                     NULL);
+	if (!interior_focus)
+		height += 2 * focus_width;
 
 	diff = height - gtkconv->entry->allocation.height;
 	if (ABS(diff) < oneline.height / 2)
@@ -6911,7 +6920,6 @@ wrote_msg_update_unseen_cb(PurpleAccount *account, const char *who, const char *
 		conv_set_unseen(conv, unseen);
 	}
 }
-
 
 static PurpleConversationUiOps conversation_ui_ops =
 {
@@ -9432,6 +9440,24 @@ pidgin_conv_window_switch_gtkconv(PidginWindow *win, PidginConversation *gtkconv
 		                              gtkconv->tab_cont));
 }
 
+static gboolean
+gtkconv_tab_set_tip(GtkWidget *widget, GdkEventCrossing *event, PidginConversation *gtkconv)
+{
+#if GTK_CHECK_VERSION(2, 12, 0)
+#define gtk_tooltips_set_tip(tips, w, l, p)  gtk_widget_set_tooltip_text(w, l)
+#endif
+	PangoLayout *layout;
+
+	layout = gtk_label_get_layout(GTK_LABEL(gtkconv->tab_label));
+	gtk_tooltips_set_tip(gtkconv->tooltips, widget,
+			pango_layout_is_ellipsized(layout) ? gtk_label_get_text(GTK_LABEL(gtkconv->tab_label)) : NULL,
+			NULL);
+	return FALSE;
+#if GTK_CHECK_VERSION(2, 12, 0)
+#undef gtk_tooltips_set_tip
+#endif
+}
+
 void
 pidgin_conv_window_add_gtkconv(PidginWindow *win, PidginConversation *gtkconv)
 {
@@ -9566,6 +9592,8 @@ pidgin_conv_tab_pack(PidginWindow *win, PidginConversation *gtkconv)
 	ebox = gtk_event_box_new();
 	gtk_event_box_set_visible_window(GTK_EVENT_BOX(ebox), FALSE);
 	gtk_container_add(GTK_CONTAINER(ebox), gtkconv->tabby);
+	g_signal_connect(G_OBJECT(ebox), "enter-notify-event",
+			G_CALLBACK(gtkconv_tab_set_tip), gtkconv);
 
 	if (gtkconv->tab_label->parent == NULL) {
 		/* Pack if it's a new widget */
