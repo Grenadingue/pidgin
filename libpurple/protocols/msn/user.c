@@ -266,7 +266,7 @@ msn_user_set_endpoint_data(MsnUser *user, const char *input, MsnUserEndpoint *da
 }
 
 void
-msn_user_set_op(MsnUser *user, int list_op)
+msn_user_set_op(MsnUser *user, MsnListOp list_op)
 {
 	g_return_if_fail(user != NULL);
 
@@ -274,7 +274,7 @@ msn_user_set_op(MsnUser *user, int list_op)
 }
 
 void
-msn_user_unset_op(MsnUser *user, int list_op)
+msn_user_unset_op(MsnUser *user, MsnListOp list_op)
 {
 	g_return_if_fail(user != NULL);
 
