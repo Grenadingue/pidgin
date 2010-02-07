@@ -46,7 +46,7 @@ flap_connection_send_version(OscarData *od, FlapConnection *conn)
 	FlapFrame *frame;
 
 	frame = flap_frame_new(od, 0x01, 4);
-	byte_stream_put32(&frame->data, 0x00000001);
+	byte_stream_put32(&frame->data, 0x00000001); /* FLAP Version */
 	flap_connection_send(conn, frame);
 }
 
@@ -64,9 +64,40 @@ flap_connection_send_version_with_cookie(OscarData *od, FlapConnection *conn, gu
 	GSList *tlvlist = NULL;
 
 	frame = flap_frame_new(od, 0x01, 4 + 2 + 2 + length);
-	byte_stream_put32(&frame->data, 0x00000001);
+	byte_stream_put32(&frame->data, 0x00000001); /* FLAP Version */
 	aim_tlvlist_add_raw(&tlvlist, 0x0006, length, chipsahoy);
 	aim_tlvlist_write(&frame->data, &tlvlist);
+	aim_tlvlist_free(tlvlist);
+
+	flap_connection_send(conn, frame);
+}
+
+void
+flap_connection_send_version_with_cookie_and_clientinfo(OscarData *od, FlapConnection *conn, guint16 length, const guint8 *chipsahoy, ClientInfo *ci, gboolean allow_multiple_logins)
+{
+	FlapFrame *frame;
+	GSList *tlvlist = NULL;
+
+	frame = flap_frame_new(od, 0x01, 1152 + length);
+
+	byte_stream_put32(&frame->data, 0x00000001); /* FLAP Version */
+	aim_tlvlist_add_raw(&tlvlist, 0x0006, length, chipsahoy);
+
+	if (ci->clientstring != NULL)
+		aim_tlvlist_add_str(&tlvlist, 0x0003, ci->clientstring);
+	else {
+		gchar *clientstring = oscar_get_clientstring();
+		aim_tlvlist_add_str(&tlvlist, 0x0003, clientstring);
+		g_free(clientstring);
+	}
+	aim_tlvlist_add_16(&tlvlist, 0x0017, (guint16)ci->major);
+	aim_tlvlist_add_16(&tlvlist, 0x0018, (guint16)ci->minor);
+	aim_tlvlist_add_16(&tlvlist, 0x0019, (guint16)ci->point);
+	aim_tlvlist_add_16(&tlvlist, 0x001a, (guint16)ci->build);
+	aim_tlvlist_add_8(&tlvlist, 0x004a, (allow_multiple_logins ? 0x01 : 0x03));
+
+	aim_tlvlist_write(&frame->data, &tlvlist);
+
 	aim_tlvlist_free(tlvlist);
 
 	flap_connection_send(conn, frame);
@@ -75,21 +106,15 @@ flap_connection_send_version_with_cookie(OscarData *od, FlapConnection *conn, gu
 static struct rateclass *
 flap_connection_get_rateclass(FlapConnection *conn, guint16 family, guint16 subtype)
 {
-	GSList *tmp1;
 	gconstpointer key;
+	gpointer rateclass;
 
 	key = GUINT_TO_POINTER((family << 16) + subtype);
+	rateclass = g_hash_table_lookup(conn->rateclass_members, key);
+	if (rateclass != NULL)
+		return rateclass;
 
-	for (tmp1 = conn->rateclasses; tmp1 != NULL; tmp1 = tmp1->next)
-	{
-		struct rateclass *rateclass;
-		rateclass = tmp1->data;
-
-		if (g_hash_table_lookup(rateclass->members, key))
-			return rateclass;
-	}
-
-	return NULL;
+	return conn->default_rateclass;
 }
 
 /*
@@ -100,11 +125,13 @@ static guint32
 rateclass_get_new_current(FlapConnection *conn, struct rateclass *rateclass, struct timeval *now)
 {
 	unsigned long timediff; /* In milliseconds */
+	guint32 current;
 
+	/* This formula is documented at http://dev.aol.com/aim/oscar/#RATELIMIT */
 	timediff = (now->tv_sec - rateclass->last.tv_sec) * 1000 + (now->tv_usec - rateclass->last.tv_usec) / 1000;
+	current = ((rateclass->current * (rateclass->windowsize - 1)) + timediff) / rateclass->windowsize;
 
-	/* This formula is taken from the joscar API docs. Preesh. */
-	return MIN(((rateclass->current * (rateclass->windowsize - 1)) + timediff) / rateclass->windowsize, rateclass->max);
+	return MIN(current, rateclass->max);
 }
 
 /*
@@ -130,8 +157,7 @@ static gboolean flap_connection_send_snac_queue(FlapConnection *conn, struct tim
 
 			new_current = rateclass_get_new_current(conn, rateclass, &now);
 
-			/* (Add 100ms padding to account for inaccuracies in the calculation) */
-			if (new_current < rateclass->alert + 100)
+			if (rateclass->dropping_snacs || new_current <= rateclass->alert)
 				/* Not ready to send this SNAC yet--keep waiting. */
 				return FALSE;
 
@@ -214,10 +240,9 @@ flap_connection_send_snac_with_priority(OscarData *od, FlapConnection *conn, gui
 		gettimeofday(&now, NULL);
 		new_current = rateclass_get_new_current(conn, rateclass, &now);
 
-		/* (Add 100ms padding to account for inaccuracies in the calculation) */
-		if (new_current < rateclass->alert + 100)
+		if (rateclass->dropping_snacs || new_current <= rateclass->alert)
 		{
-			purple_debug_info("oscar", "Current rate for conn %p would be %u, but we alert at %u; enqueueing\n", conn, new_current, (rateclass->alert + 100));
+			purple_debug_info("oscar", "Current rate for conn %p would be %u, but we alert at %u; enqueueing\n", conn, new_current, rateclass->alert);
 
 			enqueue = TRUE;
 		}
@@ -227,14 +252,6 @@ flap_connection_send_snac_with_priority(OscarData *od, FlapConnection *conn, gui
 			rateclass->last.tv_sec = now.tv_sec;
 			rateclass->last.tv_usec = now.tv_usec;
 		}
-	} else {
-		/*
-		 * It's normal for SNACs 0x0001/0x0006 and 0x0001/0x0017 to be
-		 * sent before we receive rate info from the server, so don't
-		 * bother warning about them.
-		 */
-		if (family != 0x0001 || (subtype != 0x0006 && subtype != 0x0017))
-			purple_debug_warning("oscar", "No rate class found for family 0x%04hx subtype 0x%04hx\n", family, subtype);
 	}
 
 	if (enqueue)
@@ -323,6 +340,7 @@ flap_connection_new(OscarData *od, int type)
 	conn->fd = -1;
 	conn->subtype = -1;
 	conn->type = type;
+	conn->rateclass_members = g_hash_table_new(g_direct_hash, g_direct_equal);
 
 	od->oscar_connections = g_slist_prepend(od->oscar_connections, conn);
 
@@ -355,23 +373,9 @@ flap_connection_close(OscarData *od, FlapConnection *conn)
 		}
 	}
 
-	if (conn->fd >= 0)
-	{
-		if (conn->type == SNAC_FAMILY_LOCATE)
-			flap_connection_send_close(od, conn);
-
-		close(conn->fd);
-		conn->fd = -1;
-	}
-
-	if (conn->gsc != NULL)
-	{
-		if (conn->type == SNAC_FAMILY_LOCATE)
-			flap_connection_send_close(od, conn);
-
-		purple_ssl_close(conn->gsc);
-		conn->gsc = NULL;
-	}
+	if ((conn->fd >= 0 || conn->gsc != NULL)
+			&& conn->type == SNAC_FAMILY_LOCATE)
+		flap_connection_send_close(od, conn);
 
 	if (conn->watcher_incoming != 0)
 	{
@@ -385,18 +389,23 @@ flap_connection_close(OscarData *od, FlapConnection *conn)
 		conn->watcher_outgoing = 0;
 	}
 
+	if (conn->fd >= 0)
+	{
+		close(conn->fd);
+		conn->fd = -1;
+	}
+
+	if (conn->gsc != NULL)
+	{
+		purple_ssl_close(conn->gsc);
+		conn->gsc = NULL;
+	}
+
 	g_free(conn->buffer_incoming.data.data);
 	conn->buffer_incoming.data.data = NULL;
 
 	purple_circ_buffer_destroy(conn->buffer_outgoing);
 	conn->buffer_outgoing = NULL;
-}
-
-static void
-flap_connection_destroy_rateclass(struct rateclass *rateclass)
-{
-	g_hash_table_destroy(rateclass->members);
-	g_free(rateclass);
 }
 
 /**
@@ -445,18 +454,18 @@ flap_connection_destroy_cb(gpointer data)
 
 		if (conn->disconnect_code == 0x0001) {
 			reason = PURPLE_CONNECTION_ERROR_NAME_IN_USE;
-			tmp = g_strdup(_("You have signed on from another location."));
+			tmp = g_strdup(_("You have signed on from another location"));
 			if (!purple_account_get_remember_password(account))
 				purple_account_set_password(account, NULL);
 		} else if (conn->disconnect_reason == OSCAR_DISCONNECT_REMOTE_CLOSED)
-			tmp = g_strdup(_("Server closed the connection."));
+			tmp = g_strdup(_("Server closed the connection"));
 		else if (conn->disconnect_reason == OSCAR_DISCONNECT_LOST_CONNECTION)
-			tmp = g_strdup_printf(_("Lost connection with server:\n%s"),
+			tmp = g_strdup_printf(_("Lost connection with server: %s"),
 					conn->error_message);
 		else if (conn->disconnect_reason == OSCAR_DISCONNECT_INVALID_DATA)
-			tmp = g_strdup(_("Received invalid data on connection with server."));
+			tmp = g_strdup(_("Received invalid data on connection with server"));
 		else if (conn->disconnect_reason == OSCAR_DISCONNECT_COULD_NOT_CONNECT)
-			tmp = g_strdup_printf(_("Could not establish a connection with the server:\n%s"),
+			tmp = g_strdup_printf(_("Unable to connect: %s"),
 					conn->error_message);
 		else
 			/*
@@ -476,7 +485,6 @@ flap_connection_destroy_cb(gpointer data)
 
 	g_free(conn->error_message);
 	g_free(conn->cookie);
-	g_free(conn->ssl_cert_cn);
 
 	/*
 	 * Free conn->internal, if necessary
@@ -487,9 +495,11 @@ flap_connection_destroy_cb(gpointer data)
 	g_slist_free(conn->groups);
 	while (conn->rateclasses != NULL)
 	{
-		flap_connection_destroy_rateclass(conn->rateclasses->data);
+		g_free(conn->rateclasses->data);
 		conn->rateclasses = g_slist_delete_link(conn->rateclasses, conn->rateclasses);
 	}
+
+	g_hash_table_destroy(conn->rateclass_members);
 
 	if (conn->queued_snacs) {
 		while (!g_queue_is_empty(conn->queued_snacs))
@@ -1029,7 +1039,7 @@ send_cb(gpointer data, gint source, PurpleInputCondition cond)
 		ret = send(conn->fd, conn->buffer_outgoing->outptr, writelen, 0);
 	if (ret <= 0)
 	{
-		if (ret < 0 && ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
+		if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 			/* No worries */
 			return;
 

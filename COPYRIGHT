@@ -1,8 +1,21 @@
 Pidgin, Finch, and libpurple
-Copyright (C) 1998-2008 by the following:
 
-If you have contributed to this project then you deserve to be on this
-list.  Contact us (see: AUTHORS) and we'll add you.
+This file is intended to be a comprehensive list of contributors to
+this project.  If you have contributed to this project then you deserve
+to be on this list.  Contact us (see: AUTHORS) and we'll add you.
+
+Many open source projects list contributor names at the top of each
+source file containing their contribution.  However, we've found
+that it is difficult to keep this list accurate, especially when old
+code is removed or existing code is moved to a different file.  So
+instead we chose to list a generic message at the top of each source
+file that points here.
+
+If concerns are raised as to the copyright holder of a particular
+piece of code, then that code should be traced through our version
+control system to see from where it came and who has modified it.
+
+Copyright (C) 1998-2009 by the following:
 
 Saleem Abdulrasool
 Dave Ahlswede
@@ -30,6 +43,8 @@ Lukas Barth
 Derek Battams
 Martin Bayard
 Curtis Beattie
+Stefan Becker
+Carlos Bederian
 Dave Bell
 Igor Belyi
 Brian Bernas
@@ -73,6 +88,7 @@ Julien Cegarra
 Matěj Cepl
 Cerulean Studios, LLC
 Jonathan Champ
+Matthew Chapman
 Christophe Chapuis
 Patrick Cheung
 Ka-Hing Cheung
@@ -131,6 +147,7 @@ Steffen Eschenbacher
 Marc Etcheverry
 David Everly
 Larry Ewing
+Fartash Faghri
 Gábor Farkas
 Jesse Farmer
 Gavan Fantom (gavan)
@@ -138,6 +155,7 @@ Leonardo Fernandes
 David Fiander
 Rob Flynn <gaim@robflynn.com>
 Rob Foehl (rwf)
+Chris Foote
 Alan Ford
 Nathan Fredrickson
 Chris J. Friesen
@@ -169,6 +187,7 @@ David Grohmann
 Christian Grothoff
 Vladislav Guberinić
 Gideon N. Guillen
+Aman Gupta
 Christian Hammond
 Erick Hamness
 Fred Hampton
@@ -215,6 +234,8 @@ Hans Petter Jansson
 David Jedelsky
 Henry Jen
 Benjamin Kahn
+Jan Kaluza
+Yuriy Kaminskiy
 Anders Kaseorg
 Praveen Karadakal
 Tomáš Kebert
@@ -222,6 +243,7 @@ John Kelm
 Jochen Kemnade
 Yann Kerherve
 Gordian Klein
+Krzysztof Klinikowski
 Akuke Kok
 Kir Kolyshkin
 F.W. Kong
@@ -249,6 +271,7 @@ Moses Lei
 Ambrose C. Li
 Nicolas Lichtmaier
 Wesley Lin
+Shaun Lindsay
 Artem Litvinovich
 Josh Littlefield
 Daniel Ljungborg
@@ -256,6 +279,8 @@ Syd Logan
 Lokheed
 Norberto Lopes
 Shlomi Loubaton
+Pieter Loubser
+Brian Lu
 Uli Luckas
 Matthew Luckie
 Marcus Lundblad
@@ -267,6 +292,7 @@ Brian Macke
 Paolo Maggi
 Sulabh Mahajan
 Willian T. Mahan
+Tobias Markmann
 Kris Marsh
 Fidel Martinez
 Lalo Martins
@@ -287,6 +313,7 @@ Paul Miller
 Arkadiusz Miskiewicz
 David Mohr
 Andrew Molloy
+Tomasz Mon
 Michael Monreal
 Laurent Montaron
 Marco Monteiro
@@ -296,6 +323,7 @@ Tim Mooney
 Sergio Moretto
 Andrei Mozzhuhin
 Christian Muise
+MXit Lifestyle (Pty) Ltd.
 Richard Nelson
 Dennis Nezic
 Matthew A. Nicholson
@@ -329,15 +357,16 @@ Matt Perry
 Luke Petre
 Diego Petten
 Nathan Peterson
+Dmitry Petroff
 Sebastián E. Peyrott
+Andrea Piccinelli
 Celso Pinto
 Joao Luís Marques Pinto
 Aleksander Piotrowski
 Julien Pivotto
+Robey Pointer
 Eric Polino <aluink@gmail.com>
 Ari Pollak
-Robey Pointer
-Eric Polino
 Stephen Pope
 Nathan Poznick
 Jory A. Pratt
@@ -351,6 +380,7 @@ David Raeman
 R. Ramkumar
 Mart Raudsepp
 Etan Reisner
+Luoh Ren-Shan
 Kristian Rietveld
 Pekka Riikonen
 Tim Ringenbach
@@ -362,6 +392,7 @@ Rhett Robinson
 Luciano Miguel Ferreira Rocha
 Andrew Rodland
 Miguel Rodríguez (migrax)
+Adi Roiban
 Martin Rosinski
 Bob Rossi
 Jason Roth
@@ -383,11 +414,10 @@ Alceste Scalas
 Carsten Schaar
 Toby Schaffer
 Jonathan Schleifer <js-pidgin@webkeks.org>
-Matteo Settenvini
-Colin Seymour
 Luke Schierer
 Ralph Schmieder
 David Schmitt
+Heiko Schmitt
 Mark Schneider
 Evan Schoenberg
 Gabriel Schulhof
@@ -397,6 +427,8 @@ Torrey Searle
 Peter Seebach
 Don Seiler
 Leonardo Serra
+Matteo Settenvini
+Colin Seymour
 Jim Seymour
 Javeed Shaikh
 Joe Shaw
@@ -422,6 +454,7 @@ Peter Speybrouck
 Lex Spoon
 Chris Stafford
 Kevin Stange
+Joshua Stein
 Jakub Steiner
 Richard Stellingwerff
 Charlie Stockman
@@ -448,6 +481,7 @@ Douglas Thrift (douglaswth)
 Mark Tiefenbruck
 Andrew Tinney
 Jeffery To
+Krzysztof Tobola (kreez)
 Warren Togami
 Stu Tomlinson
 Bill Tompkins
@@ -470,6 +504,7 @@ Kristof Vansant
 James Vega
 David Vermeille
 Sid Vicious
+Andrew Victor
 Jorge Villaseñor (Masca)
 Bjoern Voigt
 Wan Hing Wah
@@ -505,6 +540,7 @@ Ximian
 Ma Xuan
 Jared Yanovich
 Timmy Yee
+Li Yuan
 Yuriy Yevgrafov
 Nickolai Zeldovich
 Tom Zickel

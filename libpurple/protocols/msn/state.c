@@ -21,6 +21,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+
+#include "internal.h"
+#include "core.h"
+
 #include "msn.h"
 #include "state.h"
 
@@ -80,78 +84,6 @@ msn_build_psm(const char *psmstr,const char *mediastr, const char *guidstr)
 	result = xmlnode_to_str(dataNode, &length);
 	xmlnode_free(dataNode);
 	return result;
-}
-
-/* parse CurrentMedia string */
-gboolean
-msn_parse_currentmedia(const char *cmedia, CurrentMedia *media)
-{
-	char **cmedia_array;
-	int strings = 0;
-	gboolean parsed = FALSE;
-
-	if ((cmedia == NULL) || (*cmedia == '\0')) {
-		purple_debug_info("msn", "No currentmedia string\n");
-		return FALSE;
-	}
-
-	purple_debug_info("msn", "Parsing currentmedia string: \"%s\"\n", cmedia);
-
-	cmedia_array = g_strsplit(cmedia, "\\0", 0);
-
-	/*
-	 * 0: Application
-	 * 1: 'Music'/'Games'/'Office'
-	 * 2: '1' if enabled, '0' if not
-	 * 3: Format (eg. {0} by {1})
-	 * 4: Title
-	 * If 'Music':
-	 *  5: Artist
-	 *  6: Album
-	 *  7: ?
-	 */
-#if GLIB_CHECK_VERSION(2,6,0)
-	strings  = g_strv_length(cmedia_array);
-#else
-	while (cmedia_array[++strings] != NULL);
-#endif
-
-	if (strings >= 4 && !strcmp(cmedia_array[2], "1")) {
-		parsed = TRUE;
-
-		if (!strcmp(cmedia_array[1], "Music"))
-			media->type = CURRENT_MEDIA_MUSIC;
-		else if (!strcmp(cmedia_array[1], "Games"))
-			media->type = CURRENT_MEDIA_GAMES;
-		else if (!strcmp(cmedia_array[1], "Office"))
-			media->type = CURRENT_MEDIA_OFFICE;
-		else
-			media->type = CURRENT_MEDIA_UNKNOWN;
-
-		g_free(media->title);
-		if (strings == 4) {
-			media->title = g_strdup(cmedia_array[3]);
-		} else {
-			media->title = g_strdup(cmedia_array[4]);
-		}
-
-		g_free(media->artist);
-		if (strings > 5)
-			media->artist = g_strdup(cmedia_array[5]);
-		else
-			media->artist = NULL;
-
-		g_free(media->album);
-		if (strings > 6)
-			media->album = g_strdup(cmedia_array[6]);
-		else
-			media->album = NULL;
-
-	}
-
-	g_strfreev(cmedia_array);
-
-	return parsed;
 }
 
 /* get the CurrentMedia info from the XML string */
@@ -245,7 +177,7 @@ create_media_string(PurplePresence *presence)
 void
 msn_set_psm(MsnSession *session)
 {
-	PurpleAccount *account = session->account;
+	PurpleAccount *account;
 	PurplePresence *presence;
 	PurpleStatus *status;
 	MsnCmdProc *cmdproc;
@@ -257,6 +189,7 @@ msn_set_psm(MsnSession *session)
 	g_return_if_fail(session != NULL);
 	g_return_if_fail(session->notification != NULL);
 
+	account = session->account;
 	cmdproc = session->notification->cmdproc;
 
 	/* Get the PSM string from Purple's Status Line */
@@ -288,9 +221,28 @@ msn_change_status(MsnSession *session)
 	MsnUser *user;
 	MsnObject *msnobj;
 	const char *state_text;
+	GHashTable *ui_info = purple_core_get_ui_info();
+	MsnClientCaps caps = MSN_CLIENT_ID;
 
 	g_return_if_fail(session != NULL);
 	g_return_if_fail(session->notification != NULL);
+
+	/* set client caps based on what the UI tells us it is... */
+	if (ui_info) {
+		const gchar *client_type = g_hash_table_lookup(ui_info, "client_type");
+		if (client_type) {
+			if (strcmp(client_type, "phone") == 0 ||
+				strcmp(client_type, "handheld") == 0) {
+				caps |= MSN_CLIENT_CAP_WIN_MOBILE;
+			} else if (strcmp(client_type, "web") == 0) {
+				caps |= MSN_CLIENT_CAP_WEBMSGR;
+			} else if (strcmp(client_type, "bot") == 0) {
+				caps |= MSN_CLIENT_CAP_BOT;
+			}
+			/* MSN doesn't a "console" type... 
+			 What, they have no ncurses UI? :-) */
+		}
+	}
 
 	account = session->account;
 	cmdproc = session->notification->cmdproc;
@@ -307,8 +259,7 @@ msn_change_status(MsnSession *session)
 
 	if (msnobj == NULL)
 	{
-		msn_cmdproc_send(cmdproc, "CHG", "%s %d", state_text,
-						 MSN_CLIENT_ID);
+		msn_cmdproc_send(cmdproc, "CHG", "%s %d", state_text, caps);
 	}
 	else
 	{
@@ -317,7 +268,7 @@ msn_change_status(MsnSession *session)
 		msnobj_str = msn_object_to_string(msnobj);
 
 		msn_cmdproc_send(cmdproc, "CHG", "%s %d %s", state_text,
-						 MSN_CLIENT_ID, purple_url_encode(msnobj_str));
+						 caps, purple_url_encode(msnobj_str));
 
 		g_free(msnobj_str);
 	}

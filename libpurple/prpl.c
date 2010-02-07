@@ -182,6 +182,17 @@ purple_prpl_got_account_status(PurpleAccount *account, const char *status_id, ..
 }
 
 void
+purple_prpl_got_account_actions(PurpleAccount *account)
+{
+
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(purple_account_is_connected(account));
+
+	purple_signal_emit(purple_accounts_get_handle(), "account-actions-changed",
+	                   account);
+}
+
+void
 purple_prpl_got_user_idle(PurpleAccount *account, const char *name,
 		gboolean idle, time_t idle_time)
 {
@@ -258,6 +269,10 @@ purple_prpl_got_user_status(PurpleAccount *account, const char *name,
 		status   = purple_presence_get_status(presence, status_id);
 
 		if(NULL == status)
+			/*
+			 * TODO: This should never happen, right?  We should call
+			 *       g_warning() or something.
+			 */
 			continue;
 
 		old_status = purple_presence_get_active_status(presence);
@@ -271,7 +286,8 @@ purple_prpl_got_user_status(PurpleAccount *account, const char *name,
 
 	g_slist_free(list);
 
-	/* we get to re-use the last status we found */
+	/* The buddy is no longer online, they are therefore by definition not
+	 * still typing to us. */
 	if (!purple_status_is_online(status))
 		serv_got_typing_stopped(purple_account_get_connection(account), name);
 }
@@ -515,7 +531,7 @@ purple_prpl_initiate_media(PurpleAccount *account,
 
 	if (prpl_info && PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl_info, initiate_media)) {
 		/* should check that the protocol supports this media type here? */
-		return prpl_info->initiate_media(gc, who, type);
+		return prpl_info->initiate_media(account, who, type);
 	} else
 #endif
 	return FALSE;
@@ -538,7 +554,7 @@ purple_prpl_get_media_caps(PurpleAccount *account, const char *who)
 	
 	if (prpl_info && PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl_info,
 			get_media_caps)) {
-		return prpl_info->get_media_caps(gc, who);
+		return prpl_info->get_media_caps(account, who);
 	}
 #endif
 	return PURPLE_MEDIA_CAPS_NONE;

@@ -23,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+#include <internal.h>
+
 #include <gnt.h>
 #include <gntbox.h>
 #include <gntbutton.h>
@@ -165,8 +167,7 @@ save_account_cb(AccountEditDialog *dialog)
 
 	/* Alias */
 	value = gnt_entry_get_text(GNT_ENTRY(dialog->alias));
-	if (value && *value)
-		purple_account_set_alias(account, value);
+	purple_account_set_alias(account, value);
 
 	/* Remember password and password */
 	purple_account_set_remember_password(account,
@@ -488,6 +489,7 @@ edit_account(PurpleAccount *account)
 	GntWidget *combo, *button, *entry;
 	GList *list, *iter;
 	AccountEditDialog *dialog;
+	PurplePlugin *plugin;
 
 	if (account)
 	{
@@ -531,9 +533,10 @@ edit_account(PurpleAccount *account)
 				((PurplePlugin*)iter->data)->info->name);
 	}
 
-	if (account)
-		gnt_combo_box_set_selected(GNT_COMBO_BOX(combo),
-				purple_plugins_find_with_id(purple_account_get_protocol_id(account)));
+	plugin = purple_plugins_find_with_id(purple_account_get_protocol_id(account));
+
+	if (account && plugin)
+		gnt_combo_box_set_selected(GNT_COMBO_BOX(combo), plugin);
 	else
 		gnt_combo_box_set_selected(GNT_COMBO_BOX(combo), list->data);
 
@@ -669,8 +672,13 @@ static void
 account_toggled(GntWidget *widget, void *key, gpointer null)
 {
 	PurpleAccount *account = key;
+	gboolean enabled = gnt_tree_get_choice(GNT_TREE(widget), key);
 
-	purple_account_set_enabled(account, FINCH_UI, gnt_tree_get_choice(GNT_TREE(widget), key));
+	if (enabled)
+		purple_savedstatus_activate_for_account(purple_savedstatus_get_current(),
+												account);
+
+	purple_account_set_enabled(account, FINCH_UI, enabled);
 }
 
 static gboolean

@@ -88,6 +88,8 @@ struct _MsnServConn
 
 	PurpleCircBuffer *tx_buf;
 	guint tx_handler;
+	guint timeout_sec;
+	guint timeout_handle;
 
 	void (*connect_cb)(MsnServConn *); /**< The callback to call when connecting. */
 	void (*disconnect_cb)(MsnServConn *); /**< The callback to call when disconnecting. */
@@ -168,14 +170,25 @@ gssize msn_servconn_write(MsnServConn *servconn, const char *buf,
  * @param servconn The servconn.
  * @param error The error that happened.
  */
-void msn_servconn_got_error(MsnServConn *servconn, MsnServConnError error);
+void msn_servconn_got_error(MsnServConn *servconn, MsnServConnError error,
+                            const char *reason);
 
 /**
  * Process the data in servconn->rx_buf.  This is called after reading
  * data from the socket.
  *
  * @param servconn The servconn.
+ *
+ * @return @c NULL if servconn was destroyed, 'servconn' otherwise.
  */
-void msn_servconn_process_data(MsnServConn *servconn);
+MsnServConn *msn_servconn_process_data(MsnServConn *servconn);
+
+/**
+ * Set a idle timeout fot this servconn
+ *
+ * @param servconn The servconn
+ * @param seconds The idle timeout in seconds
+ */
+void msn_servconn_set_idle_timeout(MsnServConn *servconn, guint seconds);
 
 #endif /* _MSN_SERVCONN_H_ */

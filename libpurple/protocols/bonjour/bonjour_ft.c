@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA
  */
 #include "internal.h"
 #include "util.h"
@@ -450,9 +450,11 @@ xep_si_parse(PurpleConnection *pc, xmlnode *packet, PurpleBuddy *pb)
 
 				/* TODO: Make sure that it is advertising a bytestreams transfer */
 
-				bonjour_xfer_receive(pc, id, sid, name, filesize, filename, XEP_BYTESTREAMS);
+				if (filename) {
+					bonjour_xfer_receive(pc, id, sid, name, filesize, filename, XEP_BYTESTREAMS);
 
-				parsed_receive = TRUE;
+					parsed_receive = TRUE;
+				}
 			}
 
 			if (!parsed_receive) {
@@ -880,7 +882,9 @@ bonjour_bytestreams_connect(PurpleXfer *xfer, PurpleBuddy *pb)
 	purple_proxy_info_set_type(xf->proxy_info, PURPLE_PROXY_SOCKS5);
 	purple_proxy_info_set_host(xf->proxy_info, xf->proxy_host);
 	purple_proxy_info_set_port(xf->proxy_info, xf->proxy_port);
-	xf->proxy_connection = purple_proxy_connect_socks5(NULL, xf->proxy_info,
+	xf->proxy_connection = purple_proxy_connect_socks5(
+							   purple_account_get_connection(account),
+							   xf->proxy_info,
 							   dstaddr, 0,
 							   bonjour_bytestreams_connect_cb, xfer);
 

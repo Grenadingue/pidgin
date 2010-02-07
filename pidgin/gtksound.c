@@ -158,7 +158,7 @@ im_msg_sent_cb(PurpleAccount *account, const char *receiver,
 			   const char *message, PurpleSoundEventID event)
 {
 	PurpleConversation *conv = purple_find_conversation_with_account(
-		PURPLE_CONV_TYPE_ANY, receiver, account);
+		PURPLE_CONV_TYPE_IM, receiver, account);
 	play_conv_event(conv, event);
 }
 
@@ -212,6 +212,8 @@ chat_msg_received_cb(PurpleAccount *account, char *sender,
 		return;
 
 	if (flags & PURPLE_MESSAGE_NICK || purple_utf8_has_word(message, chat->nick))
+		/* This isn't quite right; if you have the PURPLE_SOUND_CHAT_NICK event disabled
+		 * and the PURPLE_SOUND_CHAT_SAY event enabled, you won't get a sound at all */
 		play_conv_event(conv, PURPLE_SOUND_CHAT_NICK);
 	else
 		play_conv_event(conv, event);
@@ -226,9 +228,9 @@ static void
 account_signon_cb(PurpleConnection *gc, gpointer data)
 {
 	if (mute_login_sounds_timeout != 0)
-		g_source_remove(mute_login_sounds_timeout);
+		purple_timeout_remove(mute_login_sounds_timeout);
 	mute_login_sounds = TRUE;
-	mute_login_sounds_timeout = purple_timeout_add(10000, unmute_login_sounds_cb, NULL);
+	mute_login_sounds_timeout = purple_timeout_add_seconds(10, unmute_login_sounds_cb, NULL);
 }
 
 const char *
@@ -591,6 +593,7 @@ pidgin_sound_play_event(PurpleSoundEventID event)
 				purple_debug_error("sound", "The file: (%s) %s\n from theme: %s, was not found or wasn't readable\n",
 							sounds[event].pref, filename, theme_name);
 				g_free(filename);
+				filename = NULL;
 			}
 		}
 
@@ -614,19 +617,16 @@ gboolean
 pidgin_sound_is_customized(void)
 {
 	gint i;
-	gchar *path, *file;
+	gchar *path;
+	const char *file;
 
 	for (i = 0; i < PURPLE_NUM_SOUNDS; i++) {
 		path = g_strdup_printf(PIDGIN_PREFS_ROOT "/sound/file/%s", sounds[i].pref);
-		file = g_strdup(purple_prefs_get_path(path));
+		file = purple_prefs_get_path(path);
 		g_free(path);
 
-		if (file && file[0] != '\0'){
-			g_free(file);
+		if (file && file[0] != '\0')
 			return TRUE;
-		}
-
-		g_free(file);
 	}
 
 	return FALSE;

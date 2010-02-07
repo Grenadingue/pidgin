@@ -185,7 +185,16 @@ void purple_prefs_destroy(void);
  *
  * @param name  The name of the pref
  * @param value The value to set
+ *
+ * @deprecated We're not really sure what purpose this function serves, so it
+ *             will be removed in 3.0.0.  Preferences values set using this
+ *             function aren't serialized to prefs.xml, which could be
+ *             misleading.  There is also no purple_prefs_get_generic, which
+ *             means that if you can't really get the value (other in a
+ *             connected callback).  If you think you have a use for this then
+ *             please let us know.
  */
+/* TODO: When this is removed, also remove struct purple_pref->value.generic */
 void purple_prefs_set_generic(const char *name, gpointer value);
 
 /**
@@ -315,6 +324,15 @@ GList *purple_prefs_get_children_names(const char *name);
 
 /**
  * Add a callback to a pref (and its children)
+ *
+ * @param handle   The handle of the receiver.
+ * @param name     The name of the preference
+ * @param cb       The callback function
+ * @param data     The data to pass to the callback function.
+ *
+ * @return An id to disconnect the callback
+ *
+ * @see purple_prefs_disconnect_callback
  */
 guint purple_prefs_connect_callback(void *handle, const char *name, PurplePrefCallback cb,
 		gpointer data);

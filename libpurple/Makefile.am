@@ -1,5 +1,6 @@
 EXTRA_DIST = \
 		dbus-analyze-functions.py \
+		dbus-analyze-signals.py \
 		dbus-analyze-types.py \
 		marshallers.list \
 		purple-notifications-example \
@@ -31,7 +32,7 @@ endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = purple.pc
 
-SUBDIRS = $(GCONF_DIR) plugins protocols tests . example
+SUBDIRS = $(GCONF_DIR) plugins protocols . tests example
 
 purple_coresources = \
 	account.c \
@@ -52,7 +53,6 @@ purple_coresources = \
 	idle.c \
 	imgstore.c \
 	log.c \
-	marshallers.c \
 	media.c \
 	mediamanager.c \
 	mime.c \
@@ -92,6 +92,9 @@ purple_coresources = \
 	xmlnode.c \
 	whiteboard.c
 
+purple_builtsources = \
+	marshallers.c
+
 purple_coreheaders = \
 	account.h \
 	accountopt.h \
@@ -113,7 +116,6 @@ purple_coreheaders = \
 	idle.h \
 	imgstore.h \
 	log.h \
-	marshallers.h \
 	media.h \
 	media-gst.h \
 	mediamanager.h \
@@ -149,11 +151,12 @@ purple_coreheaders = \
 	theme-manager.h \
 	upnp.h \
 	util.h \
+	valgrind.h \
 	value.h \
 	xmlnode.h \
 	whiteboard.h
 
-purple_builtheaders = purple.h version.h
+purple_builtheaders = purple.h version.h marshallers.h
 
 marshallers.h: marshallers.list
 	@echo "Generating marshallers.h"
@@ -170,6 +173,7 @@ CLEANFILES = \
 	dbus-bindings.c \
 	dbus-client-binding.c \
 	dbus-client-binding.h \
+	dbus-signals.c \
 	dbus-types.c \
 	dbus-types.h \
 	marshallers.c \
@@ -190,6 +194,10 @@ dbus_exported = dbus-useful.h dbus-define-api.h account.h blist.h buddyicon.h \
 purple_build_coreheaders = $(addprefix $(srcdir)/, $(purple_coreheaders)) \
 		$(purple_builtheaders)
 dbus_build_exported = $(addprefix $(srcdir)/, $(dbus_exported))
+# We should probably make this better
+dbus_signals = $(addprefix $(srcdir)/, $(purple_coresources)) \
+	$(srcdir)/protocols/irc/irc.c \
+	$(srcdir)/protocols/jabber/libxmpp.c
 
 dbus-types.c: dbus-analyze-types.py $(purple_build_coreheaders)
 	cat $(purple_build_coreheaders) | $(PYTHON) $(srcdir)/dbus-analyze-types.py --pattern=PURPLE_DBUS_DEFINE_TYPE\(%s\) > $@
@@ -200,8 +208,11 @@ dbus-types.h: dbus-analyze-types.py $(purple_build_coreheaders)
 dbus-bindings.c: dbus-analyze-functions.py $(dbus_exported)
 	cat $(dbus_build_exported) | $(PYTHON) $(srcdir)/dbus-analyze-functions.py > $@
 
-dbus-server.$(OBJEXT): dbus-bindings.c dbus-types.c dbus-types.h
-dbus-server.lo: dbus-bindings.c dbus-types.c dbus-types.h
+dbus-signals.c: dbus-analyze-signals.py $(dbus_signals)
+	cat $(dbus_signals) | $(PYTHON) $(srcdir)/dbus-analyze-signals.py > $@
+
+dbus-server.$(OBJEXT): dbus-bindings.c dbus-signals.c dbus-types.c dbus-types.h
+dbus-server.lo: dbus-bindings.c dbus-signals.c dbus-types.c dbus-types.h
 $(libpurple_la_OBJECTS): dbus-types.h
 
 # libpurple-client
@@ -241,17 +252,17 @@ purple-client-example.$(OBJEXT): purple-client-bindings.h
 bin_SCRIPTS = purple-remote purple-send purple-send-async purple-url-handler
 
 BUILT_SOURCES = $(purple_builtheaders) \
+	$(purple_builtsources) \
+	dbus-bindings.c \
+	dbus-signals.c \
 	dbus-types.c \
 	dbus-types.h \
-	dbus-bindings.c \
-	marshallers.c \
-	marshallers.h \
 	purple-client-bindings.c \
 	purple-client-bindings.h
 
 else
 
-BUILT_SOURCES = $(purple_builtheaders)
+BUILT_SOURCES = $(purple_builtheaders) $(purple_builtsources)
 
 endif
 
@@ -259,10 +270,12 @@ lib_LTLIBRARIES = libpurple.la $(libpurple_client_lib)
 
 libpurple_la_SOURCES = \
 	$(purple_coresources) \
+	$(purple_builtsources) \
 	$(dbus_sources)
 
 noinst_HEADERS= \
-	internal.h 
+	internal.h \
+	valgrind.h
 
 libpurpleincludedir=$(includedir)/libpurple
 libpurpleinclude_HEADERS = \
@@ -280,12 +293,12 @@ libpurple_la_LIBADD = \
 	$(NETWORKMANAGER_LIBS) \
 	$(INTLLIBS) \
 	$(FARSIGHT_LIBS) \
-	$(GSTPROPS_LIBS) \
 	$(GSTREAMER_LIBS) \
+	$(GSTINTERFACES_LIBS) \
+	$(IDN_LIBS) \
 	-lm
 
 AM_CPPFLAGS = \
-	-DBR_PTHREADS=0 \
 	-DDATADIR=\"$(datadir)\" \
 	-DLIBDIR=\"$(libdir)/purple-$(PURPLE_MAJOR_VERSION)/\" \
 	-DLOCALEDIR=\"$(datadir)/locale\" \
@@ -295,8 +308,9 @@ AM_CPPFLAGS = \
 	$(DBUS_CFLAGS) \
 	$(LIBXML_CFLAGS) \
 	$(FARSIGHT_CFLAGS) \
-	$(GSTPROPS_CFLAGS) \
 	$(GSTREAMER_CFLAGS) \
+	$(GSTINTERFACES_CFLAGS) \
+	$(IDN_CFLAGS) \
 	$(NETWORKMANAGER_CFLAGS)
 
 # INSTALL_SSL_CERTIFICATES is true when SSL_CERTIFICATES_DIR is empty.

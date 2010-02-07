@@ -381,6 +381,7 @@ account_dnd_recv(GtkWidget *widget, GdkDragContext *dc, gint x, gint y,
 static void
 update_editable(PurpleConnection *gc, AccountPrefsDialog *dialog)
 {
+	GtkStyle *style;
 	gboolean set;
 	GList *l;
 
@@ -392,10 +393,21 @@ update_editable(PurpleConnection *gc, AccountPrefsDialog *dialog)
 
 	set = !(purple_account_is_connected(dialog->account) || purple_account_is_connecting(dialog->account));
 	gtk_widget_set_sensitive(dialog->protocol_menu, set);
-	gtk_widget_set_sensitive(dialog->username_entry, set);
+	gtk_editable_set_editable(GTK_EDITABLE(dialog->username_entry), set);
+	style = set ? NULL : gtk_widget_get_style(dialog->username_entry);
+	gtk_widget_modify_base(dialog->username_entry, GTK_STATE_NORMAL,
+			style ? &style->base[GTK_STATE_INSENSITIVE] : NULL);
 
-	for (l = dialog->user_split_entries ; l != NULL ; l = l->next)
-		gtk_widget_set_sensitive((GtkWidget *)l->data, set);
+	for (l = dialog->user_split_entries ; l != NULL ; l = l->next) {
+		if (GTK_IS_EDITABLE(l->data)) {
+			gtk_editable_set_editable(GTK_EDITABLE(l->data), set);
+			style = set ? NULL : gtk_widget_get_style(GTK_WIDGET(l->data));
+			gtk_widget_modify_base(GTK_WIDGET(l->data), GTK_STATE_NORMAL,
+					style ? &style->base[GTK_STATE_INSENSITIVE] : NULL);
+		} else {
+			gtk_widget_set_sensitive(GTK_WIDGET(l->data), set);
+		}
+	}
 }
 
 static void
@@ -413,7 +425,11 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 
 	if (dialog->protocol_menu != NULL)
 	{
+#if GTK_CHECK_VERSION(2,12,0)
+		g_object_ref(G_OBJECT(dialog->protocol_menu));
+#else
 		gtk_widget_ref(dialog->protocol_menu);
+#endif
 		hbox = g_object_get_data(G_OBJECT(dialog->protocol_menu), "container");
 		gtk_container_remove(GTK_CONTAINER(hbox), dialog->protocol_menu);
 	}
@@ -440,13 +456,21 @@ add_login_options(AccountPrefsDialog *dialog, GtkWidget *parent)
 	{
 		dialog->protocol_menu = pidgin_protocol_option_menu_new(
 				dialog->protocol_id, G_CALLBACK(set_account_protocol_cb), dialog);
+#if GTK_CHECK_VERSION(2,12,0)
+		g_object_ref(G_OBJECT(dialog->protocol_menu));
+#else
 		gtk_widget_ref(dialog->protocol_menu);
+#endif
 	}
 
 	hbox = add_pref_box(dialog, vbox, _("Pro_tocol:"), dialog->protocol_menu);
 	g_object_set_data(G_OBJECT(dialog->protocol_menu), "container", hbox);
 
+#if GTK_CHECK_VERSION(2,12,0)
+	g_object_unref(G_OBJECT(dialog->protocol_menu));
+#else
 	gtk_widget_unref(dialog->protocol_menu);
+#endif
 
 	/* Username */
 	dialog->username_entry = gtk_entry_new();
@@ -772,7 +796,7 @@ add_protocol_options(AccountPrefsDialog *dialog)
 	dialog->protocol_frame = vbox = gtk_vbox_new(FALSE, PIDGIN_HIG_BOX_SPACE);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), PIDGIN_HIG_BORDER);
 	gtk_notebook_insert_page(GTK_NOTEBOOK(dialog->notebook), vbox,
-			gtk_label_new_with_mnemonic(_("_Advanced")), 1);
+			gtk_label_new_with_mnemonic(_("Ad_vanced")), 1);
 	gtk_widget_show(vbox);
 
 	for (l = dialog->prpl_info->protocol_options; l != NULL; l = l->next)
@@ -1521,7 +1545,7 @@ pidgin_account_dialog_show(PidginAccountDialogType type,
 	dbox = gtk_vbox_new(FALSE, PIDGIN_HIG_BORDER);
 	gtk_container_set_border_width(GTK_CONTAINER(dbox), PIDGIN_HIG_BORDER);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), dbox,
-			gtk_label_new_with_mnemonic(_("_Proxy")));
+			gtk_label_new_with_mnemonic(_("P_roxy")));
 	gtk_widget_show(dbox);
 	add_proxy_options(dialog, dbox);
 
@@ -1978,8 +2002,9 @@ set_account(GtkListStore *store, GtkTreeIter *iter, PurpleAccount *account, GdkP
 				/* This is for when set_account() is called for a single account */
 				const char *path;
 				path = purple_prefs_get_path(PIDGIN_PREFS_ROOT "/accounts/buddyicon");
-				if (path != NULL)
+				if ((path != NULL) && (*path != '\0')) {
 					img = purple_imgstore_new_from_file(path);
+				}
 			}
 		} else {
 			img = purple_buddy_icons_find_account_icon(account);

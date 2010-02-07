@@ -716,9 +716,8 @@ purple_buddy_icons_find_account_icon(PurpleAccount *account)
 	if (read_icon_file(path, &data, &len))
 	{
 		g_free(path);
-		img = purple_buddy_icon_data_new(data, len, account_icon_file);
-		g_hash_table_insert(pointer_icon_cache, account, img);
-		return img;
+		img = purple_buddy_icons_set_account_icon(account, data, len);
+		return purple_imgstore_ref(img);
 	}
 	g_free(path);
 
@@ -753,6 +752,8 @@ purple_buddy_icons_set_account_icon(PurpleAccount *account,
 	}
 	unref_filename(old_icon);
 
+	old_img = g_hash_table_lookup(pointer_icon_cache, account);
+
 	if (img)
 		g_hash_table_insert(pointer_icon_cache, account, img);
 	else
@@ -770,7 +771,7 @@ purple_buddy_icons_set_account_icon(PurpleAccount *account,
 			prpl_info->set_buddy_icon(gc, img);
 	}
 
-	if ((old_img = g_hash_table_lookup(pointer_icon_cache, account)))
+	if (old_img)
 		purple_imgstore_unref(old_img);
 	else if (old_icon)
 	{
@@ -839,9 +840,8 @@ purple_buddy_icons_node_find_custom_icon(PurpleBlistNode *node)
 	if (read_icon_file(path, &data, &len))
 	{
 		g_free(path);
-		img = purple_buddy_icon_data_new(data, len, custom_icon_file);
-		g_hash_table_insert(pointer_icon_cache, node, img);
-		return img;
+		img = purple_buddy_icons_node_set_custom_icon(node, data, len);
+		return purple_imgstore_ref(img);
 	}
 	g_free(path);
 
@@ -1100,7 +1100,7 @@ migrate_buddy_icon(PurpleBlistNode *node, const char *setting_name,
 				PurpleAccount *account = purple_buddy_get_account((PurpleBuddy *)node);
 				const char *prpl_id = purple_account_get_protocol_id(account);
 
-				if (purple_strequal(prpl_id, "prpl-yahoo"))
+				if (g_str_equal(prpl_id, "prpl-yahoo") || g_str_equal(prpl_id, "prpl-yahoojp"))
 				{
 					int checksum = purple_blist_node_get_int(node, "icon_checksum");
 					if (checksum != 0)
@@ -1299,6 +1299,10 @@ purple_buddy_icons_uninit()
 	g_hash_table_destroy(icon_file_cache);
 	g_hash_table_destroy(pointer_icon_cache);
 	g_free(old_icons_dir);
+	g_free(cache_dir);
+
+	cache_dir = NULL;
+	old_icons_dir = NULL;
 }
 
 void purple_buddy_icon_get_scale_size(PurpleBuddyIconSpec *spec, int *width, int *height)

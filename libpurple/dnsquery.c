@@ -28,9 +28,14 @@
 #include "internal.h"
 #include "debug.h"
 #include "dnsquery.h"
+#include "network.h"
 #include "notify.h"
 #include "prefs.h"
 #include "util.h"
+
+#ifndef _WIN32
+#include <resolv.h>
+#endif
 
 #if (defined(__APPLE__) || defined (__unix__)) && !defined(__osf__)
 #define PURPLE_DNSQUERY_USE_FORK
@@ -73,6 +78,7 @@ struct _PurpleDnsQueryResolverProcess {
 };
 
 static GSList *free_dns_children = NULL;
+/* TODO: Make me a GQueue when we require >= glib 2.4 */
 static GSList *queued_requests = NULL;
 
 static int number_of_dns_children = 0;
@@ -113,8 +119,11 @@ purple_dnsquery_resolved(PurpleDnsQueryData *query_data, GSList *hosts)
 	 * Add the resolver to the list of available resolvers, and set it
 	 * to NULL so that it doesn't get destroyed along with the query_data
 	 */
-	free_dns_children = g_slist_prepend(free_dns_children, query_data->resolver);
-	query_data->resolver = NULL;
+	if (query_data->resolver)
+	{
+		free_dns_children = g_slist_prepend(free_dns_children, query_data->resolver);
+		query_data->resolver = NULL;
+	}
 #endif /* PURPLE_DNSQUERY_USE_FORK */
 
 	purple_dnsquery_destroy(query_data);
@@ -123,7 +132,7 @@ purple_dnsquery_resolved(PurpleDnsQueryData *query_data, GSList *hosts)
 static void
 purple_dnsquery_failed(PurpleDnsQueryData *query_data, const gchar *error_message)
 {
-	purple_debug_info("dnsquery", "%s\n", error_message);
+	purple_debug_error("dnsquery", "%s\n", error_message);
 	if (query_data->callback != NULL)
 		query_data->callback(NULL, query_data->data, error_message);
 	purple_dnsquery_destroy(query_data);
@@ -139,6 +148,43 @@ purple_dnsquery_ui_resolve(PurpleDnsQueryData *query_data)
 
 	return FALSE;
 }
+
+static gboolean
+resolve_ip(PurpleDnsQueryData *query_data)
+{
+	struct sockaddr_in sin;
+	if (inet_aton(query_data->hostname, &sin.sin_addr))
+	{
+		/*
+		 * The given "hostname" is actually an IP address, so we
+		 * don't need to do anything.
+		 */
+		GSList *hosts = NULL;
+		sin.sin_family = AF_INET;
+		sin.sin_port = htons(query_data->port);
+		hosts = g_slist_append(hosts, GINT_TO_POINTER(sizeof(sin)));
+		hosts = g_slist_append(hosts, g_memdup(&sin, sizeof(sin)));
+		purple_dnsquery_resolved(query_data, hosts);
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+#ifdef USE_IDN
+static gboolean
+dns_str_is_ascii(const char *name)
+{
+	guchar *c;
+	for (c = (guchar *)name; c && *c; ++c) {
+		if (*c > 0x7f)
+			return FALSE;
+	}
+
+	return TRUE;
+}
+#endif
 
 #if defined(PURPLE_DNSQUERY_USE_FORK)
 
@@ -199,6 +245,7 @@ purple_dnsquery_resolver_run(int child_out, int child_in, gboolean show_debug)
 	struct sockaddr_in sin;
 	const size_t addrlen = sizeof(sin);
 #endif
+	char *hostname;
 
 #ifdef HAVE_SIGNAL_H
 	purple_restore_default_signal_handlers();
@@ -243,6 +290,21 @@ purple_dnsquery_resolver_run(int child_out, int child_in, gboolean show_debug)
 			_exit(1);
 		}
 
+#ifdef USE_IDN
+		if (!dns_str_is_ascii(dns_params.hostname)) {
+			rc = purple_network_convert_idn_to_ascii(dns_params.hostname, &hostname);
+			if (rc != 0) {
+				write_to_parent(child_out, &rc, sizeof(rc));
+				if (show_debug)
+					fprintf(stderr, "dns[%d] Error: IDN conversion returned "
+							"%d\n", getpid(), rc);
+				dns_params.hostname[0] = '\0';
+				break;
+			}
+		} else /* intentional to execute the g_strdup */
+#endif
+		hostname = g_strdup(dns_params.hostname);
+
 		/* We have the hostname and port, now resolve the IP */
 
 #ifdef HAVE_GETADDRINFO
@@ -256,15 +318,19 @@ purple_dnsquery_resolver_run(int child_out, int child_in, gboolean show_debug)
 		 * library.
 		 */
 		hints.ai_socktype = SOCK_STREAM;
-		rc = getaddrinfo(dns_params.hostname, servname, &hints, &res);
+#ifdef AI_ADDRCONFIG
+		hints.ai_flags |= AI_ADDRCONFIG;
+#endif /* AI_ADDRCONFIG */
+		rc = getaddrinfo(hostname, servname, &hints, &res);
 		write_to_parent(child_out, &rc, sizeof(rc));
 		if (rc != 0) {
-			close(child_out);
 			if (show_debug)
 				printf("dns[%d] Error: getaddrinfo returned %d\n",
 					getpid(), rc);
 			dns_params.hostname[0] = '\0';
-			continue;
+			g_free(hostname);
+			hostname = NULL;
+			break;
 		}
 		tmp = res;
 		while (res) {
@@ -275,9 +341,9 @@ purple_dnsquery_resolver_run(int child_out, int child_in, gboolean show_debug)
 		}
 		freeaddrinfo(tmp);
 #else
-		if (!inet_aton(dns_params.hostname, &sin.sin_addr)) {
+		if (!inet_aton(hostname, &sin.sin_addr)) {
 			struct hostent *hp;
-			if (!(hp = gethostbyname(dns_params.hostname))) {
+			if (!(hp = gethostbyname(hostname))) {
 				write_to_parent(child_out, &h_errno, sizeof(int));
 				close(child_out);
 				if (show_debug)
@@ -298,6 +364,9 @@ purple_dnsquery_resolver_run(int child_out, int child_in, gboolean show_debug)
 #endif
 		write_to_parent(child_out, &zero, sizeof(zero));
 		dns_params.hostname[0] = '\0';
+
+		g_free(hostname);
+		hostname = NULL;
 	}
 
 	close(child_out);
@@ -325,7 +394,7 @@ cope_with_gdb_brokenness(void)
 		return;
 	already_done = TRUE;
 	ppid = getppid();
-	snprintf(s, sizeof(s), "/proc/%d/exe", ppid);
+	g_snprintf(s, sizeof(s), "/proc/%d/exe", ppid);
 	n = readlink(s, e, sizeof(e));
 	if(n < 0)
 		return;
@@ -568,8 +637,10 @@ host_resolved(gpointer data, gint source, PurpleInputCondition cond)
 		g_snprintf(message, sizeof(message), _("Error resolving %s: %d"),
 				query_data->hostname, err);
 #endif
-		purple_dnsquery_failed(query_data, message);
+		/* Re-read resolv.conf and friends in case DNS servers have changed */
+		res_init();
 
+		purple_dnsquery_failed(query_data, message);
 	} else if (rc > 0) {
 		/* Success! */
 		while (rc > 0) {
@@ -606,11 +677,19 @@ resolve_host(gpointer data)
 	query_data = data;
 	query_data->timeout = 0;
 
+	if (resolve_ip(query_data))
+	{
+		/* resolve_ip calls purple_dnsquery_resolved */
+		return FALSE;
+	}
+
 	if (purple_dnsquery_ui_resolve(query_data))
 	{
 		/* The UI is handling the resolve; we're done */
 		return FALSE;
 	}
+
+	queued_requests = g_slist_append(queued_requests, query_data);
 
 	handle_next_queued_request();
 
@@ -640,8 +719,6 @@ purple_dnsquery_a(const char *hostname, int port,
 		purple_dnsquery_destroy(query_data);
 		g_return_val_if_reached(NULL);
 	}
-
-	queued_requests = g_slist_append(queued_requests, query_data);
 
 	purple_debug_info("dns", "DNS query for '%s' queued\n", query_data->hostname);
 
@@ -691,8 +768,23 @@ dns_thread(gpointer data)
 	struct sockaddr_in sin;
 	struct hostent *hp;
 #endif
+	char *hostname;
 
 	query_data = data;
+
+#ifdef USE_IDN
+	if (!dns_str_is_ascii(query_data->hostname)) {
+		rc = purple_network_convert_idn_to_ascii(query_data->hostname, &hostname);
+		if (rc != 0) {
+			query_data->error_message = g_strdup_printf(_("Error converting %s "
+					"to punycode: %d"), query_data->hostname, rc);
+			/* back to main thread */
+			purple_timeout_add(0, dns_main_thread_cb, query_data);
+			return 0;
+		}
+	} else /* intentional fallthru */
+#endif
+	hostname = g_strdup(query_data->hostname);
 
 #ifdef HAVE_GETADDRINFO
 	g_snprintf(servname, sizeof(servname), "%d", query_data->port);
@@ -706,7 +798,10 @@ dns_thread(gpointer data)
 	 * library.
 	 */
 	hints.ai_socktype = SOCK_STREAM;
-	if ((rc = getaddrinfo(query_data->hostname, servname, &hints, &res)) == 0) {
+#ifdef AI_ADDRCONFIG
+	hints.ai_flags |= AI_ADDRCONFIG;
+#endif /* AI_ADDRCONFIG */
+	if ((rc = getaddrinfo(hostname, servname, &hints, &res)) == 0) {
 		tmp = res;
 		while(res) {
 			query_data->hosts = g_slist_append(query_data->hosts,
@@ -720,7 +815,7 @@ dns_thread(gpointer data)
 		query_data->error_message = g_strdup_printf(_("Error resolving %s:\n%s"), query_data->hostname, purple_gai_strerror(rc));
 	}
 #else
-	if ((hp = gethostbyname(query_data->hostname))) {
+	if ((hp = gethostbyname(hostname))) {
 		memset(&sin, 0, sizeof(struct sockaddr_in));
 		memcpy(&sin.sin_addr.s_addr, hp->h_addr, hp->h_length);
 		sin.sin_family = hp->h_addrtype;
@@ -734,6 +829,7 @@ dns_thread(gpointer data)
 		query_data->error_message = g_strdup_printf(_("Error resolving %s: %d"), query_data->hostname, h_errno);
 	}
 #endif
+	g_free(hostname);
 
 	/* back to main thread */
 	purple_timeout_add(0, dns_main_thread_cb, query_data);
@@ -745,7 +841,6 @@ static gboolean
 resolve_host(gpointer data)
 {
 	PurpleDnsQueryData *query_data;
-	struct sockaddr_in sin;
 	GError *err = NULL;
 
 	query_data = data;
@@ -757,20 +852,7 @@ resolve_host(gpointer data)
 		return FALSE;
 	}
 
-	if (inet_aton(query_data->hostname, &sin.sin_addr))
-	{
-		/*
-		 * The given "hostname" is actually an IP address, so we
-		 * don't need to do anything.
-		 */
-		GSList *hosts = NULL;
-		sin.sin_family = AF_INET;
-		sin.sin_port = htons(query_data->port);
-		hosts = g_slist_append(hosts, GINT_TO_POINTER(sizeof(sin)));
-		hosts = g_slist_append(hosts, g_memdup(&sin, sizeof(sin)));
-		purple_dnsquery_resolved(query_data, hosts);
-	}
-	else
+	if (!resolve_ip(query_data))
 	{
 		/*
 		 * Spin off a separate thread to perform the DNS lookup so
@@ -847,16 +929,34 @@ resolve_host(gpointer data)
 
 	if (!inet_aton(query_data->hostname, &sin.sin_addr)) {
 		struct hostent *hp;
-		if(!(hp = gethostbyname(query_data->hostname))) {
+		gchar *hostname;
+#ifdef USE_IDN
+		if (!dns_str_is_ascii(query_data->hostname)) {
+			int ret = purple_network_convert_idn_to_ascii(query_data->hostname,
+					&hostname);
+			if (ret != 0) {
+				char message[1024];
+				g_snprintf(message, sizeof(message), _("Error resolving %s: %d"),
+						query_data->hostname, ret);
+				purple_dnsquery_failed(query_data, message);
+				return FALSE;
+			}
+		} else /* fallthrough is intentional to the g_strdup */
+#endif
+		hostname = g_strdup(query_data->hostname);
+
+		if(!(hp = gethostbyname(hostname))) {
 			char message[1024];
 			g_snprintf(message, sizeof(message), _("Error resolving %s: %d"),
 					query_data->hostname, h_errno);
 			purple_dnsquery_failed(query_data, message);
+			g_free(hostname);
 			return FALSE;
 		}
 		memset(&sin, 0, sizeof(struct sockaddr_in));
 		memcpy(&sin.sin_addr.s_addr, hp->h_addr, hp->h_length);
 		sin.sin_family = hp->h_addrtype;
+		g_free(hostname);
 	} else
 		sin.sin_family = AF_INET;
 	sin.sin_port = htons(query_data->port);

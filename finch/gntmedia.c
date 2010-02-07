@@ -24,8 +24,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include <internal.h>
 #include "finch.h"
-
 #include "gntconv.h"
 #include "gntmedia.h"
 
@@ -37,11 +37,11 @@
 #include "cmds.h"
 #include "conversation.h"
 #include "debug.h"
-#include "media-gst.h"
 #include "mediamanager.h"
 
 /* An incredibly large part of the following is from gtkmedia.c */
 #ifdef USE_VV
+#include "media-gst.h"
 
 #undef hangup
 
@@ -156,7 +156,7 @@ finch_media_init (FinchMedia *media)
 {
 	media->priv = FINCH_MEDIA_GET_PRIVATE(media);
 
-	media->priv->calling = gnt_label_new(_("Calling ... "));
+	media->priv->calling = gnt_label_new(_("Calling..."));
 	media->priv->hangup = gnt_button_new(_("Hangup"));
 	media->priv->accept = gnt_button_new(_("Accept"));
 	media->priv->reject = gnt_button_new(_("Reject"));
@@ -254,16 +254,15 @@ finch_media_state_changed_cb(PurpleMedia *media, PurpleMediaState state,
 	} else if (state == PURPLE_MEDIA_STATE_NEW &&
 			sid != NULL && name != NULL && 
 			purple_media_is_initiator(media, sid, name) == FALSE) {
-		PurpleConnection *pc;
+		PurpleAccount *account;
 		PurpleBuddy *buddy;
 		const gchar *alias;
 		PurpleMediaSessionType type =
 				purple_media_get_session_type(media, sid);
 		gchar *message = NULL;
 
-		pc = purple_media_get_connection(gntmedia->priv->media);
-		buddy = purple_find_buddy(
-				purple_connection_get_account(pc), name);
+		account = purple_media_get_account(gntmedia->priv->media);
+		buddy = purple_find_buddy(account, name);
 		alias = buddy ? purple_buddy_get_contact_alias(buddy) :	name;
 
 		if (type & PURPLE_MEDIA_AUDIO) {
@@ -386,13 +385,12 @@ gntmedia_message_cb(FinchMedia *gntmedia, const char *msg, PurpleConversation *c
 
 static gboolean
 finch_new_media(PurpleMediaManager *manager, PurpleMedia *media,
-		PurpleConnection *gc, gchar *name, gpointer null)
+		PurpleAccount *account, gchar *name, gpointer null)
 {
 	GntWidget *gntmedia;
 	PurpleConversation *conv;
 
-	conv = purple_conversation_new(PURPLE_CONV_TYPE_IM,
-			purple_connection_get_account(gc), name);
+	conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, account, name);
 
 	gntmedia = finch_media_new(media);
 	g_signal_connect(G_OBJECT(gntmedia), "message", G_CALLBACK(gntmedia_message_cb), conv);
@@ -419,11 +417,7 @@ static GstElement *
 create_default_audio_src(PurpleMedia *media,
 		const gchar *session_id, const gchar *participant)
 {
-	GstElement *bin, *src, *volume;
-	GstPad *pad, *ghost;
-	double input_volume = purple_prefs_get_int(
-			"/finch/media/audio/volume/input")/10.0;
-
+	GstElement *src;
 	src = gst_element_factory_make("gconfaudiosrc", NULL);
 	if (src == NULL)
 		src = gst_element_factory_make("autoaudiosrc", NULL);
@@ -438,28 +432,15 @@ create_default_audio_src(PurpleMedia *media,
 				"element for the default audio source.\n");
 		return NULL;
 	}
-
-	bin = gst_bin_new("finchdefaultaudiosrc");
-	volume = gst_element_factory_make("volume", "purpleaudioinputvolume");
-	g_object_set(volume, "volume", input_volume, NULL);
-	gst_bin_add_many(GST_BIN(bin), src, volume, NULL);
-	gst_element_link(src, volume);
-	pad = gst_element_get_pad(volume, "src");
-	ghost = gst_ghost_pad_new("ghostsrc", pad);
-	gst_element_add_pad(bin, ghost);
-
-	return bin;
+	gst_element_set_name(src, "finchdefaultaudiosrc");
+	return src;
 }
 
 static GstElement *
 create_default_audio_sink(PurpleMedia *media,
 		const gchar *session_id, const gchar *participant)
 {
-	GstElement *bin, *sink, *volume, *queue;
-	GstPad *pad, *ghost;
-	double output_volume = purple_prefs_get_int(
-			"/finch/media/audio/volume/output")/10.0;
-
+	GstElement *sink;
 	sink = gst_element_factory_make("gconfaudiosink", NULL);
 	if (sink == NULL)
 		sink = gst_element_factory_make("autoaudiosink",NULL);
@@ -468,19 +449,7 @@ create_default_audio_sink(PurpleMedia *media,
 				"element for the default audio sink.\n");
 		return NULL;
 	}
-
-	bin = gst_bin_new("finchdefaultaudiosink");
-	volume = gst_element_factory_make("volume", "purpleaudiooutputvolume");
-	g_object_set(volume, "volume", output_volume, NULL);
-	queue = gst_element_factory_make("queue", NULL);
-	gst_bin_add_many(GST_BIN(bin), sink, volume, queue, NULL);
-	gst_element_link(volume, sink);
-	gst_element_link(queue, volume);
-	pad = gst_element_get_pad(queue, "sink");
-	ghost = gst_ghost_pad_new("ghostsink", pad);
-	gst_element_add_pad(bin, ghost);
-
-	return bin;
+	return sink;
 }
 #endif  /* USE_VV */
 
@@ -518,12 +487,6 @@ void finch_media_manager_init(void)
 	purple_debug_info("gntmedia", "Registering media element types\n");
 	purple_media_manager_set_active_element(manager, default_audio_src);
 	purple_media_manager_set_active_element(manager, default_audio_sink);
-
-	purple_prefs_add_none("/finch/media");
-	purple_prefs_add_none("/finch/media/audio");
-	purple_prefs_add_none("/finch/media/audio/volume");
-	purple_prefs_add_int("/finch/media/audio/volume/input", 10);
-	purple_prefs_add_int("/finch/media/audio/volume/output", 10);
 #endif
 }
 

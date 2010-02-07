@@ -53,13 +53,25 @@ typedef enum
 	CURRENT_MEDIA_OFFICE
 } CurrentMediaType;
 
-typedef struct _CurrentMedia
+/**
+ * Contains optional info about a user that is fairly uncommon.  We
+ * put this info in in a separate struct to save memory because we
+ * allocate an MsnUser struct for each buddy, but we generally only
+ * need this information for a small percentage of our buddies
+ * (usually less than 1%).  Putting it in a separate struct saves
+ * makes MsnUser smaller by the size of a few pointers.
+ */
+typedef struct _MsnUserExtendedInfo
 {
-	CurrentMediaType type;     /**< Type.   */
-	char *title;    /**< Title.  */
-	char *artist;   /**< Artist. */
-	char *album;    /**< Album.  */
-} CurrentMedia;
+	CurrentMediaType media_type; /**< Type of the user's current media.   */
+	char *media_title;  /**< Title of the user's current media.  */
+	char *media_artist; /**< Artist of the user's current media. */
+	char *media_album;  /**< Album of the user's current media.  */
+
+	char *phone_home;   /**< E.T. uses this.                     */
+	char *phone_work;   /**< Work phone number.                  */
+	char *phone_mobile; /**< Mobile phone number.                */
+} MsnUserExtendedInfo;
 
 /**
  * A user.
@@ -71,21 +83,14 @@ struct _MsnUser
 	char *passport;         /**< The passport account.          */
 	char *friendly_name;    /**< The friendly name.             */
 
-	char * uid;				/*< User Id							*/
+	char *uid;              /*< User ID                         */
 
 	const char *status;     /**< The state of the user.         */
 	char *statusline;       /**< The state of the user.         */
-	CurrentMedia media;     /**< Current media of the user.     */
 
 	gboolean idle;          /**< The idle state of the user.    */
 
-	struct
-	{
-		char *home;         /**< Home phone number.             */
-		char *work;         /**< Work phone number.             */
-		char *mobile;       /**< Mobile phone number.           */
-
-	} phone;
+	MsnUserExtendedInfo *extinfo; /**< Extended info for the user. */
 
 	gboolean authorized;    /**< Authorized to add this user.   */
 	gboolean mobile;        /**< Signed up with MSN Mobile.     */
@@ -103,8 +108,13 @@ struct _MsnUser
 
 	int list_op;            /**< Which lists the user is in     */
 
-	guint membership_id[5];	/**< The membershipId sent by the contacts server,
-				     indexed by the list it belongs to		*/
+	/**
+	 * The membershipId for this buddy on our pending list.  Sent by
+	 * the contact's server
+	 */
+	guint member_id_on_pending_list;
+
+	char *invite_message;   /**< Invite message of user request */
 };
 
 /**************************************************************************
@@ -148,14 +158,6 @@ void msn_user_update(MsnUser *user);
   *  @param state The statusline string.
   */
 void msn_user_set_statusline(MsnUser *user, const char *statusline);
-
- /**
-  *  Sets the current media of user.
-  *
-  *  @param user   The user.
-  *  @param cmedia Current media.
-  */
-void msn_user_set_currentmedia(MsnUser *user, const CurrentMedia *cmedia);
 
 /**
  * Sets the new state of user.
@@ -290,6 +292,14 @@ void msn_user_set_object(MsnUser *user, MsnObject *obj);
  */
 void msn_user_set_client_caps(MsnUser *user, GHashTable *info);
 
+/**
+ * Sets the invite message for a user.
+ *
+ * @param user    The user.
+ * @param message The invite message for a user.
+ */
+void msn_user_set_invite_message(MsnUser *user, const char *message);
+
 
 /**
  * Returns the passport account for a user.
@@ -371,6 +381,15 @@ MsnObject *msn_user_get_object(const MsnUser *user);
  * @return The client information.
  */
 GHashTable *msn_user_get_client_caps(const MsnUser *user);
+
+/**
+ * Returns the invite message for a user.
+ *
+ * @param user The user.
+ *
+ * @return The user's invite message.
+ */
+const char *msn_user_get_invite_message(const MsnUser *user);
 
 /**
  * check to see if user is online

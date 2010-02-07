@@ -3,6 +3,10 @@
  *
  * purple
  *
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -18,8 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#ifndef JINGLE_TRANSPORT_H
-#define JINGLE_TRANSPORT_H
+#ifndef PURPLE_JABBER_JINGLE_TRANSPORT_H
+#define PURPLE_JABBER_JINGLE_TRANSPORT_H
 
 #include <glib.h>
 #include <glib-object.h>
@@ -84,5 +88,5 @@ xmlnode *jingle_transport_to_xml(JingleTransport *transport, xmlnode *content, J
 
 G_END_DECLS
 
-#endif /* JINGLE_TRANSPORT_H */
+#endif /* PURPLE_JABBER_JINGLE_TRANSPORT_H */
 

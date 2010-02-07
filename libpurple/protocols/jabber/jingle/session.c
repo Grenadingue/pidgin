@@ -3,6 +3,10 @@
  *
  * purple
  *
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -356,13 +360,18 @@ jingle_session_get_pending_contents(JingleSession *session)
 JingleSession *
 jingle_session_find_by_sid(JabberStream *js, const gchar *sid)
 {
+	JingleSession *session = NULL;
+
+	if (js->sessions)
+		session = g_hash_table_lookup(js->sessions, sid);
+
 	purple_debug_info("jingle", "find_by_id %s\n", sid);
-	purple_debug_info("jingle", "lookup: %p\n", (js->sessions) ?
-			  g_hash_table_lookup(js->sessions, sid) : NULL);  
-	return (JingleSession *) (js->sessions) ?
-			  g_hash_table_lookup(js->sessions, sid) : NULL;
+	purple_debug_info("jingle", "lookup: %p\n", session);
+
+	return session;
 }
 
+#if GLIB_CHECK_VERSION(2,4,0)
 static gboolean find_by_jid_ghr(gpointer key,
 		gpointer value, gpointer user_data)
 {
@@ -373,7 +382,7 @@ static gboolean find_by_jid_ghr(gpointer key,
 	gchar *cmp_jid = use_bare ? jabber_get_bare_jid(remote_jid)
 				  : g_strdup(remote_jid);
 	g_free(remote_jid);
-	if (!strcmp(jid, cmp_jid)) {
+	if (g_str_equal(jid, cmp_jid)) {
 		g_free(cmp_jid);
 		return TRUE;
 	}
@@ -382,12 +391,58 @@ static gboolean find_by_jid_ghr(gpointer key,
 	return FALSE;
 }
 
+#else /* GLIB_CHECK_VERSION 2.4.0 */
+
+/* Ugly code; g_hash_table_find version above is much nicer */
+struct session_find_jid
+{
+	const gchar *jid;
+	JingleSession *ret;
+	gboolean use_bare;
+};
+
+static void find_by_jid_ghr(gpointer key, gpointer value, gpointer user_data)
+{
+	JingleSession *session = (JingleSession *)value;
+	struct session_find_jid *data = user_data;
+	gchar *remote_jid;
+	gchar *cmp_jid;
+
+	if (data->ret != NULL)
+		return;
+
+	remote_jid = jingle_session_get_remote_jid(session);
+	cmp_jid = data->use_bare ? jabber_get_bare_jid(remote_jid)
+				: g_strdup(remote_jid);
+	g_free(remote_jid);
+
+	if (g_str_equal(data->jid, cmp_jid))
+		data->ret = session;
+
+	g_free(cmp_jid);
+}
+#endif /* GLIB_CHECK_VERSION 2.4.0 */
+
 JingleSession *
 jingle_session_find_by_jid(JabberStream *js, const gchar *jid)
 {
+#if GLIB_CHECK_VERSION(2,4,0)
 	return js->sessions != NULL ?
 			g_hash_table_find(js->sessions,
 			find_by_jid_ghr, (gpointer)jid) : NULL; 
+#else
+	struct session_find_jid data;
+
+	if (js->sessions == NULL)
+		return NULL;
+
+	data.jid = jid;
+	data.ret = NULL;
+	data.use_bare = strchr(jid, '/') == NULL;
+
+	g_hash_table_foreach(js->sessions, find_by_jid_ghr, &data);
+	return data.ret;
+#endif
 }
 
 static xmlnode *

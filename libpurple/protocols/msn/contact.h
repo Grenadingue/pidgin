@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA
  */
 #ifndef _MSN_CONTACT_H_
 #define _MSN_CONTACT_H_
@@ -232,6 +232,17 @@
 		"</contactInfo>"\
 	"</Contact>"
 
+#define MSN_CONTACT_INVITE_MESSAGE_XML \
+	"<MessengerMemberInfo>"\
+		"<PendingAnnotations>"\
+			"<Annotation>"\
+				"<Name>MSN.IM.InviteMessage</Name>"\
+				"<Value>%s</Value>"\
+			"</Annotation>"\
+		"</PendingAnnotations>"\
+		"<DisplayName>%s</DisplayName>"\
+	"</MessengerMemberInfo>"
+
 #define MSN_ADD_CONTACT_TEMPLATE	"<?xml version=\"1.0\" encoding=\"utf-8\"?>"\
 "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\""\
 	" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""\
@@ -290,6 +301,7 @@
 				"<fGenerateMissingQuickName>true</fGenerateMissingQuickName>"\
 				"<EnableAllowListManagement>true</EnableAllowListManagement>"\
 			"</groupContactAddOptions>"\
+			"%s"\
 		"</ABGroupContactAdd>"\
 	"</soap:Body>"\
 "</soap:Envelope>"

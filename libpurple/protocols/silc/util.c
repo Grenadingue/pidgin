@@ -17,6 +17,7 @@
 
 */
 
+#include "internal.h"
 #include "silc.h"
 #include "silcclient.h"
 #include "silcpurple.h"
@@ -213,7 +214,7 @@ gboolean silcpurple_check_silc_dir(PurpleConnection *gc)
 						  ? "" : gc->password,
 						  NULL, NULL, FALSE)) {
 				purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_OTHER_ERROR,
-				                             _("Cannot create SILC key pair\n"));
+				                             _("Unable to create SILC key pair"));
 				return FALSE;
 			}
 
@@ -256,7 +257,7 @@ gboolean silcpurple_check_silc_dir(PurpleConnection *gc)
 						  ? "" : gc->password,
 						  NULL, NULL, FALSE)) {
 				purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_OTHER_ERROR,
-				                             _("Cannot create SILC key pair\n"));
+				                             _("Unable to create SILC key pair"));
 				return FALSE;
 			}
 

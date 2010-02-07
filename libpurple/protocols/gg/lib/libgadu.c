@@ -21,6 +21,8 @@
  *  USA.
  */
 
+#include "libgadu.h"
+
 #include <sys/types.h>
 #ifndef _WIN32
 #include <sys/wait.h>
@@ -57,7 +59,6 @@
 #endif
 
 #include "compat.h"
-#include "libgadu.h"
 
 int gg_debug_level = 0;
 void (*gg_debug_handler)(int level, const char *format, va_list ap) = NULL;
@@ -790,6 +791,7 @@ void *gg_recv_packet(struct gg_session *sess)
 		gg_debug(GG_DEBUG_MISC, "// gg_recv_packet() body recv(%d,%p,%d) = %d\n", sess->fd, buf + sizeof(h) + offset, size, ret);
 		if (!ret) {
 			gg_debug(GG_DEBUG_MISC, "// gg_recv_packet() body recv() failed: connection broken\n");
+			free(buf);
 			errno = ECONNRESET;
 			return NULL;
 		}

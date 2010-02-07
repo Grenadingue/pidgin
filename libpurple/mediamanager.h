@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
 #ifndef _PURPLE_MEDIA_MANAGER_H_
@@ -30,12 +30,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/** @copydoc _PurpleMediaManager */
+/** An opaque structure representing a group of (usually all) media calls. */
 typedef struct _PurpleMediaManager PurpleMediaManager;
-/** @copydoc _PurpleMediaManagerClass */
+/** The GObject class structure of the PurpleMediaManager object. */
 typedef struct _PurpleMediaManagerClass PurpleMediaManagerClass;
 
-#include "connection.h"
+#include "account.h"
 #include "media.h"
 
 G_BEGIN_DECLS
@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 /**************************************************************************/
-/** @cname Media Manager API                                              */
+/** @name Media Manager API                                              */
 /**************************************************************************/
 /*@{*/
 
@@ -78,16 +78,17 @@ PurpleMediaManager *purple_media_manager_get(void);
  * Creates a media session.
  *
  * @param manager The media manager to create the session under.
- * @param gc The connection to create the session on.
+ * @param account The account to create the session on.
  * @param conference_type The conference type to feed into Farsight2.
  * @param remote_user The remote user to initiate the session with.
+ * @param initiator TRUE if the local user is the initiator of this media call, FALSE otherwise.
  *
  * @return A newly created media session.
  *
  * @since 2.6.0
  */
 PurpleMedia *purple_media_manager_create_media(PurpleMediaManager *manager,
-						PurpleConnection *gc,
+						PurpleAccount *account,
 						const char *conference_type,
 						const char *remote_user,
 						gboolean initiator);
@@ -104,17 +105,17 @@ PurpleMedia *purple_media_manager_create_media(PurpleMediaManager *manager,
 GList *purple_media_manager_get_media(PurpleMediaManager *manager);
 
 /**
- * Gets all of the media sessions for a given connection.
+ * Gets all of the media sessions for a given account.
  *
  * @param manager The media manager to get the sessions from.
- * @param pc The connection the sessions are on.
+ * @param account The account the sessions are on.
  *
- * @return A list of the media sessions on the given connection.
+ * @return A list of the media sessions on the given account.
  *
  * @since 2.6.0
  */
-GList *purple_media_manager_get_media_by_connection(
-		PurpleMediaManager *manager, PurpleConnection *pc);
+GList *purple_media_manager_get_media_by_account(
+		PurpleMediaManager *manager, PurpleAccount *account);
 
 /**
  * Removes a media session from the media manager.

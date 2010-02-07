@@ -25,7 +25,7 @@
 #ifndef _YAHOO_FRIEND_H_
 #define _YAHOO_FRIEND_H_
 
-#include "yahoo.h"
+#include "libymsg.h"
 #include "yahoo_packet.h"
 
 typedef enum {
@@ -41,6 +41,7 @@ typedef enum {
 	YAHOO_P2PSTATUS_WE_ARE_CLIENT
 } YahooP2PStatus;
 
+
 /* these are called friends instead of buddies mainly so I can use variables
  * named f and not confuse them with variables named b
  */
@@ -54,9 +55,9 @@ typedef struct _YahooFriend {
 	gchar *ip;
 	gboolean bicon_sent_request;
 	YahooPresenceVisibility presence;
-	int protocol; /* 1=LCS, 2=MSN*/
+	YahooFederation fed; 
 	long int version_id;
-	gchar *alias_id;
+	YahooPersonalDetails ypd;
 	YahooP2PStatus p2p_status;
 	gboolean p2p_packet_sent;	/* 0:not sent, 1=sent */
 	gint session_id;	/* session id of friend */

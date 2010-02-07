@@ -1,4 +1,8 @@
 /*
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -11,18 +15,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor Boston, MA 02110-1301,  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#ifndef JABBER_DATA_H
-#define JABBER_DATA_H
+#ifndef PURPLE_JABBER_DATA_H
+#define PURPLE_JABBER_DATA_H
 
 #include "xmlnode.h"
 #include "jabber.h"
 
-#define XEP_0231_NAMESPACE "urn:xmpp:bob"
-
 #include <glib.h>
+
+#define JABBER_DATA_MAX_SIZE 8192
 
 typedef struct {
 	char *cid;
@@ -65,9 +69,10 @@ void jabber_data_associate_local(JabberData *data, const gchar *alt);
 void jabber_data_associate_remote(JabberData *data);
 
 /* handles iq requests */
-void jabber_data_parse(JabberStream *js, xmlnode *packet);
+void jabber_data_parse(JabberStream *js, const char *who, JabberIqType type,
+                       const char *id, xmlnode *data_node);
 
 void jabber_data_init(void);
 void jabber_data_uninit(void);
 
-#endif /* JABBER_DATA_H */
+#endif /* PURPLE_JABBER_DATA_H */

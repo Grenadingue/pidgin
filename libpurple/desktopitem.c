@@ -53,12 +53,12 @@
  * Boston, MA 02111-1301, USA.
  */
 
+#include "internal.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include "desktopitem.h"
-#include "internal.h"
 
 struct _PurpleDesktopItem {
 	int refcount;
@@ -831,11 +831,10 @@ lookup_locale (const PurpleDesktopItem *item, const char *key, const char *local
 static char *
 try_english_key (PurpleDesktopItem *item, const char *key)
 {
-	char *str;
+	char *str = NULL;
 	char *locales[] = { "en_US", "en_GB", "en_AU", "en", NULL };
 	int i;
 
-	str = NULL;
 	for (i = 0; locales[i] != NULL && str == NULL; i++) {
 		str = g_strdup (lookup_locale (item, key, locales[i]));
 	}

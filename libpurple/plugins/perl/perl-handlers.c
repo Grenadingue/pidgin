@@ -284,6 +284,8 @@ perl_signal_cb(va_list args, void *data)
 	DATATYPE **copy_args;
 
 	dSP;
+	PERL_SET_CONTEXT(my_perl);
+	SPAGAIN;
 	ENTER;
 	SAVETMPS;
 	PUSHMARK(sp);
@@ -364,7 +366,8 @@ perl_signal_cb(va_list args, void *data)
 					break;
 
 				case PURPLE_TYPE_STRING:
-					if (strcmp(*((char **)copy_args[i]), SvPVX(sv_args[i]))) {
+					if (!*((char **)copy_args[i]) || !SvPVX(sv_args[i]) ||
+							strcmp(*((char **)copy_args[i]), SvPVX(sv_args[i]))) {
 						g_free(*((char **)copy_args[i]));
 						*((char **)copy_args[i]) =
 							g_strdup(SvPVutf8_nolen(sv_args[i]));
@@ -646,6 +649,7 @@ purple_perl_cmd_register(PurplePlugin *plugin, const gchar *command,
 static void
 destroy_cmd_handler(PurplePerlCmdHandler *handler)
 {
+	purple_cmd_unregister(handler->id);
 	cmd_handlers = g_slist_remove(cmd_handlers, handler);
 
 	if (handler->callback != NULL)
@@ -702,7 +706,6 @@ purple_perl_cmd_unregister(PurpleCmdId id)
 		return;
 	}
 
-	purple_cmd_unregister(id);
 	destroy_cmd_handler(handler);
 }
 

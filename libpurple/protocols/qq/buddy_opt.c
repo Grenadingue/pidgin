@@ -22,8 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include "debug.h"
 #include "internal.h"
+#include "debug.h"
 #include "notify.h"
 #include "request.h"
 #include "privacy.h"
@@ -805,7 +805,7 @@ void qq_process_add_buddy_no_auth(PurpleConnection *gc,
 	dest_uid = segments[0];
 	reply = segments[1];
 	if (strtoul(dest_uid, NULL, 10) != qd->uid) {	/* should not happen */
-		purple_debug_error("QQ", "Add buddy reply is to [%s], not me!", dest_uid);
+		purple_debug_error("QQ", "Add buddy reply is to [%s], not me!\n", dest_uid);
 		g_strfreev(segments);
 		return;
 	}
@@ -822,7 +822,7 @@ void qq_process_add_buddy_no_auth(PurpleConnection *gc,
 		}
 		qq_request_get_buddies_online(gc, 0, 0);
 
-		purple_debug_info("QQ", "Successed adding into %u's buddy list", uid);
+		purple_debug_info("QQ", "Successed adding into %u's buddy list\n", uid);
 		g_strfreev(segments);
 		return;
 	}
@@ -868,7 +868,7 @@ void qq_process_add_buddy_no_auth_ex(PurpleConnection *gc,
 	g_return_if_fail(dest_uid == uid);
 
 	if (reply == 0x99) {
-		purple_debug_info("QQ", "Successed adding buddy %u\n", uid);
+		purple_debug_info("QQ", "Successfully added buddy %u\n", uid);
 		qq_buddy_find_or_new(gc, uid);
 
 		qq_request_buddy_info(gc, uid, 0, 0);
@@ -882,7 +882,7 @@ void qq_process_add_buddy_no_auth_ex(PurpleConnection *gc,
 	}
 
 	if (reply != 0) {
-		purple_debug_info("QQ", "Failed adding buddy %u, Unknow reply 0x%02X\n",
+		purple_debug_info("QQ", "Failed adding buddy %u, Unknown reply 0x%02X\n",
 			uid, reply);
 	}
 
@@ -1012,7 +1012,6 @@ void qq_process_buddy_check_code(PurpleConnection *gc, guint8 *data, gint data_l
 	guint16 flag1, flag2;
 
 	g_return_if_fail(data != NULL && data_len >= 5);
-	g_return_if_fail(uid != 0);
 
 	qd = (qq_data *) gc->proto_data;
 

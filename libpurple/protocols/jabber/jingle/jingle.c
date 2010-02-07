@@ -3,6 +3,10 @@
  *
  * purple - Jabber Protocol Plugin
  *
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -25,11 +29,12 @@
 #include "content.h"
 #include "debug.h"
 #include "jingle.h"
-#include <string.h>
 #include "session.h"
 #include "iceudp.h"
 #include "rawudp.h"
 #include "rtp.h"
+
+#include <string.h>
 
 GType
 jingle_get_type(const gchar *type)
@@ -111,7 +116,7 @@ jingle_handle_content_modify(JingleSession *session, xmlnode *jingle)
 		const gchar *creator = xmlnode_get_attrib(content, "creator");
 		JingleContent *local_content = jingle_session_find_content(session, name, creator);
 
-		if (content != NULL) {
+		if (local_content != NULL) {
 			const gchar *senders = xmlnode_get_attrib(content, "senders");
 			gchar *local_senders = jingle_content_get_senders(local_content);
 			if (strcmp(senders, local_senders))
@@ -359,28 +364,21 @@ jingle_get_action_type(const gchar *action)
 }
 
 void
-jingle_parse(JabberStream *js, xmlnode *packet)
+jingle_parse(JabberStream *js, const char *from, JabberIqType type,
+             const char *id, xmlnode *jingle)
 {
-	const gchar *type = xmlnode_get_attrib(packet, "type");
-	xmlnode *jingle;
 	const gchar *action;
 	const gchar *sid;
 	JingleActionType action_type;
 	JingleSession *session;
 
-	if (!type || strcmp(type, "set")) {
-		/* send iq error here */
-		return;
-	}
-
-	/* is this a Jingle package? */
-	if (!(jingle = xmlnode_get_child(packet, "jingle"))) {
-		/* send iq error here */
+	if (type != JABBER_IQ_SET) {
+		/* TODO: send iq error here */
 		return;
 	}
 
 	if (!(action = xmlnode_get_attrib(jingle, "action"))) {
-		/* send iq error here */
+		/* TODO: send iq error here */
 		return;
 	}
 
@@ -409,9 +407,10 @@ jingle_parse(JabberStream *js, xmlnode *packet)
 			/* send iq error */
 			return;
 		} else {
-			session = jingle_session_create(js, sid,
-					xmlnode_get_attrib(packet, "to"),
-					xmlnode_get_attrib(packet, "from"), FALSE);
+			char *own_jid = g_strdup_printf("%s@%s/%s", js->user->node,
+					js->user->domain, js->user->resource);
+			session = jingle_session_create(js, sid, own_jid, from, FALSE);
+			g_free(own_jid);
 		}
 	}
 
@@ -444,15 +443,15 @@ jingle_get_params(JabberStream *js, guint *num)
 	if (num_params > 0) {
 		params = g_new0(GParameter, num_params);
 
-		purple_debug_info("jabber", 
-						  "setting param stun-ip for stream using Google auto-config: %s\n",
-						  js->stun_ip);
+		purple_debug_info("jabber",
+			"setting param stun-ip for stream using auto-discovered IP: %s\n",
+			js->stun_ip);
 		params[0].name = "stun-ip";
 		g_value_init(&params[0].value, G_TYPE_STRING);
 		g_value_set_string(&params[0].value, js->stun_ip);
 		purple_debug_info("jabber", 
-						  "setting param stun-port for stream using Google auto-config: %d\n",
-						  js->stun_port);
+			"setting param stun-port for stream using auto-discovered port: %d\n",
+			js->stun_port);
 		params[1].name = "stun-port";
 		g_value_init(&params[1].value, G_TYPE_UINT);
 		g_value_set_uint(&params[1].value, js->stun_port);

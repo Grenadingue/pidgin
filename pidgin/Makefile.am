@@ -140,8 +140,6 @@ pidgin_headers = \
 	gtkcellrendererprogress.h \
 	gtkcellview.h \
 	gtkcellviewmenuitem.h \
-	gtkcellview.h \
-	gtkcellviewmenuitem.h \
 	gtkcertmgr.h \
 	pidgincombobox.h \
 	gtkconn.h \
@@ -216,7 +214,6 @@ INTGG_CFLAGS = -DUSE_INTERNAL_LIBGADU
 endif
 
 AM_CPPFLAGS = \
-	-DBR_PTHREADS=0 \
 	-DDATADIR=\"$(datadir)\" \
 	-DLIBDIR=\"$(libdir)/pidgin/\" \
 	-DLOCALEDIR=\"$(datadir)/locale\" \

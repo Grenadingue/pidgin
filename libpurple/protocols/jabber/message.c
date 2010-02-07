@@ -1,7 +1,9 @@
 /*
  * purple - Jabber Protocol Plugin
  *
- * Copyright (C) 2003, Nathan Walp <faceprint@faceprint.com>
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +26,7 @@
 #include "notify.h"
 #include "server.h"
 #include "util.h"
+#include "adhoccommands.h"
 #include "buddy.h"
 #include "chat.h"
 #include "data.h"
@@ -86,6 +89,13 @@ static void handle_chat(JabberMessage *jm)
 	}
 
 	if(!jm->xhtml && !jm->body) {
+		if (jbr) {
+			if (jm->chat_state != JM_STATE_NONE)
+				jbr->chat_states = JABBER_CHAT_STATES_SUPPORTED;
+			else
+				jbr->chat_states = JABBER_CHAT_STATES_UNSUPPORTED;
+		}
+
 		if(JM_STATE_COMPOSING == jm->chat_state) {
 			serv_got_typing(jm->js->gc, from, 0, PURPLE_TYPING);
 		} else if(JM_STATE_PAUSED == jm->chat_state) {
@@ -124,15 +134,10 @@ static void handle_chat(JabberMessage *jm)
 		}
 	} else {
 		if(jbr) {
-			if(JM_TS_JEP_0085 == (jm->typing_style & JM_TS_JEP_0085)) {
+			if (jm->chat_state != JM_STATE_NONE)
 				jbr->chat_states = JABBER_CHAT_STATES_SUPPORTED;
-			} else {
+			else
 				jbr->chat_states = JABBER_CHAT_STATES_UNSUPPORTED;
-			}
-
-			if(JM_TS_JEP_0022 == (jm->typing_style & JM_TS_JEP_0022)) {
-				jbr->capabilities |= JABBER_CAP_COMPOSING;
-			}
 
 			if(jbr->thread_id)
 				g_free(jbr->thread_id);
@@ -173,7 +178,7 @@ static void handle_headline(JabberMessage *jm)
 	for(etc = jm->etc; etc; etc = etc->next) {
 		xmlnode *x = etc->data;
 		const char *xmlns = xmlnode_get_namespace(x);
-		if(xmlns && !strcmp(xmlns, "jabber:x:oob")) {
+		if(xmlns && !strcmp(xmlns, NS_OOB_X_DATA)) {
 			xmlnode *url, *desc;
 			char *urltxt, *desctxt;
 
@@ -455,7 +460,7 @@ static void
 jabber_message_add_remote_smileys(const xmlnode *message)
 {
 	xmlnode *data_tag;
-	for (data_tag = xmlnode_get_child_with_namespace(message, "data", XEP_0231_NAMESPACE) ;
+	for (data_tag = xmlnode_get_child_with_namespace(message, "data", NS_BOB) ;
 		 data_tag ;
 		 data_tag = xmlnode_get_next_twin(data_tag)) {
 		const gchar *cid = xmlnode_get_attrib(data_tag, "cid");
@@ -477,7 +482,9 @@ typedef struct {
 } JabberDataRef;
 
 static void
-jabber_message_get_data_cb(JabberStream *js, xmlnode *packet, gpointer data)
+jabber_message_get_data_cb(JabberStream *js, const char *from,
+                           JabberIqType type, const char *id,
+                           xmlnode *packet, gpointer data)
 {
 	JabberDataRef *ref = (JabberDataRef *) data;
 	PurpleConversation *conv = ref->conv;
@@ -486,7 +493,7 @@ jabber_message_get_data_cb(JabberStream *js, xmlnode *packet, gpointer data)
 	xmlnode *item_not_found = xmlnode_get_child(packet, "item-not-found");
 
 	/* did we get a data element as result? */
-	if (data_element) {
+	if (data_element && type == JABBER_IQ_RESULT) {
 		JabberData *data = jabber_data_create_from_xml(data_element);
 
 		if (data) {
@@ -529,15 +536,25 @@ jabber_message_send_data_request(JabberStream *js, PurpleConversation *conv,
 void jabber_message_parse(JabberStream *js, xmlnode *packet)
 {
 	JabberMessage *jm;
-	const char *type;
+	const char *id, *from, *to, *type;
 	xmlnode *child;
+	gboolean signal_return;
+
+	from = xmlnode_get_attrib(packet, "from");
+	id   = xmlnode_get_attrib(packet, "id");
+	to   = xmlnode_get_attrib(packet, "to");
+	type = xmlnode_get_attrib(packet, "type");
+
+	signal_return = GPOINTER_TO_INT(purple_signal_emit_return_1(purple_connection_get_prpl(js->gc),
+			"jabber-receiving-message", js->gc, type, id, from, to, packet));
+	if (signal_return)
+		return;
 
 	jm = g_new0(JabberMessage, 1);
 	jm->js = js;
 	jm->sent = time(NULL);
 	jm->delayed = FALSE;
-
-	type = xmlnode_get_attrib(packet, "type");
+	jm->chat_state = JM_STATE_NONE;
 
 	if(type) {
 		if(!strcmp(type, "normal"))
@@ -556,9 +573,9 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 		jm->type = JABBER_MESSAGE_NORMAL;
 	}
 
-	jm->from = g_strdup(xmlnode_get_attrib(packet, "from"));
-	jm->to = g_strdup(xmlnode_get_attrib(packet, "to"));
-	jm->id = g_strdup(xmlnode_get_attrib(packet, "id"));
+	jm->from = g_strdup(from);
+	jm->to   = g_strdup(to);
+	jm->id   = g_strdup(id);
 
 	for(child = packet->child; child; child = child->next) {
 		const char *xmlns = xmlnode_get_namespace(child);
@@ -594,24 +611,26 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 				jm->etc = g_list_append(jm->etc, child);
 			/* The following tests expect xmlns != NULL */
 			continue;
-		} else if(!strcmp(child->name, "subject") && !strcmp(xmlns,"jabber:client")) {
-			if(!jm->subject)
+		} else if(!strcmp(child->name, "subject") && !strcmp(xmlns, NS_XMPP_CLIENT)) {
+			if(!jm->subject) {
 				jm->subject = xmlnode_get_data(child);
-		} else if(!strcmp(child->name, "thread") && !strcmp(xmlns,"jabber:client")) {
+				if(!jm->subject)
+					jm->subject = g_strdup("");
+			}
+		} else if(!strcmp(child->name, "thread") && !strcmp(xmlns, NS_XMPP_CLIENT)) {
 			if(!jm->thread_id)
 				jm->thread_id = xmlnode_get_data(child);
-		} else if(!strcmp(child->name, "body") && !strcmp(xmlns,"jabber:client")) {
+		} else if(!strcmp(child->name, "body") && !strcmp(xmlns, NS_XMPP_CLIENT)) {
 			if(!jm->body) {
 				char *msg = xmlnode_to_str(child, NULL);
 				jm->body = purple_strdup_withhtml(msg);
 				g_free(msg);
 			}
-		} else if(!strcmp(child->name, "html") && !strcmp(xmlns,"http://jabber.org/protocol/xhtml-im")) {
+		} else if(!strcmp(child->name, "html") && !strcmp(xmlns, NS_XHTML_IM)) {
 			if(!jm->xhtml && xmlnode_get_child(child, "body")) {
 				char *c;
 
 				const PurpleConnection *gc = js->gc;
-				const gchar *who = xmlnode_get_attrib(packet, "from");
 				PurpleAccount *account = purple_connection_get_account(gc);
 				PurpleConversation *conv = NULL;
 				GList *smiley_refs = NULL;
@@ -624,24 +643,28 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 					purple_debug_info("jabber", "found %d smileys\n",
 						g_list_length(smiley_refs));
 
-					if (jm->type == JABBER_MESSAGE_GROUPCHAT) {
-						JabberID *jid = jabber_id_new(jm->from);
-						JabberChat *chat = NULL;
+					if (smiley_refs) {
+						if (jm->type == JABBER_MESSAGE_GROUPCHAT) {
+							JabberID *jid = jabber_id_new(jm->from);
+							JabberChat *chat = NULL;
 
-						if (jid) {
-							chat = jabber_chat_find(js, jid->node, jid->domain);
-							if (chat) conv = chat->conv;
-						}
-
-						jabber_id_free(jid);
-					} else {
-						conv =
-							purple_find_conversation_with_account(PURPLE_CONV_TYPE_ANY,
-								who, account);
-						if (!conv) {
-							/* we need to create the conversation here */
-							conv = purple_conversation_new(PURPLE_CONV_TYPE_IM,
-								account, who);
+							if (jid) {
+								chat = jabber_chat_find(js, jid->node, jid->domain);
+								if (chat)
+									conv = chat->conv;
+								jabber_id_free(jid);
+							}
+						} else if (jm->type == JABBER_MESSAGE_NORMAL ||
+						           jm->type == JABBER_MESSAGE_CHAT) {
+							conv =
+								purple_find_conversation_with_account(PURPLE_CONV_TYPE_ANY,
+									from, account);
+							if (!conv) {
+								/* we need to create the conversation here */
+								conv =
+									purple_conversation_new(PURPLE_CONV_TYPE_IM,
+									account, from);
+							}
 						}
 					}
 
@@ -673,7 +696,7 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 						    TRUE)) {
 						const JabberData *data =
 								jabber_data_find_remote_by_cid(cid);
-						/* if data is already known, we add write it immediatly */
+						/* if data is already known, we write it immediatly */
 						if (data) {
 							purple_debug_info("jabber",
 								"data is already known\n");
@@ -685,7 +708,7 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 							/* we need to request the smiley (data) */
 							purple_debug_info("jabber",
 								"data is unknown, need to request it\n");
-							jabber_message_send_data_request(js, conv, cid, who,
+							jabber_message_send_data_request(js, conv, cid, from,
 								alt);
 						}
 					}
@@ -704,39 +727,28 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 			}
 		} else if(!strcmp(child->name, "active") && !strcmp(xmlns,"http://jabber.org/protocol/chatstates")) {
 			jm->chat_state = JM_STATE_ACTIVE;
-			jm->typing_style |= JM_TS_JEP_0085;
 		} else if(!strcmp(child->name, "composing") && !strcmp(xmlns,"http://jabber.org/protocol/chatstates")) {
 			jm->chat_state = JM_STATE_COMPOSING;
-			jm->typing_style |= JM_TS_JEP_0085;
 		} else if(!strcmp(child->name, "paused") && !strcmp(xmlns,"http://jabber.org/protocol/chatstates")) {
 			jm->chat_state = JM_STATE_PAUSED;
-			jm->typing_style |= JM_TS_JEP_0085;
 		} else if(!strcmp(child->name, "inactive") && !strcmp(xmlns,"http://jabber.org/protocol/chatstates")) {
 			jm->chat_state = JM_STATE_INACTIVE;
-			jm->typing_style |= JM_TS_JEP_0085;
 		} else if(!strcmp(child->name, "gone") && !strcmp(xmlns,"http://jabber.org/protocol/chatstates")) {
 			jm->chat_state = JM_STATE_GONE;
-			jm->typing_style |= JM_TS_JEP_0085;
 		} else if(!strcmp(child->name, "event") && !strcmp(xmlns,"http://jabber.org/protocol/pubsub#event")) {
 			xmlnode *items;
 			jm->type = JABBER_MESSAGE_EVENT;
 			for(items = xmlnode_get_child(child,"items"); items; items = items->next)
 				jm->eventitems = g_list_append(jm->eventitems, items);
-		} else if(!strcmp(child->name, "attention") && !strcmp(xmlns, XEP_0224_NAMESPACE)) {
+		} else if(!strcmp(child->name, "attention") && !strcmp(xmlns, NS_ATTENTION)) {
 			jm->hasBuzz = TRUE;
-		} else if(!strcmp(child->name, "delay") && !strcmp(xmlns,"urn:xmpp:delay")) {
+		} else if(!strcmp(child->name, "delay") && !strcmp(xmlns, NS_DELAYED_DELIVERY)) {
 			const char *timestamp = xmlnode_get_attrib(child, "stamp");
 			jm->delayed = TRUE;
 			if(timestamp)
 				jm->sent = purple_str_to_time(timestamp, TRUE, NULL, NULL, NULL);
 		} else if(!strcmp(child->name, "x")) {
-			if(!strcmp(xmlns, "jabber:x:event")) {
-				if(xmlnode_get_child(child, "composing")) {
-					if(jm->chat_state == JM_STATE_ACTIVE)
-						jm->chat_state = JM_STATE_COMPOSING;
-					jm->typing_style |= JM_TS_JEP_0022;
-				}
-			} else if(!strcmp(xmlns, "jabber:x:delay")) {
+			if(!strcmp(xmlns, NS_DELAYED_DELIVERY_LEGACY)) {
 				const char *timestamp = xmlnode_get_attrib(child, "stamp");
 				jm->delayed = TRUE;
 				if(timestamp)
@@ -746,9 +758,22 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 					jm->type != JABBER_MESSAGE_ERROR) {
 				const char *jid = xmlnode_get_attrib(child, "jid");
 				if(jid) {
+					const char *reason = xmlnode_get_attrib(child, "reason");
+					const char *password = xmlnode_get_attrib(child, "password");
+
 					jm->type = JABBER_MESSAGE_GROUPCHAT_INVITE;
 					g_free(jm->to);
 					jm->to = g_strdup(jid);
+
+					if (reason) {
+						g_free(jm->body);
+						jm->body = g_strdup(reason);
+					}
+
+					if (password) {
+						g_free(jm->password);
+						jm->password = g_strdup(password);
+					}
 				}
 			} else if(!strcmp(xmlns, "http://jabber.org/protocol/muc#user") &&
 					jm->type != JABBER_MESSAGE_ERROR) {
@@ -763,13 +788,21 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 						g_free(jm->body);
 						jm->body = xmlnode_get_data(reason);
 					}
-					if((password = xmlnode_get_child(child, "password")))
+					if((password = xmlnode_get_child(child, "password"))) {
+						g_free(jm->password);
 						jm->password = xmlnode_get_data(password);
+					}
 
 					jm->type = JABBER_MESSAGE_GROUPCHAT_INVITE;
 				}
 			} else {
 				jm->etc = g_list_append(jm->etc, child);
+			}
+		} else if (g_str_equal(child->name, "query")) {
+			const char *node = xmlnode_get_attrib(child, "node");
+			if (purple_strequal(xmlns, NS_DISCO_ITEMS)
+					&& purple_strequal(node, "http://jabber.org/protocol/commands")) {
+				jabber_adhoc_got_list(js, jm->from, child);
 			}
 		}
 	}
@@ -778,6 +811,10 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 		handle_buzz(jm);
 
 	switch(jm->type) {
+		case JABBER_MESSAGE_OTHER:
+			purple_debug_info("jabber",
+					"Received message of unknown type: %s\n", type);
+			/* Fall-through is intentional */
 		case JABBER_MESSAGE_NORMAL:
 		case JABBER_MESSAGE_CHAT:
 			handle_chat(jm);
@@ -796,10 +833,6 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 			break;
 		case JABBER_MESSAGE_ERROR:
 			handle_error(jm);
-			break;
-		case JABBER_MESSAGE_OTHER:
-			purple_debug(PURPLE_DEBUG_INFO, "jabber",
-					"Received message of unknown type: %s\n", type);
 			break;
 	}
 	jabber_message_free(jm);
@@ -829,6 +862,7 @@ jabber_message_xhtml_find_smileys(const char *xhtml)
 
 	for (; smileys ; smileys = g_list_delete_link(smileys, smileys)) {
 		PurpleSmiley *smiley = (PurpleSmiley *) smileys->data;
+
 		const gchar *shortcut = purple_smiley_get_shortcut(smiley);
 		const gssize len = strlen(shortcut);
 
@@ -896,11 +930,12 @@ jabber_message_get_smileyfied_xhtml(const gchar *xhtml, const GList *smileys)
 
 static gboolean
 jabber_conv_support_custom_smileys(const PurpleConnection *gc,
-								   const PurpleConversation *conv,
+								   PurpleConversation *conv,
 								   const gchar *who)
 {
 	JabberStream *js = (JabberStream *) gc->proto_data;
 	JabberBuddy *jb;
+	JabberChat *chat;
 
 	if (!js) {
 		purple_debug_error("jabber",
@@ -909,11 +944,22 @@ jabber_conv_support_custom_smileys(const PurpleConnection *gc,
 	}
 
 	switch (purple_conversation_get_type(conv)) {
-		/* for the time being, we will not support custom smileys in MUCs */
 		case PURPLE_CONV_TYPE_IM:
 			jb = jabber_buddy_find(js, who, FALSE);
 			if (jb) {
-				return jabber_buddy_has_capability(jb, XEP_0231_NAMESPACE);
+				return jabber_buddy_has_capability(jb, NS_BOB);
+			} else {
+				return FALSE;
+			}
+			break;
+		case PURPLE_CONV_TYPE_CHAT:
+			chat = jabber_chat_find_by_conv(conv);
+			if (chat) {
+				/* do not attempt to send custom smileys in a MUC with more than
+				 10 people, to avoid getting too many BoB requests */
+				return jabber_chat_get_num_participants(chat) <= 10 &&
+					jabber_chat_all_participants_have_capability(chat,
+						NS_BOB);
 			} else {
 				return FALSE;
 			}
@@ -922,6 +968,74 @@ jabber_conv_support_custom_smileys(const PurpleConnection *gc,
 			return FALSE;
 			break;
 	}
+}
+
+static char *
+jabber_message_smileyfy_xhtml(JabberMessage *jm, const char *xhtml)
+{
+	PurpleAccount *account = purple_connection_get_account(jm->js->gc);
+	PurpleConversation *conv =
+		purple_find_conversation_with_account(PURPLE_CONV_TYPE_ANY, jm->to,
+			account);
+
+	if (jabber_conv_support_custom_smileys(jm->js->gc, conv, jm->to)) {
+		GList *found_smileys = jabber_message_xhtml_find_smileys(xhtml);
+
+		if (found_smileys) {
+			gchar *smileyfied_xhtml = NULL;
+			const GList *iterator;
+			GList *valid_smileys = NULL;
+			gboolean has_too_large_smiley = FALSE;
+			
+			for (iterator = found_smileys; iterator ;
+				iterator = g_list_next(iterator)) {
+				PurpleSmiley *smiley = (PurpleSmiley *) iterator->data;
+				const gchar *shortcut = purple_smiley_get_shortcut(smiley);
+				const JabberData *data =
+					jabber_data_find_local_by_alt(shortcut);
+				PurpleStoredImage *image = purple_smiley_get_stored_image(smiley);
+
+				if (purple_imgstore_get_size(image) <= JABBER_DATA_MAX_SIZE) {
+					/* the object has not been sent before */
+					if (!data) {
+						const gchar *ext = purple_imgstore_get_extension(image);
+						JabberStream *js = jm->js;
+
+						JabberData *new_data =
+							jabber_data_create_from_data(purple_imgstore_get_data(image),
+								purple_imgstore_get_size(image),
+								jabber_message_get_mimetype_from_ext(ext), js);
+						purple_debug_info("jabber",
+							"cache local smiley alt = %s, cid = %s\n",
+							shortcut, jabber_data_get_cid(new_data));
+						jabber_data_associate_local(new_data, shortcut);
+					}
+					valid_smileys = g_list_append(valid_smileys, smiley);
+				} else {
+					has_too_large_smiley = TRUE;
+					purple_debug_warning("jabber", "Refusing to send smiley %s "
+							"(too large, max is %d)\n",
+							purple_smiley_get_shortcut(smiley),
+							JABBER_DATA_MAX_SIZE);
+				}				
+			}
+
+			if (has_too_large_smiley) {
+				purple_conversation_write(conv, NULL,
+				    _("A custom smiley in the message is too large to send."),
+					PURPLE_MESSAGE_ERROR, time(NULL));
+			}
+
+			smileyfied_xhtml =
+				jabber_message_get_smileyfied_xhtml(xhtml, valid_smileys);
+			g_list_free(found_smileys);
+			g_list_free(valid_smileys);
+
+			return smileyfied_xhtml;
+		}
+	}
+
+	return NULL;
 }
 
 void jabber_message_send(JabberMessage *jm)
@@ -967,36 +1081,30 @@ void jabber_message_send(JabberMessage *jm)
 		xmlnode_insert_data(child, jm->thread_id, -1);
 	}
 
-	if(JM_TS_JEP_0022 == (jm->typing_style & JM_TS_JEP_0022)) {
-		child = xmlnode_new_child(message, "x");
-		xmlnode_set_namespace(child, "jabber:x:event");
-		if(jm->chat_state == JM_STATE_COMPOSING || jm->body)
-			xmlnode_new_child(child, "composing");
+	child = NULL;
+	switch(jm->chat_state)
+	{
+		case JM_STATE_ACTIVE:
+			child = xmlnode_new_child(message, "active");
+			break;
+		case JM_STATE_COMPOSING:
+			child = xmlnode_new_child(message, "composing");
+			break;
+		case JM_STATE_PAUSED:
+			child = xmlnode_new_child(message, "paused");
+			break;
+		case JM_STATE_INACTIVE:
+			child = xmlnode_new_child(message, "inactive");
+			break;
+		case JM_STATE_GONE:
+			child = xmlnode_new_child(message, "gone");
+			break;
+		case JM_STATE_NONE:
+			/* yep, nothing */
+			break;
 	}
-
-	if(JM_TS_JEP_0085 == (jm->typing_style & JM_TS_JEP_0085)) {
-		child = NULL;
-		switch(jm->chat_state)
-		{
-			case JM_STATE_ACTIVE:
-				child = xmlnode_new_child(message, "active");
-				break;
-			case JM_STATE_COMPOSING:
-				child = xmlnode_new_child(message, "composing");
-				break;
-			case JM_STATE_PAUSED:
-				child = xmlnode_new_child(message, "paused");
-				break;
-			case JM_STATE_INACTIVE:
-				child = xmlnode_new_child(message, "inactive");
-				break;
-			case JM_STATE_GONE:
-				child = xmlnode_new_child(message, "gone");
-				break;
-		}
-		if(child)
-			xmlnode_set_namespace(child, "http://jabber.org/protocol/chatstates");
-	}
+	if(child)
+		xmlnode_set_namespace(child, "http://jabber.org/protocol/chatstates");
 
 	if(jm->subject) {
 		child = xmlnode_new_child(message, "subject");
@@ -1009,59 +1117,10 @@ void jabber_message_send(JabberMessage *jm)
 	}
 
 	if(jm->xhtml) {
-		PurpleAccount *account = purple_connection_get_account(jm->js->gc);
-		PurpleConversation *conv =
-			purple_find_conversation_with_account(PURPLE_CONV_TYPE_ANY, jm->to,
-				account);
-
-		if (jabber_conv_support_custom_smileys(jm->js->gc, conv, jm->to)) {
-			GList *found_smileys = jabber_message_xhtml_find_smileys(jm->xhtml);
-
-			if (found_smileys) {
-				gchar *smileyfied_xhtml = NULL;
-				const GList *iterator;
-
-				for (iterator = found_smileys; iterator ;
-					iterator = g_list_next(iterator)) {
-					const PurpleSmiley *smiley =
-							(PurpleSmiley *) iterator->data;
-					const gchar *shortcut = purple_smiley_get_shortcut(smiley);
-					const JabberData *data =
-						jabber_data_find_local_by_alt(shortcut);
-
-					/* the object has not been sent before */
-					if (!data) {
-						PurpleStoredImage *image =
-								purple_smiley_get_stored_image(smiley);
-						const gchar *ext = purple_imgstore_get_extension(image);
-						JabberStream *js = jm->js;
-
-						JabberData *new_data =
-							jabber_data_create_from_data(purple_imgstore_get_data(image),
-								purple_imgstore_get_size(image),
-								jabber_message_get_mimetype_from_ext(ext), js);
-						purple_debug_info("jabber",
-							"cache local smiley alt = %s, cid = %s\n",
-							shortcut, jabber_data_get_cid(new_data));
-						jabber_data_associate_local(new_data, shortcut);
-					}
-				}
-
-				smileyfied_xhtml =
-					jabber_message_get_smileyfied_xhtml(jm->xhtml, found_smileys);
-				child = xmlnode_from_str(smileyfied_xhtml, -1);
-				g_free(smileyfied_xhtml);
-				g_list_free(found_smileys);
-			} else {
-				child = xmlnode_from_str(jm->xhtml, -1);
-			}
-		} else {
-			child = xmlnode_from_str(jm->xhtml, -1);
-		}
-		if(child) {
+		if ((child = xmlnode_from_str(jm->xhtml, -1))) {
 			xmlnode_insert_child(message, child);
 		} else {
-			purple_debug(PURPLE_DEBUG_ERROR, "jabber",
+			purple_debug_error("jabber",
 					"XHTML translation/validation failed, returning: %s\n",
 					jm->xhtml);
 		}
@@ -1072,14 +1131,51 @@ void jabber_message_send(JabberMessage *jm)
 	xmlnode_free(message);
 }
 
+/*
+ * Compare the XHTML and plain strings passed in for "equality". Any HTML markup
+ * other than <br/> (matches a newline) in the XHTML will cause this to return
+ * FALSE.
+ */
+static gboolean
+jabber_xhtml_plain_equal(const char *xhtml_escaped,
+                         const char *plain)
+{
+	int i = 0;
+	int j = 0;
+	gboolean ret;
+	char *xhtml = purple_unescape_html(xhtml_escaped);
+
+	while (xhtml[i] && plain[j]) {
+		if (xhtml[i] == plain[j]) {
+			i += 1;
+			j += 1;
+			continue;
+		}
+
+		if (plain[j] == '\n' && !strncmp(xhtml+i, "<br/>", 5)) {
+			i += 5;
+			j += 1;
+			continue;
+		}
+
+		g_free(xhtml);
+		return FALSE;
+	}
+
+	/* Are we at the end of both strings? */
+	ret = (xhtml[i] == plain[j]) && (xhtml[i] == '\0');
+	g_free(xhtml);
+	return ret;
+}
+
 int jabber_message_send_im(PurpleConnection *gc, const char *who, const char *msg,
 		PurpleMessageFlags flags)
 {
 	JabberMessage *jm;
 	JabberBuddy *jb;
 	JabberBuddyResource *jbr;
-	char *buf;
 	char *xhtml;
+	char *tmp;
 	char *resource;
 
 	if(!who || !msg)
@@ -1098,31 +1194,41 @@ int jabber_message_send_im(PurpleConnection *gc, const char *who, const char *ms
 	jm->chat_state = JM_STATE_ACTIVE;
 	jm->to = g_strdup(who);
 	jm->id = jabber_get_next_id(jm->js);
-	jm->chat_state = JM_STATE_ACTIVE;
 
 	if(jbr) {
 		if(jbr->thread_id)
 			jm->thread_id = jbr->thread_id;
 
-		if(jbr->chat_states != JABBER_CHAT_STATES_UNSUPPORTED) {
-			jm->typing_style |= JM_TS_JEP_0085;
+		if (jbr->chat_states == JABBER_CHAT_STATES_UNSUPPORTED)
+			jm->chat_state = JM_STATE_NONE;
+		else {
 			/* if(JABBER_CHAT_STATES_UNKNOWN == jbr->chat_states)
 			   jbr->chat_states = JABBER_CHAT_STATES_UNSUPPORTED; */
 		}
-
-		if(jbr->chat_states != JABBER_CHAT_STATES_SUPPORTED)
-			jm->typing_style |= JM_TS_JEP_0022;
 	}
 
-	buf = g_strdup_printf("<html xmlns='http://jabber.org/protocol/xhtml-im'><body xmlns='http://www.w3.org/1999/xhtml'>%s</body></html>", msg);
+	tmp = purple_utf8_strip_unprintables(msg);
+	purple_markup_html_to_xhtml(tmp, &xhtml, &jm->body);
+	g_free(tmp);
 
-	purple_markup_html_to_xhtml(buf, &xhtml, &jm->body);
-	g_free(buf);
-
-	if(!jbr || jbr->capabilities & JABBER_CAP_XHTML)
-		jm->xhtml = xhtml;
-	else
+	tmp = jabber_message_smileyfy_xhtml(jm, xhtml);
+	if (tmp) {
 		g_free(xhtml);
+		xhtml = tmp;
+	}
+
+	/*
+	 * For backward compatibility with user expectations or for those not on
+	 * the user's roster, allow sending XHTML-IM markup.
+	 */
+	if (!jbr || !jbr->caps.info ||
+			jabber_resource_has_capability(jbr, NS_XHTML_IM)) {
+		if (!jabber_xhtml_plain_equal(xhtml, jm->body))
+			/* Wrap the message in <p/> for great interoperability justice. */
+			jm->xhtml = g_strdup_printf("<html xmlns='" NS_XHTML_IM "'><body xmlns='" NS_XHTML "'><p>%s</p></body></html>", xhtml);
+	}
+
+	g_free(xhtml);
 
 	jabber_message_send(jm);
 	jabber_message_free(jm);
@@ -1134,7 +1240,8 @@ int jabber_message_send_chat(PurpleConnection *gc, int id, const char *msg, Purp
 	JabberChat *chat;
 	JabberMessage *jm;
 	JabberStream *js;
-	char *buf;
+	char *xhtml;
+	char *tmp;
 
 	if(!msg || !gc)
 		return 0;
@@ -1151,14 +1258,20 @@ int jabber_message_send_chat(PurpleConnection *gc, int id, const char *msg, Purp
 	jm->to = g_strdup_printf("%s@%s", chat->room, chat->server);
 	jm->id = jabber_get_next_id(jm->js);
 
-	buf = g_strdup_printf("<html xmlns='http://jabber.org/protocol/xhtml-im'><body xmlns='http://www.w3.org/1999/xhtml'>%s</body></html>", msg);
-	purple_markup_html_to_xhtml(buf, &jm->xhtml, &jm->body);
-	g_free(buf);
-
-	if(!chat->xhtml) {
-		g_free(jm->xhtml);
-		jm->xhtml = NULL;
+	tmp = purple_utf8_strip_unprintables(msg);
+	purple_markup_html_to_xhtml(tmp, &xhtml, &jm->body);
+	g_free(tmp);
+	tmp = jabber_message_smileyfy_xhtml(jm, xhtml);
+	if (tmp) {
+		g_free(xhtml);
+		xhtml = tmp;
 	}
+
+	if (chat->xhtml && !jabber_xhtml_plain_equal(xhtml, jm->body))
+		/* Wrap the message in <p/> for greater interoperability justice. */
+		jm->xhtml = g_strdup_printf("<html xmlns='" NS_XHTML_IM "'><body xmlns='" NS_XHTML "'><p>%s</p></body></html>", xhtml);
+
+	g_free(xhtml);
 
 	jabber_message_send(jm);
 	jabber_message_free(jm);
@@ -1178,7 +1291,7 @@ unsigned int jabber_send_typing(PurpleConnection *gc, const char *who, PurpleTyp
 
 	g_free(resource);
 
-	if(!jbr || !((jbr->capabilities & JABBER_CAP_COMPOSING) || (jbr->chat_states != JABBER_CHAT_STATES_UNSUPPORTED)))
+	if (!jbr || (jbr->chat_states == JABBER_CHAT_STATES_UNSUPPORTED))
 		return 0;
 
 	/* TODO: figure out threading */
@@ -1195,14 +1308,8 @@ unsigned int jabber_send_typing(PurpleConnection *gc, const char *who, PurpleTyp
 	else
 		jm->chat_state = JM_STATE_ACTIVE;
 
-	if(jbr->chat_states != JABBER_CHAT_STATES_UNSUPPORTED) {
-		jm->typing_style |= JM_TS_JEP_0085;
-		/* if(JABBER_CHAT_STATES_UNKNOWN == jbr->chat_states)
-			jbr->chat_states = JABBER_CHAT_STATES_UNSUPPORTED; */
-	}
-
-	if(jbr->chat_states != JABBER_CHAT_STATES_SUPPORTED)
-		jm->typing_style |= JM_TS_JEP_0022;
+	/* if(JABBER_CHAT_STATES_UNKNOWN == jbr->chat_states)
+		jbr->chat_states = JABBER_CHAT_STATES_UNSUPPORTED; */
 
 	jabber_message_send(jm);
 	jabber_message_free(jm);
@@ -1210,29 +1317,11 @@ unsigned int jabber_send_typing(PurpleConnection *gc, const char *who, PurpleTyp
 	return 0;
 }
 
-void jabber_message_conv_closed(JabberStream *js, const char *who)
-{
-	JabberMessage *jm;
-	if (!purple_prefs_get_bool("/purple/conversations/im/send_typing"))
-		return;
-
-	jm  = g_new0(JabberMessage, 1);
-	jm->js = js;
-	jm->type = JABBER_MESSAGE_CHAT;
-	jm->to = g_strdup(who);
-	jm->id = jabber_get_next_id(jm->js);
-	jm->typing_style = JM_TS_JEP_0085;
-	jm->chat_state = JM_STATE_GONE;
-	jabber_message_send(jm);
-	jabber_message_free(jm);
-}
-
-gboolean jabber_buzz_isenabled(JabberStream *js, const gchar *shortname, const gchar *namespace) {
+gboolean jabber_buzz_isenabled(JabberStream *js, const gchar *namespace) {
 	return js->allowBuzz;
 }
 
-gboolean jabber_custom_smileys_isenabled(JabberStream *js, const gchar *shortname,
-										 const gchar *namespace)
+gboolean jabber_custom_smileys_isenabled(JabberStream *js, const gchar *namespace)
 {
 	const PurpleConnection *gc = js->gc;
 	PurpleAccount *account = purple_connection_get_account(gc);

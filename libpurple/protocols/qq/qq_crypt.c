@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA
  *
  *
  * QQ encryption algorithm
@@ -163,13 +163,20 @@ static inline void encrypt_out(guint8 *crypted, const gint crypted_len, const gu
 		c32_prev[0] = crypted32[0]; c32_prev[1] = crypted32[1];
 		
 		/* set next 64 bits want to crypt*/
-		crypted_ptr += 8;
-		memcpy(crypted32, crypted_ptr, sizeof(crypted32));
-		plain32[0] = crypted32[0] ^ c32_prev[0]; plain32[1] = crypted32[1] ^ c32_prev[1];
+		if (count64 > 0) {
+			crypted_ptr += 8;
+			memcpy(crypted32, crypted_ptr, sizeof(crypted32));
+			plain32[0] = crypted32[0] ^ c32_prev[0]; plain32[1] = crypted32[1] ^ c32_prev[1];
+		}
 	}
 }
 
-/* length of crypted buffer must be plain_len + 16*/
+/* length of crypted buffer must be plain_len + 17*/
+/*
+ * The above comment used to say "plain_len + 16", but based on the
+ * behavior of the function that is wrong.  If you give this function
+ * a plain string with len%8 = 7 then the returned length is len+17
+ */
 gint qq_encrypt(guint8* crypted, const guint8* const plain, const gint plain_len, const guint8* const key)
 {
 	guint8 *crypted_ptr = crypted;		/* current position of dest */
@@ -275,7 +282,7 @@ static inline gint decrypt_out(guint8 *dest, gint crypted_len, const guint8* con
 	}
 	
 	count64 = crypted_len / 8;
-	while (count64-- > 0){
+	while (--count64 > 0){
 		c32_prev[0] = crypted32[0]; c32_prev[1] = crypted32[1];
 		crypted_ptr += 8;
 

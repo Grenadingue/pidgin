@@ -1,9 +1,12 @@
 /*
- * purple
+ *					MXit Protocol libPurple Plugin
  *
- * Purple is the legal property of its developers, whose names are too numerous
- * to list here.  Please refer to the COPYRIGHT file distributed with this
- * source distribution.
+ *					-- handle MXit plugin actions --
+ *
+ *				Pieter Loubser	<libpurple@mxit.com>
+ *
+ *			(C) Copyright 2009	MXit Lifestyle (Pty) Ltd.
+ *				<http://www.mxitlifestyle.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +22,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#ifndef _YAHOO_CRYPT_H_
-#define _YAHOO_CRYPT_H_
 
-char *yahoo_crypt(const char *key, const char *salt);
+#ifndef		_MXIT_ACTIONS_H_
+#define		_MXIT_ACTIONS_H_
 
-#endif /* _YAHOO_CRYPT_H */
+
+/* callbacks */
+GList* mxit_actions( PurplePlugin* plugin, gpointer context );
+
+
+#endif		/* _MXIT_ACTIONS_H_ */

@@ -2,7 +2,7 @@
 ; Original Author: Herman Bloggs <hermanator12002@yahoo.com>
 ; Updated By: Daniel Atallah <daniel_atallah@yahoo.com>
 
-; NOTE: this .NSI script is intended for NSIS 2.27
+; NOTE: this .NSI script is intended for NSIS 2.27+
 ;
 
 ;--------------------------------
@@ -12,6 +12,7 @@ Var GTK_FOLDER
 Var ISSILENT
 Var STARTUP_RUN_KEY
 Var SPELLCHECK_SEL
+Var LANGUAGE_SET
 
 ;--------------------------------
 ;Configuration
@@ -74,7 +75,7 @@ SetDateSave on
 !define PERL_REG_KEY				"SOFTWARE\Perl"
 !define PERL_DLL				"perl510.dll"
 !define GTK_DEFAULT_INSTALL_PATH		"$COMMONFILES\GTK\2.0"
-!define GTK_RUNTIME_INSTALLER			"..\..\..\..\gtk_installer\gtk-runtime*.exe"
+!define GTK_RUNTIME_INSTALLER			"..\..\..\..\gtk_installer\gtk-runtime-${GTK_INSTALL_VERSION}*.exe"
 
 !define ASPELL_REG_KEY				"SOFTWARE\Aspell"
 !define DOWNLOADER_URL				"http://pidgin.im/win32/download_redir.php"
@@ -190,6 +191,7 @@ ReserveFile "${NSISDIR}\Plugins\System.dll"
   !insertmacro MUI_LANGUAGE "Hungarian"
   !insertmacro MUI_LANGUAGE "Dutch"
   !insertmacro MUI_LANGUAGE "Norwegian"
+  !insertmacro MUI_LANGUAGE "NorwegianNynorsk"
   !insertmacro MUI_LANGUAGE "Polish"
   !insertmacro MUI_LANGUAGE "PortugueseBR"
   !insertmacro MUI_LANGUAGE "Portuguese"
@@ -229,6 +231,7 @@ ReserveFile "${NSISDIR}\Plugins\System.dll"
   !insertmacro PIDGIN_MACRO_INCLUDE_LANGFILE "KURDISH"		"${PIDGIN_NSIS_INCLUDE_PATH}\translations\kurdish.nsh"
   !insertmacro PIDGIN_MACRO_INCLUDE_LANGFILE "LITHUANIAN"	"${PIDGIN_NSIS_INCLUDE_PATH}\translations\lithuanian.nsh"
   !insertmacro PIDGIN_MACRO_INCLUDE_LANGFILE "NORWEGIAN"	"${PIDGIN_NSIS_INCLUDE_PATH}\translations\norwegian.nsh"
+  !insertmacro PIDGIN_MACRO_INCLUDE_LANGFILE "NORWEGIANNYNORSK"	"${PIDGIN_NSIS_INCLUDE_PATH}\translations\norwegian_nynorsk.nsh"
   !insertmacro PIDGIN_MACRO_INCLUDE_LANGFILE "POLISH"		"${PIDGIN_NSIS_INCLUDE_PATH}\translations\polish.nsh"
   !insertmacro PIDGIN_MACRO_INCLUDE_LANGFILE "PORTUGUESE"	"${PIDGIN_NSIS_INCLUDE_PATH}\translations\portuguese.nsh"
   !insertmacro PIDGIN_MACRO_INCLUDE_LANGFILE "PORTUGUESEBR"	"${PIDGIN_NSIS_INCLUDE_PATH}\translations\portuguese-br.nsh"
@@ -567,6 +570,7 @@ SectionGroup /e $(URI_HANDLERS_SECTION_TITLE) SecURIHandlers
   !insertmacro URI_SECTION "msnim"
   !insertmacro URI_SECTION "myim"
   !insertmacro URI_SECTION "ymsgr"
+  !insertmacro URI_SECTION "xmpp"
 SectionGroupEnd
 
 ;--------------------------------
@@ -708,24 +712,31 @@ Section Uninstall
     Call un.UnregisterURIHandler
     Push "ymsgr"
     Call un.UnregisterURIHandler
+    Push "xmpp"
+    Call un.UnregisterURIHandler
 
     Delete "$INSTDIR\ca-certs\America_Online_Root_Certification_Authority_1.pem"
     Delete "$INSTDIR\ca-certs\AOL_Member_CA.pem"
     Delete "$INSTDIR\ca-certs\CAcert_Class3.pem"
     Delete "$INSTDIR\ca-certs\CAcert_Root.pem"
+    Delete "$INSTDIR\ca-certs\Entrust.net_Secure_Server_CA.pem"
     Delete "$INSTDIR\ca-certs\Equifax_Secure_CA.pem"
+    Delete "$INSTDIR\ca-certs\Equifax_Secure_Global_eBusiness_CA-1.pem"
     Delete "$INSTDIR\ca-certs\GTE_CyberTrust_Global_Root.pem"
     Delete "$INSTDIR\ca-certs\Microsoft_Internet_Authority.pem"
     Delete "$INSTDIR\ca-certs\Microsoft_Secure_Server_Authority.pem"
+    Delete "$INSTDIR\ca-certs\StartCom_Certification_Authority.pem"
     Delete "$INSTDIR\ca-certs\StartCom_Free_SSL_CA.pem"
+    Delete "$INSTDIR\ca-certs\Thawte_Premium_Server_CA.pem"
+    Delete "$INSTDIR\ca-certs\VeriSign_Class3_Extended_Validation_CA.pem"
     Delete "$INSTDIR\ca-certs\Verisign_Class3_Primary_CA.pem"
     Delete "$INSTDIR\ca-certs\VeriSign_Class_3_Public_Primary_Certification_Authority_-_G5.pem"
+    Delete "$INSTDIR\ca-certs\VeriSign_Class_3_Public_Primary_Certification_Authority_-_G5_2.pem"
     Delete "$INSTDIR\ca-certs\VeriSign_International_Server_Class_3_CA.pem"
     Delete "$INSTDIR\ca-certs\Verisign_RSA_Secure_Server_CA.pem"
     RMDir "$INSTDIR\ca-certs"
     RMDir /r "$INSTDIR\locale"
     RMDir /r "$INSTDIR\pixmaps"
-    RMDir /r "$INSTDIR\perlmod"
     Delete "$INSTDIR\plugins\autoaccept.dll"
     Delete "$INSTDIR\plugins\buddynote.dll"
     Delete "$INSTDIR\plugins\convcolors.dll"
@@ -741,6 +752,7 @@ Section Uninstall
     Delete "$INSTDIR\plugins\libicq.dll"
     Delete "$INSTDIR\plugins\libirc.dll"
     Delete "$INSTDIR\plugins\libmsn.dll"
+    Delete "$INSTDIR\plugins\libmxit.dll"
     Delete "$INSTDIR\plugins\libmyspace.dll"
     Delete "$INSTDIR\plugins\libnapster.dll"
     Delete "$INSTDIR\plugins\libnovell.dll"
@@ -750,6 +762,7 @@ Section Uninstall
     Delete "$INSTDIR\plugins\libsimple.dll"
     Delete "$INSTDIR\plugins\libtoc.dll"
     Delete "$INSTDIR\plugins\libyahoo.dll"
+    Delete "$INSTDIR\plugins\libyahoojp.dll"
     Delete "$INSTDIR\plugins\libxmpp.dll"
     Delete "$INSTDIR\plugins\log_reader.dll"
     Delete "$INSTDIR\plugins\markerline.dll"
@@ -772,6 +785,8 @@ Section Uninstall
     Delete "$INSTDIR\plugins\win2ktrans.dll"
     Delete "$INSTDIR\plugins\winprefs.dll"
     Delete "$INSTDIR\plugins\xmppconsole.dll"
+    Delete "$INSTDIR\plugins\xmppdisco.dll"
+    RMDir /r "$INSTDIR\plugins\perl"
     RMDir "$INSTDIR\plugins"
     RMDir /r "$INSTDIR\sasl2"
     Delete "$INSTDIR\sounds\purple\alert.wav"
@@ -792,6 +807,7 @@ Section Uninstall
     Delete "$INSTDIR\libsilc-1-1-2.dll"
     Delete "$INSTDIR\libsilcclient-1-1-2.dll"
     Delete "$INSTDIR\libxml2.dll"
+    Delete "$INSTDIR\libymsg.dll"
     Delete "$INSTDIR\nspr4.dll"
     Delete "$INSTDIR\nss3.dll"
     Delete "$INSTDIR\nssckbi.dll"
@@ -813,6 +829,7 @@ Section Uninstall
 
     ; Shortcuts..
     Delete "$DESKTOP\Pidgin.lnk"
+    Delete "$SMPROGRAMS\Pidgin.lnk"
 
     Goto done
 
@@ -1329,14 +1346,17 @@ Function .onInit
   IfSilent 0 +2
     StrCpy $ISSILENT "/NOUI"
 
+  StrCpy $LANGUAGE_SET "0"
   ClearErrors
   ${GetOptions} "$R3" "/L=" $R1
-  IfErrors +3
+  IfErrors +4
   StrCpy $LANGUAGE $R1
+  StrCpy $LANGUAGE_SET "1"
   Goto skip_lang
 
   ; Select Language
     ; Display Language selection dialog
+    !define MUI_LANGDLL_ALWAYSSHOW
     !insertmacro MUI_LANGDLL_DISPLAY
     skip_lang:
 
@@ -1393,6 +1413,17 @@ Function .onInit
   Pop $R2
   Pop $R1
   Pop $R0
+FunctionEnd
+
+Function .onInstSuccess
+  ; NSIS doesn't appear to save the language when in Silent Mode, so we do so manually
+  IfSilent 0 done
+
+  StrCmp $LANGUAGE_SET "0" done
+
+  WriteRegStr "${MUI_LANGDLL_REGISTRY_ROOT}" "${MUI_LANGDLL_REGISTRY_KEY}" "${MUI_LANGDLL_REGISTRY_VALUENAME}" $LANGUAGE
+
+  done:
 FunctionEnd
 
 Function un.onInit

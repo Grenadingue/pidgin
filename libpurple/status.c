@@ -1535,7 +1535,8 @@ purple_presence_is_status_primitive_active(const PurplePresence *presence,
 	g_return_val_if_fail(primitive != PURPLE_STATUS_UNSET, FALSE);
 
 	for (l = purple_presence_get_statuses(presence);
-	     l != NULL; l = l->next)	{
+	     l != NULL; l = l->next)
+	{
 		PurpleStatus *temp_status = l->data;
 		PurpleStatusType *type = purple_status_get_type(temp_status);
 
@@ -1661,7 +1662,7 @@ purple_status_get_handle(void) {
 void
 purple_status_init(void)
 {
-	void *handle = purple_status_get_handle;
+	void *handle = purple_status_get_handle();
 
 	purple_prefs_add_none("/purple/status");
 	purple_prefs_add_none("/purple/status/scores");
@@ -1715,4 +1716,5 @@ purple_status_init(void)
 void
 purple_status_uninit(void)
 {
+	purple_prefs_disconnect_by_handle(purple_prefs_get_handle());
 }

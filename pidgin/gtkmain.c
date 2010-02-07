@@ -143,6 +143,10 @@ dologin_named(const char *name)
 }
 
 #ifdef HAVE_SIGNAL_H
+static char *segfault_message;
+
+static int signal_sockets[2];
+
 static void sighandler(int sig);
 
 /*
@@ -168,30 +172,59 @@ clean_pid(void)
 	}
 }
 
-char *segfault_message;
-
-/*
- * This signal handler shouldn't be touching this much stuff.
- * It should just set a flag and return, and something else in
- * Pidgin should monitor the flag to see if something needs to
- * be done.  Because the signal handler interrupts the program,
- * it could be called in the middle of adding a new connection
- * to the list of connections, and then if we try to disconnect
- * all connections it could lead to a crash because the linked
- * list of connections could be in a weird state.  But, well,
- * this signal handler probably isn't called very often, so it's
- * not a big deal.
- */
-static void
-sighandler(int sig)
+static void sighandler(int sig)
 {
+	ssize_t written;
+
+	/*
+	 * We won't do any of the heavy lifting for the signal handling here
+	 * because we have no idea what was interrupted.  Previously this signal
+	 * handler could result in some calls to malloc/free, which can cause
+	 * deadlock in libc when the signal handler was interrupting a previous
+	 * malloc or free.  So instead we'll do an ugly hack where we write the
+	 * signal number to one end of a socket pair.  The other half of the
+	 * socket pair is watched by our main loop.  When the main loop sees new
+	 * data on the socket it reads in the signal and performs the appropriate
+	 * action without fear of interrupting stuff.
+	 */
+	if (sig == SIGSEGV) {
+		fprintf(stderr, "%s", segfault_message);
+		abort();
+		return;
+	}
+
+	written = write(signal_sockets[0], &sig, sizeof(int));
+	if (written < 0 || written != sizeof(int)) {
+		/* This should never happen */
+		purple_debug_error("sighandler", "Received signal %d but only "
+				"wrote %" G_GSSIZE_FORMAT " bytes out of %"
+				G_GSIZE_FORMAT ": %s\n",
+				sig, written, sizeof(int), g_strerror(errno));
+		exit(1);
+	}
+}
+
+static gboolean
+mainloop_sighandler(GIOChannel *source, GIOCondition cond, gpointer data)
+{
+	GIOStatus stat;
+	int sig;
+	gsize bytes_read;
+	GError *error = NULL;
+
+	/* read the signal number off of the io channel */
+	stat = g_io_channel_read_chars(source, (gchar *)&sig, sizeof(int),
+			&bytes_read, &error);
+	if (stat != G_IO_STATUS_NORMAL) {
+		purple_debug_error("sighandler", "Signal callback failed to read "
+				"from signal socket: %s", error->message);
+		purple_core_quit();
+		return FALSE;
+	}
+
 	switch (sig) {
 	case SIGHUP:
 		purple_debug_warning("sighandler", "Caught signal %d\n", sig);
-		break;
-	case SIGSEGV:
-		fprintf(stderr, "%s", segfault_message);
-		abort();
 		break;
 #if defined(USE_GSTREAMER) && !defined(GST_CAN_DISABLE_FORKING)
 /* By default, gstreamer forks when you initialize it, and waitpids for the
@@ -219,6 +252,8 @@ sighandler(int sig)
 		purple_debug_warning("sighandler", "Caught signal %d\n", sig);
 		purple_core_quit();
 	}
+
+	return TRUE;
 }
 #endif
 
@@ -313,6 +348,7 @@ pidgin_ui_init(void)
 	pidgin_smileys_init();
 	pidgin_utils_init();
 	pidgin_medias_init();
+	pidgin_notify_init();
 }
 
 static GHashTable *ui_info = NULL;
@@ -327,6 +363,7 @@ pidgin_quit(void)
 
 	/* Uninit */
 	pidgin_utils_uninit();
+	pidgin_notify_uninit();
 	pidgin_smileys_uninit();
 	pidgin_conversations_uninit();
 	pidgin_status_uninit();
@@ -353,6 +390,26 @@ static GHashTable *pidgin_ui_get_info(void)
 		g_hash_table_insert(ui_info, "version", VERSION);
 		g_hash_table_insert(ui_info, "website", "http://pidgin.im");
 		g_hash_table_insert(ui_info, "dev_website", "http://developer.pidgin.im");
+		g_hash_table_insert(ui_info, "client_type", "pc");
+
+		/*
+		 * This is the client key for "Pidgin."  It is owned by the AIM
+		 * account "markdoliner."  Please don't use this key for other
+		 * applications.  You can either not specify a client key, in
+		 * which case the default "libpurple" key will be used, or you
+		 * can register for your own client key at
+		 * http://developer.aim.com/manageKeys.jsp
+		 */
+		g_hash_table_insert(ui_info, "prpl-aim-clientkey", "ma1cSASNCKFtrdv9");
+		g_hash_table_insert(ui_info, "prpl-icq-clientkey", "ma1cSASNCKFtrdv9");
+
+		/*
+		 * This is the distid for Pidgin, given to us by AOL.  Please
+		 * don't use this for other applications.  You can just not
+		 * specify a distid and libpurple will use a default.
+		 */
+		g_hash_table_insert(ui_info, "prpl-aim-distid", GINT_TO_POINTER(1550));
+		g_hash_table_insert(ui_info, "prpl-icq-distid", GINT_TO_POINTER(1550));
 	}
 
 	return ui_info;
@@ -384,34 +441,35 @@ show_usage(const char *name, gboolean terse)
 	if (terse) {
 		text = g_strdup_printf(_("%s %s. Try `%s -h' for more information.\n"), PIDGIN_NAME, DISPLAY_VERSION, name);
 	} else {
+		GString *str = g_string_new(NULL);
+		g_string_append_printf(str, "%s %s\n", PIDGIN_NAME, DISPLAY_VERSION);
+		g_string_append_printf(str, _("Usage: %s [OPTION]...\n\n"), name);
+		g_string_append_printf(str, "  -c, --config=%s    %s\n",
+				_("DIR"), _("use DIR for config files"));
+		g_string_append_printf(str, "  -d, --debug         %s\n",
+				_("print debugging messages to stdout"));
+		g_string_append_printf(str, "  -f, --force-online  %s\n",
+				_("force online, regardless of network status"));
+		g_string_append_printf(str, "  -h, --help          %s\n",
+				_("display this help and exit"));
+		g_string_append_printf(str, "  -m, --multiple      %s\n",
+				_("allow multiple instances"));
+		g_string_append_printf(str, "  -n, --nologin       %s\n",
+				_("don't automatically login"));
+		g_string_append_printf(str, "  -l, --login[=%s]  %s\n",
+				_("NAME"),
+				_("enable specified account(s) (optional argument NAME\n"
+				  "                      "
+				  "specifies account(s) to use, separated by commas.\n"
+				  "                      "
+				  "Without this only the first account will be enabled)."));
 #ifndef WIN32
-		text = g_strdup_printf(_("%s %s\n"
-		       "Usage: %s [OPTION]...\n\n"
-		       "  -c, --config=DIR    use DIR for config files\n"
-		       "  -d, --debug         print debugging messages to stdout\n"
-		       "  -f, --force-online  force online, regardless of network status\n"
-		       "  -h, --help          display this help and exit\n"
-		       "  -m, --multiple      do not ensure single instance\n"
-		       "  -n, --nologin       don't automatically login\n"
-		       "  -l, --login[=NAME]  enable specified account(s) (optional argument NAME\n"
-		       "                      specifies account(s) to use, separated by commas.\n"
-		       "                      Without this only the first account will be enabled).\n"
-		       "  --display=DISPLAY   X display to use\n"
-		       "  -v, --version       display the current version and exit\n"), PIDGIN_NAME, DISPLAY_VERSION, name);
-#else
-		text = g_strdup_printf(_("%s %s\n"
-		       "Usage: %s [OPTION]...\n\n"
-		       "  -c, --config=DIR    use DIR for config files\n"
-		       "  -d, --debug         print debugging messages to stdout\n"
-		       "  -f, --force-online  force online, regardless of network status\n"
-		       "  -h, --help          display this help and exit\n"
-		       "  -m, --multiple      do not ensure single instance\n"
-		       "  -n, --nologin       don't automatically login\n"
-		       "  -l, --login[=NAME]  enable specified account(s) (optional argument NAME\n"
-		       "                      specifies account(s) to use, separated by commas.\n"
-		       "                      Without this only the first account will be enabled).\n"
-		       "  -v, --version       display the current version and exit\n"), PIDGIN_NAME, DISPLAY_VERSION, name);
-#endif
+		g_string_append_printf(str, "  --display=DISPLAY   %s\n",
+				_("X display to use"));
+#endif /* !WIN32 */
+		g_string_append_printf(str, "  -v, --version       %s\n",
+				_("display the current version and exit"));
+		text = g_string_free(str, FALSE);
 	}
 
 	purple_print_utf8_to_console(stdout, text);
@@ -479,10 +537,12 @@ int main(int argc, char *argv[])
 	sigset_t sigset;
 	RETSIGTYPE (*prev_sig_disp)(int);
 	char errmsg[BUFSIZ];
+	GIOChannel *signal_channel;
+	GIOStatus signal_status;
 #ifndef DEBUG
 	char *segfault_message_tmp;
-	GError *error = NULL;
 #endif
+	GError *error = NULL;
 #endif
 	int opt;
 	gboolean gui_check;
@@ -513,6 +573,8 @@ int main(int argc, char *argv[])
 
 	/* Initialize GThread before calling any Glib or GTK+ functions. */
 	g_thread_init(NULL);
+
+	g_set_prgname("Pidgin");
 
 #ifdef ENABLE_NLS
 	bindtextdomain(PACKAGE, LOCALEDIR);
@@ -568,6 +630,29 @@ int main(int argc, char *argv[])
 			"for the last time, it's just a rash!\n"
 		);
 #endif
+
+	/*
+	 * Create a socket pair for receiving unix signals from a signal
+	 * handler.
+	 */
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, signal_sockets) < 0) {
+		perror("Failed to create sockets for GLib signal handling");
+		exit(1);
+	}
+	signal_channel = g_io_channel_unix_new(signal_sockets[1]);
+
+	/*
+	 * Set the channel encoding to raw binary instead of the default of
+	 * UTF-8, because we'll be sending integers across instead of strings.
+	 */
+	error = NULL;
+	signal_status = g_io_channel_set_encoding(signal_channel, NULL, &error);
+	if (signal_status != G_IO_STATUS_NORMAL) {
+		fprintf(stderr, "Failed to set the signal channel to raw "
+				"binary: %s", error->message);
+		exit(1);
+	}
+	g_io_add_watch(signal_channel, G_IO_IN, mainloop_sighandler, NULL);
 
 	/* Let's not violate any PLA's!!!! */
 	/* jseymour: whatever the fsck that means */
@@ -721,7 +806,7 @@ int main(int argc, char *argv[])
 	}
 
 #if GLIB_CHECK_VERSION(2,2,0)
-	g_set_application_name(_("Pidgin"));
+	g_set_application_name(PIDGIN_NAME);
 #endif /* glib-2.0 >= 2.2.0 */
 
 #ifdef _WIN32
@@ -787,7 +872,7 @@ int main(int argc, char *argv[])
 		DBusMessage *message = dbus_message_new_method_call(DBUS_SERVICE_PURPLE, DBUS_PATH_PURPLE,
 				DBUS_INTERFACE_PURPLE, "PurpleBlistSetVisible");
 		gboolean tr = TRUE;
-		dbus_message_append_args(message, DBUS_TYPE_UINT32, &tr, DBUS_TYPE_INVALID);
+		dbus_message_append_args(message, DBUS_TYPE_INT32, &tr, DBUS_TYPE_INVALID);
 		dbus_connection_send_with_reply_and_block(conn, message, -1, NULL);
 		dbus_message_unref(message);
 #endif

@@ -1,4 +1,8 @@
 /*
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -11,14 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor Boston, MA 02110-1301,  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
+
+#include "internal.h"
 
 #include <stdlib.h>
 #include <glib.h>
 #include <string.h>
 
-#include "internal.h"
 #include "data.h"
 #include "debug.h"
 #include "xmlnode.h"
@@ -52,31 +57,44 @@ jabber_data_create_from_data(gconstpointer rawdata, gsize size, const char *type
 JabberData *
 jabber_data_create_from_xml(xmlnode *tag)
 {
-	JabberData *data = g_new0(JabberData, 1);
-	gsize size;
-	gpointer raw_data = NULL;
-
-	if (data == NULL) {
-		purple_debug_error("jabber", "Could not allocate data object\n");
-		g_free(data);
-		return NULL;
-	}
+	JabberData *data;
+	gchar *raw_data = NULL;
+	const gchar *cid, *type;
 
 	/* check if this is a "data" tag */
 	if (strcmp(tag->name, "data") != 0) {
-		purple_debug_error("jabber", "Invalid data element");
+		purple_debug_error("jabber", "Invalid data element\n");
+		return NULL;
+	}
+
+	cid = xmlnode_get_attrib(tag, "cid");
+	type = xmlnode_get_attrib(tag, "type");
+
+	if (!cid || !type) {
+		purple_debug_error("jabber", "cid or type missing\n");
+		return NULL;
+	}
+
+	raw_data = xmlnode_get_data(tag);
+
+	if (raw_data == NULL || *raw_data == '\0') {
+		purple_debug_error("jabber", "data element was empty");
+		g_free(raw_data);
+		return NULL;
+	}
+
+	data = g_new0(JabberData, 1);
+	data->data = purple_base64_decode(raw_data, &data->size);
+	g_free(raw_data);
+
+	if (data->data == NULL) {
+		purple_debug_error("jabber", "Malformed base64 data\n");
 		g_free(data);
 		return NULL;
 	}
 
-	data->cid = g_strdup(xmlnode_get_attrib(tag, "cid"));
-	data->type = g_strdup(xmlnode_get_attrib(tag, "type"));
-
-	raw_data = xmlnode_get_data(tag);
-	data->data = purple_base64_decode(raw_data, &size);
-	data->size = size;
-
-	g_free(raw_data);
+	data->cid = g_strdup(cid);
+	data->type = g_strdup(type);
 
 	return data;
 }
@@ -123,7 +141,7 @@ jabber_data_get_xml_definition(const JabberData *data)
 	xmlnode *tag = xmlnode_new("data");
 	char *base64data = purple_base64_encode(data->data, data->size);
 
-	xmlnode_set_namespace(tag, XEP_0231_NAMESPACE);
+	xmlnode_set_namespace(tag, NS_BOB);
 	xmlnode_set_attrib(tag, "cid", data->cid);
 	xmlnode_set_attrib(tag, "type", data->type);
 
@@ -152,7 +170,7 @@ jabber_data_get_xml_request(const gchar *cid)
 {
 	xmlnode *tag = xmlnode_new("data");
 
-	xmlnode_set_namespace(tag, XEP_0231_NAMESPACE);
+	xmlnode_set_namespace(tag, NS_BOB);
 	xmlnode_set_attrib(tag, "cid", cid);
 
 	return tag;
@@ -200,25 +218,26 @@ jabber_data_associate_remote(JabberData *data)
 }
 
 void
-jabber_data_parse(JabberStream *js, xmlnode *packet)
+jabber_data_parse(JabberStream *js, const char *who, JabberIqType type,
+                  const char *id, xmlnode *data_node)
 {
 	JabberIq *result = NULL;
-	const char *who = xmlnode_get_attrib(packet, "from");
-	xmlnode *data_node = xmlnode_get_child(packet, "data");
-	const JabberData *data =
-		jabber_data_find_local_by_cid(xmlnode_get_attrib(data_node, "cid"));
+	const char *cid = xmlnode_get_attrib(data_node, "cid");
+	const JabberData *data = cid ? jabber_data_find_local_by_cid(cid) : NULL;
 
 	if (!data) {
 		xmlnode *item_not_found = xmlnode_new("item-not-found");
 
 		result = jabber_iq_new(js, JABBER_IQ_ERROR);
-		xmlnode_set_attrib(result->node, "to", who);
-		xmlnode_set_attrib(result->node, "id", xmlnode_get_attrib(packet, "id"));
+		if (who)
+			xmlnode_set_attrib(result->node, "to", who);
+		xmlnode_set_attrib(result->node, "id", id);
 		xmlnode_insert_child(result->node, item_not_found);
 	} else {
 		result = jabber_iq_new(js, JABBER_IQ_RESULT);
-		xmlnode_set_attrib(result->node, "to", who);
-		xmlnode_set_attrib(result->node, "id", xmlnode_get_attrib(packet, "id"));
+		if (who)
+			xmlnode_set_attrib(result->node, "to", who);
+		xmlnode_set_attrib(result->node, "id", id);
 		xmlnode_insert_child(result->node,
 							 jabber_data_get_xml_definition(data));
 	}
@@ -235,6 +254,8 @@ jabber_data_init(void)
 		g_free, jabber_data_delete);
 	remote_data_by_cid = g_hash_table_new_full(g_str_hash, g_str_equal,
 		g_free, jabber_data_delete);
+
+	jabber_iq_register_handler("data", NS_BOB, jabber_data_parse);
 }
 
 void
@@ -244,4 +265,5 @@ jabber_data_uninit(void)
 	g_hash_table_destroy(local_data_by_alt);
 	g_hash_table_destroy(local_data_by_cid);
 	g_hash_table_destroy(remote_data_by_cid);
+	local_data_by_alt = local_data_by_cid = remote_data_by_cid = NULL;
 }

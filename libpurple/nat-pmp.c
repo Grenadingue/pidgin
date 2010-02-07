@@ -29,8 +29,8 @@
  * OF SUCH DAMAGE.
  */
 
-#include "nat-pmp.h"
 #include "internal.h"
+#include "nat-pmp.h"
 #include "debug.h"
 #include "signals.h"
 #include "network.h"
@@ -200,7 +200,7 @@ default_gw()
 
     if (!(buf = malloc(needed)))
 	{
-		purple_debug_warning("nat-pmp", "Failed to malloc %i\n", needed);
+		purple_debug_warning("nat-pmp", "Failed to malloc %" G_GSIZE_FORMAT "\n", needed);
 		return NULL;
     }
 

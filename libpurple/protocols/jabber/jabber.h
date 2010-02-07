@@ -3,7 +3,9 @@
  *
  * purple
  *
- * Copyright (C) 2003 Nathan Walp <faceprint@faceprint.com>
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +21,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#ifndef _PURPLE_JABBER_H_
-#define _PURPLE_JABBER_H_
+#ifndef PURPLE_JABBER_H_
+#define PURPLE_JABBER_H_
 
 typedef enum {
 	JABBER_CAP_NONE           = 0,
-	JABBER_CAP_XHTML          = 1 << 0,
-	JABBER_CAP_COMPOSING      = 1 << 1,
+/*	JABBER_CAP_XHTML          = 1 << 0, */
+/*	JABBER_CAP_COMPOSING      = 1 << 1, */
 	JABBER_CAP_SI             = 1 << 2,
 	JABBER_CAP_SI_FILE_XFER   = 1 << 3,
 	JABBER_CAP_BYTESTREAMS    = 1 << 4,
@@ -44,6 +46,9 @@ typedef enum {
 	JABBER_CAP_ADHOC		  = 1 << 12,
 	JABBER_CAP_BLOCKING       = 1 << 13,
 
+	JABBER_CAP_ITEMS          = 1 << 14,
+	JABBER_CAP_ROSTER_VERSIONING = 1 << 15,
+
 	JABBER_CAP_RETRIEVED      = 1 << 31
 } JabberCapabilities;
 
@@ -53,22 +58,29 @@ typedef struct _JabberStream JabberStream;
 #include <glib.h>
 #include "circbuffer.h"
 #include "connection.h"
+#include "dnsquery.h"
 #include "dnssrv.h"
 #include "media.h"
 #include "mediamanager.h"
 #include "roomlist.h"
 #include "sslconn.h"
-#include "dnsquery.h"
 
+#include "namespaces.h"
+
+#include "auth.h"
+#include "iq.h"
 #include "jutil.h"
 #include "xmlnode.h"
 #include "buddy.h"
+#include "bosh.h"
 
 #ifdef HAVE_CYRUS_SASL
 #include <sasl/sasl.h>
 #endif
 
-#define CAPS0115_NODE "http://pidgin.im/caps"
+#define CAPS0115_NODE "http://pidgin.im/"
+
+#define JABBER_DEFAULT_REQUIRE_TLS    TRUE
 
 /* Index into attention_types list */
 #define JABBER_BUZZ 0
@@ -79,7 +91,7 @@ typedef enum {
 	JABBER_STREAM_INITIALIZING,
 	JABBER_STREAM_INITIALIZING_ENCRYPTION,
 	JABBER_STREAM_AUTHENTICATING,
-	JABBER_STREAM_REINITIALIZING,
+	JABBER_STREAM_POST_AUTH,
 	JABBER_STREAM_CONNECTED
 } JabberStreamState;
 
@@ -96,13 +108,9 @@ struct _JabberStream
 		JABBER_PROTO_0_9,
 		JABBER_PROTO_1_0
 	} protocol_version;
-	enum {
-		JABBER_AUTH_UNKNOWN,
-		JABBER_AUTH_DIGEST_MD5,
-		JABBER_AUTH_PLAIN,
-		JABBER_AUTH_IQ_AUTH,
-		JABBER_AUTH_CYRUS
-	} auth_type;
+
+	JabberSaslMech *auth_mech;
+	gpointer auth_mech_data;
 	char *stream_id;
 	JabberStreamState state;
 
@@ -110,7 +118,6 @@ struct _JabberStream
 	char *expected_rspauth;
 
 	GHashTable *buddies;
-	gboolean roster_parsed;
 
 	/*
 	 * This boolean was added to eliminate a heinous bug where we would
@@ -149,7 +156,6 @@ struct _JabberStream
 	GList *user_directories;
 
 	GHashTable *iq_callbacks;
-	GHashTable *disco_callbacks;
 	int next_id;
 
 	GList *bs_proxies;
@@ -157,13 +163,17 @@ struct _JabberStream
 	GList *file_transfers;
 
 	time_t idle;
+	time_t old_idle;
 
 	JabberID *user;
+	JabberBuddy *user_jb;
+
 	PurpleConnection *gc;
 	PurpleSslConnection *gsc;
 
 	gboolean registration;
 
+	char *initial_avatar_hash;
 	char *avatar_hash;
 	GSList *pending_avatar_requests;
 
@@ -183,31 +193,27 @@ struct _JabberStream
 
 	char *serverFQDN;
 
-	/* OK, this stays at the end of the struct, so plugins can depend
-	 * on the rest of the stuff being in the right place
-	 */
 #ifdef HAVE_CYRUS_SASL
 	sasl_conn_t *sasl;
 	sasl_callback_t *sasl_cb;
-#else /* keep the struct the same size */
-	void *sasl;
-	void *sasl_cb;
-#endif
-	/* did someone say something about the end of the struct? */
-#ifdef HAVE_CYRUS_SASL
 	const char *current_mech;
 	int auth_fail_count;
-#endif
 
 	int sasl_state;
 	int sasl_maxbuf;
 	GString *sasl_mechs;
+#endif
 
 	gboolean unregistration;
 	PurpleAccountUnregistrationCb unregistration_cb;
 	void *unregistration_user_data;
 
 	gboolean vcard_fetched;
+	/* Timer at login to push updated avatar */
+	guint vcard_timer;
+
+	/* Entity Capabilities hash */
+	char *caps_hash;
 
 	/* does the local server support PEP? */
 	gboolean pep;
@@ -235,11 +241,15 @@ struct _JabberStream
 	char *certificate_CN;
 
 	/* A purple timeout tag for the keepalive */
-	int keepalive_timeout;
+	guint keepalive_timeout;
 
 	PurpleSrvResponse *srv_rec;
 	guint srv_rec_idx;
 	guint max_srv_rec_idx;
+
+	/* BOSH stuff */
+	PurpleBOSHConnection *bosh;
+
 	/**
 	 * This linked list contains PurpleUtilFetchUrlData structs
 	 * for when we lookup buddy icons from a url
@@ -256,14 +266,21 @@ struct _JabberStream
 	/* later add stuff to handle TURN relays... */
 };
 
-typedef gboolean (JabberFeatureEnabled)(JabberStream *js, const gchar *shortname, const gchar *namespace);
+typedef gboolean (JabberFeatureEnabled)(JabberStream *js, const gchar *namespace);
 
 typedef struct _JabberFeature
 {
-	gchar *shortname;
 	gchar *namespace;
 	JabberFeatureEnabled *is_enabled;
 } JabberFeature;
+
+typedef struct _JabberIdentity
+{
+	gchar *category;
+	gchar *type;
+	gchar *name;
+	gchar *lang;
+} JabberIdentity;
 
 typedef struct _JabberBytestreamsStreamhost {
 	char *jid;
@@ -274,14 +291,19 @@ typedef struct _JabberBytestreamsStreamhost {
 
 /* what kind of additional features as returned from disco#info are supported? */
 extern GList *jabber_features;
+extern GList *jabber_identities;
 
+void jabber_stream_features_parse(JabberStream *js, xmlnode *packet);
 void jabber_process_packet(JabberStream *js, xmlnode **packet);
 void jabber_send(JabberStream *js, xmlnode *data);
 void jabber_send_raw(JabberStream *js, const char *data, int len);
+void jabber_send_signal_cb(PurpleConnection *pc, xmlnode **packet,
+                           gpointer unused);
 
 void jabber_stream_set_state(JabberStream *js, JabberStreamState state);
 
-void jabber_register_parse(JabberStream *js, xmlnode *packet);
+void jabber_register_parse(JabberStream *js, const char *from,
+                           JabberIqType type, const char *id, xmlnode *query);
 void jabber_register_start(JabberStream *js);
 
 char *jabber_get_next_id(JabberStream *js);
@@ -295,8 +317,24 @@ char *jabber_get_next_id(JabberStream *js);
  */
 char *jabber_parse_error(JabberStream *js, xmlnode *packet, PurpleConnectionError *reason);
 
-void jabber_add_feature(const gchar *shortname, const gchar *namespace, JabberFeatureEnabled cb); /* cb may be NULL */
-void jabber_remove_feature(const gchar *shortname);
+void jabber_add_feature(const gchar *namespace, JabberFeatureEnabled cb); /* cb may be NULL */
+void jabber_remove_feature(const gchar *namespace);
+
+/** Adds an identity to this jabber library instance. For list of valid values visit the
+ *	website of the XMPP Registrar ( http://www.xmpp.org/registrar/disco-categories.html#client ).
+ *  @param category the category of the identity.
+ *  @param type the type of the identity.
+ *  @param language the language localization of the name. Can be NULL.
+ *  @param name the name of the identity.
+ */
+void jabber_add_identity(const gchar *category, const gchar *type, const gchar *lang, const gchar *name);
+
+/**
+ * Returns true if this connection is over a secure (SSL) stream. Use this
+ * instead of checking js->gsc because BOSH stores its PurpleSslConnection
+ * members in its own data structure.
+ */
+gboolean jabber_stream_is_ssl(JabberStream *js);
 
 /** PRPL functions */
 const char *jabber_list_icon(PurpleAccount *a, PurpleBuddy *b);
@@ -307,6 +345,9 @@ GList *jabber_status_types(PurpleAccount *account);
 void jabber_login(PurpleAccount *account);
 void jabber_close(PurpleConnection *gc);
 void jabber_idle_set(PurpleConnection *gc, int idle);
+void jabber_blocklist_parse_push(JabberStream *js, const char *from,
+                                 JabberIqType type, const char *id,
+                                 xmlnode *child);
 void jabber_request_block_list(JabberStream *js);
 void jabber_add_deny(PurpleConnection *gc, const char *who);
 void jabber_rem_deny(PurpleConnection *gc, const char *who);
@@ -321,10 +362,18 @@ PurpleChat *jabber_find_blist_chat(PurpleAccount *account, const char *name);
 gboolean jabber_offline_message(const PurpleBuddy *buddy);
 int jabber_prpl_send_raw(PurpleConnection *gc, const char *buf, int len);
 GList *jabber_actions(PurplePlugin *plugin, gpointer context);
-gboolean jabber_initiate_media(PurpleConnection *gc, const char *who,
-		PurpleMediaSessionType type);
-PurpleMediaCaps jabber_get_media_caps(PurpleConnection *gc, const char *who);
-void jabber_register_commands(void);
-void jabber_init_plugin(PurplePlugin *plugin);
 
-#endif /* _PURPLE_JABBER_H_ */
+gboolean jabber_audio_enabled(JabberStream *js, const char *unused);
+gboolean jabber_video_enabled(JabberStream *js, const char *unused);
+gboolean jabber_initiate_media(PurpleAccount *account, const char *who,
+		PurpleMediaSessionType type);
+PurpleMediaCaps jabber_get_media_caps(PurpleAccount *account, const char *who);
+gboolean jabber_can_receive_file(PurpleConnection *gc, const gchar *who);
+
+void jabber_register_commands(void);
+void jabber_unregister_commands(void);
+
+void jabber_init_plugin(PurplePlugin *plugin);
+void jabber_uninit_plugin(PurplePlugin *plugin);
+
+#endif /* PURPLE_JABBER_H_ */

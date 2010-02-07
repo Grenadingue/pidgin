@@ -3,6 +3,10 @@
  *
  * purple
  *
+ * Purple is the legal property of its developers, whose names are too numerous
+ * to list here.  Please refer to the COPYRIGHT file distributed with this
+ * source distribution.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -278,12 +282,21 @@ jingle_rawudp_parse_internal(xmlnode *rawudp)
 	JingleRawUdpCandidate *rawudp_candidate = NULL;
 
 	for (; candidate; candidate = xmlnode_get_next_twin(candidate)) {
+		const gchar *id = xmlnode_get_attrib(candidate, "id");
+		const gchar *generation = xmlnode_get_attrib(candidate, "generation");
+		const gchar *component = xmlnode_get_attrib(candidate, "component");
+		const gchar *ip = xmlnode_get_attrib(candidate, "ip");
+		const gchar *port = xmlnode_get_attrib(candidate, "port");
+
+		if (!id || !generation || !component || !ip || !port)
+			continue;
+
 		rawudp_candidate = jingle_rawudp_candidate_new(
-				xmlnode_get_attrib(candidate, "id"),
-				atoi(xmlnode_get_attrib(candidate, "generation")),
-				atoi(xmlnode_get_attrib(candidate, "component")),
-				xmlnode_get_attrib(candidate, "ip"),
-				atoi(xmlnode_get_attrib(candidate, "port")));
+				id,
+				atoi(generation),
+				atoi(component),
+				ip,
+				atoi(port));
 		rawudp_candidate->rem_known = TRUE;
 		jingle_rawudp_add_remote_candidate(JINGLE_RAWUDP(transport), rawudp_candidate);
 	}

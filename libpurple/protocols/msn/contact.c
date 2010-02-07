@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA
  */
 
 #include "msn.h"
@@ -206,6 +206,7 @@ msn_contact_request_cb(MsnSoapMessage *req, MsnSoapMessage *resp,
 		                   "Operation {%s} failed. No response received from server.\n",
 		                   msn_contact_operation_str(state->action));
 		msn_session_set_error(state->session, MSN_ERROR_BAD_BLIST, NULL);
+		msn_callback_state_free(state);
 		return;
 	}
 
@@ -351,38 +352,62 @@ static void
 msn_parse_each_member(MsnSession *session, xmlnode *member, const char *node,
 	MsnListId list)
 {
-	char *passport = xmlnode_get_data(xmlnode_get_child(member, node));
-	char *type = xmlnode_get_data(xmlnode_get_child(member, "Type"));
-	char *member_id = xmlnode_get_data(xmlnode_get_child(member, "MembershipId"));
-	MsnUser *user = msn_userlist_find_add_user(session->userlist, passport, NULL);
-	xmlnode *annotation;
+	char *passport;
+	char *type;
+	char *member_id;
+	MsnUser *user;
+	xmlnode *annotation, *display;
 	guint nid = MSN_NETWORK_UNKNOWN;
+	char *invite = NULL;
+	char *display_text;
 
-	/* For EmailMembers, the network must be found in the annotations. */
-	if (!strcmp(node, "PassportName")) {
-		nid = MSN_NETWORK_PASSPORT;
-	} else {
-		for (annotation = xmlnode_get_child(member, "Annotations/Annotation");
-		     annotation;
-		     annotation = xmlnode_get_next_twin(annotation)) {
-			char *name = xmlnode_get_data(xmlnode_get_child(annotation, "Name"));
-			if (name && !strcmp(name, "MSN.IM.BuddyType")) {
-				char *value = xmlnode_get_data(xmlnode_get_child(annotation, "Value"));
-				if (value != NULL)
-					nid = strtoul(value, NULL, 10);
-				g_free(value);
-			}
-			g_free(name);
-		}
+	passport = xmlnode_get_data(xmlnode_get_child(member, node));
+	if (!msn_email_is_valid(passport)) {
+		g_free(passport);
+		return;
 	}
+
+	type = xmlnode_get_data(xmlnode_get_child(member, "Type"));
+	member_id = xmlnode_get_data(xmlnode_get_child(member, "MembershipId"));
+	if ((display = xmlnode_get_child(member, "DisplayName"))) {
+		display_text = xmlnode_get_data(display);
+	} else {
+		display_text = NULL;
+	}
+
+	user = msn_userlist_find_add_user(session->userlist, passport, display_text);
+
+	for (annotation = xmlnode_get_child(member, "Annotations/Annotation");
+	     annotation;
+	     annotation = xmlnode_get_next_twin(annotation)) {
+		char *name = xmlnode_get_data(xmlnode_get_child(annotation, "Name"));
+		char *value = xmlnode_get_data(xmlnode_get_child(annotation, "Value"));
+		if (name && value) {
+			if (!strcmp(name, "MSN.IM.BuddyType")) {
+				nid = strtoul(value, NULL, 10);
+			}
+			else if (!strcmp(name, "MSN.IM.InviteMessage")) {
+				invite = value;
+				value = NULL;
+			}
+		}
+		g_free(name);
+		g_free(value);
+	}
+
+	/* For EmailMembers, the network must be found in the annotations, above.
+	   Otherwise, PassportMembers are on the Passport network. */
+	if (!strcmp(node, "PassportName"))
+		nid = MSN_NETWORK_PASSPORT;
 
 	purple_debug_info("msn", "CL: %s name: %s, Type: %s, MembershipID: %s, NetworkID: %u\n",
 		node, passport, type, member_id == NULL ? "(null)" : member_id, nid);
 
 	msn_user_set_network(user, nid);
+	msn_user_set_invite_message(user, invite);
 
-	if (member_id) {
-		user->membership_id[list] = atoi(member_id);
+	if (list == MSN_LIST_PL && member_id) {
+		user->member_id_on_pending_list = atoi(member_id);
 	}
 
 	msn_got_lst_user(session, user, 1 << list, NULL);
@@ -390,6 +415,8 @@ msn_parse_each_member(MsnSession *session, xmlnode *member, const char *node,
 	g_free(passport);
 	g_free(type);
 	g_free(member_id);
+	g_free(invite);
+	g_free(display_text);
 }
 
 static void
@@ -675,12 +702,15 @@ msn_parse_addressbook_contacts(MsnSession *session, xmlnode *node)
 		type = xmlnode_get_data(contactType);
 
 		/*setup the Display Name*/
-		if (type && !strcmp(type, "Me")){
-			char *friendly = NULL;
-			if ((displayName = xmlnode_get_child(contactInfo, "displayName")))
-				friendly = xmlnode_get_data(displayName);
-			purple_connection_set_display_name(session->account->gc, friendly ? purple_url_decode(friendly) : NULL);
-			g_free(friendly);
+		if (type && !strcmp(type, "Me")) {
+			if (purple_connection_get_display_name(pc) == NULL) {
+				char *friendly = NULL;
+				if ((displayName = xmlnode_get_child(contactInfo, "displayName")))
+					friendly = xmlnode_get_data(displayName);
+				purple_connection_set_display_name(pc,
+					friendly ? purple_url_decode(friendly) : NULL);
+				g_free(friendly);
+			}
 			continue; /* Not adding own account as buddy to buddylist */
 		}
 
@@ -717,8 +747,6 @@ msn_parse_addressbook_contacts(MsnSession *session, xmlnode *node)
 					g_free(msnEnabled);
 				}
 			}
-			if (passport == NULL) /* Couldn't find anything */
-				continue;
 		} else {
 			xmlnode *messenger_user;
 			/* ignore non-messenger contacts */
@@ -736,7 +764,11 @@ msn_parse_addressbook_contacts(MsnSession *session, xmlnode *node)
 			passport = xmlnode_get_data(passportName);
 		}
 
+		/* Couldn't find anything */
 		if (passport == NULL)
+			continue;
+
+		if (!msn_email_is_valid(passport))
 			continue;
 
 		if ((displayName = xmlnode_get_child(contactInfo, "displayName")))
@@ -1152,7 +1184,7 @@ msn_add_contact_to_group(MsnSession *session, MsnCallbackState *state,
 {
 	MsnUserList *userlist;
 	MsnUser *user;
-	gchar *body = NULL, *contact_xml;
+	gchar *body = NULL, *contact_xml, *invite;
 
 	g_return_if_fail(passport != NULL);
 	g_return_if_fail(groupId != NULL);
@@ -1200,7 +1232,28 @@ msn_add_contact_to_group(MsnSession *session, MsnCallbackState *state,
 		contact_xml = g_strdup_printf(MSN_CONTACT_XML, passport);
 	}
 
-	body = g_strdup_printf(MSN_ADD_CONTACT_GROUP_TEMPLATE, groupId, contact_xml);
+	if (user->invite_message) {
+		char *tmp;
+		body = g_markup_escape_text(user->invite_message, -1);
+
+		/* Ignore the cast, we treat it as const anyway. */
+		tmp = (char *)purple_connection_get_display_name(session->account->gc);
+		tmp = tmp ? g_markup_escape_text(tmp, -1) : g_strdup("");
+
+		invite = g_strdup_printf(MSN_CONTACT_INVITE_MESSAGE_XML, body, tmp);
+
+		g_free(body);
+		g_free(tmp);
+
+		/* We can free this now */
+		g_free(user->invite_message);
+		user->invite_message = NULL;
+
+	} else {
+		invite = g_strdup("");
+	}
+
+	body = g_strdup_printf(MSN_ADD_CONTACT_GROUP_TEMPLATE, groupId, contact_xml, invite);
 
 	state->body = xmlnode_from_str(body, -1);
 	state->post_action = MSN_ADD_CONTACT_GROUP_SOAP_ACTION;
@@ -1208,6 +1261,7 @@ msn_add_contact_to_group(MsnSession *session, MsnCallbackState *state,
 	state->cb = msn_add_contact_to_group_read_cb;
 	msn_contact_request(state);
 
+	g_free(invite);
 	g_free(contact_xml);
 	g_free(body);
 }
@@ -1380,12 +1434,20 @@ msn_update_contact(MsnSession *session, const char *passport, MsnContactUpdateTy
 	xmlnode *contact;
 	xmlnode *contact_info;
 	xmlnode *changes;
+	MsnUser *user = NULL;
 
-	purple_debug_info("msn", "Update contact information with new %s: %s\n",
+	purple_debug_info("msn", "Update contact information for %s with new %s: %s\n",
+		passport ? passport : "(null)",
 		type == MSN_UPDATE_DISPLAY ? "display name" : "alias",
 		value ? value : "(null)");
-	purple_debug_info("msn", "passport=%s\n", passport);
 	g_return_if_fail(passport != NULL);
+
+	if (strcmp(passport, "Me") != 0) {
+		user = msn_userlist_find_user(session->userlist, passport);
+		if (!user)
+			return;
+	}
+
 	contact_info = xmlnode_new("contactInfo");
 	changes = xmlnode_new("propertiesChanged");
 
@@ -1414,8 +1476,6 @@ msn_update_contact(MsnSession *session, const char *passport, MsnContactUpdateTy
 			g_return_if_reached();
 	}
 
-
-
 	state = msn_callback_state_new(session);
 
 	state->body = xmlnode_from_str(MSN_CONTACT_UPDATE_TEMPLATE, -1);
@@ -1428,14 +1488,13 @@ msn_update_contact(MsnSession *session, const char *passport, MsnContactUpdateTy
 	xmlnode_insert_child(contact, contact_info);
 	xmlnode_insert_child(contact, changes);
 
-	if (!strcmp(passport, "Me")) {
-		xmlnode *contactType = xmlnode_new_child(contact_info, "contactType");
-		xmlnode_insert_data(contactType, "Me", -1);
-	} else {
-		MsnUser *user = msn_userlist_find_user(session->userlist, passport);
+	if (user) {
 		xmlnode *contactId = xmlnode_new_child(contact, "contactId");
 		msn_callback_state_set_uid(state, user->uid);
 		xmlnode_insert_data(contactId, state->uid, -1);
+	} else {
+		xmlnode *contactType = xmlnode_new_child(contact_info, "contactType");
+		xmlnode_insert_data(contactType, "Me", -1);
 	}
 
 	msn_contact_request(state);
@@ -1508,11 +1567,11 @@ msn_del_contact_from_list(MsnSession *session, MsnCallbackState *state,
 		if (user && user->networkid != MSN_NETWORK_PASSPORT)
 			member = g_strdup_printf(MSN_MEMBER_MEMBERSHIPID_XML,
 			                         "EmailMember", "Email",
-			                         user->membership_id[MSN_LIST_PL]);
+			                         user->member_id_on_pending_list);
 		else
 			member = g_strdup_printf(MSN_MEMBER_MEMBERSHIPID_XML,
 			                         "PassportMember", "Passport",
-			                         user->membership_id[MSN_LIST_PL]);
+			                         user->member_id_on_pending_list);
 	} else {
 		/* list == MSN_LIST_AL || list == MSN_LIST_BL */
 		partner_scenario = MSN_PS_BLOCK_UNBLOCK;

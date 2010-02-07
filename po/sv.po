@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pidgin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-25 23:20+0100\n"
-"PO-Revision-Date: 2009-02-25 23:14+0100\n"
+"POT-Creation-Date: 2010-01-13 13:48+0100\n"
+"PO-Revision-Date: 2010-01-13 13:48+0100\n"
 "Last-Translator: Peter Hjalmarsson <xake@rymdraket.net>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -57,6 +57,7 @@ msgstr ""
 "undersöka och flytta inställningarna för han och rapportera felet på sidan "
 "http://developer.pidgin.im"
 
+#. the user did not fill in the captcha
 msgid "Error"
 msgstr "Fel"
 
@@ -365,7 +366,7 @@ msgid "OK"
 msgstr "OK"
 
 msgid "New Instant Message"
-msgstr "Nytt snabbmeddelanden"
+msgstr "Nytt snabbmeddelande"
 
 msgid "Please enter the username or alias of the person you would like to IM."
 msgstr ""
@@ -545,13 +546,6 @@ msgstr ""
 msgid "Re-enable Account"
 msgstr "Återaktivera konto"
 
-msgid ""
-"The account has disconnected and you are no longer in this chat. You will be "
-"automatically rejoined in the chat when the account reconnects."
-msgstr ""
-"Kontot har inaktiverats och du är inte längre med i denna chatt. Du kommer "
-"automatiskt gå med i chatten när kontot återansluts."
-
 msgid "No such command."
 msgstr "Finns inget sådant kommando."
 
@@ -592,6 +586,13 @@ msgstr ""
 msgid "You have left this chat."
 msgstr "Du har lämnat denna chatt."
 
+msgid ""
+"The account has disconnected and you are no longer in this chat. You will be "
+"automatically rejoined in the chat when the account reconnects."
+msgstr ""
+"Kontot har inaktiverats och du är inte längre med i denna chatt. Du kommer "
+"automatiskt gå med i chatten när kontot återansluts."
+
 msgid "Logging started. Future messages in this conversation will be logged."
 msgstr ""
 "Loggning startades. Framtida meddelanden i denna konversation kommer att "
@@ -605,19 +606,6 @@ msgstr ""
 
 msgid "Send To"
 msgstr "Skicka till"
-
-msgid "Invite message"
-msgstr "Inbjudningsmeddelande"
-
-msgid "Invite"
-msgstr "Bjud in"
-
-msgid ""
-"Please enter the name of the user you wish to invite,\n"
-"along with an optional invite message."
-msgstr ""
-"Ange namnet på den användare du vill bjuda in,\n"
-"samt ett inbjudningsmeddelande om du vill"
 
 msgid "Conversation"
 msgstr "Konversation"
@@ -640,6 +628,9 @@ msgstr "Aktivera loggning"
 msgid "Enable Sounds"
 msgstr "Aktivera Ljud"
 
+msgid "You are not connected."
+msgstr "Du är inte ansluten"
+
 msgid "<AUTO-REPLY> "
 msgstr "<AUTO-SVAR>"
 
@@ -649,8 +640,8 @@ msgid_plural "List of %d users:\n"
 msgstr[0] "Lista över %d användare:\n"
 msgstr[1] "Lista över %d användare:\n"
 
-msgid "Supported debug options are:  version"
-msgstr "De felsökningsalternativ som stöds är:  version"
+msgid "Supported debug options are: plugins version"
+msgstr "De felsökningsalternativ som stöds är: moduler version"
 
 msgid "No such command (in this context)."
 msgstr "Det finns inget sådant kommando (i denna kontext)."
@@ -777,6 +768,7 @@ msgid "Remaining"
 msgstr "Återstår"
 
 #. XXX: Use of ggp_str_to_uin() is an ugly hack!
+#. presence
 msgid "Status"
 msgstr "Status"
 
@@ -876,6 +868,39 @@ msgstr "Alla konversationer"
 msgid "System Log"
 msgstr "Systemlogg"
 
+msgid "Calling..."
+msgstr "Ringer..."
+
+msgid "Hangup"
+msgstr "La på"
+
+#. Number of actions
+msgid "Accept"
+msgstr "Acceptera"
+
+msgid "Reject"
+msgstr "Avslå"
+
+msgid "Call in progress."
+msgstr "Samtal pågår."
+
+msgid "The call has been terminated."
+msgstr "Samtalet avslutat."
+
+#, c-format
+msgid "%s wishes to start an audio session with you."
+msgstr "%s önskar påbörja en ljudsession med dig."
+
+#, c-format
+msgid "%s is trying to start an unsupported media session type with you."
+msgstr "%s försöker påbörja en ej stödd mediasession med dig."
+
+msgid "You have rejected the call."
+msgstr "Du har nekat samtalet."
+
+msgid "call: Make an audio call."
+msgstr "call: Påbörja ett ljudsamtal"
+
 msgid "Emails"
 msgstr "Mejl"
 
@@ -910,9 +935,15 @@ msgstr "Fortsätt"
 msgid "IM"
 msgstr "Meddelande"
 
+msgid "Invite"
+msgstr "Bjud in"
+
 msgid "(none)"
 msgstr "(inget)"
 
+#. XXX: The following expects that finch_notify_message gets called. This
+#. * may not always happen, e.g. when another plugin sets its own
+#. * notify_message. So tread carefully.
 msgid "URI"
 msgstr "URI"
 
@@ -1113,7 +1144,6 @@ msgstr "%s har gått iväg. (%s)"
 msgid "%s has sent you a message. (%s)"
 msgstr "%s har sänt dig ett meddelande. (%s)"
 
-#, c-format
 msgid "Unknown pounce event. Please report this!"
 msgstr "Okänd attackhändelse. Var snäll och rapportera detta!"
 
@@ -1278,10 +1308,10 @@ msgid "Always"
 msgstr "Alltid"
 
 msgid "Only when available"
-msgstr "Endast vid tillgänglig"
+msgstr "Endast när \"Tillgänglig\""
 
 msgid "Only when not available"
-msgstr "Endast vid Ej tillgänglig"
+msgstr "Endast när \"Ej tillgänglig\""
 
 msgid "Volume(0-100):"
 msgstr "Volym(0-100):"
@@ -1315,6 +1345,8 @@ msgstr "Borttagningsstatus"
 msgid "Saved Statuses"
 msgstr "Sparade statusar"
 
+#. title
+#. optional information
 msgid "Title"
 msgstr "Titel"
 
@@ -1480,9 +1512,42 @@ msgstr ""
 "När en ny konversation öppnas kommer denna insticksmodul att lägga till den "
 "föregående konversationen i den nuvarande."
 
+#, c-format
+msgid ""
+"\n"
+"Fetching TinyURL..."
+msgstr ""
+"\n"
+"Hämtar TinyURL..."
+
+#, c-format
+msgid "TinyURL for above: %s"
+msgstr "TinyURL för ovanstående: %s"
+
+msgid "Please wait while TinyURL fetches a shorter URL ..."
+msgstr "Var god vänta medans TinyURL hämtar en kortare URL..."
+
+msgid "Only create TinyURL for URLs of this length or greater"
+msgstr "Skapa enbart TinyURL om url:en är av denna längd eller längre"
+
+msgid "TinyURL (or other) address prefix"
+msgstr "TinyURL (eller annan) adressprefix"
+
+msgid "TinyURL"
+msgstr "TinyURL"
+
+msgid "TinyURL plugin"
+msgstr "TinyURL modul"
+
+msgid "When receiving a message with URL(s), use TinyURL for easier copying"
+msgstr ""
+"När du får meddelande med en/flera URL/URLer, använd TinyURL för att lättare "
+"hantering"
+
 msgid "Online"
 msgstr "Ansluten"
 
+#. primative,						no,							id,			name
 msgid "Offline"
 msgstr "Frånkopplad"
 
@@ -1584,6 +1649,43 @@ msgstr "Kompisar"
 msgid "buddy list"
 msgstr "kompislista"
 
+msgid "The certificate is self-signed and cannot be automatically checked."
+msgstr ""
+"Detta certifikatet är självsignerat och kan inte kontrolleras automatiskt."
+
+msgid ""
+"The certificate is not trusted because no certificate that can verify it is "
+"currently trusted."
+msgstr ""
+"Detta certifikat är inte betrott eftersom inget certifikat som kan verifiera "
+"det är betrott."
+
+msgid "The certificate is not valid yet."
+msgstr "Certifikatet är inte giltigt än."
+
+msgid "The certificate has expired and should not be considered valid."
+msgstr "Certifikatet är för gammalt och bör inte anses giltigt."
+
+#. Translators: "domain" refers to a DNS domain (e.g. talk.google.com)
+msgid "The certificate presented is not issued to this domain."
+msgstr "Certifikatet är inte utfärdat för denna domän."
+
+msgid ""
+"You have no database of root certificates, so this certificate cannot be "
+"validated."
+msgstr ""
+"Du har ingen databas över rootcertifikat, så detta certifikat kan inte bli "
+"verifierat."
+
+msgid "The certificate chain presented is invalid."
+msgstr "Certifikatskedjan som uppvisades är ogiltig."
+
+msgid "The certificate has been revoked."
+msgstr "Certifikatet är taget tillbaka."
+
+msgid "An unknown certificate error occurred."
+msgstr "Ett okänt certifikatsfel har inträffat."
+
 msgid "(DOES NOT MATCH)"
 msgstr "(MATCHAR INTE)"
 
@@ -1625,77 +1727,27 @@ msgstr "Acceptera certifikat för %s?"
 msgid "SSL Certificate Verification"
 msgstr "SSL Certifikatsverifikation"
 
-#. Number of actions
-msgid "Accept"
-msgstr "Acceptera"
-
-msgid "Reject"
-msgstr "Avslå"
-
 msgid "_View Certificate..."
 msgstr "_Visa Certifikat..."
 
-#. Prompt the user to authenticate the certificate
-#. vrq will be completed by user_auth
 #, c-format
-msgid ""
-"The certificate presented by \"%s\" is self-signed. It cannot be "
-"automatically checked."
-msgstr ""
-"Certifikatet uppvisat av \"%s\" är självsignerat. Det kan inte kontrolleras "
-"automatiskt."
+msgid "The certificate for %s could not be validated."
+msgstr "Certifikatet för %s kunde inte valideras."
 
-#, c-format
-msgid "The certificate chain presented for %s is not valid."
-msgstr "Certifikatskedjan uppvisad för %s är inte giltig."
-
-#. TODO: Make this error either block the ensuing SSL
-#. connection error until the user dismisses this one, or
-#. stifle it.
 #. TODO: Probably wrong.
-#. TODO: Probably wrong
 msgid "SSL Certificate Error"
 msgstr "SSL Certifikatsfel"
 
-msgid "Invalid certificate chain"
-msgstr "Ogiltigt certifikatskedja"
-
-#. vrq will be completed by user_auth
-msgid ""
-"You have no database of root certificates, so this certificate cannot be "
-"validated."
-msgstr ""
-"Du har ingen databas över rootcertifikat, så detta certifikat kan inte bli "
-"verifierat."
-
-#. vrq will be completed by user_auth
-msgid ""
-"The root certificate this one claims to be issued by is unknown to Pidgin."
-msgstr "Rootcertifikatet som denna påstås använda är okänd för Pidgin."
+msgid "Unable to validate certificate"
+msgstr "Kan inte validera certifikat."
 
 #, c-format
 msgid ""
-"The certificate chain presented by %s does not have a valid digital "
-"signature from the Certificate Authority from which it claims to have a "
-"signature."
+"The certificate claims to be from \"%s\" instead. This could mean that you "
+"are not connecting to the service you believe you are."
 msgstr ""
-"Certifikatet uppvisat för %s har inte en giltig digital signatur från den "
-"certifikatsutfärdare den påstås vara signerad av."
-
-msgid "Invalid certificate authority signature"
-msgstr "Ogiltig certifigatsutfärdarsignatur"
-
-#. Prompt the user to authenticate the certificate
-#. TODO: Provide the user with more guidance about why he is
-#. being prompted
-#. vrq will be completed by user_auth
-#, c-format
-msgid ""
-"The certificate presented by \"%s\" claims to be from \"%s\" instead.  This "
-"could mean that you are not connecting to the service you believe you are."
-msgstr ""
-"Certifikatet uppvisat av \"%s\" påstår sig istället vara för \"%s\". Detta "
-"kan betyda att du inte ansluter till den tjänst du tror du ansluter till."
+"Certifikatet påstår sig vara för \"%s\" istället. Detta kan betyda att du "
+"inte ansluter till den tjänst du tror du ansluter till."
 
 #. Make messages
 #, c-format
@@ -1718,6 +1770,7 @@ msgstr ""
 msgid "Certificate Information"
 msgstr "Certifikatsinformation"
 
+#. show error to user
 msgid "Registration Error"
 msgstr "Registreringsfel"
 
@@ -1732,6 +1785,8 @@ msgstr "+++ %s har loggat in"
 msgid "+++ %s signed off"
 msgstr "+++ %s har kopplat ifrån"
 
+#. Undocumented
+#. Unknown error
 msgid "Unknown error"
 msgstr "Okänt fel"
 
@@ -1777,6 +1832,17 @@ msgstr "%s lämnade rummet."
 #, c-format
 msgid "%s left the room (%s)."
 msgstr "%s lämnade rummet (%s)."
+
+msgid "Invite to chat"
+msgstr "Bjud in till chatt"
+
+#. Put our happy label in it.
+msgid ""
+"Please enter the name of the user you wish to invite, along with an optional "
+"invite message."
+msgstr ""
+"Ange namnet på den användare du vill bjuda in, samt ett "
+"inbjudningsmeddelande om du vill"
 
 #, c-format
 msgid "Failed to get connection: %s"
@@ -1829,9 +1895,14 @@ msgid "Resolver process exited without answering our request"
 msgstr "Uppslagningsprocessen avslutades utan att besvara våran förfrågan"
 
 #, c-format
+msgid "Error converting %s to punycode: %d"
+msgstr "Fel vid konvertering av %s till punykod: %d"
+
+#, c-format
 msgid "Thread creation failure: %s"
 msgstr "Fel vid trådskapning: %s"
 
+#. Data is assumed to be the destination bn
 msgid "Unknown reason"
 msgstr "Okänd anledning"
 
@@ -1872,6 +1943,9 @@ msgstr "Kan inte skicka en katalog"
 msgid "%s is not a regular file. Cowardly refusing to overwrite it.\n"
 msgstr "%s är ingen vanlig fil. Vägrar fegt att skriva över den.\n"
 
+msgid "File is not readable."
+msgstr "Filen är inte läsbar."
+
 #, c-format
 msgid "%s wants to send you %s (%s)"
 msgstr "%s vill skicka %s (%s) till dig"
@@ -1911,6 +1985,10 @@ msgid "Starting transfer of %s from %s"
 msgstr "Inleder filöverföring av %s från %s"
 
 #, c-format
+msgid "Transfer of file <A HREF=\"file://%s\">%s</A> complete"
+msgstr "Överföringen av filen <A HREF=\"file://%s\">%s</A> är färdig"
+
+#, c-format
 msgid "Transfer of file %s complete"
 msgstr "Överföringen av filen %s är färdig"
 
@@ -1918,18 +1996,18 @@ msgid "File transfer complete"
 msgstr "Filöverföringen slutfördes"
 
 #, c-format
-msgid "You canceled the transfer of %s"
+msgid "You cancelled the transfer of %s"
 msgstr "Du avbröt överföringen av %s"
 
 msgid "File transfer cancelled"
 msgstr "Filöverföringen avbröts"
 
 #, c-format
-msgid "%s canceled the transfer of %s"
+msgid "%s cancelled the transfer of %s"
 msgstr "%s avbröt överföringen av %s"
 
 #, c-format
-msgid "%s canceled the file transfer"
+msgid "%s cancelled the file transfer"
 msgstr "%s avbröt filöverföringen"
 
 #, c-format
@@ -2106,6 +2184,37 @@ msgstr "<font color=\"red\"><b>Kunde inte läsa fil: %s</b></font>"
 #, c-format
 msgid "(%s) %s <AUTO-REPLY>: %s\n"
 msgstr "(%s) %s <AUTO-SVAR>: %s\n"
+
+msgid ""
+"No codecs found. Install some GStreamer codecs found in GStreamer plugins "
+"packages."
+msgstr ""
+"Hittade inga codecs. Installera några GStreamer codecs vilka finns i "
+"GStreamers pluginpaket."
+
+msgid ""
+"No codecs left. Your codec preferences in fs-codecs.conf are too strict."
+msgstr ""
+"Ingen codec kvar. Dina codec-inställningar i fs-codecs.conf är för strikta."
+
+msgid "A non-recoverable Farsight2 error has occurred."
+msgstr "Ett okänt Farsight2-fel har inträffat."
+
+msgid "Conference error"
+msgstr "Konferensfel"
+
+msgid "Error with your microphone"
+msgstr "Problem med din mikrofon"
+
+msgid "Error with your webcam"
+msgstr "Problem med din webbkamera"
+
+#, c-format
+msgid "Error creating session: %s"
+msgstr "Problem att skapa session: %s"
+
+msgid "Error creating conference."
+msgstr "Fel vid skapandet av konferens."
 
 #, c-format
 msgid "You are using %s, but this plugin requires %s."
@@ -2311,7 +2420,7 @@ msgid "_Unset"
 msgstr "_Ta bort"
 
 msgid "Set Idle Time for All Accounts"
-msgstr "Ange Inaktivitetstiden för alla konton"
+msgstr "Ange inaktivitetstiden för alla konton"
 
 msgid "Unset Idle Time for All Idled Accounts"
 msgstr "Tar bort inaktivitetstiden för alla inaktiva konton"
@@ -2363,14 +2472,15 @@ msgstr ""
 "Testinsticksmodul för IPC-stöd, som en server. Denna registrerar IPC-"
 "kommandona."
 
-msgid "Join/Part Hiding Configuration"
-msgstr "Kommer in/Lämnar gömningskonfiguration"
+msgid "Hide Joins/Parts"
+msgstr "Göm gå med/lämna"
 
-msgid "Minimum Room Size"
-msgstr "Minimal rumsstorlek"
+#. Translators: Followed by an input request a number of people
+msgid "For rooms with more than this many people"
+msgstr "För rum med fler än detta antalet personer"
 
-msgid "User Inactivity Timeout (in minutes)"
-msgstr "Användares inaktivitetstidsgräns (i minuter)"
+msgid "If user has not spoken in this many minutes"
+msgstr "Om användaren inte pratat på så här många minuter"
 
 msgid "Apply hiding rules to buddies"
 msgstr "Verkställ döljningsregler för kompisar"
@@ -2382,7 +2492,7 @@ msgstr "Verkställ döljningsregler för kompisar"
 #. *< priority
 #. *< id
 msgid "Join/Part Hiding"
-msgstr " Dölj Går in/Lämnar"
+msgstr "Dölj Går in/Lämnar"
 
 #. *< name
 #. *< version
@@ -2509,13 +2619,13 @@ msgstr "Inkludera andra IM-klienters loggfiler i loggfilsvisaren."
 #. * description
 msgid ""
 "When viewing logs, this plugin will include logs from other IM clients. "
-"Currently, this includes Adium, MSN Messenger, and Trillian.\n"
+"Currently, this includes Adium, MSN Messenger, aMSN, and Trillian.\n"
 "\n"
 "WARNING: This plugin is still alpha code and may crash frequently.  Use it "
 "at your own risk!"
 msgstr ""
-"Vid visning av loggfiler inkluderar denna modul loggar från andra IM-"
-"klienter. För närvarande inkluderar detta Adium, MSN Messenger, och "
+"Vid visning av loggfiler kommer denna modul inkludera loggar från andra IM-"
+"klienter. För närvarande inkluderar detta Adium, MSN Messenger, aMSN, och "
 "Trillian.\n"
 "\n"
 "VARNING: Denna modul är fortfarande alpha-kod och kan krasha ofta. Använd på "
@@ -2566,7 +2676,7 @@ msgstr ""
 "Spara meddelandet skickat till en frånkopplad användare som en notifiering"
 
 msgid ""
-"The rest of the messages will be saved as pounce. You can edit/delete the "
+"The rest of the messages will be saved as pounces. You can edit/delete the "
 "pounce from the `Buddy Pounce' dialog."
 msgstr ""
 "Resten av meddelanden kommer sparas som notifieringar. Du kan ändra/ta bort "
@@ -2599,6 +2709,34 @@ msgstr "Spara frånkopplade meddelanden som notifieringar"
 msgid "Do not ask. Always save in pounce."
 msgstr "Fråga inte. Spara alltid som notifiering."
 
+msgid "One Time Password"
+msgstr "Engångslösenord"
+
+#. *< type
+#. *< ui_requirement
+#. *< flags
+#. *< dependencies
+#. *< priority
+#. *< id
+msgid "One Time Password Support"
+msgstr "Support för Engångslösenord"
+
+#. *< name
+#. *< version
+#. *  summary
+msgid "Enforce that passwords are used only once."
+msgstr "Tvinga att lösenordet enbart används en gång."
+
+#. *  description
+msgid ""
+"Allows you to enforce on a per-account basis that passwords not being saved "
+"are only used in a single successful connection.\n"
+"Note: The account password must not be saved for this to work."
+msgstr ""
+"Tillåter dig att välja per konto om lösenorden som inte sparas bara ska "
+"användas till en lyckad anslutning.\n"
+"Notering: Kontolösenordet får inte sparas om dettta ska fungera."
+
 #. *< type
 #. *< ui_requirement
 #. *< flags
@@ -2615,7 +2753,7 @@ msgid "Provides support for loading perl plugins."
 msgstr "Gör det möjligt att ladda perl-insticksmoduler"
 
 msgid "Psychic Mode"
-msgstr "Psykiskt läge"
+msgstr "Siande läge"
 
 msgid "Psychic mode for incoming conversation"
 msgstr "Siande läge för inkommande konversation"
@@ -2794,14 +2932,14 @@ msgstr ""
 "modulen måste du installera ActiveTCL från http://www.activestate.com\n"
 
 msgid ""
-"The Apple Bonjour For Windows toolkit wasn't found, see the FAQ at: http://d."
-"pidgin.im/BonjourWindows for more information."
+"Unable to find Apple's \"Bonjour for Windows\" toolkit, see http://d.pidgin."
+"im/BonjourWindows for more information."
 msgstr ""
-"Apples Bonjour För Windows hittades inte, läs FAQen: http://d.pidgin.im/"
+"Kunde inte hitta Apples \"Bonjour För Windows\", läs på http://d.pidgin.im/"
 "BonjourWindows för mer information"
 
-msgid "Unable to listen for incoming IM connections\n"
-msgstr "Kan inte lyssna efter inkommande IM anslutningar\n"
+msgid "Unable to listen for incoming IM connections"
+msgstr "Kan inte lyssna efter inkommande IM anslutningar"
 
 msgid ""
 "Unable to establish connection with the local mDNS server.  Is it running?"
@@ -2813,6 +2951,7 @@ msgstr "Förnamn"
 msgid "Last name"
 msgstr "Efternamn"
 
+#. email
 msgid "Email"
 msgstr "E-post"
 
@@ -2852,14 +2991,17 @@ msgstr "%s har stängt konversationen."
 msgid "Unable to send the message, the conversation couldn't be started."
 msgstr "Kan inte skicka meddelandet, konversationen kunde inte startas."
 
-msgid "Cannot open socket"
-msgstr "Kan inte öppna uttag"
+#, c-format
+msgid "Unable to create socket: %s"
+msgstr "Kan inte skapa uttag %s"
 
-msgid "Could not bind socket to port"
-msgstr "Kunde inte binda uttag till port"
+#, c-format
+msgid "Unable to bind socket to port: %s"
+msgstr "Kunde inte binda uttag till port: %s"
 
-msgid "Could not listen on socket"
-msgstr "Kunde inte lyssna på uttag"
+#, c-format
+msgid "Unable to listen on socket: %s"
+msgstr "Kan intelyssna på uttag: %s"
 
 msgid "Error communicating with local mDNSResponder."
 msgstr "Fel vid kommunikation med den lokala mDNSRespondern."
@@ -2911,14 +3053,14 @@ msgstr "Spara kompislista..."
 msgid "Load buddylist from file..."
 msgstr "Läs in kompislista från fil..."
 
-msgid "Fill in the registration fields."
-msgstr "Fyll i registreringsfälten."
+msgid "You must fill in all registration fields"
+msgstr "Du måste fylla i alla registreringsfälten"
 
-msgid "Passwords do not match."
-msgstr "Lösenorden stämmer inte överens."
+msgid "Passwords do not match"
+msgstr "Lösenorden stämmer inte överens"
 
-msgid "Unable to register new account. Error occurred.\n"
-msgstr "Kunde inte registrera nytt konto. Ett fel uppstod.\n"
+msgid "Unable to register new account.  An unknown error occurred."
+msgstr "Kunde inte registrera nytt konto. Ett okänt fel uppstod."
 
 msgid "New Gadu-Gadu Account Registered"
 msgstr "Nytt Gadu-gadu-konto registrerat"
@@ -2929,14 +3071,14 @@ msgstr "Registreringen lyckades!"
 msgid "Password"
 msgstr "Lösenord"
 
-msgid "Password (retype)"
-msgstr "Lösenord (upprepa)"
+msgid "Password (again)"
+msgstr "Lösenord (igen)"
 
-msgid "Enter current token"
-msgstr "Ange nuvarande markör"
+msgid "Enter captcha text"
+msgstr "Ange captcha-text"
 
-msgid "Current token"
-msgstr "Nuvarande markör"
+msgid "Captcha"
+msgstr "Captcha"
 
 msgid "Register New Gadu-Gadu Account"
 msgstr "Registrera nytt Gadu-Gadu-konto"
@@ -2950,12 +3092,14 @@ msgstr "Stad"
 msgid "Year of birth"
 msgstr "Födelseår"
 
+#. gender
 msgid "Gender"
 msgstr "Kön"
 
 msgid "Male or female"
 msgstr "Man eller kvinna"
 
+#. 0
 msgid "Male"
 msgstr "Man"
 
@@ -2989,6 +3133,15 @@ msgstr "Lösenordet ändrat utan problem!"
 msgid "Current password"
 msgstr "Nuvarande lösenord"
 
+msgid "Password (retype)"
+msgstr "Lösenord (upprepa)"
+
+msgid "Enter current token"
+msgstr "Ange nuvarande markör"
+
+msgid "Current token"
+msgstr "Nuvarande markör"
+
 msgid "Please, enter your current password and your new password for UIN: "
 msgstr "Var god ange ditt nuvarande lösenord och nya lösenord för UIN: "
 
@@ -3002,9 +3155,12 @@ msgstr "Välj en chatt för kompisen: %s"
 msgid "Add to chat..."
 msgstr "Lägg till i chatt..."
 
+#. 0
+#. Global
 msgid "Available"
 msgstr "Tillgänglig"
 
+#. 1
 #. get_yahoo_status_from_purple_status() returns YAHOO_STATUS_CUSTOM for
 #. * the generic away state (YAHOO_STATUS_TYPE_AWAY) with no message
 #. Away stuff
@@ -3014,6 +3170,7 @@ msgstr "Frånvarande"
 msgid "UIN"
 msgstr "UIN"
 
+#. first name
 msgid "First Name"
 msgstr "Förnamn"
 
@@ -3035,7 +3192,7 @@ msgstr "Inga matchande användare funna"
 msgid "There are no users matching your search criteria."
 msgstr "Det finns inga användare som matchar dina sökkriterier."
 
-msgid "Unable to read socket"
+msgid "Unable to read from socket"
 msgstr "Kan inte läsa från uttag"
 
 msgid "Buddy list downloaded"
@@ -3050,7 +3207,13 @@ msgstr "Kompislistan är uppladdad"
 msgid "Your buddy list was stored on the server."
 msgstr "Din kompislista blev lagrad på servern."
 
-msgid "Connection failed."
+#. The session is now set up, ready to be connected. This emits the
+#. * signedOn signal, so clients can now do anything with msimprpl, and
+#. * we're ready for it (session key, userid, username all setup).
+msgid "Connected"
+msgstr "Ansluten"
+
+msgid "Connection failed"
 msgstr "Anslutning misslyckad"
 
 msgid "Add to chat"
@@ -3059,14 +3222,23 @@ msgstr "Lägg till i chatt"
 msgid "Chat _name:"
 msgstr "Chatt_namn:"
 
+#, c-format
+msgid "Unable to resolve hostname '%s': %s"
+msgstr "Kan inte slå upp värdnamn '%s': %s"
+
+#. 1. connect to server
+#. connect to the server
+msgid "Connecting"
+msgstr "Ansluter"
+
 msgid "Chat error"
 msgstr "Chattfel"
 
 msgid "This chat name is already in use"
 msgstr "Det chattnamnet används redan"
 
-msgid "Not connected to the server."
-msgstr "Inte ansluten till servern."
+msgid "Not connected to the server"
+msgstr "Inte ansluten till servern"
 
 msgid "Find buddies..."
 msgstr "Hitta kompisar..."
@@ -3107,6 +3279,9 @@ msgstr "Populär polsk IM"
 msgid "Gadu-Gadu User"
 msgstr "Gadu-Gadu-användare"
 
+msgid "GG server"
+msgstr "GG server"
+
 #, c-format
 msgid "Unknown command: %s"
 msgstr "Okänt kommando: %s"
@@ -3121,8 +3296,8 @@ msgstr "Inget ämne är inställt"
 msgid "File Transfer Failed"
 msgstr "Filöverföringen misslyckades"
 
-msgid "Could not open a listening port."
-msgstr "Kunde inte öppna en lyssnande port."
+msgid "Unable to open a listening port."
+msgstr "Kunde inte öppna en lyssnningsport."
 
 msgid "Error displaying MOTD"
 msgstr "Fel vid visning av MOTD"
@@ -3137,8 +3312,16 @@ msgstr "Det finns ingen MOTD associerad med denna anslutning."
 msgid "MOTD for %s"
 msgstr "MOTD för %s"
 
-msgid "Server has disconnected"
-msgstr "Servern har kopplat ifrån"
+#.
+#. * TODO: Handle this better. Probably requires a PurpleBOSHConnection
+#. * buffer that stores what is "being sent" until the
+#. * PurpleHTTPConnection reports it is fully sent.
+#.
+#. TODO: what to do here - do we really have to disconnect?
+#. TODO: do we really want to disconnect on a failure to write?
+#, c-format
+msgid "Lost connection with server: %s"
+msgstr "Tappade anslutningen med servern: %s"
 
 msgid "View MOTD"
 msgstr "Visa MOTD"
@@ -3149,25 +3332,23 @@ msgstr "_Kanal:"
 msgid "_Password:"
 msgstr "_Lösenord:"
 
-msgid "IRC nicks may not contain whitespace"
-msgstr "IRC-nickar får inte innehålla blanksteg"
-
-#. 1. connect to server
-#. connect to the server
-msgid "Connecting"
-msgstr "Ansluter"
+msgid "IRC nick and server may not contain whitespace"
+msgstr "IRC-nsmeknamn och server får inte innehålla blanksteg"
 
 msgid "SSL support unavailable"
 msgstr "SSL-stöd ej tillgängligt"
 
-msgid "Couldn't create socket"
-msgstr "Kunde inte skapa socket"
+msgid "Unable to connect"
+msgstr "Kan inte ansluta"
 
-msgid "Couldn't connect to host"
-msgstr "Kunde inte ansluta till värden"
+#. this is a regular connect, error out
+#, c-format
+msgid "Unable to connect: %s"
+msgstr "Kan inte ansluta: %s"
 
-msgid "Read error"
-msgstr "Läsfel"
+#, c-format
+msgid "Server closed the connection"
+msgstr "Servern stängde anslutningen"
 
 msgid "Users"
 msgstr "Användare"
@@ -3347,6 +3528,16 @@ msgid ""
 msgstr ""
 "Ditt valda kontonamn vägrades av servern. Det innehåller antagligen "
 "otillåtna tecken."
+
+#. We only want to do the following dance if the connection
+#. has not been successfully completed.  If it has, just
+#. notify the user that their /nick command didn't go.
+#, c-format
+msgid "The nickname \"%s\" is already being used."
+msgstr "Smeknamnet \"%s\" används redan."
+
+msgid "Nickname in use"
+msgstr "Smeknamnet används"
 
 msgid "Cannot change nick"
 msgstr "Kan inte ändra nick"
@@ -3591,14 +3782,21 @@ msgstr "'Ad-Hoc'-kommandot misslyckades"
 msgid "execute"
 msgstr "utför"
 
-msgid "Server requires TLS/SSL for login.  No TLS/SSL support found."
-msgstr "Servern kräver TLS/SSL vid inloggning. Hittade inget stöd för TLS/SSL."
+msgid "Server requires TLS/SSL, but no TLS/SSL support was found."
+msgstr "Servern kräver TLS/SSL, men inget stöd för TLS/SSL kunde hittades."
 
-msgid "You require encryption, but no TLS/SSL support found."
+msgid "You require encryption, but no TLS/SSL support was found."
 msgstr "Du kräver kryptering, men inget stöd för TLS/SSL hittades."
 
 msgid "Server requires plaintext authentication over an unencrypted stream"
 msgstr "Servern kräver klartextautentisering över en okrypterad ström"
+
+#. This should never happen!
+msgid "Invalid response from server"
+msgstr "Ogiltigt svar från server"
+
+msgid "Server does not use any supported authentication method"
+msgstr "Servern använder inga autentiseringsmetoder som stöds"
 
 #, c-format
 msgid ""
@@ -3611,17 +3809,52 @@ msgstr ""
 msgid "Plaintext Authentication"
 msgstr "Klartextautentisering"
 
-msgid "Invalid response from server."
-msgstr "Ogiltigt svar från servern."
-
-msgid "Server does not use any supported authentication method"
-msgstr "Servern använder inga autentiseringsmetoder som stöds"
+msgid "You require encryption, but it is not available on this server."
+msgstr "Du kräver cryptering, men server stödjer det inte."
 
 msgid "Invalid challenge from server"
 msgstr "Ogiltigt utmaning från servern"
 
-msgid "SASL error"
-msgstr "SASL fel"
+msgid "Server thinks authentication is complete, but client does not"
+msgstr "Servern tror autentikationen är färdig, men det tycker inte klienten"
+
+msgid "SASL authentication failed"
+msgstr "SASL Autentisering misslyckades"
+
+#, c-format
+msgid "SASL error: %s"
+msgstr "SASL fel: %s"
+
+msgid "Unable to canonicalize username"
+msgstr "Kunde inte erkänna användarnamn"
+
+msgid "Unable to canonicalize password"
+msgstr "Kunde inte erkänna lösenord"
+
+msgid "Malicious challenge from server"
+msgstr "Illvillig utmaning från server"
+
+msgid "Unexpected response from server"
+msgstr "Oväntat svar från server"
+
+msgid "The BOSH connection manager terminated your session."
+msgstr "BOSH anslutningshanterare avslutade din session."
+
+msgid "No session ID given"
+msgstr "Inget sessions ID angavs"
+
+msgid "Unsupported version of BOSH protocol"
+msgstr "Ej stödd version av BOSH-protokollet"
+
+msgid "Unable to establish a connection with the server"
+msgstr "Kunde inte skapa en anslutning med servern"
+
+#, c-format
+msgid "Unable to establish a connection with the server: %s"
+msgstr "Kunde inte skapa en anslutning med servern: %s"
+
+msgid "Unable to establish SSL connection"
+msgstr "Kan inte skapa SSL-anslutning"
 
 msgid "Full Name"
 msgstr "Fullständigt namn"
@@ -3638,6 +3871,11 @@ msgstr "URL"
 msgid "Street Address"
 msgstr "Gatuadress"
 
+#.
+#. * EXTADD is correct, EXTADR is generated by other
+#. * clients. The next time someone reads this, remove
+#. * EXTADR.
+#.
 msgid "Extended Address"
 msgstr "Utökad adress"
 
@@ -3667,6 +3905,7 @@ msgstr "Organisationsenhet"
 msgid "Role"
 msgstr "Roll"
 
+#. birthday
 msgid "Birthday"
 msgstr "Födelsedag"
 
@@ -3692,168 +3931,8 @@ msgstr "Klient"
 msgid "Operating System"
 msgstr "Operativsystem"
 
-msgid "Last Activity"
-msgstr "Senaste aktivitet"
-
-msgid "Service Discovery Info"
-msgstr "Tjänsteupptäckningsinfo"
-
-msgid "Service Discovery Items"
-msgstr "Tjänstupptäckningsföremål"
-
-msgid "Extended Stanza Addressing"
-msgstr "Utökad Strofadressering"
-
-msgid "Multi-User Chat"
-msgstr "Månganvändarchatt"
-
-msgid "Multi-User Chat Extended Presence Information"
-msgstr ""
-
-msgid "In-Band Bytestreams"
-msgstr "In-Band Byteströmmar"
-
-msgid "Ad-Hoc Commands"
-msgstr "'Ad-Hoc' Kommandon"
-
-# Vad är PubSub? Hittar bara antydningar till en sökmotor med speciella möjligheter för uppföljning. Är det den som avses?
-msgid "PubSub Service"
-msgstr "PubSub Service"
-
-msgid "SOCKS5 Bytestreams"
-msgstr "SOCKS5 Byteströmmar"
-
-# Vad för?
-msgid "Out of Band Data"
-msgstr ""
-
-msgid "XHTML-IM"
-msgstr "XHTML-IM"
-
-# Vad menas med In-Band, när används och vad blir då lämplig översättning? Denna har antagligen något med "Out-of-Band att göra men hur hänger de ihop?
-msgid "In-Band Registration"
-msgstr "In-Bandsregistrering"
-
-msgid "User Location"
-msgstr "Placering"
-
-msgid "User Avatar"
-msgstr "Användar-avatar"
-
-msgid "Chat State Notifications"
-msgstr "Chatt-status notifieringar"
-
-msgid "Software Version"
-msgstr "Mjukvaruversion"
-
-msgid "Stream Initiation"
-msgstr "Ströminitiering"
-
-msgid "File Transfer"
-msgstr "Filöverföringar"
-
-msgid "User Mood"
-msgstr "Användarhumör"
-
-msgid "User Activity"
-msgstr "Användaraktivitet"
-
-# Låter mysko, vet inte i vilket sammanhang.
-msgid "Entity Capabilities"
-msgstr "Existensmöjligheter"
-
-msgid "Encrypted Session Negotiations"
-msgstr "Förhandlingar om krypterade sessioner"
-
-msgid "User Tune"
-msgstr "Användarlåt"
-
-msgid "Roster Item Exchange"
-msgstr "Listinnehållsutbyte"
-
-# Vet inte om detta är bästa, men...
-msgid "Reachability Address"
-msgstr "Nåbar adress"
-
-msgid "User Profile"
-msgstr "Användarprofil"
-
-msgid "Jingle"
-msgstr "Ramsa"
-
-# Vad är dessa?
-msgid "Jingle Audio"
-msgstr "Sångsnutt"
-
-msgid "User Nickname"
-msgstr "Användarsmeknamn"
-
-# Vad är dessa?
-msgid "Jingle ICE UDP"
-msgstr "Ramsa ICE UDP"
-
-# Vad är dessa?
-msgid "Jingle ICE TCP"
-msgstr "Ramsa ICE TCP"
-
-# Vad är dessa?
-msgid "Jingle Raw UDP"
-msgstr "Ramsa Rå UDP"
-
-msgid "Jingle Video"
-msgstr "Ramsa Video"
-
-# Vad är dessa?
-msgid "Jingle DTMF"
-msgstr "Ramsa DTMF"
-
-msgid "Message Receipts"
-msgstr "Meddelandekvitton"
-
-msgid "Public Key Publishing"
-msgstr "Publik nyckelpublisering"
-
-msgid "User Chatting"
-msgstr "Användarchattning"
-
-msgid "User Browsing"
-msgstr "Användarbläddring"
-
-msgid "User Gaming"
-msgstr "Användarspelning"
-
-msgid "User Viewing"
-msgstr "Användarvisning"
-
-msgid "Ping"
-msgstr "Ping"
-
-msgid "Stanza Encryption"
-msgstr "Strofkryptering"
-
-msgid "Entity Time"
-msgstr "Enhet Tid"
-
-msgid "Delayed Delivery"
-msgstr "Försenad försändelse"
-
-msgid "Collaborative Data Objects"
-msgstr "Kollebrationsdata objekt"
-
-msgid "File Repository and Sharing"
-msgstr "Filförvaringsplats och Delning"
-
-msgid "STUN Service Discovery for Jingle"
-msgstr "STUN Serviceupptäckning för Ramsor"
-
-msgid "Simplified Encrypted Session Negotiation"
-msgstr "Simpel crypterad session förhandling"
-
-msgid "Hop Check"
-msgstr "Hoppkontroll"
-
-msgid "Capabilities"
-msgstr "Stödjer"
+msgid "Local Time"
+msgstr "Lokal tid"
 
 msgid "Priority"
 msgstr "Prioritet"
@@ -3865,6 +3944,16 @@ msgstr "Prioritet"
 # på ett annat ställe i denna fil.
 msgid "Resource"
 msgstr "Resurs"
+
+msgid "Uptime"
+msgstr "Upptid"
+
+msgid "Logged Off"
+msgstr "Frånkopplad"
+
+#, c-format
+msgid "%s ago"
+msgstr "%s sedan"
 
 msgid "Middle Name"
 msgstr "Andranamn"
@@ -3881,24 +3970,32 @@ msgstr "Foto"
 msgid "Logo"
 msgstr "Logotyp"
 
+#, c-format
+msgid ""
+"%s will no longer be able to see your status updates.  Do you want to "
+"continue?"
+msgstr ""
+"%s kommer inte längre kunna se dina statusuppdateringar. Vill du fortsätta?"
+
+msgid "Cancel Presence Notification"
+msgstr "Avbryt närvarorapportering"
+
 msgid "Un-hide From"
 msgstr "Göm inte \"Från\""
 
 msgid "Temporarily Hide From"
 msgstr "Göm temporärt \"Från\""
 
-#. && NOT ME
-msgid "Cancel Presence Notification"
-msgstr "Avbryt närvarorapportering"
-
 msgid "(Re-)Request authorization"
 msgstr "Begär autentiserings (igen)"
 
-#. if(NOT ME)
 #. shouldn't this just happen automatically when the buddy is
 #. removed?
 msgid "Unsubscribe"
 msgstr "Sluta prenumerera"
+
+msgid "Initiate _Chat"
+msgstr "Starta _chatt"
 
 msgid "Log In"
 msgstr "Anslut"
@@ -3906,18 +4003,21 @@ msgstr "Anslut"
 msgid "Log Out"
 msgstr "Koppla ifrån"
 
+#. 2
 msgid "Chatty"
 msgstr "Pratig"
 
 msgid "Extended Away"
 msgstr "Utökad frånvaro"
 
+#. 3
 msgid "Do Not Disturb"
 msgstr "Stör inte"
 
 msgid "JID"
 msgstr "JID"
 
+#. last name
 msgid "Last Name"
 msgstr "Efternamn"
 
@@ -4033,34 +4133,26 @@ msgstr "Välj en konferensserver att fråga"
 msgid "Find Rooms"
 msgstr "Sök rum"
 
-msgid "You require encryption, but it is not available on this server."
-msgstr "Du kräver cryptering, men server stödjer det inte."
+msgid "Affiliations:"
+msgstr "Anknytningar:"
 
-msgid "Write error"
-msgstr "Skrivfel"
+msgid "No users found"
+msgstr "Inga användare funna"
 
-msgid "Ping timeout"
-msgstr "Ping överskred en tidsgräns"
+msgid "Roles:"
+msgstr "Roller:"
 
-msgid "Read Error"
-msgstr "Läsfel"
-
-#, c-format
-msgid ""
-"Could not establish a connection with the server:\n"
-"%s"
-msgstr ""
-"Kunde inte skapa en anslutning med servern:\n"
-"%s"
-
-msgid "Unable to create socket"
-msgstr "Kan inte skapa socket"
+msgid "Ping timed out"
+msgstr "Ping överskred sin tidsgräns"
 
 msgid "Invalid XMPP ID"
 msgstr "Ogiltigt XMPP ID"
 
 msgid "Invalid XMPP ID. Domain must be set."
 msgstr "Ogiltigt XMPP IP. Domän måste anges."
+
+msgid "Malformed BOSH URL"
+msgstr "Felutformad BOSH-URAL"
 
 #, c-format
 msgid "Registration of %s@%s successful"
@@ -4086,9 +4178,6 @@ msgstr "Avregistreringen lyckades"
 msgid "Unregistration Failed"
 msgstr "Avregistreringen misslyckades"
 
-msgid "Already Registered"
-msgstr "Redan registrerad"
-
 msgid "State"
 msgstr "Delstat"
 
@@ -4100,6 +4189,9 @@ msgstr "Telefon"
 
 msgid "Date"
 msgstr "Datum"
+
+msgid "Already Registered"
+msgstr "Redan registrerad"
 
 msgid "Unregister"
 msgstr "Avregistrera"
@@ -4152,6 +4244,13 @@ msgstr "Servern stödjer inte blockering"
 msgid "Not Authorized"
 msgstr "Inte auktoriserad"
 
+#. (reference: "libpurple/request.h")
+msgid "Mood"
+msgstr "Humör"
+
+msgid "Now Listening"
+msgstr "Lyssnar just nu"
+
 msgid "Both"
 msgstr "Båda"
 
@@ -4167,17 +4266,13 @@ msgstr "Till"
 msgid "None (To pending)"
 msgstr "Ingen (till väntande)"
 
+#. 0
 msgid "None"
 msgstr "Ingen"
 
+#. subscription type
 msgid "Subscription"
 msgstr "Prenumeration"
-
-msgid "Mood"
-msgstr "Humör"
-
-msgid "Now Listening"
-msgstr "Lyssnar just nu"
 
 msgid "Mood Text"
 msgstr "Humörstext"
@@ -4221,9 +4316,6 @@ msgstr "Ditt lösenord har ändrats."
 msgid "Error changing password"
 msgstr "Fel vid byte av lösenord"
 
-msgid "Password (again)"
-msgstr "Lösenord (igen)"
-
 msgid "Change XMPP Password"
 msgstr "Byt XMPP lösenord"
 
@@ -4235,7 +4327,7 @@ msgstr "Ändra användarinfo..."
 
 #. if (js->protocol_options & CHANGE_PASSWORD) {
 msgid "Change Password..."
-msgstr "Byt lösenor..."
+msgstr "Byt lösenord..."
 
 #. }
 msgid "Search for Users..."
@@ -4417,16 +4509,24 @@ msgid "Unable to ping user %s"
 msgstr "Kan inte pinga användaren %s"
 
 #, c-format
-msgid "Unable to buzz, because there is nothing known about user %s."
-msgstr "Kunde inte surra eftersom det inte finns något känt om användaren %s."
+msgid "Unable to buzz, because there is nothing known about %s."
+msgstr "Kunde inte surra eftersom det inte finns något känt om %s."
 
 #, c-format
-msgid "Unable to buzz, because user %s might be offline."
-msgstr "Kunde inte surra eftersom användaren %s kanske är frånkopplad."
+msgid "Unable to buzz, because %s might be offline."
+msgstr "Kunde inte surra eftersom %s kanske är frånkopplad."
 
 #, c-format
-msgid "Unable to buzz, because the user %s does not support it."
-msgstr "Kan inte surra, användaren %s stödjer inte det."
+msgid ""
+"Unable to buzz, because %s does not support it or does not wish to receive "
+"buzzes now."
+msgstr ""
+"Kan inte surra eftersom %s stödjer inte det eller önskar ta emot surr just "
+"nu."
+
+#, c-format
+msgid "Buzzing %s..."
+msgstr "Surrar %s..."
 
 #. Yahoo only supports one attention command: the 'buzz'.
 #. This is index number YAHOO_BUZZ.
@@ -4438,8 +4538,34 @@ msgid "%s has buzzed you!"
 msgstr "%s har surrat dig!"
 
 #, c-format
-msgid "Buzzing %s..."
-msgstr "Surrar %s..."
+msgid "Unable to initiate media with %s: invalid JID"
+msgstr "Kan inte påbörja media med %s: ogiltig JID"
+
+#, c-format
+msgid "Unable to initiate media with %s: user is not online"
+msgstr "Kan inte påbörja media med %s: användaren är inte ansluten"
+
+#, c-format
+msgid "Unable to initiate media with %s: not subscribed to user presence"
+msgstr ""
+"Kan inte påbörja media med %s: prenumererar inte på användartillgänglighet"
+
+msgid "Media Initiation Failed"
+msgstr "Initiering av media misslyckades"
+
+#, c-format
+msgid ""
+"Please select the resource of %s with which you would like to start a media "
+"session."
+msgstr ""
+"Var god välj vilken tillflykt för %s med vilken du vill påbörja en "
+"mediasession."
+
+msgid "Select a Resource"
+msgstr "Välj en tillflykt"
+
+msgid "Initiate Media"
+msgstr "Påbörja Media"
 
 msgid "config:  Configure a chat room."
 msgstr "config: Konfigurera ett chattrum."
@@ -4447,8 +4573,8 @@ msgstr "config: Konfigurera ett chattrum."
 msgid "configure:  Configure a chat room."
 msgstr "configure: Konfigurera ett chattrum."
 
-msgid "part [room]:  Leave the room."
-msgstr "part [rum]: lämna rummet."
+msgid "part [message]:  Leave the room."
+msgstr "part [meddelande]: Lämna rummet."
 
 msgid "register:  Register with a chat room."
 msgstr "register: Registrera i ett chattrum."
@@ -4460,18 +4586,18 @@ msgid "ban &lt;user&gt; [reason]:  Ban a user from the room."
 msgstr "ban &lt;användare&gt; [anledning]:  Bannlys en användare från rummet."
 
 msgid ""
-"affiliate &lt;user&gt; &lt;owner|admin|member|outcast|none&gt;: Set a user's "
-"affiliation with the room."
+"affiliate &lt;owner|admin|member|outcast|none&gt; [nick1] [nick2] ...: Get "
+"the users with an affiliation or set users' affiliation with the room."
 msgstr ""
-"affiliate &lt;användare&gt; &lt;ägare|admin|medlem|utstött|ingen&gt;: Ange "
-"en användares koppling till rummet."
+"affiliate &lt;ägare|admin|medlem|utstött|ingen&gt;: [nick1] [nick2] ...: "
+"Hämta eller ange användarnas anknytning till rummet."
 
 msgid ""
-"role &lt;user&gt; &lt;moderator|participant|visitor|none&gt;: Set a user's "
-"role in the room."
+"role &lt;moderator|participant|visitor|none&gt; [nick1] [nick2] ...: Get the "
+"users with a role or set users' role with the room."
 msgstr ""
-"role &lt;användare&gt; &lt;moderator|deltagare|besökare|inget&gt;: Ange en "
-"användares roll i rummet."
+"role &lt;moderator|participant|visitor|none&gt;: [nick1] [nick2] ...: Hämta "
+"eller ange användarnas roll i rummet."
 
 msgid "invite &lt;user&gt; [message]:  Invite a user to the room."
 msgstr ""
@@ -4535,6 +4661,9 @@ msgstr "Anslutningsserver"
 msgid "File transfer proxies"
 msgstr "Filetransports proxies"
 
+msgid "BOSH URL"
+msgstr "BOSH URL"
+
 #. this should probably be part of global smiley theme settings later on,
 #. shared with MSN
 msgid "Show Custom Smileys"
@@ -4573,6 +4702,14 @@ msgstr "XML-tolkningsfel"
 msgid "Unknown Error in presence"
 msgstr "Okänt fel i närvaro"
 
+#, c-format
+msgid "Error joining chat %s"
+msgstr "Fel vid anslutning till chatt %s"
+
+#, c-format
+msgid "Error in chat %s"
+msgstr "Fel i chatt %s"
+
 msgid "Create New Room"
 msgstr "Skapa nytt rum"
 
@@ -4589,13 +4726,25 @@ msgstr "_Konfigurera rum"
 msgid "_Accept Defaults"
 msgstr "_Acceptera förval"
 
-#, c-format
-msgid "Error joining chat %s"
-msgstr "Fel vid anslutning till chatt %s"
+msgid "No reason"
+msgstr "Ingen anledning"
 
 #, c-format
-msgid "Error in chat %s"
-msgstr "Fel i chatt %s"
+msgid "You have been kicked: (%s)"
+msgstr "Du har sparkats ut: (%s)"
+
+#, c-format
+msgid "Kicked (%s)"
+msgstr "Utsparkad (%s)"
+
+msgid "An error occurred on the in-band bytestream transfer\n"
+msgstr ""
+
+msgid "Transfer was closed."
+msgstr "Överföringen stängdes inte."
+
+msgid "Failed to open in-band bytestream"
+msgstr ""
 
 #, c-format
 msgid "Unable to send file to %s, user does not support file transfers"
@@ -4620,9 +4769,6 @@ msgstr ""
 #, c-format
 msgid "Please select the resource of %s to which you would like to send a file"
 msgstr "Var god välj vilken tillflykt för %s du vill sända filen till"
-
-msgid "Select a Resource"
-msgstr "Välj en tillflykt"
 
 msgid "Edit User Mood"
 msgstr "Redigera användarhumör"
@@ -4666,7 +4812,7 @@ msgid "Unable to add \"%s\"."
 msgstr "Kunde inte lägga till \"%s\"."
 
 msgid "Buddy Add error"
-msgstr ""
+msgstr "Fel vid tillläggning av kompis"
 
 msgid "The username specified does not exist."
 msgstr "Den angivna användarnamnet finns inte."
@@ -4874,8 +5020,7 @@ msgstr "Fel på friend-fil"
 msgid "Not expected"
 msgstr "Ej väntat"
 
-#, c-format
-msgid "Friendly name changes too rapidly"
+msgid "Friendly name is changing too rapidly"
 msgstr "Smeknamn ändras för ofta"
 
 #, c-format
@@ -4923,6 +5068,30 @@ msgstr "Andra kontakter"
 msgid "Non-IM Contacts"
 msgstr "Icke-IM kontakter"
 
+#, c-format
+msgid "%s sent a wink. <a href='msn-wink://%s'>Click here to play it</a>"
+msgstr ""
+"%s skickade en vink. <a href='msn-wink://%s'>Klicka här för att spela upp "
+"den</a>"
+
+#, c-format
+msgid "%s sent a wink, but it could not be saved"
+msgstr "%s skickade en vink, men den kunde inte sparas"
+
+#, c-format
+msgid "%s sent a voice clip. <a href='audio://%s'>Click here to play it</a>"
+msgstr ""
+"%s skickade ett röstmeddelande. <a href='audio://%s'>Klicka här för att "
+"spela upp det</a>"
+
+#, c-format
+msgid "%s sent a voice clip, but it could not be saved"
+msgstr "%s skickade ett röstmeddelande, men det kunde inte sparas"
+
+#, c-format
+msgid "%s sent you a voice chat invite, which is not yet supported."
+msgstr "%s har skickat dig en inbjudan till en röstchatt vilken inte stöds än."
+
 msgid "Nudge"
 msgstr "Vibba"
 
@@ -4939,6 +5108,10 @@ msgstr "E-postadress..."
 
 msgid "Your new MSN friendly name is too long."
 msgstr "Ditt nya smeknamn för MSN är för långt."
+
+#, c-format
+msgid "Set friendly name for %s."
+msgstr "Ange smeknamn för %s."
 
 msgid "Set your friendly name."
 msgstr "Ange smeknamn."
@@ -5068,15 +5241,32 @@ msgstr "Öppna Hotmail Inkorg"
 msgid "Send to Mobile"
 msgstr "Skicka till mobil"
 
-msgid "Initiate _Chat"
-msgstr "Starta _chatt"
-
 msgid "SSL support is needed for MSN. Please install a supported SSL library."
 msgstr ""
 "SSL-stöd krävs för att använda MSN. Installera ett SSL-bibliotek som stöds."
 
-msgid "Failed to connect to server."
-msgstr "Kunde inte ansluta till servern."
+#, c-format
+msgid ""
+"Unable to add the buddy %s because the username is invalid.  Usernames must "
+"be valid email addresses."
+msgstr ""
+"Kunde inte lägga till kompisen %s eftersom användarnamnet är ogiltigt. "
+"Användarnamnet måste vara en giltig epost-adress."
+
+msgid "Unable to Add"
+msgstr "Kunde inte lägga till"
+
+msgid "Authorization Request Message:"
+msgstr "Meddelande om auktoriseringsbegäran:"
+
+msgid "Please authorize me!"
+msgstr "Snälla auktorisera mig!"
+
+#. *
+#. * A wrapper for purple_request_action() that uses @c OK and @c Cancel buttons.
+#.
+msgid "_OK"
+msgstr "_OK"
 
 msgid "Error retrieving profile"
 msgstr "Fel vid hämtning av profil"
@@ -5267,62 +5457,29 @@ msgid "Windows Live ID authentication:Invalid response"
 msgstr "Windows Live ID autentisering: Ogiltigt svar"
 
 #, c-format
-msgid "%s is not a valid group."
-msgstr "%s är inte en giltig grupp."
-
-msgid "Unknown error."
-msgstr "Okänt fel."
-
-#, c-format
-msgid "%s on %s (%s)"
-msgstr "%s på %s (%s)"
-
-#, c-format
 msgid "%s just sent you a Nudge!"
 msgstr "%s skickade just en vibb!"
-
-#. char *adl = g_strndup(payload, len);
-#, c-format
-msgid "Unknown error (%d)"
-msgstr "Okänt fel (%d)"
-
-msgid "Unable to add user"
-msgstr "Kan inte lägga till användaren"
 
 msgid "The following users are missing from your addressbook"
 msgstr "De följande användarna saknas i din adressbok"
 
 #, c-format
-msgid "Unable to add user on %s (%s)"
-msgstr "Kan inte lägga till användare på %s (%s)"
+msgid "Unknown error (%d): %s"
+msgstr "Okänt fel (%d): %s"
 
+msgid "Unable to add user"
+msgstr "Kan inte lägga till användaren"
+
+#. Unknown error!
 #, c-format
-msgid "Unable to block user on %s (%s)"
-msgstr "Kan inte blockera användaren på %s (%s)"
+msgid "Unknown error (%d)"
+msgstr "Okänt fel (%d)"
 
-#, c-format
-msgid "Unable to permit user on %s (%s)"
-msgstr "Kan inte tillåta användaren på %s (%s)"
-
-#, c-format
-msgid "%s could not be added because your buddy list is full."
-msgstr "%s kunde inte läggas till eftersom din kompislista är full."
-
-#, c-format
-msgid "%s is not a valid passport account."
-msgstr "%s är inte ett giltigt passport-konto."
-
-msgid "Service Temporarily Unavailable."
-msgstr "Tjänst tillfälligt onåbar."
+msgid "Unable to remove user"
+msgstr "Kunde inte ta bort användare"
 
 msgid "Mobile message was not sent because it was too long."
 msgstr "Mobilmeddelandet sändes inte då det var för långt."
-
-msgid "Unable to rename group"
-msgstr "Kan inte byta namn på grupp"
-
-msgid "Unable to delete group"
-msgstr "Kan inte ta bort grupp"
 
 #, c-format
 msgid ""
@@ -5371,9 +5528,6 @@ msgid "Message was not sent because an unknown error occurred."
 msgstr ""
 "Meddelandet kunde kanske inte skickas på grund av att ett okänt fel uppstod."
 
-msgid "Unable to connect"
-msgstr "Kan inte ansluta"
-
 msgid "Writing error"
 msgstr "Skrivfel"
 
@@ -5388,20 +5542,20 @@ msgstr ""
 "Anslutningsfel från %s servern:\n"
 "%s"
 
-msgid "Our protocol is not supported by the server."
-msgstr "Vårt protokoll stöds inte av servern."
+msgid "Our protocol is not supported by the server"
+msgstr "Vårt protokoll stöds inte av servern"
 
-msgid "Error parsing HTTP."
-msgstr "Fel vid avkodning av HTTP."
+msgid "Error parsing HTTP"
+msgstr "Fel vid avkodning av HTTP"
 
-msgid "You have signed on from another location."
-msgstr "Du har loggat in från en annan plats."
+msgid "You have signed on from another location"
+msgstr "Du har loggat in från en annan plats"
 
 msgid "The MSN servers are temporarily unavailable. Please wait and try again."
 msgstr "MSN-sernvern är temporärt otillgänglig. Var god försök igen senare."
 
-msgid "The MSN servers are going down temporarily."
-msgstr "MSN-servern går ner temporärt."
+msgid "The MSN servers are going down temporarily"
+msgstr "MSN-servern går ner temporärt"
 
 #, c-format
 msgid "Unable to authenticate: %s"
@@ -5429,6 +5583,18 @@ msgstr "Skickar kaka"
 
 msgid "Retrieving buddy list"
 msgstr "Tar emot kompislista"
+
+#, c-format
+msgid "%s requests to view your webcam, but this request is not yet supported."
+msgstr ""
+"%s har frågar efter att få se fin webbkamera, men denna förfrågan stöds inte "
+"än."
+
+#, c-format
+msgid "%s invited you to view his/her webcam, but this is not yet supported."
+msgstr ""
+"%s har gett dig en inbjudan att se dennes webbkamera, men detta stöds inte "
+"än."
 
 msgid "Away From Computer"
 msgstr "Inte vid datorn"
@@ -5470,14 +5636,6 @@ msgid "Message may have not been sent because an unknown error occurred:"
 msgstr ""
 "Meddelandet kunde kanske inte skickas på grund av att ett okänt fel uppstod:"
 
-#, c-format
-msgid "%s has added you to his or her buddy list."
-msgstr "%s har lagt till dig till sin kompislista."
-
-#, c-format
-msgid "%s has removed you from his or her buddy list."
-msgstr "%s har tagit bort dig från sin kontaktlista."
-
 msgid "Delete Buddy from Address Book?"
 msgstr "Ta bort kompisen från adressboken?"
 
@@ -5486,6 +5644,10 @@ msgstr "Vill du även ta bort denna kompisen från din adressbok?"
 
 msgid "The username specified is invalid."
 msgstr "Den angivna användarnamnet är ogiltigt."
+
+#, c-format
+msgid "Friendly name changes too rapidly"
+msgstr "Smeknamn ändras för ofta"
 
 msgid "This Hotmail account may not be active."
 msgstr "Detta Hotmail-konto är kanske inte aktivt."
@@ -5505,6 +5667,433 @@ msgstr "Profil-URL"
 #. *  description
 msgid "MSN Protocol Plugin"
 msgstr "Insticksmodul för MSN-protokollet"
+
+#, c-format
+msgid "%s is not a valid group."
+msgstr "%s är inte en giltig grupp."
+
+msgid "Unknown error."
+msgstr "Okänt fel."
+
+#, c-format
+msgid "%s on %s (%s)"
+msgstr "%s på %s (%s)"
+
+#, c-format
+msgid "Unable to add user on %s (%s)"
+msgstr "Kan inte lägga till användare på %s (%s)"
+
+#, c-format
+msgid "Unable to block user on %s (%s)"
+msgstr "Kan inte blockera användaren på %s (%s)"
+
+#, c-format
+msgid "Unable to permit user on %s (%s)"
+msgstr "Kan inte tillåta användaren på %s (%s)"
+
+#, c-format
+msgid "%s could not be added because your buddy list is full."
+msgstr "%s kunde inte läggas till eftersom din kompislista är full."
+
+#, c-format
+msgid "%s is not a valid passport account."
+msgstr "%s är inte ett giltigt passport-konto."
+
+msgid "Service Temporarily Unavailable."
+msgstr "Tjänst tillfälligt onåbar."
+
+msgid "Unable to rename group"
+msgstr "Kan inte byta namn på grupp"
+
+msgid "Unable to delete group"
+msgstr "Kan inte ta bort grupp"
+
+#, c-format
+msgid "%s has added you to his or her buddy list."
+msgstr "%s har lagt till dig till sin kompislista."
+
+#, c-format
+msgid "%s has removed you from his or her buddy list."
+msgstr "%s har tagit bort dig från sin kontaktlista."
+
+#. 1
+msgid "Angry"
+msgstr "Arg"
+
+#. 2
+msgid "Excited"
+msgstr "Upphetsad"
+
+#. 3
+msgid "Grumpy"
+msgstr "Tjurig"
+
+#. 4
+msgid "Happy"
+msgstr "Glad"
+
+#. 5
+msgid "In Love"
+msgstr "Kär"
+
+#. 6
+msgid "Invincible"
+msgstr "Osårbar"
+
+#. 7
+msgid "Sad"
+msgstr "Ledsen"
+
+#. 8
+msgid "Hot"
+msgstr "Het"
+
+#. 9
+msgid "Sick"
+msgstr "Sjuk"
+
+#. 10
+msgid "Sleepy"
+msgstr "Sömnig"
+
+#. show current mood
+msgid "Current Mood"
+msgstr "Nuvarande humör"
+
+#. add all moods to list
+msgid "New Mood"
+msgstr "Nytt humör"
+
+msgid "Change your Mood"
+msgstr "Byt ditt humör"
+
+msgid "How do you feel right now?"
+msgstr "Hur mår du just nu?"
+
+msgid "The PIN you entered is invalid."
+msgstr "Det PIN du uppgav är felaktigt."
+
+msgid "The PIN you entered has an invalid length [4-10]."
+msgstr "Det PIN du uppgav har felaktig längd [4-10]."
+
+msgid "The PIN is invalid. It should only consist of digits [0-9]."
+msgstr "Ogiltigt PIN. Det får enbart bestå av nummer [0-9]."
+
+msgid "The two PINs you entered do not match."
+msgstr "De två PIN du angav matchar inte."
+
+msgid "The name you entered is invalid."
+msgstr "Namnet är ogiltigt."
+
+msgid ""
+"The birthday you entered is invalid. The correct format is: 'YYYY-MM-DD'."
+msgstr "Du angav en ogiltig födelsedag. Korrekt format är: 'YY-MM-DD'."
+
+#. show error to user
+msgid "Profile Update Error"
+msgstr "Fel vid uppdatering av profil"
+
+#. no profile information yet, so we cannot update
+#. (reference: "libpurple/request.h")
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Your profile information is not yet retrieved. Please try again later."
+msgstr "Din profilinformation har inte hämtats än. Var god försök igen senare."
+
+#. pin
+msgid "PIN"
+msgstr "PIN"
+
+msgid "Verify PIN"
+msgstr "Verifiera PIN"
+
+#. display name
+msgid "Display Name"
+msgstr "Visningsnamn"
+
+#. hidden
+msgid "Hide my number"
+msgstr "Dölj mitt nummer"
+
+#. mobile number
+msgid "Mobile Number"
+msgstr "Mobilnummer"
+
+msgid "Update your Profile"
+msgstr "Uppdatera din profil"
+
+msgid "Here you can update your MXit profile"
+msgstr "Här kan du uppdatera din MXit-profil"
+
+msgid "View Splash"
+msgstr "Visa Splash"
+
+msgid "There is no splash-screen currently available"
+msgstr "Det finns för närvarande ingen Splash-skärm tillgänglig"
+
+msgid "About"
+msgstr "Om"
+
+#. display / change mood
+msgid "Change Mood..."
+msgstr "Ändra humör..."
+
+#. display / change profile
+msgid "Change Profile..."
+msgstr "Ändra profil..."
+
+#. display splash-screen
+msgid "View Splash..."
+msgstr "Visa Splash..."
+
+#. display plugin version
+msgid "About..."
+msgstr "Om..."
+
+#. the file is too big
+msgid "The file you are trying to send is too large!"
+msgstr "Filen du försöker skicka är för stor!"
+
+msgid ""
+"Unable to connect to the MXit HTTP server. Please check your server settings."
+msgstr ""
+"Kunde inte ansluta till MXit HTTP-servern. Var god undersök dina "
+"serverinställningar."
+
+msgid "Logging In..."
+msgstr "Loggar in..."
+
+msgid ""
+"Unable to connect to the MXit server. Please check your server settings."
+msgstr ""
+"Kunde inte ansluta till MXit-servern. Var god undersök dina "
+"serverinställningar."
+
+msgid "Connecting..."
+msgstr "Ansluter..."
+
+msgid "The nick name you entered is invalid."
+msgstr "Smeknamnet du uppgav är ogiltigt."
+
+msgid "The PIN you entered has an invalid length [7-10]."
+msgstr "Det PIN du uppgav har ogiltig längd [7-10]."
+
+#. mxit login name
+msgid "MXit Login Name"
+msgstr "MXit loginnamn"
+
+#. nick name
+msgid "Nick Name"
+msgstr "Smeknamn"
+
+#. show the form to the user to complete
+msgid "Register New MXit Account"
+msgstr "Registrera nytt MXit-konto"
+
+msgid "Please fill in the following fields:"
+msgstr "Fyll i följande fält:"
+
+#. no reply from the WAP site
+msgid "Error contacting the MXit WAP site. Please try again later."
+msgstr "Fel vid försök att nå MXit WAP sidan. Försök igen senare."
+
+#. wapserver error
+#. server could not find the user
+msgid ""
+"MXit is currently unable to process the request. Please try again later."
+msgstr ""
+"MXit kan för närvarande inte hantera din förfrågan. Försök igen senare."
+
+msgid "Wrong security code entered. Please try again later."
+msgstr "Fel säkerhetskod angiven. Försök igen."
+
+msgid "Your session has expired. Please try again later."
+msgstr "Din session har gått ut. Försök igen senare."
+
+msgid "Invalid country selected. Please try again."
+msgstr "Ogiltigt land uppgivet. Försök igen senare."
+
+msgid "Username is not registered. Please register first."
+msgstr "Användarnamnet är inte registrerat. Registrera dig först."
+
+msgid "Username is already registered. Please choose another username."
+msgstr "Användarnamn redan registrerat. Var god välj ett annat användarnamn."
+
+msgid "Internal error. Please try again later."
+msgstr "Internt fel. Försök igen senare."
+
+msgid "You did not enter the security code"
+msgstr "Du angav inte säkerhetskoden"
+
+msgid "Security Code"
+msgstr "Säkerhetskod"
+
+#. ask for input
+msgid "Enter Security Code"
+msgstr "Ange säkerhetskod"
+
+msgid "Your Country"
+msgstr "Ditt land"
+
+msgid "Your Language"
+msgstr "Ditt språk"
+
+#. display the form to the user and wait for his/her input
+msgid "MXit Authorization"
+msgstr "MXit auktorisering"
+
+msgid "MXit account validation"
+msgstr "MXit kontovalidering"
+
+msgid "Retrieving User Information..."
+msgstr "Hämtar användarinformation..."
+
+msgid "Loading menu..."
+msgstr "Laddar meny..."
+
+msgid "Status Message"
+msgstr "Statusmeddelande"
+
+msgid "Hidden Number"
+msgstr "Dolt nummer"
+
+msgid "Your Mobile Number..."
+msgstr "Ditt mobilnummer..."
+
+#. Configuration options
+#. WAP server (reference: "libpurple/accountopt.h")
+msgid "WAP Server"
+msgstr "WAP Server"
+
+msgid "Connect via HTTP"
+msgstr "Anslut via HTTP"
+
+msgid "Enable splash-screen popup"
+msgstr "Tillåt Splash-skärm popup"
+
+#. we must have lost the connection, so terminate it so that we can reconnect
+msgid "We have lost the connection to MXit. Please reconnect."
+msgstr "Vi har tappat uppkopplingen till MXit. Var god anslut igen."
+
+#. packet could not be queued for transmission
+msgid "Message Send Error"
+msgstr "Fel vid sändning av meddelande"
+
+msgid "Unable to process your request at this time"
+msgstr "Kunde inte hantera din förfrågan nu"
+
+msgid "Timeout while waiting for a response from the MXit server."
+msgstr "Väntetiden tog slut medans vi väntade på svar från MXit servern."
+
+msgid "Successfully Logged In..."
+msgstr "Lyckades logga in..."
+
+#, c-format
+msgid ""
+"%s sent you an encrypted message, but it is not supported on this client."
+msgstr ""
+"%s har skickat dig ett krypterat meddelande, vilket inte stöds av denna "
+"klienten."
+
+msgid "Message Error"
+msgstr "Felmeddelande"
+
+msgid "Cannot perform redirect using the specified protocol"
+msgstr ""
+"Kan inte använda det specificerade protokollet fö en en vidarebefodran "
+
+msgid "An internal MXit server error occurred."
+msgstr "Ett internt MXit-serverfel inträffade."
+
+#, c-format
+msgid "Login error: %s (%i)"
+msgstr "Loginfel: %s (%i)"
+
+#, c-format
+msgid "Logout error: %s (%i)"
+msgstr "Frånkopplingsfel: %s (%i)"
+
+msgid "Contact Error"
+msgstr "Kontaktfel"
+
+msgid "Message Sending Error"
+msgstr "Fel vid sändning av meddelande"
+
+msgid "Status Error"
+msgstr "Statusfel"
+
+msgid "Mood Error"
+msgstr "Humörfel"
+
+msgid "Invitation Error"
+msgstr "Inbjudningsfel"
+
+msgid "Contact Removal Error"
+msgstr "Fel vid borttagning av kontakt"
+
+msgid "Subscription Error"
+msgstr "Prenumerationsfel"
+
+msgid "Contact Update Error"
+msgstr "Kontaktuppdateringsfel"
+
+msgid "File Transfer Error"
+msgstr "Filöverföringsfel"
+
+msgid "Cannot create MultiMx room"
+msgstr "Kunde inte skapa MultiMX-rum"
+
+msgid "MultiMx Invitation Error"
+msgstr "MultiMX inbjudningsfel"
+
+msgid "Profile Error"
+msgstr "Profilfel"
+
+#. bad packet
+msgid "Invalid packet received from MXit."
+msgstr "Ogiltigt paket mottogs från MXit."
+
+#. connection error
+msgid "A connection error occurred to MXit. (read stage 0x01)"
+msgstr "Ett anslutningsproblem uppstod till MXit. (läsläge 0x01)"
+
+#. connection closed
+msgid "A connection error occurred to MXit. (read stage 0x02)"
+msgstr "Ett anslutningsproblem uppstod till MXit. (läsläge 0x02)"
+
+msgid "A connection error occurred to MXit. (read stage 0x03)"
+msgstr "Ett anslutningsproblem uppstod till MXit. (läsläge 0x03)"
+
+#. malformed packet length record (too long)
+msgid "A connection error occurred to MXit. (read stage 0x04)"
+msgstr "Ett anslutningsproblem uppstod till MXit. (läsläge 0x04)"
+
+#. connection error
+msgid "A connection error occurred to MXit. (read stage 0x05)"
+msgstr "Ett anslutningsproblem uppstod till MXit. (läsläge 0x05)"
+
+#. connection closed
+msgid "A connection error occurred to MXit. (read stage 0x06)"
+msgstr "Ett anslutningsproblem uppstod till MXit. (läsläge 0x06)"
+
+msgid "Pending"
+msgstr "Väntar"
+
+msgid "Invited"
+msgstr "Inbjuden"
+
+msgid "Rejected"
+msgstr "Avslagen"
+
+msgid "Deleted"
+msgstr "Borttagen"
+
+msgid "MXit Advertising"
+msgstr "MXit Utannonsering"
+
+msgid "More Information"
+msgstr "Mer information"
 
 #, c-format
 msgid "No such user: %s"
@@ -5535,6 +6124,8 @@ msgid "Lost connection with server"
 msgstr "Tappade anslutningen till servern"
 
 #. Can't write _()'d strings in array initializers. Workaround.
+#. khc: then use N_() in the array initializer and use _() when they are
+#. used
 msgid "New mail messages"
 msgstr "Nya e-postmeddelanden"
 
@@ -5573,43 +6164,29 @@ msgstr[1] ""
 msgid "Add contacts from server"
 msgstr "Lägg till kontakter från server"
 
-#. The session is now set up, ready to be connected. This emits the
-#. * signedOn signal, so clients can now do anything with msimprpl, and
-#. * we're ready for it (session key, userid, username all setup).
-msgid "Connected"
-msgstr "Ansluten"
-
 #, c-format
 msgid "Protocol error, code %d: %s"
 msgstr "Protokollfel, gav felkod %d: %s"
 
 #, c-format
 msgid ""
-"%s Your password is %d characters, greater than the expected maximum length "
-"of %d for MySpaceIM. Please shorten your password at http://profileedit."
-"myspace.com/index.cfm?fuseaction=accountSettings.changePassword and try "
-"again."
+"%s Your password is %zu characters, which is longer than the maximum length "
+"of %d.  Please shorten your password at http://profileedit.myspace.com/index."
+"cfm?fuseaction=accountSettings.changePassword and try again."
 msgstr ""
-"%s Ditt lösenord är %d tecken, längre än den förväntade max-gränsen på %d "
-"för MySpaceIM. Var vänlig förkorta ditt lösenord på följande adress http://"
+"%s Ditt lösenord är %zu tecken vilket är längre än den förväntade max-"
+"gränsen på %d. Var vänlig förkorta ditt lösenord på följande adress http://"
 "profileedit.myspace.com/index.cfm?fuseaction=accountSettings.changePassword "
 "och försök sedan igen."
+
+msgid "Incorrect username or password"
+msgstr "Felaktigt användarnamn eller lösenord"
 
 msgid "MySpaceIM Error"
 msgstr "MySpaceIM-fel"
 
 msgid "Invalid input condition"
 msgstr "Ogiltigt inmatningsvillkor"
-
-msgid "Read buffer full (2)"
-msgstr "Läsbuffert full (2)"
-
-msgid "Unparseable message"
-msgstr "Otolkbart meddelande"
-
-#, c-format
-msgid "Couldn't connect to host: %s (%d)"
-msgstr "Kunde inte ansluta till värd: %s (%d)"
 
 # Vad säger att det är till just en chatt kompisen ska läggas till?
 msgid "Failed to add buddy"
@@ -5697,6 +6274,15 @@ msgstr "Totala vänner"
 
 msgid "Client Version"
 msgstr "Klientversion"
+
+msgid ""
+"An error occurred while trying to set the username.  Please try again, or "
+"visit http://editprofile.myspace.com/index.cfm?fuseaction=profile.username "
+"to set your username."
+msgstr ""
+"Ett fel uppstod vid försök att ange ditt användarnamn. Försök igen, eller gå "
+"till http://editprofile.myspace.com/index.cfm?fuseaction=profile.username "
+"för att ange ditt användarnamn."
 
 msgid "MySpaceIM - Username Available"
 msgstr "MySpaceIM - Användarnamnet är tillgänglig"
@@ -5851,15 +6437,15 @@ msgstr "Lurar %s..."
 #. * connotation.  It is generally used in a playful tone
 #. * with friends.
 msgid "Raspberry"
-msgstr ""
+msgstr "Pruttljud"
 
-#, fuzzy, c-format
+#, c-format
 msgid "%s has raspberried you!"
-msgstr "%s har surrat dig!"
+msgstr "%s har gjort pruttljud mot dig!"
 
 #, c-format
 msgid "Raspberrying %s..."
-msgstr ""
+msgstr "Gör pruttljud mot %s..."
 
 msgid "Required parameters not passed in"
 msgstr "Nödvändiga parametrar skickades inte"
@@ -5915,9 +6501,6 @@ msgstr "Kan inte lägga till dig själv"
 msgid "Master archive is misconfigured"
 msgstr "Huvudarkiv är felkonfigurerat"
 
-msgid "Incorrect username or password"
-msgstr "Felaktigt användarnamn eller lösenord"
-
 msgid "Could not recognize the host of the username you entered"
 msgstr "Kan inte känna igen värden för användarnamnet du angav"
 
@@ -5961,8 +6544,8 @@ msgid "Unknown error: 0x%X"
 msgstr "Okänt fel: 0x%X"
 
 #, c-format
-msgid "Login failed (%s)."
-msgstr "Inloggningen misslyckades (%s)."
+msgid "Unable to login: %s"
+msgstr "Kunde inte logga in: %s"
 
 #, c-format
 msgid "Unable to send message. Could not get details for user (%s)."
@@ -6066,9 +6649,6 @@ msgstr "GroupWise konferens %d"
 msgid "Authenticating..."
 msgstr "Autentiserar..."
 
-msgid "Unable to connect to server."
-msgstr "Kan inte ansluta till servern."
-
 msgid "Waiting for response..."
 msgstr "Väntar på svar..."
 
@@ -6092,23 +6672,17 @@ msgstr ""
 msgid "Would you like to join the conversation?"
 msgstr "Vill du går med i konversationen?"
 
-msgid "You have been logged out because you logged in at another workstation."
-msgstr "Du har blivit utloggad eftersom du loggat in från en annan dator."
-
 #, c-format
 msgid ""
 "%s appears to be offline and did not receive the message that you just sent."
 msgstr "%s verkar vara frånkopplad och fick inte meddelandet du just skickade."
 
 msgid ""
-"Unable to connect to server. Please enter the address of the server you wish "
-"to connect to."
+"Unable to connect to server. Please enter the address of the server to which "
+"you wish to connect."
 msgstr ""
-"Kunde inte ansluta till servern. Var god ange serveradressen som du vill "
+"Kunde inte ansluta till servern. Var god ange adressen till servern du vill "
 "ansluta till."
-
-msgid "Error. SSL support is not installed."
-msgstr "Fel. SSL-stöd är inte installerat."
 
 msgid "This conference has been closed. No more messages can be sent."
 msgstr "Denna konferens har stängts. Inga fler meddelande kan bli skickade."
@@ -6132,25 +6706,35 @@ msgstr "Serveradress"
 msgid "Server port"
 msgstr "Serverport"
 
+#. Note to translators: %s in this string is a URL
+#, c-format
+msgid "Received unexpected response from %s"
+msgstr "Mottog oväntat svar från %s"
+
+msgid ""
+"You have been connecting and disconnecting too frequently. Wait ten minutes "
+"and try again. If you continue to try, you will need to wait even longer."
+msgstr ""
+"Du har anslutit och kopplat ifrån för många gånger. Vänta tio minuter och "
+"prova igen. Om du fortsätter att försöka kommer du att få vänta ännu längre."
+
+#. Note to translators: The first %s is a URL, the second is an
+#. error message.
+#, c-format
+msgid "Error requesting %s: %s"
+msgstr "Fel vid efterfrågan av %s: %s"
+
+msgid "AOL does not allow your screen name to authenticate here"
+msgstr "AOL tillåter inte ditt skärmnamn att autentisera här"
+
 msgid "Could not join chat room"
 msgstr "Kunde inte ansluta till chatrummet"
 
 msgid "Invalid chat room name"
 msgstr "Ogiltigt namn på chatrum"
 
-msgid "Server closed the connection."
-msgstr "Servern stängde konversationen."
-
-#, c-format
-msgid ""
-"Lost connection with server:\n"
-"%s"
-msgstr ""
-"Tappade anslutningen med servern:\n"
-"%s"
-
-msgid "Received invalid data on connection with server."
-msgstr "Tog emot felaktig data vid anslutning till server."
+msgid "Received invalid data on connection with server"
+msgstr "Tog emot felaktig data vid anslutning till server"
 
 #. *< type
 #. *< ui_requirement
@@ -6198,7 +6782,7 @@ msgstr "Tappade anslutningen till motparten: <br>%s"
 msgid "Received invalid data on connection with remote user."
 msgstr "Tog emot felaktig data över anslutningen till motparten."
 
-msgid "Could not establish a connection with the remote user."
+msgid "Unable to establish a connection with the remote user."
 msgstr "Kunde inte skapa en anslutning till motparten."
 
 msgid "Direct IM established"
@@ -6287,6 +6871,44 @@ msgstr "Kö full"
 
 msgid "Not while on AOL"
 msgstr "Inte på AOL"
+
+msgid "Cannot receive IM due to parental controls"
+msgstr "Kan inte ta emot meddelandet på grund av föräldrakontroll"
+
+msgid "Cannot send SMS without accepting terms"
+msgstr "Kan inte skicka SMS utan att acceptera villkoren"
+
+msgid "Cannot send SMS"
+msgstr "Kan inte skicka SMS"
+
+#. SMS_WITHOUT_DISCLAIMER is weird
+msgid "Cannot send SMS to this country"
+msgstr "Kan inte skicka SMS till detta landet"
+
+#. Undocumented
+msgid "Cannot send SMS to unknown country"
+msgstr "Kan inte skicka SMS till okänt land"
+
+msgid "Bot accounts cannot initiate IMs"
+msgstr "Bot konto kan inte påbörja snabbmeddelanden"
+
+msgid "Bot account cannot IM this user"
+msgstr "Bot konton kan inte skicka snabbmeddelanden till denna användare"
+
+msgid "Bot account reached IM limit"
+msgstr "Bot konto nådde sin gräns för snabbmeddelande"
+
+msgid "Bot account reached daily IM limit"
+msgstr "Bot konto nådde sin dagliga gräns för snabbmeddelande"
+
+msgid "Bot account reached monthly IM limit"
+msgstr "Bot konto nådde sin månadsgräns för snabbmeddelanden"
+
+msgid "Unable to receive offline messages"
+msgstr "Kan inte motta meddelande frånkopplad"
+
+msgid "Offline message store full"
+msgstr "Förvaring av frånkopplade meddelande full"
 
 msgid ""
 "(There was an error receiving this message.  The buddy you are speaking with "
@@ -6400,20 +7022,12 @@ msgstr "Kompiskommentar"
 
 # Osäker!!!
 #, c-format
-msgid ""
-"Could not connect to authentication server:\n"
-"%s"
-msgstr ""
-"Kunde inte ansluta till autentiseringsserver:\n"
-"%s"
+msgid "Unable to connect to authentication server: %s"
+msgstr "Kunde inte ansluta till autentiseringsserver: %s"
 
 #, c-format
-msgid ""
-"Could not connect to BOS server:\n"
-"%s"
-msgstr ""
-"Kunde inte ansluta till BOS-server:\n"
-"%s"
+msgid "Unable to connect to BOS server: %s"
+msgstr "Kan inte ansluta till BOS server: %s"
 
 msgid "Username sent"
 msgstr "Användarnamnet är skickat"
@@ -6427,64 +7041,14 @@ msgstr "Avsluta anslutning"
 
 #, c-format
 msgid ""
-"Unable to login: Could not sign on as %s because the username is invalid.  "
-"Usernames must be a valid email address, or start with a letter and contain "
-"only letters, numbers and spaces, or contain only numbers."
+"Unable to sign on as %s because the username is invalid.  Usernames must be "
+"a valid email address, or start with a letter and contain only letters, "
+"numbers and spaces, or contain only numbers."
 msgstr ""
-"Kan inte logga in: Kunde inte ansluta som %s eftersom användarnamnet är "
-"ogiltigt.  Användarnamnet måste vara en giltig mejladress eller starta med "
-"en bokstav och får endast innehålla bokstäver, nummer och mellanslag, eller "
-"enbart innehålla nummer."
-
-#. Unregistered screen name
-#. uid is not exist
-msgid "Invalid username."
-msgstr "Ogiltigt användarnamn"
-
-msgid "Incorrect password."
-msgstr "Felaktigt lösenord."
-
-#. Suspended account
-msgid "Your account is currently suspended."
-msgstr "Ditt konto är avstängt för tillfället."
-
-#. service temporarily unavailable
-msgid "The AOL Instant Messenger service is temporarily unavailable."
-msgstr "Tjänsten är tillfälligt onåbar."
-
-#. screen name connecting too frequently
-#. IP address connecting too frequently
-msgid ""
-"You have been connecting and disconnecting too frequently. Wait ten minutes "
-"and try again. If you continue to try, you will need to wait even longer."
-msgstr ""
-"Du har anslutit och kopplat ifrån för många gånger. Vänta tio minuter och "
-"prova igen. Om du fortsätter att försöka kommer du att få vänta ännu längre."
-
-#, c-format
-msgid "The client version you are using is too old. Please upgrade at %s"
-msgstr "Versionen av klienten du använder är för gammal. Uppgradera på %s"
-
-msgid "Could Not Connect"
-msgstr "Kunde inte ansluta"
-
-msgid "Received authorization"
-msgstr "Mottog auktorisering"
-
-msgid "The SecurID key entered is invalid."
-msgstr "SecurID-nyckeln som är angiven är ogiltig."
-
-msgid "Enter SecurID"
-msgstr "Ange SecurID"
-
-msgid "Enter the 6 digit number from the digital display."
-msgstr "Slå in de 6 siffrorna från den digitala skärmen."
-
-#. *
-#. * A wrapper for purple_request_action() that uses @c OK and @c Cancel buttons.
-#.
-msgid "_OK"
-msgstr "_OK"
+"Kan inte logga in som %s eftersom användarnamnet är ogiltigt.  "
+"Användarnamnet måste vara en giltig epost-adress eller starta med en bokstav "
+"och får endast innehålla bokstäver, nummer och mellanslag, eller enbart "
+"innehålla nummer."
 
 #, c-format
 msgid "You may be disconnected shortly.  If so, check %s for updates."
@@ -6495,12 +7059,59 @@ msgstr ""
 msgid "Unable to get a valid AIM login hash."
 msgstr "Kunde inte hämta en giltig AIM-inloggnings-hash."
 
-#, c-format
-msgid "You may be disconnected shortly.  Check %s for updates."
-msgstr "Du kanske snart blir frånkopplad. Kolla på %s efter uppdateringar."
-
 msgid "Unable to get a valid login hash."
 msgstr "Kunde inte hämta en giltig login-hash."
+
+msgid "Received authorization"
+msgstr "Mottog auktorisering"
+
+#. Unregistered username
+#. uid is not exist
+#. the username does not exist
+msgid "Username does not exist"
+msgstr "Användarnamn finns inte"
+
+#. Suspended account
+msgid "Your account is currently suspended"
+msgstr "Ditt konto är avstängt för tillfället"
+
+#. service temporarily unavailable
+msgid "The AOL Instant Messenger service is temporarily unavailable."
+msgstr "Tjänsten är tillfälligt onåbar."
+
+#. username connecting too frequently
+msgid ""
+"Your username has been connecting and disconnecting too frequently. Wait ten "
+"minutes and try again. If you continue to try, you will need to wait even "
+"longer."
+msgstr ""
+"Ditt användarnamn har anslutit och kopplats ifrån för ofta. Vänta tio "
+"minuter och prova igen. Om du fortsätter att försöka kommer du att få vänta "
+"ännu längre."
+
+#. client too old
+#, c-format
+msgid "The client version you are using is too old. Please upgrade at %s"
+msgstr "Versionen av klienten du använder är för gammal. Uppgradera på %s"
+
+#. IP address connecting too frequently
+msgid ""
+"Your IP address has been connecting and disconnecting too frequently. Wait a "
+"minute and try again. If you continue to try, you will need to wait even "
+"longer."
+msgstr ""
+"Din IP-adress har anslutit och kopplats ifrån för ofta. Vänta tio minuter "
+"och prova igen. Om du fortsätter att försöka kommer du att få vänta ännu "
+"längre."
+
+msgid "The SecurID key entered is invalid"
+msgstr "SecurID-nyckeln som angavs är ogiltig"
+
+msgid "Enter SecurID"
+msgstr "Ange SecurID"
+
+msgid "Enter the 6 digit number from the digital display."
+msgstr "Slå in de 6 siffrorna från den digitala skärmen."
 
 msgid "Password sent"
 msgstr "Lösenord skickat"
@@ -6510,12 +7121,6 @@ msgstr "Kan inte skapa anslutning"
 
 msgid "Please authorize me so I can add you to my buddy list."
 msgstr "Snälla godkänn mig så jag kan lägga till dig till min kompislista."
-
-msgid "Authorization Request Message:"
-msgstr "Meddelande om auktoriseringsbegäran:"
-
-msgid "Please authorize me!"
-msgstr "Snälla auktorisera mig!"
 
 msgid "No reason given."
 msgstr "Ingen motivering angiven."
@@ -6640,21 +7245,28 @@ msgid_plural "You missed %hu messages from %s for an unknown reason."
 msgstr[0] "Du missade %hu meddelande från %s av okända orsaker."
 msgstr[1] "Du missade %hu meddelanden från %s av okända orsaker."
 
-#. Data is assumed to be the destination sn
+#, c-format
+msgid "Unable to send message: %s (%s)"
+msgstr "Kan inte skicka meddelandet: %s (%s)"
+
 #, c-format
 msgid "Unable to send message: %s"
 msgstr "Kan inte skicka meddelande: %s"
 
-msgid "Unknown reason."
-msgstr "Okänd anledning."
+#, c-format
+msgid "Unable to send message to %s: %s (%s)"
+msgstr "Kan inte skicka meddelandet till %s: %s (%s)"
 
 #, c-format
-msgid "Unable to send message to %s:"
-msgstr "Kan inte skicka meddelandet till %s:"
+msgid "Unable to send message to %s: %s"
+msgstr "Kan inte skicka meddelandet till %s: %s"
 
 #, c-format
 msgid "User information not available: %s"
 msgstr "Användarinformation är inte tillgänglig: %s"
+
+msgid "Unknown reason."
+msgstr "Okänd anledning."
 
 msgid "Online Since"
 msgstr "Ansluten sedan"
@@ -6662,8 +7274,8 @@ msgstr "Ansluten sedan"
 msgid "Member Since"
 msgstr "Medlem sedan"
 
-msgid "Profile"
-msgstr "Profil"
+msgid "Capabilities"
+msgstr "Stödjer"
 
 msgid "Your AIM connection may be lost."
 msgstr "Din anslutning kan vara borta."
@@ -6678,10 +7290,10 @@ msgstr ""
 
 msgid ""
 "The last action you attempted could not be performed because you are over "
-"the rate limit. Please wait 10 seconds and try again."
+"the rate limit. Please wait 10 seconds and try again.\n"
 msgstr ""
-"Det senaste meddelandet skickades inte eftersom du är över frekvensgränsen. "
-"Vänta 10 sekunder och försök igen."
+"Den senaste åtgärden du försökte kunde inte utföras eftersom du är över "
+"frekvensgränsen. Vänta 10 sekunder och försök igen.\n"
 
 #, c-format
 msgid "You have been disconnected from chat room %s."
@@ -6846,17 +7458,14 @@ msgstr "Frånvaromeddelandet är för långt."
 
 #, c-format
 msgid ""
-"Could not add the buddy %s because the username is invalid.  Usernames must "
+"Unable to add the buddy %s because the username is invalid.  Usernames must "
 "be a valid email address, or start with a letter and contain only letters, "
 "numbers and spaces, or contain only numbers."
 msgstr ""
-"Kunde inte lägga till kompisen %s eftersom användarnamnet är ogiltigt. "
-"Användarnamnet måste antingen vara en giltig mejladress, börja med en "
+"Kunde inte lägga till kompisen %s eftersom användarnamnet är ogiltigt.  "
+"Användarnamnet måste antingen vara en giltig epost-adress, börja med en "
 "bokstav och endast innehålla bokstäver, siffror och mellanslag eller bara "
 "innehålla siffror."
-
-msgid "Unable to Add"
-msgstr "Kunde inte lägga till"
 
 msgid "Unable to Retrieve Buddy List"
 msgstr "Kunde inte hämta kompislista"
@@ -6874,7 +7483,7 @@ msgstr "Föräldralösa"
 
 #, c-format
 msgid ""
-"Could not add the buddy %s because you have too many buddies in your buddy "
+"Unable to add the buddy %s because you have too many buddies in your buddy "
 "list.  Please remove one and try again."
 msgstr ""
 "Kunde inte lägga till kompisen %s eftersom du har för många kompisar i din "
@@ -6884,7 +7493,7 @@ msgid "(no name)"
 msgstr "(inget namn)"
 
 #, c-format
-msgid "Could not add the buddy %s for an unknown reason."
+msgid "Unable to add the buddy %s for an unknown reason."
 msgstr "Kunde inte lägga till kompisen %s av okänd anledning."
 
 #, c-format
@@ -6954,6 +7563,9 @@ msgstr ""
 msgid "C_onnect"
 msgstr "_Anslut"
 
+msgid "You closed the connection."
+msgstr "Du stängde anslutningen."
+
 msgid "Get AIM Info"
 msgstr "Hämta AIM-info"
 
@@ -6963,6 +7575,9 @@ msgstr "Ändra kompiskommentar"
 
 msgid "Get Status Msg"
 msgstr "Hämta statusmeddelande"
+
+msgid "End Direct IM Session"
+msgstr "Avsluta direkt-IM session"
 
 msgid "Direct IM"
 msgstr "Direktmeddelande"
@@ -7018,6 +7633,7 @@ msgstr "_Sök"
 msgid "Set User Info (web)..."
 msgstr "Ändra användarinformation (web)..."
 
+#. This only happens when connecting with the old-style BUCP login
 msgid "Change Password (web)"
 msgstr "Byt lösenord (web)"
 
@@ -7046,6 +7662,9 @@ msgstr "Sök efter kompis på e-postadress..."
 
 msgid "Search for Buddy by Information"
 msgstr "Sök efter kompis via information"
+
+msgid "Use clientLogin"
+msgstr "Använd klientLogin"
 
 msgid ""
 "Always use AIM/ICQ proxy server for\n"
@@ -7235,6 +7854,34 @@ msgstr "Uppdatera"
 
 msgid "Could not change buddy information."
 msgstr "Kunde inte ändra kompisinformationen."
+
+msgid "Mobile"
+msgstr "Mobil"
+
+msgid "Note"
+msgstr "Notering"
+
+#. callback
+msgid "Buddy Memo"
+msgstr "Kompismemo"
+
+msgid "Change his/her memo as you like"
+msgstr "Ändra hans/hennes memo som du vill"
+
+msgid "_Modify"
+msgstr "_Ändra"
+
+msgid "Memo Modify"
+msgstr "Ändra Memo"
+
+msgid "Server says:"
+msgstr "Servern säger:"
+
+msgid "Your request was accepted."
+msgstr "Din förfrågan accepterades."
+
+msgid "Your request was rejected."
+msgstr "Din förfrågan avvisades."
 
 #, c-format
 msgid "%u requires verification"
@@ -7548,6 +8195,9 @@ msgstr "<p><b>Bekräftningar</b>:<br>\n"
 msgid "<p><b>Scrupulous Testers</b>:<br>\n"
 msgstr "<p><b>Nogräknade testare</b>:<br>\n"
 
+msgid "and more, please let me know... thank you!))"
+msgstr "och fler, snälla berätta för mig... Tack!))"
+
 msgid "<p><i>And, all the boys in the backroom...</i><br>\n"
 msgstr "<p><i>Och alla pojkarna i bakrummet...</i><br>\n"
 
@@ -7622,7 +8272,7 @@ msgstr "Livhållningsintervall (seconds)"
 msgid "Update interval (seconds)"
 msgstr "Uppdateringsintervall (seconds)"
 
-msgid "Cannot decrypt server reply"
+msgid "Unable to decrypt server reply"
 msgstr "Kan inte dekryptera serversvaret"
 
 #, c-format
@@ -7646,9 +8296,6 @@ msgstr "Registrering krävs"
 #, c-format
 msgid "Unknown reply code when logging in (0x%02X)"
 msgstr "Okänd svarskod vid inloggning (0x%02X)"
-
-msgid "Could not decrypt server reply"
-msgstr "Kan inte avkryptera inloggningssvaret"
 
 msgid "Requesting captcha"
 msgstr "Efterfrågar captcha"
@@ -7683,21 +8330,8 @@ msgstr ""
 "Okänd svarskod vid inloggning (0x%02X):\n"
 "%s"
 
-#. we didn't successfully connect. tdt->toc_fd is valid here
-msgid "Unable to connect."
-msgstr "Kan inte ansluta."
-
 msgid "Socket error"
 msgstr "Uttag-fel"
-
-msgid "Unable to read from socket"
-msgstr "Kan inte läsa från uttag"
-
-msgid "Write Error"
-msgstr "Skrivfel"
-
-msgid "Connection lost"
-msgstr "Anslutningen tappades"
 
 msgid "Getting server"
 msgstr "Hämtar server"
@@ -7705,8 +8339,8 @@ msgstr "Hämtar server"
 msgid "Requesting token"
 msgstr "Efterfrågar polett"
 
-msgid "Couldn't resolve host"
-msgstr "Kunde ej slå upp värden"
+msgid "Unable to resolve hostname"
+msgstr "Kunde ej slå upp värdnamnet"
 
 msgid "Invalid server or port"
 msgstr "Ogiltig server eller port"
@@ -7759,8 +8393,8 @@ msgstr ""
 msgid "QQ Qun Command"
 msgstr "QQ Qun Kommand"
 
-msgid "Could not decrypt login reply"
-msgstr "Kan inte avkryptera inloggningssvaret"
+msgid "Unable to decrypt login reply"
+msgstr "Kunde inte avkryptera inloggningssvaret"
 
 msgid "Unknown LOGIN CMD"
 msgstr "Okänd LOGIN CMD"
@@ -7776,11 +8410,8 @@ msgid "File Send"
 msgstr "Filsändning"
 
 #, c-format
-msgid "%d canceled the transfer of %s"
+msgid "%d cancelled the transfer of %s"
 msgstr "%d avbröt överföringen av %s"
-
-msgid "Connection closed (writing)"
-msgstr "Anslutningen stängd (skrivande)"
 
 #, c-format
 msgid "<b>Group Title:</b> %s<br>"
@@ -7836,17 +8467,6 @@ msgstr ""
 msgid "Sametime Administrator Announcement"
 msgstr "Sametimeadministratörannonsering"
 
-msgid "Connection reset"
-msgstr "Anslutningen nollställd"
-
-#, c-format
-msgid "Error reading from socket: %s"
-msgstr "Fel vid läsning av från uttag %s"
-
-#. this is a regular connect, error out
-msgid "Unable to connect to host"
-msgstr "Kan inte ansluta till värd"
-
 #, c-format
 msgid "Announcement from %s"
 msgstr "Utskick från %s"
@@ -7856,6 +8476,10 @@ msgstr "Konferansen är stängd"
 
 msgid "Unable to send message: "
 msgstr "Kan inte skicka meddelande: "
+
+#, c-format
+msgid "Unable to send message to %s:"
+msgstr "Kan inte skicka meddelandet till %s:"
 
 msgid "Place Closed"
 msgstr "Platsen är stängd"
@@ -7868,6 +8492,9 @@ msgstr "Högtalare"
 
 msgid "Video Camera"
 msgstr "Videokamera"
+
+msgid "File Transfer"
+msgstr "Filöverföringar"
 
 msgid "Supports"
 msgstr "Stödjer"
@@ -8265,35 +8892,14 @@ msgstr "Hyperaktiv"
 msgid "Robot"
 msgstr "Robot"
 
-msgid "Happy"
-msgstr "Glad"
-
-msgid "Sad"
-msgstr "Ledsen"
-
-msgid "Angry"
-msgstr "Arg"
-
 msgid "Jealous"
 msgstr "Avundsjuk"
 
 msgid "Ashamed"
 msgstr "Skäms"
 
-msgid "Invincible"
-msgstr "Osårbar"
-
-msgid "In Love"
-msgstr "Kär"
-
-msgid "Sleepy"
-msgstr "Sömnig"
-
 msgid "Bored"
 msgstr "Uttråkad"
-
-msgid "Excited"
-msgstr "Upphetsad"
 
 msgid "Anxious"
 msgstr "Orolig"
@@ -8587,9 +9193,6 @@ msgstr "Organisation"
 msgid "Unit"
 msgstr "Enhet"
 
-msgid "Note"
-msgstr "Notering"
-
 msgid "Join Chat"
 msgstr "Anslut till chatt"
 
@@ -8689,6 +9292,9 @@ msgstr ""
 msgid "Network Statistics"
 msgstr "Nätverksstatistik"
 
+msgid "Ping"
+msgstr "Ping"
+
 msgid "Ping failed"
 msgstr "Ping misslyckades"
 
@@ -8752,7 +9358,7 @@ msgstr "Ej stödd publik nyckeltyp"
 msgid "Disconnected by server"
 msgstr "Frånkopplad av server"
 
-msgid "Error during connecting to SILC Server"
+msgid "Error connecting to SILC Server"
 msgstr "Fel vid anslutning till SILC-server"
 
 msgid "Key Exchange failed"
@@ -8764,16 +9370,10 @@ msgstr ""
 "Misslyckades med att återuppta frånskild session. Tryck \"Återanslut\" för "
 "att skapa en ny uppkoppling."
 
-msgid "Connection failed"
-msgstr "Anslutning misslyckad"
-
 msgid "Performing key exchange"
 msgstr "Utför nyckelutbyte"
 
-msgid "Unable to create connection"
-msgstr "Kan inte skapa anslutning"
-
-msgid "Could not load SILC key pair"
+msgid "Unable to load SILC key pair"
 msgstr "Kunde inte ladda SILC nyckelpar"
 
 #. Progress
@@ -8783,8 +9383,8 @@ msgstr "Ansluter till SILC-server"
 msgid "Out of memory"
 msgstr "Slut på minne"
 
-msgid "Cannot initialize SILC protocol"
-msgstr "Kan inte inleda SILC-klientanslutning"
+msgid "Unable to initialize SILC protocol"
+msgstr "Kan inte initiera SILC-protokollet"
 
 msgid "Error loading SILC key pair"
 msgstr "Fel vid inläsning av SILC-nyckelpar"
@@ -9080,8 +9680,8 @@ msgstr "Signera och verifiera alla meddelanden digitalt"
 msgid "Creating SILC key pair..."
 msgstr "Skapa SILC-nyckelpar..."
 
-msgid "Cannot create SILC key pair\n"
-msgstr "Kunde inte skapa SILC-nyckelpar\n"
+msgid "Unable to create SILC key pair"
+msgstr "Kunde inte skapa SILC-nyckelpar"
 
 #. Hint for translators: Please check the tabulator width here and in
 #. the next strings (short strings: 2 tabs, longer strings 1 tab,
@@ -9176,6 +9776,9 @@ msgstr "Whiteboard"
 msgid "No server statistics available"
 msgstr "Ingen serverstatistik tillgänglig"
 
+msgid "Error during connecting to SILC Server"
+msgstr "Fel vid anslutning till SILC-server"
+
 #, c-format
 msgid "Failure: Version mismatch, upgrade your client"
 msgstr "Misslyckande: Versionerna matchar inte, upgradera din klient"
@@ -9217,30 +9820,24 @@ msgstr "Misslyckande: Felaktig cookie"
 msgid "Failure: Authentication failed"
 msgstr "Misslyckande: Autentisering misslyckades"
 
-msgid "Cannot initialize SILC Client connection"
-msgstr "Kan inte inleda SILC-klientanslutning"
+msgid "Unable to initialize SILC Client connection"
+msgstr "Kan inte initiera SILC-klientanslutning"
 
 msgid "John Noname"
 msgstr "John Namnlös"
 
 #, c-format
-msgid "Could not load SILC key pair: %s"
+msgid "Unable to load SILC key pair: %s"
 msgstr "Kunde inte ladda SILC nyckelpar: %s"
 
-msgid "Could not write"
-msgstr "Kunde inte skriva"
+msgid "Unable to create connection"
+msgstr "Kan inte skapa anslutning"
 
-msgid "Could not connect"
-msgstr "Kunde inte ansluta"
+msgid "Unknown server response"
+msgstr "Okänt serversvar"
 
-msgid "Unknown server response."
-msgstr "Okänt serversvar."
-
-msgid "Could not create listen socket"
-msgstr "Kunde inte skapa lyssnarsocket"
-
-msgid "Could not resolve hostname"
-msgstr "Kunde ej slå upp värden"
+msgid "Unable to create listen socket"
+msgstr "Kunde inte skapa lyssningsuttag"
 
 msgid "SIP usernames may not contain whitespaces or @ symbols"
 msgstr "SIP-användarnamnet får inte innehålla mellanslag eller symbolen @"
@@ -9281,177 +9878,17 @@ msgstr "Autentisera användare"
 msgid "Auth Domain"
 msgstr "Autentiserad domän"
 
-#, c-format
-msgid "Looking up %s"
-msgstr "Slå upp %s"
+msgid "join &lt;room&gt;:  Join a chat room on the Yahoo network"
+msgstr "join: &lt;rum&gt;:  Anslut till ett chatt-rum på Yahoo-nätverket"
 
-#, c-format
-msgid "Connect to %s failed"
-msgstr "Anslutning till %s misslyckades"
+msgid "list: List rooms on the Yahoo network"
+msgstr "list: Listar rummen på Yahoo's nätverk"
 
-#, c-format
-msgid "Signon: %s"
-msgstr "Inloggning: %s"
+msgid "doodle: Request user to start a Doodle session"
+msgstr "doodle: Fråga användaren angående att starta en kladd-session"
 
-#, c-format
-msgid "Unable to write file %s."
-msgstr "Kan inte skriva filen %s."
-
-#, c-format
-msgid "Unable to read file %s."
-msgstr "Kan inte läsa filen %s."
-
-#, c-format
-msgid "Message too long, last %s bytes truncated."
-msgstr "Meddelandet är för långt, de sista %s byten klipptes bort."
-
-#, c-format
-msgid "%s not currently logged in."
-msgstr "%s är inte inloggad för tillfället."
-
-#, c-format
-msgid "Warning of %s not allowed."
-msgstr "Varning för %s är inte tillåten."
-
-#, c-format
-msgid "A message has been dropped, you are exceeding the server speed limit."
-msgstr "Ett meddelande har kastats, du överskrider serverns hastighetsgräns."
-
-#, c-format
-msgid "Chat in %s is not available."
-msgstr "Chatt i %s är inte tillgänglig."
-
-#, c-format
-msgid "You are sending messages too fast to %s."
-msgstr "Du skickar meddelanden för snabbt till %s."
-
-#, c-format
-msgid "You missed an IM from %s because it was too big."
-msgstr "Du missade ett snabbmeddelande från %s eftersom det var för stort."
-
-#, c-format
-msgid "You missed an IM from %s because it was sent too fast."
-msgstr ""
-"Du missade ett snabbmeddelande från %s eftersom det skickades för snabbt."
-
-#, c-format
-msgid "Failure."
-msgstr "Misslyckande."
-
-#, c-format
-msgid "Too many matches."
-msgstr "För många träffar."
-
-#, c-format
-msgid "Need more qualifiers."
-msgstr "Behöver fler kvalificerare."
-
-#, c-format
-msgid "Dir service temporarily unavailable."
-msgstr "Katalogtjänsten är tillfälligt onåbar."
-
-#, c-format
-msgid "Email lookup restricted."
-msgstr "E-postuppslagning är begränsad."
-
-#, c-format
-msgid "Keyword ignored."
-msgstr "Nyckelordet ignorerades."
-
-#, c-format
-msgid "No keywords."
-msgstr "Inga nyckelord."
-
-#, c-format
-msgid "User has no directory information."
-msgstr "Användaren har ingen kataloginformation."
-
-#, c-format
-msgid "Country not supported."
-msgstr "Landet stöds inte."
-
-#, c-format
-msgid "Failure unknown: %s."
-msgstr "Okänt misslyckande: %s."
-
-#, c-format
-msgid "Incorrect username or password."
-msgstr "Felaktigt användarnamn eller lösenord"
-
-#, c-format
-msgid "The service is temporarily unavailable."
-msgstr "Tjänsten är tillfälligt onåbar."
-
-#, c-format
-msgid "Your warning level is currently too high to log in."
-msgstr "Din varningsnivå är för tillfället för hög för att logga in."
-
-#, c-format
-msgid ""
-"You have been connecting and disconnecting too frequently.  Wait ten minutes "
-"and try again.  If you continue to try, you will need to wait even longer."
-msgstr ""
-"Du har anslutit och kopplat ifrån för många gånger. Vänta tio minuter och "
-"prova igen. Om du fortsätter att försöka kommer du att få vänta ännu längre."
-
-#, c-format
-msgid "An unknown signon error has occurred: %s."
-msgstr "Ett okänt inloggningsfel har inträffat: %s."
-
-#, c-format
-msgid "An unknown error, %d, has occurred.  Info: %s"
-msgstr "Ett okänt fel, %d, har inträffat. Information: %s"
-
-msgid "Invalid Groupname"
-msgstr "Ogiltigt gruppnamn"
-
-msgid "Connection Closed"
-msgstr "Anslutningen stängd"
-
-msgid "Waiting for reply..."
-msgstr "Väntar på svar..."
-
-msgid "TOC has come back from its pause. You may now send messages again."
-msgstr ""
-"TOC har kommit tillbaka från dess paus. Du kan nu skicka meddelanden igen."
-
-msgid "Password Change Successful"
-msgstr "Lösenordsändring lyckades"
-
-msgid "_Group:"
-msgstr "_Grupp:"
-
-msgid "Get Dir Info"
-msgstr "Hämta kataloginformation"
-
-msgid "Set Dir Info"
-msgstr "Ställ in kataloginformation"
-
-#, c-format
-msgid "Could not open %s for writing!"
-msgstr "Kunde inte öppna %s för läsning!"
-
-msgid "File transfer failed; other side probably canceled."
-msgstr "Filöverföringen misslyckades, antagligen eftersom andra sidan avbröt."
-
-msgid "Could not connect for transfer."
-msgstr "Kunde inte ansluta för överföring."
-
-msgid "Could not write file header.  The file will not be transferred."
-msgstr "Kunde inte skriva filhuvud, filen kommer inte att skickas."
-
-msgid "Save As..."
-msgstr "Spara som..."
-
-#, c-format
-msgid "%s requests %s to accept %d file: %s (%.2f %s)%s%s"
-msgid_plural "%s requests %s to accept %d files: %s (%.2f %s)%s%s"
-msgstr[0] "%s ber %s att acceptera %d fil: %s (%.2f %s)%s%s"
-msgstr[1] "%s ber %s att acceptera %d filer: %s (%.2f %s)%s%s"
-
-#, c-format
-msgid "%s requests you to send them a file"
-msgstr "%s ber att du ska skicka denne en fil"
+msgid "Yahoo ID..."
+msgstr "Yahoo-ID..."
 
 #. *< type
 #. *< ui_requirement
@@ -9463,12 +9900,61 @@ msgstr "%s ber att du ska skicka denne en fil"
 #. *< version
 #. *  summary
 #. *  description
-msgid "TOC Protocol Plugin"
-msgstr "Insticksmodul för TOC-protokoll"
+msgid "Yahoo! Protocol Plugin"
+msgstr "Insticksmodul för Yahoo-protokoll"
+
+msgid "Pager server"
+msgstr "Sökarserver"
+
+msgid "Pager port"
+msgstr "Sökarport"
+
+msgid "File transfer server"
+msgstr "Filöverföringsserver"
+
+msgid "File transfer port"
+msgstr "Port för filöverföring"
+
+msgid "Chat room locale"
+msgstr "Chatrummets språk"
+
+msgid "Ignore conference and chatroom invitations"
+msgstr "Ignorera inbjudningar till konferenser och chatrum"
+
+msgid "Use account proxy for SSL connections"
+msgstr "Använd kontoproxy för SSL-anslutningar"
+
+msgid "Chat room list URL"
+msgstr "URL för chattrumlista"
+
+msgid "Yahoo Chat server"
+msgstr "Yahoo Chat-server"
+
+msgid "Yahoo Chat port"
+msgstr "Yahoo Chatt port"
+
+msgid "Yahoo JAPAN ID..."
+msgstr "Yahoo JAPAN ID..."
+
+#. *< type
+#. *< ui_requirement
+#. *< flags
+#. *< dependencies
+#. *< priority
+#. *< id
+#. *< name
+#. *< version
+#. *  summary
+#. *  description
+msgid "Yahoo! JAPAN Protocol Plugin"
+msgstr "Insticksmodul för Yahoo JAPAN protokoll"
 
 #, c-format
 msgid "%s has sent you a webcam invite, which is not yet supported."
 msgstr "%s har skickat dig en webbkamerainbjudan, vilket ännu inte stöds."
+
+msgid "Your SMS was not delivered"
+msgstr "Ditt SMS levererades inte"
 
 msgid "Your Yahoo! message did not get sent."
 msgstr "Ditt Yahoo!-meddelande skickades inte."
@@ -9494,6 +9980,29 @@ msgstr ""
 msgid "Add buddy rejected"
 msgstr "Lägg till kompisavvisning"
 
+#. Some error in the received stream
+msgid "Received invalid data"
+msgstr "Tog emot felaktig data"
+
+#. security lock from too many failed login attempts
+msgid ""
+"Account locked: Too many failed login attempts.  Logging into the Yahoo! "
+"website may fix this."
+msgstr ""
+"Kontot låst: För många inloggningsförsök.  Logga in på Yahoo!s hemsida kan "
+"fixa detta."
+
+#. indicates a lock of some description
+msgid ""
+"Account locked: Unknown reason.  Logging into the Yahoo! website may fix "
+"this."
+msgstr ""
+"Kontot låst: Okänd anledning.  Logga in på Yahoo!s hemsida kan fixa detta."
+
+#. username or password missing
+msgid "Username or password missing"
+msgstr "Användarnamn eller lösenord saknas"
+
 #, c-format
 msgid ""
 "The Yahoo server has requested the use of an unrecognized authentication "
@@ -9518,45 +10027,53 @@ msgstr ""
 msgid "Ignore buddy?"
 msgstr "Ignorera kompis?"
 
-msgid "Your account is locked, please log in to the Yahoo! website."
-msgstr "Ditt konto är låst, var vänlig och logga in på Yahoo!s webbplats."
+msgid "Invalid username or password"
+msgstr "Felaktigt användarnamn eller lösenord"
+
+msgid ""
+"Your account has been locked due to too many failed login attempts.  Please "
+"try logging into the Yahoo! website."
+msgstr ""
+"Ditt kontot har låsts på grund av för många inloggningsförsök.  Försök att "
+"logga in på Yahoo!s hemsida."
+
+#, c-format
+msgid "Unknown error 52.  Reconnecting should fix this."
+msgstr "Okänt fel 52. En återanslutning borde fixa detta."
+
+msgid ""
+"Error 1013: The username you have entered is invalid.  The most common cause "
+"of this error is entering your email address instead of your Yahoo! ID."
+msgstr ""
+"Fel 1013: Användarnamnet du har angivit är ogiltigt.  Den vanligaste "
+"anledningen till detta är att du angett din epost-adress istället flr ditt "
+"Yahoo! ID."
 
 #, c-format
 msgid "Unknown error number %d. Logging into the Yahoo! website may fix this."
 msgstr "Okänt felnummer %d. Logga in på Yahoo!s hemsida kan fixa detta."
 
 #, c-format
-msgid "Could not add buddy %s to group %s to the server list on account %s."
-msgstr "Kan inte lägga till kompis %s i grupp %s på serverlistan för konto %s."
+msgid "Unable to add buddy %s to group %s to the server list on account %s."
+msgstr "Kan inte lägga till kompis %s i grupp %s på serverlistan för konto %s "
 
-msgid "Could not add buddy to server list"
-msgstr "Kunde inte lägga till kompis i listan på servern"
+msgid "Unable to add buddy to server list"
+msgstr "Kunde inte lägga till kompis i serverlistan"
 
 #, c-format
 msgid "[ Audible %s/%s/%s.swf ] %s"
 msgstr "[ Hörbar %s/%s/%s.swf ] %s"
 
-msgid "Received unexpected HTTP response from server."
-msgstr "Mottog oväntat HTTP-svar från servern."
-
-msgid "Connection problem"
-msgstr "Problem med anslutning"
+msgid "Received unexpected HTTP response from server"
+msgstr "Mottog oväntat HTTP-svar från servern"
 
 #, c-format
-msgid ""
-"Lost connection with %s:\n"
-"%s"
-msgstr ""
-"Tappade anslutningen med %s:\n"
-"%s"
+msgid "Lost connection with %s: %s"
+msgstr "Tappade anslutningen med %s: %s"
 
 #, c-format
-msgid ""
-"Could not establish a connection with %s:\n"
-"%s"
-msgstr ""
-"Kunde inte skapa en anslutning med %s:\n"
-"%s"
+msgid "Unable to establish a connection with %s: %s"
+msgstr "Kunde inte skapa en anslutning med %s: %s"
 
 msgid "Not at Home"
 msgstr "Inte hemma"
@@ -9603,8 +10120,8 @@ msgstr "Närvaroinställningar"
 msgid "Start Doodling"
 msgstr "Starta kladda"
 
-msgid "Activate which ID?"
-msgstr "Vilket ID ska aktiveras?"
+msgid "Select the ID you want to activate"
+msgstr "Välj det ID du vill aktivera"
 
 msgid "Join whom in chat?"
 msgstr "Gå med vem in i chatten?"
@@ -9618,66 +10135,14 @@ msgstr "Gå med användare i chatt..."
 msgid "Open Inbox"
 msgstr "Öppna Inkorg"
 
-msgid "join &lt;room&gt;:  Join a chat room on the Yahoo network"
-msgstr "join: &lt;rum&gt;:  Anslut till ett chatt-rum på Yahoo-nätverket"
+msgid "Can't send SMS. Unable to obtain mobile carrier."
+msgstr "Kan inte skicka SMS. Kunde inte hitta mobiloperatör."
 
-msgid "list: List rooms on the Yahoo network"
-msgstr "list: Listar rummen på Yahoo's nätverk"
+msgid "Can't send SMS. Unknown mobile carrier."
+msgstr "Kan inte skicka SMS. Okänd mobiloperatör."
 
-msgid "doodle: Request user to start a Doodle session"
-msgstr "doodle: Fråga användaren angående att starta en kladd-session"
-
-msgid "Yahoo ID..."
-msgstr "Yahoo-ID..."
-
-#. *< type
-#. *< ui_requirement
-#. *< flags
-#. *< dependencies
-#. *< priority
-#. *< id
-#. *< name
-#. *< version
-#. *  summary
-#. *  description
-msgid "Yahoo Protocol Plugin"
-msgstr "Insticksmodul för Yahoo-protokoll"
-
-msgid "Yahoo Japan"
-msgstr "Yahoo Japan"
-
-msgid "Pager server"
-msgstr "Sökarserver"
-
-msgid "Japan Pager server"
-msgstr "Japan Sökarserver"
-
-msgid "Pager port"
-msgstr "Sökarport"
-
-msgid "File transfer server"
-msgstr "Filöverföringsserver"
-
-msgid "Japan file transfer server"
-msgstr "Japan filöverföringsserver"
-
-msgid "File transfer port"
-msgstr "Port för filöverföring"
-
-msgid "Chat room locale"
-msgstr "Chatrummets språk"
-
-msgid "Ignore conference and chatroom invitations"
-msgstr "Ignorera inbjudningar till konferenser och chatrum"
-
-msgid "Chat room list URL"
-msgstr "URL för chattrumlista"
-
-msgid "Yahoo Chat server"
-msgstr "Yahoo Chat-server"
-
-msgid "Yahoo Chat port"
-msgstr "Yahoo Chatt port"
+msgid "Getting mobile carrier to send the SMS."
+msgstr "Får mobiloperatören att skicka SMS."
 
 #. Write a local message to this conversation showing that a request for a
 #. * Doodle session has been made
@@ -9685,12 +10150,18 @@ msgstr "Yahoo Chatt port"
 msgid "Sent Doodle request."
 msgstr "Skickade Doodle-förfrågan."
 
+msgid "Unable to connect."
+msgstr "Kan inte ansluta."
+
 msgid "Unable to establish file descriptor."
 msgstr "Kan inte inte etablera filbeskrivning."
 
 #, c-format
 msgid "%s is trying to send you a group of %d files.\n"
 msgstr "%s försöker skicka en grupp av %d filer till dig.\n"
+
+msgid "Write Error"
+msgstr "Skrivfel"
 
 msgid "Yahoo! Japan Profile"
 msgstr "Yahoo! Japan-profil"
@@ -9756,11 +10227,8 @@ msgid "The user's profile is empty."
 msgstr "Användarens profil är tom."
 
 #, c-format
-msgid "%s declined your conference invitation to room \"%s\" because \"%s\"."
-msgstr "%s tackade nej till din inbjudan till rum \"%s\" eftersom \"%s\"."
-
-msgid "Invitation Rejected"
-msgstr "Inbjudan avvisad"
+msgid "%s has declined to join."
+msgstr "%s har nekat att ansluta."
 
 msgid "Failed to join chat"
 msgstr "Kunde inte ansluta till chatt"
@@ -9803,22 +10271,17 @@ msgstr "Röster"
 msgid "Webcams"
 msgstr "Webbkamera"
 
+msgid "Connection problem"
+msgstr "Problem med anslutning"
+
 msgid "Unable to fetch room list."
 msgstr "Kan inte hämta rumlista."
 
 msgid "User Rooms"
 msgstr "Användarrum"
 
-msgid "Connection problem with the YCHT server."
-msgstr "Problem med anslutning till YCHT-server."
-
-#, c-format
-msgid ""
-"Lost connection with server\n"
-"%s"
-msgstr ""
-"Tappade anslutningen till servern\n"
-"%s"
+msgid "Connection problem with the YCHT server"
+msgstr "Anslutningsproblem till YCHT-server"
 
 msgid ""
 "(There was an error converting this message.\t Check the 'Encoding' option "
@@ -9949,31 +10412,20 @@ msgid "Exposure"
 msgstr "Exponering"
 
 #, c-format
-msgid ""
-"Unable to create socket:\n"
-"%s"
-msgstr ""
-"Kan inte skapa uttag:\n"
-"%s"
-
-#, c-format
-msgid "Unable to parse response from HTTP proxy: %s\n"
-msgstr "Kan inte tolka svaret från HTTP-proxyn: %s\n"
+msgid "Unable to parse response from HTTP proxy: %s"
+msgstr "Kan inte tolka svaret från HTTP-proxyn: %s"
 
 #, c-format
 msgid "HTTP proxy connection error %d"
 msgstr "HTTP-proxyanslutningsfel %d"
 
 #, c-format
-msgid "Access denied: HTTP proxy server forbids port %d tunneling."
-msgstr "Åtkomst nekad: HTTP-proxyservern tillåter inte tunnel på port %d."
+msgid "Access denied: HTTP proxy server forbids port %d tunneling"
+msgstr "Åtkomst nekad: HTTP-proxyservern tillåter inte tunnel på port %d"
 
 #, c-format
 msgid "Error resolving %s"
 msgstr "Fel vid uppslagning av %s"
-
-msgid "Could not resolve host name"
-msgstr "Kunde inte slå upp värdnamnet"
 
 #, c-format
 msgid "Requesting %s's attention..."
@@ -10047,7 +10499,7 @@ msgid "SSL Handshake Failed"
 msgstr "SSL_handskakning misslyckades"
 
 msgid "SSL peer presented an invalid certificate"
-msgstr "SSL-motparten uppvisade ett ogiltig certifikat"
+msgstr "SSL-motparten uppvisade ett ogiltigt certifikat"
 
 msgid "Unknown SSL error"
 msgstr "Okänt SSL-fel"
@@ -10060,9 +10512,6 @@ msgstr "Stör inte"
 
 msgid "Extended away"
 msgstr "Utökad frånvaro"
-
-msgid "Mobile"
-msgstr "Mobil"
 
 msgid "Listening to music"
 msgstr "Lyssnar på musik"
@@ -10104,18 +10553,6 @@ msgstr "+++ %s har blivit aktiv"
 #, c-format
 msgid "%x %X"
 msgstr "%x %X"
-
-#, c-format
-msgid "Error Reading %s"
-msgstr "Fel vid läsning av %s"
-
-#, c-format
-msgid ""
-"An error was encountered reading your %s.  They have not been loaded, and "
-"the old file has been renamed to %s~."
-msgstr ""
-"Ett fel upptäcktes vid inläsandet av din %s. De har inte laddats och den "
-"gamla har blivit flyttad till %s~."
 
 msgid "Calculating..."
 msgstr "Beräknar..."
@@ -10225,14 +10662,29 @@ msgstr "Anslutningen nekades."
 msgid "Address already in use."
 msgstr "Adressen används redan"
 
+#, c-format
+msgid "Error Reading %s"
+msgstr "Fel vid läsning av %s"
+
+#, c-format
+msgid ""
+"An error was encountered reading your %s.  The file has not been loaded, and "
+"the old file has been renamed to %s~."
+msgstr ""
+"Ett fel upptäcktes vid inläsandet av din %s. Filen har inte laddats och den "
+"gamla har blivit flyttad till %s~."
+
+msgid ""
+"Chat over IM.  Supports AIM, Google Talk, Jabber/XMPP, MSN, Yahoo and more"
+msgstr ""
+"Skicka snabbmeddelanden. Stödjer AIM, Google Talk, Jabber/XMPP, MSN, Yahoo "
+"med fler"
+
 msgid "Internet Messenger"
 msgstr "Meddelandeklient"
 
 msgid "Pidgin Internet Messenger"
 msgstr "Pidgin Meddelandeklient"
-
-msgid "Send instant messages over multiple protocols"
-msgstr "Sänder snabbmeddelanden över multipla protokoll"
 
 msgid "Orientation"
 msgstr "Orientering"
@@ -10267,10 +10719,8 @@ msgstr "Rapportera ny e-_post"
 msgid "Use this buddy _icon for this account:"
 msgstr "Använd denna kompis_ikon för detta konto:"
 
-#. Build the protocol options frame.
-#, c-format
-msgid "%s Options"
-msgstr "%s-alternativ"
+msgid "Ad_vanced"
+msgstr "A_vancerat"
 
 msgid "Use GNOME Proxy Settings"
 msgstr "Använd GNOME proxyinställningar"
@@ -10305,9 +10755,6 @@ msgstr "Om du tittar riktigt nära"
 msgid "you can see the butterflies mating"
 msgstr "kan du se fjärilarna para sig"
 
-msgid "Proxy Options"
-msgstr "Proxyalternativ"
-
 msgid "Proxy _type:"
 msgstr "Proxy_typ:"
 
@@ -10335,8 +10782,8 @@ msgstr "_Basic"
 msgid "Create _this new account on the server"
 msgstr "Skapa detta _nya kontot på servern"
 
-msgid "_Advanced"
-msgstr "_Avancerat"
+msgid "P_roxy"
+msgstr "P_roxy"
 
 msgid "Enabled"
 msgstr "Aktiverad"
@@ -10366,6 +10813,124 @@ msgstr ""
 "Du kan komma tillbaka till detta fönster för att lägga till, ändra eller ta "
 "bort konton från <b>Konton->Hantera konton</b> i kompislistans fönster"
 
+#. Buddy List
+msgid "Background Color"
+msgstr "Bakgrundsfärg"
+
+msgid "The background color for the buddy list"
+msgstr "Bakgrundsfärgen för kompislistan"
+
+msgid "Layout"
+msgstr "Utseende"
+
+msgid "The layout of icons, name, and status of the buddy list"
+msgstr "Utseendet på ikoner, namn och status i kompislistan"
+
+#. Group
+#. Note to translators: These two strings refer to the background color
+#. of a buddy list group when in its expanded state
+msgid "Expanded Background Color"
+msgstr "Expanderad bakgrundsfärg"
+
+msgid "The background color of an expanded group"
+msgstr "Bakgrundsfärgen på en expanderad grupp"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list group when in its expanded state
+msgid "Expanded Text"
+msgstr "Expanderad text"
+
+msgid "The text information for when a group is expanded"
+msgstr "Textinformationen för när en grupp är expanderad"
+
+#. Note to translators: These two strings refer to the background color
+#. of a buddy list group when in its collapsed state
+msgid "Collapsed Background Color"
+msgstr "Ihopfälld bakgrundsfärg"
+
+msgid "The background color of a collapsed group"
+msgstr "Bakgrundfärgen för en ihopfälld grupp"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list group when in its collapsed state
+msgid "Collapsed Text"
+msgstr "Ihopfälld text"
+
+msgid "The text information for when a group is collapsed"
+msgstr "Textinformationen för när en grupp är ihopfälld"
+
+#. Buddy
+#. Note to translators: These two strings refer to the background color
+#. of a buddy list contact or chat room
+msgid "Contact/Chat Background Color"
+msgstr "Kontakt/Chatt-bakgrundsfärg"
+
+msgid "The background color of a contact or chat"
+msgstr "Bakgrundsfärgen för en kontakt eller chatt"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list contact when in its expanded state
+msgid "Contact Text"
+msgstr "Kontakttext"
+
+msgid "The text information for when a contact is expanded"
+msgstr "Textinformationen för när en kontakt är expanderad"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list buddy when it is online
+msgid "Online Text"
+msgstr "Ansluten-text"
+
+msgid "The text information for when a buddy is online"
+msgstr "Textinformationen för när en kompis är ansluten"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list buddy when it is away
+msgid "Away Text"
+msgstr "Frånvarotext"
+
+msgid "The text information for when a buddy is away"
+msgstr "Textinformationen för när en kompis är borta"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list buddy when it is offline
+msgid "Offline Text"
+msgstr "Frånkopplad-text"
+
+msgid "The text information for when a buddy is offline"
+msgstr "Textinformationen för när en kompis är frånkopplad"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list buddy when it is idle
+msgid "Idle Text"
+msgstr "Vilotext"
+
+msgid "The text information for when a buddy is idle"
+msgstr "Textinformationen för när en kompis är vilande"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list buddy when they have sent you a new message
+msgid "Message Text"
+msgstr "Meddelandetext"
+
+msgid "The text information for when a buddy has an unread message"
+msgstr "Textinformationen för när en kompis har ett oläst meddelande"
+
+#. Note to translators: These two strings refer to the font and color
+#. of a buddy list buddy when they have sent you a new message
+msgid "Message (Nick Said) Text"
+msgstr "Meddelande (Smeknamn nämnt) Text"
+
+msgid ""
+"The text information for when a chat has an unread message that mentions "
+"your nickname"
+msgstr ""
+"Textinformationen för när en chatt har ett oläst meddelande som nämner ditt "
+"namn"
+
+msgid "The text information for a buddy's status"
+msgstr "Textinformationen för en kompis status"
+
 #, c-format
 msgid "You have %d contact named %s. Would you like to merge them?"
 msgid_plural ""
@@ -10386,16 +10951,16 @@ msgstr ""
 msgid "Please update the necessary fields."
 msgstr "Var vänlig uppdatera de nödvändiga fälten."
 
-msgid "Room _List"
-msgstr "Rums_lista"
+msgid "A_ccount"
+msgstr "_Konto"
 
 msgid ""
 "Please enter the appropriate information about the chat you would like to "
 "join.\n"
 msgstr "Var god ange information om chatten du vill ansluta till.\n"
 
-msgid "_Account:"
-msgstr "_Konto:"
+msgid "Room _List"
+msgstr "Rums_lista"
 
 msgid "_Block"
 msgstr "_Blockera"
@@ -10412,6 +10977,15 @@ msgstr "Hämta _info"
 msgid "I_M"
 msgstr "_Meddelande"
 
+msgid "_Audio Call"
+msgstr "_Ljudsamtal"
+
+msgid "Audio/_Video Call"
+msgstr "Ljud/_Videosamtal"
+
+msgid "_Video Call"
+msgstr "_Videosamtal"
+
 msgid "_Send File..."
 msgstr "_Skicka fil..."
 
@@ -10421,8 +10995,11 @@ msgstr "Lägg till kom_pisnotifiering..."
 msgid "View _Log"
 msgstr "Visa _logg"
 
-msgid "Hide when offline"
-msgstr "Dölj om frånkopplade"
+msgid "Hide When Offline"
+msgstr "Dölj när frånkopplad"
+
+msgid "Show When Offline"
+msgstr "Visa när frånkopplade"
 
 msgid "_Alias..."
 msgstr "_Alias..."
@@ -10548,6 +11125,9 @@ msgstr "/Verktyg/Kom_pisnotifieringar"
 msgid "/Tools/_Certificates"
 msgstr "/Verktyg/_Certifikat"
 
+msgid "/Tools/Custom Smile_ys"
+msgstr "/Verktyg/Egna smile_ys"
+
 msgid "/Tools/Plu_gins"
 msgstr "/Verktyg/Insticksmodu_ler"
 
@@ -10556,9 +11136,6 @@ msgstr "/Verktyg/_Inställningar"
 
 msgid "/Tools/Pr_ivacy"
 msgstr "/Verktyg/_Spärrlista"
-
-msgid "/Tools/Smile_y"
-msgstr "/Verktyg/Smile_y"
 
 msgid "/Tools/_File Transfers"
 msgstr "/Verktyg/_Filöverföringar"
@@ -10677,8 +11254,8 @@ msgstr "Manuellt"
 msgid "By status"
 msgstr "Efter status"
 
-msgid "By log size"
-msgstr "Efter loggstorlek"
+msgid "By recent log activity"
+msgstr "Efter nylig aktivitet i loggen"
 
 #, c-format
 msgid "%s disconnected"
@@ -10693,6 +11270,9 @@ msgstr "Återanslut"
 
 msgid "Re-enable"
 msgstr "Återaktivera konto"
+
+msgid "SSL FAQs"
+msgstr "SSL FAQs"
 
 msgid "Welcome back!"
 msgstr "Välkommen tillbaka"
@@ -10783,8 +11363,11 @@ msgstr ""
 msgid "A_lias:"
 msgstr "A_lias:"
 
-msgid "Auto_join when account becomes online."
-msgstr "_Gå med automatiskt då kontot är anslutet."
+msgid "_Group:"
+msgstr "_Grupp:"
+
+msgid "Auto_join when account connects."
+msgstr "_Gå med automatiskt då kontot ansluter."
 
 msgid "_Remain in chat after window is closed."
 msgstr "Va_r kvar i chattfönster efter att det stängts."
@@ -10816,6 +11399,9 @@ msgstr "/Verktyg"
 msgid "/Buddies/Sort Buddies"
 msgstr "/Kompisar/Sortera kompisar"
 
+msgid "Type the host name for this certificate."
+msgstr "Ange värdnamnet för detta certifikatet."
+
 #. Widget creation function
 msgid "SSL Servers"
 msgstr "SSL-Server"
@@ -10834,14 +11420,6 @@ msgstr ""
 
 msgid "Invite Buddy Into Chat Room"
 msgstr "Bjud in kompis till chattrum"
-
-#. Put our happy label in it.
-msgid ""
-"Please enter the name of the user you wish to invite, along with an optional "
-"invite message."
-msgstr ""
-"Ange namnet på den användare du vill bjuda in, samt ett "
-"inbjudningsmeddelande om du vill"
 
 msgid "_Buddy:"
 msgstr "_Kompis:"
@@ -10871,7 +11449,7 @@ msgstr "Ignorera"
 msgid "Get Away Message"
 msgstr "Hämta frånvaromeddelande"
 
-msgid "Last said"
+msgid "Last Said"
 msgstr "Senast sagt"
 
 msgid "Unable to save icon file to disk."
@@ -10905,6 +11483,9 @@ msgstr "/_Konversation"
 msgid "/Conversation/New Instant _Message..."
 msgstr "/Konversation/Nytt snabb_meddelande..."
 
+msgid "/Conversation/Join a _Chat..."
+msgstr "/Konversation/Anslut till en _chatt..."
+
 msgid "/Conversation/_Find..."
 msgstr "/Konversation/_Sök..."
 
@@ -10916,6 +11497,18 @@ msgstr "/Konversation/_Spara som..."
 
 msgid "/Conversation/Clea_r Scrollback"
 msgstr "/Konversation/_Rensa tillbakablick"
+
+msgid "/Conversation/M_edia"
+msgstr "/Konversation/M_edia"
+
+msgid "/Conversation/Media/_Audio Call"
+msgstr "/Konversation/Media/_Ljudsamtal"
+
+msgid "/Conversation/Media/_Video Call"
+msgstr "/Konversation/Media/_Videosamtal"
+
+msgid "/Conversation/Media/Audio\\/Video _Call"
+msgstr "/Konversation/Media/Ljud\\/Video_samtal"
 
 msgid "/Conversation/Se_nd File..."
 msgstr "/Konversation/S_kicka fil..."
@@ -10990,6 +11583,15 @@ msgstr "/Konversation"
 
 msgid "/Conversation/View Log"
 msgstr "/Konversation/Visa logg"
+
+msgid "/Conversation/Media/Audio Call"
+msgstr "/Konversation/Media/Ljudsamtal"
+
+msgid "/Conversation/Media/Video Call"
+msgstr "/Konversation/Media/Videosamtal"
+
+msgid "/Conversation/Media/Audio\\/Video Call"
+msgstr "/Konversation/Media/Ljud\\/Videosamtal"
 
 msgid "/Conversation/Send File..."
 msgstr "/Konversation/Skicka fil..."
@@ -11171,7 +11773,10 @@ msgstr "artist"
 
 #. feel free to not translate this
 msgid "Ka-Hing Cheung"
-msgstr ""
+msgstr "Ka-Hing Cheung"
+
+msgid "voice and video"
+msgstr "röst och video"
 
 msgid "support"
 msgstr "support"
@@ -11270,7 +11875,7 @@ msgstr "Spanska"
 msgid "Estonian"
 msgstr "Estniska"
 
-msgid "Euskera(Basque)"
+msgid "Basque"
 msgstr "Baskiska"
 
 msgid "Persian"
@@ -11303,6 +11908,9 @@ msgstr "Hindi"
 msgid "Hungarian"
 msgstr "Ungerska"
 
+msgid "Armenian"
+msgstr "Armeniska"
+
 msgid "Indonesian"
 msgstr "Indonesiska"
 
@@ -11317,6 +11925,9 @@ msgstr "Georgiska"
 
 msgid "Ubuntu Georgian Translators"
 msgstr "Ubuntu Georgiska översättare"
+
+msgid "Khmer"
+msgstr "Khmer"
 
 msgid "Kannada"
 msgstr "Kannada"
@@ -11333,14 +11944,15 @@ msgstr "Kurdiska"
 msgid "Lao"
 msgstr "Lao"
 
-msgid "Lithuanian"
-msgstr "Lettländska"
-
 msgid "Macedonian"
 msgstr "Makedonska"
 
 msgid "Mongolian"
 msgstr "Mongoliska"
+
+#, fuzzy
+msgid "Malay"
+msgstr "Malay"
 
 msgid "Bokmål Norwegian"
 msgstr "Bokmål Norska"
@@ -11396,6 +12008,9 @@ msgstr "Singalesiska"
 msgid "Swedish"
 msgstr "Svenska"
 
+msgid "Swahili"
+msgstr "Swahili"
+
 msgid "Tamil"
 msgstr "Tamilska"
 
@@ -11407,6 +12022,9 @@ msgstr "Thailändska"
 
 msgid "Turkish"
 msgstr "Turkiska"
+
+msgid "Ukranian"
+msgstr "Ukrainska"
 
 msgid "Urdu"
 msgstr "Urdu"
@@ -11428,6 +12046,9 @@ msgstr "Traditionell kinesiska"
 
 msgid "Amharic"
 msgstr "Amhariska"
+
+msgid "Lithuanian"
+msgstr "Lettländska"
 
 #, c-format
 msgid "About %s"
@@ -11464,11 +12085,19 @@ msgstr ""
 
 #, c-format
 msgid ""
-"<FONT SIZE=\"4\">Help via e-mail:</FONT> <A HREF=\"mailto:support@pidgin.im"
-"\">support@pidgin.im</A><BR/><BR/>"
+"<font size=\"4\">Help from other Pidgin users:</font> <a href=\"mailto:"
+"support@pidgin.im\">support@pidgin.im</a><br/>This is a <b>public</b> "
+"mailing list! (<a href=\"http://pidgin.im/pipermail/support/\">archive</a>)"
+"<br/>We can't help with 3rd party protocols or plugins!<br/>This list's "
+"primary language is <b>English</b>.  You are welcome to post in another "
+"language, but the responses may be less helpful.<br/><br/>"
 msgstr ""
-"<FONT SIZE=\"4\">Hjälp via mejl:</FONT> <A HREF=\"mailto:support@pidgin.im"
-"\">support@pidgin.im</A><BR/><BR/>"
+"<font size=\"4\">Hjälp från andra Pidgin-användare:</font> <a href=\"mailto:"
+"support@pidgin.im\">support@pidgin.im</a><br/>Detta är en <b>publik</b> "
+"epostlista! (<a href=\"http://pidgin.im/pipermail/support/\">arkiv</a>)<br/"
+">Vi kan inte hjälpa dig med 3:djepartsmoduler och protokoll!<br/>Listans "
+"huvudspråk är <b>Engelska</b>.  Du är välkommen att skriva i ett annat "
+"språk, men svaren kan vara mindre hjälpsamma.<br/><br/>"
 
 #, c-format
 msgid ""
@@ -11701,14 +12330,6 @@ msgstr "_Rensa bort färdiga överföringar"
 msgid "File transfer _details"
 msgstr "_Detaljerad filöverföringsinformation"
 
-#. Pause button
-msgid "_Pause"
-msgstr "_Pausa"
-
-#. Resume button
-msgid "_Resume"
-msgstr "_Återuppta"
-
 msgid "Paste as Plain _Text"
 msgstr "Klistra in som ren _text"
 
@@ -11727,8 +12348,8 @@ msgstr "Färg som länkar ska ha."
 msgid "Hyperlink visited color"
 msgstr "Färg på besökta hyperlänkar"
 
-msgid "Color to draw hyperlinks after it has been visited (or activated)."
-msgstr "Färgen länkar ska skrivas i när de har besökts (eller aktiverats)."
+msgid "Color to draw hyperlink after it has been visited (or activated)."
+msgstr "Färgen för länkar när de har besökts (eller aktiverats)."
 
 # "utpekade" var det bästa ord jag kunde komma på.
 msgid "Hyperlink prelight color"
@@ -11766,14 +12387,20 @@ msgstr "Färgen att skriva namnet i ett actionmeddelande."
 msgid "Action Message Name Color for Whispered Message"
 msgstr "Actionmeddelandens namnfärg"
 
+msgid "Color to draw the name of a whispered action message."
+msgstr "Färgen för namnet i ett viskat aktionsmeddelande."
+
 msgid "Whisper Message Name Color"
 msgstr "Viskade meddelandens namnfärg"
+
+msgid "Color to draw the name of a whispered message."
+msgstr "Färgen för namnet i ett viskat meddelande."
 
 msgid "Typing notification color"
 msgstr "Färg på notifiering"
 
-msgid "The color to use for the typing notification font"
-msgstr "Färgen används för skriftnotifiering"
+msgid "The color to use for the typing notification"
+msgstr "Färgen för skriftnotifiering"
 
 msgid "Typing notification font"
 msgstr "Typsnitt för skriftnotifiering"
@@ -11783,15 +12410,6 @@ msgstr "Typsnittet använt för skrivnotifieringen"
 
 msgid "Enable typing notification"
 msgstr "Aktivera skriftnotifiering"
-
-msgid "_Copy Email Address"
-msgstr "_Kopiera e-postadress"
-
-msgid "_Open Link in Browser"
-msgstr "_Öppna länk i webbläsare"
-
-msgid "_Copy Link Location"
-msgstr "_Kopiera länk"
 
 msgid ""
 "<span size='larger' weight='bold'>Unrecognized file type</span>\n"
@@ -11834,11 +12452,9 @@ msgstr ""
 msgid "Save Image"
 msgstr "Spara bild"
 
-#, c-format
 msgid "_Save Image..."
 msgstr "_Spara bild..."
 
-#, c-format
 msgid "_Add Custom Smiley..."
 msgstr "Lägg till egen smiley..."
 
@@ -11899,7 +12515,7 @@ msgid "This theme has no available smileys."
 msgstr "Detta tema har inga tillgängliga smileys."
 
 msgid "_Font"
-msgstr "_Typsnitt"
+msgstr "_Formatering"
 
 msgid "Group Items"
 msgstr "Gruppera föremål"
@@ -11927,9 +12543,6 @@ msgstr "Minska Typsnittsstorlek"
 
 msgid "Font Face"
 msgstr "Typsnitt"
-
-msgid "Background Color"
-msgstr "Bakgrundsfärg"
 
 msgid "Foreground Color"
 msgstr "Förgrundsfärg"
@@ -11969,7 +12582,7 @@ msgstr "<span size='smaller'>_Mindre</span>"
 #. * need to update them when formatting changes. The above items don't need
 #. * no updating nor nothin'
 msgid "_Font face"
-msgstr "_Typsnittsansikte"
+msgstr "_Typsnitt"
 
 msgid "Foreground _color"
 msgstr "_Förgrundsfärg"
@@ -12043,61 +12656,51 @@ msgstr "%s %s. Försök med '%s -h' för mer information.\n"
 
 #, c-format
 msgid ""
-"%s %s\n"
 "Usage: %s [OPTION]...\n"
 "\n"
-"  -c, --config=DIR    use DIR for config files\n"
-"  -d, --debug         print debugging messages to stdout\n"
-"  -h, --help          display this help and exit\n"
-"  -m, --multiple      do not ensure single instance\n"
-"  -n, --nologin       don't automatically login\n"
-"  -l, --login[=NAME]  enable specified account(s) (optional argument NAME\n"
-"                      specifies account(s) to use, separated by commas.\n"
-"                      Without this only the first account will be enabled).\n"
-"  --display=DISPLAY   X display to use\n"
-"  -v, --version       display the current version and exit\n"
 msgstr ""
-"%s %s\n"
-"Användning: %s [FLAGGA]...\n"
+"Användning: %s [FLAGGOR]...\n"
 "\n"
-"  -c, --config=KATALOG   använd KATALOG för konfigurationsfiler\n"
-"  -d, --debug         skriv felsökningsinformation till standardut\n"
-"  -h, --help          visa denna hjälp och avsluta\n"
-"  -m, --multiple      begränsar inte till en enda process\n"
-"  -n, --nologin       logga inte in automatiskt\n"
-"  -l, --login[=NAMN]  logga in automatiskt (frivilliga argumentet NAMN\n"
-"                      anger kontot/kontona som ska användas, separerade\n"
-"                      med kommatecken)\n"
-"  --display=DISPLAY   X display att använda\n"
-"  -v, --version       visa den nuvarande versionen och avsluta\n"
 
-#, c-format
+msgid "DIR"
+msgstr "KATALOG"
+
+msgid "use DIR for config files"
+msgstr "Använd KATALOG för konfigurationsfiler"
+
+msgid "print debugging messages to stdout"
+msgstr "skriv ut felsökningsmeddelanden till stdout"
+
+msgid "force online, regardless of network status"
+msgstr "tvinga ansluten, oavsätt nätverkets status"
+
+msgid "display this help and exit"
+msgstr "visa denna hjältexten och avsluta"
+
+msgid "allow multiple instances"
+msgstr "tillåt flera instanser"
+
+msgid "don't automatically login"
+msgstr "anslut inte automatiskt"
+
+msgid "NAME"
+msgstr "NAMN"
+
 msgid ""
-"%s %s\n"
-"Usage: %s [OPTION]...\n"
-"\n"
-"  -c, --config=DIR    use DIR for config files\n"
-"  -d, --debug         print debugging messages to stdout\n"
-"  -h, --help          display this help and exit\n"
-"  -m, --multiple      do not ensure single instance\n"
-"  -n, --nologin       don't automatically login\n"
-"  -l, --login[=NAME]  enable specified account(s) (optional argument NAME\n"
+"enable specified account(s) (optional argument NAME\n"
 "                      specifies account(s) to use, separated by commas.\n"
-"                      Without this only the first account will be enabled).\n"
-"  -v, --version       display the current version and exit\n"
+"                      Without this only the first account will be enabled)."
 msgstr ""
-"%s %s\n"
-"Användning: %s [FLAGGA]...\n"
-"\n"
-"  -c, --config=KATALOG   använd KATALOG för konfigurationsfiler\n"
-"  -d, --debug         skriv felsökningsinformation till standardut\n"
-"  -h, --help          visa denna hjälp och avsluta\n"
-"  -m, --multiple      begränsar inte till en enda process\n"
-"  -n, --nologin       logga inte in automatiskt\n"
-"  -l, --login[=NAMN]  logga in automatiskt (frivilliga argumentet NAMN\n"
-"                      anger kontot/kontona som ska användas, separerade\n"
-"                      med kommatecken)\n"
-"  -v, --version       visa den nuvarande versionen och avsluta\n"
+"aktivera valda konton (det ej obligatoriska argumentet NAMN\n"
+"                      specificerar en kommaseparerad lista av konton.\n"
+"                      Utan denna lista kommer enbart det första kontot "
+"aktiveras)."
+
+msgid "X display to use"
+msgstr "X displayen att använda"
+
+msgid "display the current version and exit"
+msgstr "Visar nuvarande version och avslutar"
 
 #, c-format
 msgid ""
@@ -12127,20 +12730,29 @@ msgstr ""
 "var god läs instruktionerna på\n"
 "%swiki/GetABacktrace\n"
 
-#. Translators may want to transliterate the name.
-#. It is not to be translated.
-msgid "Pidgin"
-msgstr "Pidgin"
-
 #, c-format
 msgid "Exiting because another libpurple client is already running.\n"
 msgstr "Avslutar på grund av att en annan libpurple-klient redan körs.\n"
 
-msgid "Open All Messages"
-msgstr "Öppna alla meddelanden"
+msgid "/_Media"
+msgstr "/_Media"
 
-msgid "<span weight=\"bold\" size=\"larger\">You have mail!</span>"
-msgstr "<span weight=\"bold\" size=\"larger\">Du har fått e-post!!</span>"
+msgid "/Media/_Hangup"
+msgstr "/Media/_Lägg på"
+
+#, c-format
+msgid "%s wishes to start an audio/video session with you."
+msgstr "%s önskar påbörja en ljud/videosession med dig."
+
+#, c-format
+msgid "%s wishes to start a video session with you."
+msgstr "%s önskar påbörja en videosession med dig."
+
+msgid "Incoming Call"
+msgstr "Inkommande samtal"
+
+msgid "_Pause"
+msgstr "_Pausa"
 
 #, c-format
 msgid "%s has %d new message."
@@ -12168,6 +12780,24 @@ msgstr "Fel vid körning av \"%s\": %s"
 msgid ""
 "The 'Manual' browser command has been chosen, but no command has been set."
 msgstr "Manuellt webbläsarkommando har valts, men inget kommando angivits."
+
+msgid "No message"
+msgstr "Inget meddelande"
+
+msgid "Open All Messages"
+msgstr "Öppna alla meddelanden"
+
+msgid "<span weight=\"bold\" size=\"larger\">You have mail!</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">Du har fått e-post!!</span>"
+
+msgid "New Pounces"
+msgstr "Ny kompisnotifieringar"
+
+msgid "Dismiss"
+msgstr "Avfärda"
+
+msgid "<span weight=\"bold\" size=\"larger\">You have pounced!</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">Du har notifierat!</span>"
 
 msgid "The following plugins will be unloaded."
 msgstr "De följande modulerna kommer avladdas."
@@ -12217,9 +12847,15 @@ msgstr "<b>Detaljer för modul</b>"
 msgid "Select a file"
 msgstr "Välj en fil"
 
+msgid "Modify Buddy Pounce"
+msgstr "Ändra kompisnotifiering"
+
 #. Create the "Pounce on Whom" frame.
 msgid "Pounce on Whom"
 msgstr "Notifiera vem"
+
+msgid "_Account:"
+msgstr "_Konto:"
 
 msgid "_Buddy name:"
 msgstr "K_ompisnamn:"
@@ -12287,21 +12923,86 @@ msgstr "Åte_rkommande"
 msgid "Pounce Target"
 msgstr "Notifiera mål"
 
-msgid "Smiley theme failed to unpack."
-msgstr "Smiley temat kunde inte packas upp."
+msgid "Started typing"
+msgstr "Började skriva"
 
-msgid "Install Theme"
-msgstr "Installera tema"
+msgid "Paused while typing"
+msgstr "Pausade i skrivandet"
 
+msgid "Signed on"
+msgstr "Anslöt"
+
+msgid "Returned from being idle"
+msgstr "Återvände från vilande"
+
+msgid "Returned from being away"
+msgstr "Återvände från frånvaro"
+
+msgid "Stopped typing"
+msgstr "Slutade skriva"
+
+msgid "Signed off"
+msgstr "Kopplade ifrån"
+
+msgid "Became idle"
+msgstr "Blev inaktiv"
+
+msgid "Went away"
+msgstr "Försvann"
+
+msgid "Sent a message"
+msgstr "Skicka ett meddelande"
+
+msgid "Unknown.... Please report this!"
+msgstr "Okänd... Var snäll och rapportera detta!"
+
+msgid "(Custom)"
+msgstr "(Egen)"
+
+msgid "Penguin Pimps"
+msgstr "Penguin Pimps"
+
+msgid "The default Pidgin sound theme"
+msgstr "Pidgins förvalda ljudtema"
+
+msgid "The default Pidgin buddy list theme"
+msgstr "Pidgins förvalda tema för kompislistan"
+
+msgid "The default Pidgin status icon theme"
+msgstr "Pidgins förvalda statusikon-tema"
+
+msgid "Theme failed to unpack."
+msgstr "Temat kunde inte packas upp."
+
+msgid "Theme failed to load."
+msgstr "Temat kunde inte läsas in."
+
+msgid "Theme failed to copy."
+msgstr "Temat kunde inte kopieras."
+
+msgid "Theme Selections"
+msgstr "Temaval"
+
+#. Instructions
 msgid ""
-"Select a smiley theme that you would like to use from the list below. New "
-"themes can be installed by dragging and dropping them onto the theme list."
+"Select a theme that you would like to use from the lists below.\n"
+"New themes can be installed by dragging and dropping them onto the theme "
+"list."
 msgstr ""
-"Välj det tema för grafiska smileys som du vill använda från listan nedanför. "
-"Nya teman kan installeras genom att dra och släppa dem på temalistan."
+"Välj ett tema som du vill använda i listan nedan.\n"
+"Nya teman kan installeras genom att släppas i listan över teman."
 
-msgid "Icon"
-msgstr "Ikon"
+msgid "Buddy List Theme:"
+msgstr "Tema för kompislista:"
+
+msgid "Status Icon Theme:"
+msgstr "Tema för statusikoner:"
+
+msgid "Sound Theme:"
+msgstr "Ljudtema:"
+
+msgid "Smiley Theme:"
+msgstr "Tema för smilisar:"
 
 msgid "Keyboard Shortcuts"
 msgstr "Tangentbordsgenvägar"
@@ -12309,6 +13010,7 @@ msgstr "Tangentbordsgenvägar"
 msgid "Cl_ose conversations with the Escape key"
 msgstr "_Stäng konversationsfönster med Escape-knappen"
 
+#. System Tray
 msgid "System Tray Icon"
 msgstr "Systempanelikon"
 
@@ -12318,14 +13020,17 @@ msgstr "Vi_sa systempanelsikon:"
 msgid "On unread messages"
 msgstr "Vid olästa meddelanden"
 
-msgid "Conversation Window Hiding"
-msgstr "Dölj konversationsfönster"
+msgid "Conversation Window"
+msgstr "Konversationsfönster"
 
 msgid "_Hide new IM conversations:"
 msgstr "_Dölj nya IM-konversationer:"
 
 msgid "When away"
 msgstr "Vid frånvaro"
+
+msgid "Minimi_ze new conversation windows"
+msgstr "_Minimera nya konversationsfönstret"
 
 #. All the tab options!
 msgid "Tabs"
@@ -12385,17 +13090,11 @@ msgstr "Använd mjuk rullning"
 msgid "F_lash window when IMs are received"
 msgstr "B_linka med fönstret när meddelanden tagits emot"
 
-msgid "Minimi_ze new conversation windows"
-msgstr "_Minimera nya konversationsfönstret"
-
 msgid "Minimum input area height in lines:"
 msgstr "Minsta höjd i rader på inmatningsfältet:"
 
 msgid "Font"
 msgstr "Typsnitt"
-
-msgid "Use document font from _theme"
-msgstr "Använde dokumenttypsnitt från _tema"
 
 msgid "Use font from _theme"
 msgstr "Använde typsnitt från _tema"
@@ -12419,14 +13118,18 @@ msgstr "Kan inte starta konfigurationsprogrammet för proxy."
 msgid "Cannot start browser configuration program."
 msgstr "Kan inte starta konfigurationsprogrammet för webbläsaren"
 
+msgid "Disabled"
+msgstr "Avaktiverad"
+
+#, c-format
+msgid "Use _automatically detected IP address: %s"
+msgstr "Använda _automatiskt avkänd IP-adress: %s"
+
 msgid "ST_UN server:"
 msgstr "ST_UN-server:"
 
 msgid "<span style=\"italic\">Example: stunserver.org</span>"
 msgstr "<span style=\"italic\">Exempel: stunserver.org</span>"
-
-msgid "_Autodetect IP address"
-msgstr "Känn av IP-adress _automatiskt"
 
 msgid "Public _IP:"
 msgstr "Publik _IP-adress:"
@@ -12437,49 +13140,27 @@ msgstr "Portar"
 msgid "_Enable automatic router port forwarding"
 msgstr "_Aktivera automatisk router port-forwarding"
 
-msgid "_Manually specify range of ports to listen on"
-msgstr "Ange _manuellt vilken portserie som ska användas"
+msgid "_Manually specify range of ports to listen on:"
+msgstr "Ange _manuellt vilken portserie som ska användas:"
 
-msgid "_Start port:"
-msgstr "_Startport:"
+msgid "_Start:"
+msgstr "_Start:"
 
-msgid "_End port:"
-msgstr "_Slutport:"
+msgid "_End:"
+msgstr "S_lut:"
 
-msgid "Proxy Server &amp; Browser"
-msgstr "Proxyserver &amp; Webbläsare"
+#. TURN server
+msgid "Relay Server (TURN)"
+msgstr "Återsändningsserver (TURN)"
 
-msgid "<b>Proxy configuration program was not found.</b>"
-msgstr "<b>Konfigurationsprogrammet för proxy hittades inte.</b>"
+msgid "_TURN server:"
+msgstr "_TURN-server:"
 
-msgid "<b>Browser configuration program was not found.</b>"
-msgstr "<b>Konfigurationsprogrammet för Webbläsaren hittades inte.</b>"
+msgid "Use_rname:"
+msgstr "_Användarnamn:"
 
-msgid ""
-"Proxy & Browser preferences are configured\n"
-"in GNOME Preferences"
-msgstr ""
-"Proxy- & Webbläsar-inställningarna konfigureras i\n"
-"GNOMEs inställningar"
-
-msgid "Configure _Proxy"
-msgstr "Konfigurera _Proxy"
-
-msgid "Configure _Browser"
-msgstr "Konfigurera _Webbläsare"
-
-msgid "Proxy Server"
-msgstr "Proxyserver"
-
-msgid "No proxy"
-msgstr "Ingen proxy"
-
-#. This is a global option that affects SOCKS4 usage even with account-specific proxy settings
-msgid "Use remote DNS with SOCKS4 proxies"
-msgstr "Använd fjärr-DNS med SOCKS4-proxier"
-
-msgid "_User:"
-msgstr "_Användare:"
+msgid "Pass_word:"
+msgstr "_Lösenord:"
 
 msgid "Seamonkey"
 msgstr "Seamonkey"
@@ -12520,6 +13201,15 @@ msgstr "Manuell"
 msgid "Browser Selection"
 msgstr "Val av webbläsare"
 
+msgid "Browser preferences are configured in GNOME preferences"
+msgstr "Webbläsarinställningarna konfigureras i GNOMEs inställningar"
+
+msgid "<b>Browser configuration program was not found.</b>"
+msgstr "<b>Konfigurationsprogrammet för Webbläsaren hittades inte.</b>"
+
+msgid "Configure _Browser"
+msgstr "Konfigurera _Webbläsare"
+
 msgid "_Browser:"
 msgstr "Webb_läsare:"
 
@@ -12542,6 +13232,35 @@ msgid ""
 msgstr ""
 "_Manuell:\n"
 "(%s för URL)"
+
+msgid "Proxy Server"
+msgstr "Proxyserver"
+
+msgid "Proxy preferences are configured in GNOME preferences"
+msgstr "Proxyinställningarna konfigureras i GNOMEs inställningar"
+
+msgid "<b>Proxy configuration program was not found.</b>"
+msgstr "<b>Konfigurationsprogrammet för proxy hittades inte.</b>"
+
+msgid "Configure _Proxy"
+msgstr "Konfigurera _Proxy"
+
+#. This is a global option that affects SOCKS4 usage even with
+#. * account-specific proxy settings
+msgid "Use remote _DNS with SOCKS4 proxies"
+msgstr "Använd fjärr-_DNS med SOCKS4-proxier"
+
+msgid "Proxy t_ype:"
+msgstr "Proxyt_yp:"
+
+msgid "No proxy"
+msgstr "Ingen proxy"
+
+msgid "P_ort:"
+msgstr "P_ort:"
+
+msgid "User_name:"
+msgstr "Användar_namn:"
 
 msgid "Log _format:"
 msgstr "Logg _format:"
@@ -12624,26 +13343,19 @@ msgid "_Report idle time:"
 msgstr "_Rapportera inaktivitetstid:"
 
 msgid "Based on keyboard or mouse use"
-msgstr "Baserat på tangetbord eller musanvändning"
+msgstr "Baserat på tangentbord eller musanvändning"
+
+msgid "_Minutes before becoming idle:"
+msgstr "_Minuter innan du räknas som inaktiv:"
+
+msgid "Change to this status when _idle:"
+msgstr "Ändra status vid _inaktivitet:"
 
 msgid "_Auto-reply:"
 msgstr "_Automatiskt svar:"
 
 msgid "When both away and idle"
 msgstr "Vid både frånvaro och inaktivitet"
-
-#. Auto-away stuff
-msgid "Auto-away"
-msgstr "Automatisk frånvaro"
-
-msgid "Change status when _idle"
-msgstr "Ändra status vid _inaktivitet"
-
-msgid "_Minutes before becoming idle:"
-msgstr "_Minuter innan du räknas som inaktiv:"
-
-msgid "Change _status to:"
-msgstr "Ändra _status till:"
 
 #. Signon status stuff
 msgid "Status at Startup"
@@ -12658,14 +13370,14 @@ msgstr "Status att använda vid u_ppstart:"
 msgid "Interface"
 msgstr "Gränssnitt"
 
-msgid "Smiley Themes"
-msgstr "Smileyteman"
-
 msgid "Browser"
 msgstr "Webbläsare"
 
 msgid "Status / Idle"
 msgstr "Status / Inaktiv"
+
+msgid "Themes"
+msgstr "Teman"
 
 msgid "Allow all users to contact me"
 msgstr "Tillåt alla användare att kontakta mig"
@@ -12790,27 +13502,18 @@ msgstr "Spara & An_vänd"
 msgid "Status for %s"
 msgstr "Status för %s"
 
+#, c-format
+msgid ""
+"A custom smiley for '%s' already exists.  Please use a different shortcut."
+msgstr ""
+"En egen smiley för '%s' existerar redan. Var vänlig ange en annorlunda "
+"genväg."
+
 msgid "Custom Smiley"
 msgstr "Egen Smiley"
 
-msgid "More Data needed"
-msgstr "Mer Data behövs"
-
-msgid "Please provide a shortcut to associate with the smiley."
-msgstr "Var god ange en genväg att assocciera med den valda smileyn."
-
 msgid "Duplicate Shortcut"
 msgstr "Genvägen är upptagen"
-
-msgid ""
-"A custom smiley for the selected shortcut already exists. Please specify a "
-"different shortcut."
-msgstr ""
-"En egen smiley för den valda genvägen existerar redan. Var vänlig ange en "
-"annorlunda genväg."
-
-msgid "Please select an image for the smiley."
-msgstr "Ange en bild för smileyn."
 
 msgid "Edit Smiley"
 msgstr "Redigera Smiley"
@@ -12818,18 +13521,24 @@ msgstr "Redigera Smiley"
 msgid "Add Smiley"
 msgstr "Lägg till Smiley"
 
-msgid "Smiley _Image"
-msgstr "Smiley-_bild"
+msgid "_Image:"
+msgstr "B_ild:"
 
-#. Smiley shortcut
-msgid "Smiley S_hortcut"
-msgstr "Smiley-_genväg"
+#. Shortcut text
+msgid "S_hortcut text:"
+msgstr "_Genvägstext:"
 
 msgid "Smiley"
 msgstr "Smiley"
 
+msgid "Shortcut Text"
+msgstr "Genvägstext"
+
 msgid "Custom Smiley Manager"
-msgstr "Hanterare för egna Smileys"
+msgstr "Hanterare för egna smileys"
+
+msgid "Select Buddy Icon"
+msgstr "Välj kompisikon"
 
 msgid "Click to change your buddyicon for this account."
 msgstr "Klicka här för att ändra kompisikon för detta konto."
@@ -12915,8 +13624,8 @@ msgid "Cannot send launcher"
 msgstr "Kan inte skicka startare"
 
 msgid ""
-"You dragged a desktop launcher. Most likely you wanted to send whatever this "
-"launcher points to instead of this launcher itself."
+"You dragged a desktop launcher. Most likely you wanted to send the target of "
+"this launcher instead of this launcher itself."
 msgstr ""
 "Du drog en skrivbordsstartare. Antagligen ville du skicka vad som startaren "
 "pekar på istället för startaren själv."
@@ -12951,11 +13660,37 @@ msgid ""
 msgstr ""
 "Kunde inte öppna bilden '%s' av okänd anledning. Troligtvis är filen trasig."
 
+msgid "_Open Link"
+msgstr "_Öppna länk"
+
+msgid "_Copy Link Location"
+msgstr "_Kopiera länk"
+
+msgid "_Copy Email Address"
+msgstr "_Kopiera e-postadress"
+
+msgid "_Open File"
+msgstr "_Öppna fil"
+
+msgid "Open _Containing Directory"
+msgstr "Öppna _inehållande katalog"
+
 msgid "Save File"
 msgstr "Spara fil"
 
+msgid "_Play Sound"
+msgstr "S_pela upp ljud"
+
+msgid "_Save File"
+msgstr "_Spara fil"
+
 msgid "Select color"
 msgstr "Välj färg"
+
+#. Translators may want to transliterate the name.
+#. It is not to be translated.
+msgid "Pidgin"
+msgstr "Pidgin"
 
 msgid "_Alias"
 msgstr "_Alias"
@@ -12987,9 +13722,6 @@ msgstr "Pidgin verktygstips"
 msgid "Pidgin smileys"
 msgstr "Pidgin smileys"
 
-msgid "Penguin Pimps"
-msgstr "Penguin Pimps"
-
 msgid "Selecting this disables graphical emoticons."
 msgstr "Välj detta för att avaktivera grafiska emoticons."
 
@@ -13000,7 +13732,7 @@ msgid "Small"
 msgstr "Liten"
 
 msgid "Smaller versions of the default smilies"
-msgstr "Mindre versioner av de förvadla smiliesarna."
+msgstr "Mindre versioner av de förvalda smiliesarna."
 
 msgid "Response Probability:"
 msgstr "Trolighet för svar:"
@@ -13131,6 +13863,69 @@ msgstr "Verkställ i Chatter"
 
 msgid "Apply in IMs"
 msgstr "Verkställ i IMs"
+
+#. Note to translators: The string "Enter an XMPP Server" is asking the
+#. user to type the name of an XMPP server which will then be queried
+msgid "Server name request"
+msgstr "Servernamnsförfrågan"
+
+msgid "Enter an XMPP Server"
+msgstr "Ange en XMPP-server"
+
+msgid "Select an XMPP server to query"
+msgstr "Välj en XMPP-server att fråga"
+
+msgid "Find Services"
+msgstr "Hitta tjänst"
+
+msgid "Add to Buddy List"
+msgstr "Lägg till på kompislistan"
+
+msgid "Gateway"
+msgstr "Inkörsport"
+
+msgid "Directory"
+msgstr "Katalog"
+
+msgid "PubSub Collection"
+msgstr "PubSub-samling"
+
+# Vad är PubSub? Hittar bara antydningar till en sökmotor med speciella möjligheter för uppföljning. Är det den som avses?
+msgid "PubSub Leaf"
+msgstr "PubSub-löv"
+
+msgid ""
+"\n"
+"<b>Description:</b> "
+msgstr ""
+"\n"
+"<b>Beskrivning:</b> "
+
+#. Create the window.
+msgid "Service Discovery"
+msgstr "Tjänsteupptäckning"
+
+msgid "_Browse"
+msgstr "_Bläddra"
+
+msgid "Server does not exist"
+msgstr "Servern finns inte"
+
+msgid "Server does not support service discovery"
+msgstr "Servern stödjer inte tjänsteupptäckning"
+
+msgid "XMPP Service Discovery"
+msgstr "XMPP Tjänsteupptäckning"
+
+msgid "Allows browsing and registering services."
+msgstr "Tillåter att bläddra och registrera service."
+
+msgid ""
+"This plugin is useful for registering with legacy transports or other XMPP "
+"services."
+msgstr ""
+"Denna modul är användbar för registrering till äldre transportörer eller "
+"andra XMPP-tjänster."
 
 msgid "By conversation count"
 msgstr "Efter konversationsantal"
@@ -13433,7 +14228,7 @@ msgstr "Music Messaging-modul för gemensam komponering."
 #. *  summary
 msgid ""
 "The Music Messaging Plugin allows a number of users to simultaneously work "
-"on a piece of music by editting a common score in real-time."
+"on a piece of music by editing a common score in real-time."
 msgstr ""
 "Music Messaging-modulen tillåter ett antal användare att samtidigt arbeta på "
 "ett stycke musik genom att editera ett gemensamt notblad i realtid."
@@ -13547,12 +14342,6 @@ msgstr ""
 "- Den sänder ett meddelande till personerna på din kompislista direkt när du "
 "loggar in"
 
-msgid "Cursor Color"
-msgstr "Färg på markören"
-
-msgid "Secondary Cursor Color"
-msgstr "Sekundär färg på markören"
-
 msgid "Hyperlink Color"
 msgstr "Färg på länkar"
 
@@ -13562,11 +14351,17 @@ msgstr "Färg för besökta hyperlänkar"
 msgid "Highlighted Message Name Color"
 msgstr "Färg på namn i markerade färger"
 
+msgid "Typing Notification Color"
+msgstr "Färg på skrivnotifiering"
+
 msgid "GtkTreeView Horizontal Separation"
 msgstr "GtkTreeView horisontal separation"
 
 msgid "Conversation Entry"
 msgstr "Konversationsinlägg"
+
+msgid "Conversation History"
+msgstr "Konversationshistorik"
 
 msgid "Request Dialog"
 msgstr "Förfrågningsdialog"
@@ -13591,35 +14386,20 @@ msgstr "GTK+ Gränssnittstypsnitt"
 msgid "GTK+ Text Shortcut Theme"
 msgstr "GTK+ Textgenvägstema"
 
-#.
-#. for (i = 0; i < G_N_ELEMENTS(widget_bool_prefs); i++) {
-#. hbox = gtk_hbox_new(FALSE, PIDGIN_HIG_CAT_SPACE);
-#. gtk_box_pack_start(GTK_BOX(frame), hbox, FALSE, FALSE, 0);
-#.
-#. check = pidgin_prefs_checkbox(_(widget_bool_names[i]),
-#. widget_bool_prefs_set[i], hbox);
-#. gtk_size_group_add_widget(labelsg, check);
-#.
-#. widget_bool_widgets[i] = pidgin_prefs_checkbox("", widget_bool_prefs[i], hbox);
-#. *
-#. gtk_size_group_add_widget(widgetsb, widget_bool_widgets[i]);
-#. *
-#. gtk_widget_set_sensitive(widget_bool_widgets[i],
-#. purple_prefs_get_bool(widget_bool_prefs_set[i]));
-#. g_signal_connect(G_OBJECT(check), "toggled",
-#. G_CALLBACK(pidgin_toggle_sensitive),
-#. widget_bool_widgets[i]);
-#. }
-#.
-msgid "Interface colors"
-msgstr "Gränssnittsfärger"
+msgid "Disable Typing Notification Text"
+msgstr "Avaktivera skriftnotifieringstext"
 
-# Osäker: Finns smidigare lösning?
-msgid "Widget Sizes"
-msgstr "Storlek på grafiska element"
+msgid "GTK+ Theme Control Settings"
+msgstr "GTK+ temakontroll"
+
+msgid "Colors"
+msgstr "Färger"
 
 msgid "Fonts"
 msgstr "Typsnitt"
+
+msgid "Miscellaneous"
+msgstr "Diverse"
 
 msgid "Gtkrc File Tools"
 msgstr "Gtkrc filverktyg"
@@ -13707,8 +14487,10 @@ msgstr "Skicka-knapp i konversationsfönster"
 #. *< summary
 msgid ""
 "Adds a Send button to the entry area of the conversation window. Intended "
-"for when no physical keyboard is present."
-msgstr "Lägger till en \"Skicka\" knapp till konversationsfönstret. "
+"for use when no physical keyboard is present."
+msgstr ""
+"Lägger till en Skicka knapp till konversationsfönstret. För att användas när "
+"inget fysiskt tangentbord finns."
 
 msgid "Duplicate Correction"
 msgstr "Dublettkorrigering"
@@ -13759,6 +14541,98 @@ msgstr "Textersättning"
 
 msgid "Replaces text in outgoing messages according to user-defined rules."
 msgstr "Ersätter text i utgående meddelanden enligt dina egna regler."
+
+msgid "Just logged in"
+msgstr "Precis inloggad"
+
+msgid "Just logged out"
+msgstr "Precis utloggad"
+
+msgid ""
+"Icon for Contact/\n"
+"Icon for Unknown person"
+msgstr ""
+"Ikon för kontakt\n"
+"Ikon för okänd person"
+
+msgid "Icon for Chat"
+msgstr "Ikon för chatt"
+
+msgid "Ignored"
+msgstr "Ignorerad"
+
+msgid "Founder"
+msgstr "Grundare"
+
+#. A user in a chat room who has special privileges.
+msgid "Operator"
+msgstr "Operatör"
+
+#. A half operator is someone who has a subset of the privileges
+#. that an operator has.
+msgid "Half Operator"
+msgstr "Halvoperatör"
+
+msgid "Authorization dialog"
+msgstr "Auktoriseringsdialog"
+
+msgid "Error dialog"
+msgstr "Feldialog"
+
+msgid "Information dialog"
+msgstr "Informationsdialog"
+
+msgid "Mail dialog"
+msgstr "Postdialog"
+
+msgid "Question dialog"
+msgstr "Förfrågningsdialog"
+
+msgid "Warning dialog"
+msgstr "Varningsdialog"
+
+msgid "What kind of dialog is this?"
+msgstr "Vilken sorts dialog är detta?"
+
+msgid "Status Icons"
+msgstr "Statusikoner"
+
+msgid "Chatroom Emblems"
+msgstr "Chatrumsemblem"
+
+msgid "Dialog Icons"
+msgstr "Dialogikon"
+
+msgid "Pidgin Icon Theme Editor"
+msgstr "Pidgin ikontema-redigerare"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Pidgin Buddylist Theme Editor"
+msgstr "Pidgin Redigerare för Kompislistans tema"
+
+msgid "Edit Buddylist Theme"
+msgstr "Redigera Kompislistans tema"
+
+msgid "Edit Icon Theme"
+msgstr "Redigera ikontema"
+
+#. *< type
+#. *< ui_requirement
+#. *< flags
+#. *< dependencies
+#. *< priority
+#. *< id
+#. *  description
+msgid "Pidgin Theme Editor"
+msgstr "Pidgin Temaredigerare"
+
+#. *< name
+#. *< version
+#. *  summary
+msgid "Pidgin Theme Editor."
+msgstr "Pidgin Temaredigerare."
 
 #. *< type
 #. *< ui_requirement
@@ -13843,6 +14717,52 @@ msgstr ""
 "Denna modul tillåter användaren att personifiera konversationernas och "
 "loggarnas tidsstämpelformat."
 
+msgid "Audio"
+msgstr "Ljud"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Output"
+msgstr "Utmatning"
+
+msgid "_Plugin"
+msgstr "_Insticksmoduler"
+
+msgid "_Device"
+msgstr "_Enhet"
+
+msgid "Input"
+msgstr "Inmatning"
+
+msgid "P_lugin"
+msgstr "Insticksmodu_ler"
+
+msgid "D_evice"
+msgstr "_Enhet"
+
+#. *< magic
+#. *< major version
+#. *< minor version
+#. *< type
+#. *< ui_requirement
+#. *< flags
+#. *< dependencies
+#. *< priority
+#. *< id
+msgid "Voice/Video Settings"
+msgstr "Röst/videoinställningar"
+
+#. *< name
+#. *< version
+msgid "Configure your microphone and webcam."
+msgstr "Konfigurerar din mikrofon och kamera."
+
+#. *< summary
+msgid "Configure microphone and webcam settings for voice/video calls."
+msgstr ""
+"Konfigurera mikrofon och webbkamera-inställningar för röst/videosamtal."
+
 msgid "Opacity:"
 msgstr "Ogenomskinlighet:"
 
@@ -13899,9 +14819,6 @@ msgstr ""
 "\n"
 "* Observera: Denna insticksmodul kräver Win2000 eller senare."
 
-msgid "GTK+ Runtime Version"
-msgstr "GTK+ Runtime-version"
-
 #. Autostart
 msgid "Startup"
 msgstr "Uppstart"
@@ -13909,6 +14826,9 @@ msgstr "Uppstart"
 #, c-format
 msgid "_Start %s on Windows startup"
 msgstr "_Starta %s när Windows startar"
+
+msgid "Allow multiple instances"
+msgstr "Tillåt flera instanser"
 
 msgid "_Dockable Buddy List"
 msgstr "_Dockningsbar kompislista"
@@ -13928,9 +14848,9 @@ msgid "Options specific to Pidgin for Windows."
 msgstr "Inställningar specifika för Pidgin i Windows."
 
 msgid ""
-"Provides options specific to Pidgin for Windows , such as buddy list docking."
+"Provides options specific to Pidgin for Windows, such as buddy list docking."
 msgstr ""
-"Tillhandahåller insällningar specifika för Pidgion i Windows såsom dockning "
+"Tillhandahåller inställningar specifika för Pidgin i Windows såsom dockning "
 "av kompislistan."
 
 msgid "<font color='#777777'>Logged out.</font>"
@@ -13969,6 +14889,650 @@ msgstr "Skicka och ta emot råa XMPP strofer."
 #. *  description
 msgid "This plugin is useful for debbuging XMPP servers or clients."
 msgstr "Denna modul är användbar vid felsökning av XMPP serverar och klienter."
+
+#~ msgid "%s"
+#~ msgstr "%s"
+
+#~ msgid ""
+#~ "Unable to find alternative XMPP connection methods after failing to "
+#~ "connect directly."
+#~ msgstr ""
+#~ "Kunde inte hitta en alternativ XMPP-anslutningsmetod efter "
+#~ "direktanslutning misslyckades."
+
+#~ msgid "(Default)"
+#~ msgstr "(Förvald)"
+
+#~ msgid "Install Theme"
+#~ msgstr "Installera tema"
+
+#~ msgid "Icon"
+#~ msgstr "Ikon"
+
+#~ msgid "Use document font from _theme"
+#~ msgstr "Använde dokumenttypsnitt från _tema"
+
+#~ msgid "Proxy Server &amp; Browser"
+#~ msgstr "Proxyserver &amp; Webbläsare"
+
+#~ msgid "Auto-away"
+#~ msgstr "Automatisk frånvaro"
+
+#~ msgid "Change _status to:"
+#~ msgstr "Ändra _status till:"
+
+#~ msgid "The root certificate this one claims to be issued by is unknown."
+#~ msgstr "Rootcertifikatet som denna påstås använda är okänd."
+
+#~ msgid "Send instant messages over multiple protocols"
+#~ msgstr "Sänder snabbmeddelanden över multipla protokoll"
+
+#~ msgid "_Start port:"
+#~ msgstr "_Startport:"
+
+#~ msgid "_End port:"
+#~ msgstr "_Slutport:"
+
+#~ msgid "_User:"
+#~ msgstr "_Användare:"
+
+#~ msgid "GTK+ Runtime Version"
+#~ msgstr "GTK+ Runtime-version"
+
+#~ msgid "Calling ... "
+#~ msgstr "Ringer..."
+
+#~ msgid "Invalid certificate chain"
+#~ msgstr "Ogiltig certifikatskedja"
+
+#~ msgid ""
+#~ "The certificate chain presented by %s does not have a valid digital "
+#~ "signature from the Certificate Authority from which it claims to have a "
+#~ "signature."
+#~ msgstr ""
+#~ "Certifikatet uppvisat för %s har inte en giltig digital signatur från den "
+#~ "certifikatsutfärdare den påstås vara signerad av."
+
+#~ msgid "Invalid certificate authority signature"
+#~ msgstr "Ogiltig certifigatsutfärdarsignatur"
+
+#~ msgid "Join/Part Hiding Configuration"
+#~ msgstr "Kommer in/Lämnar gömningskonfiguration"
+
+#~ msgid "Minimum Room Size"
+#~ msgstr "Minimal rumsstorlek"
+
+#~ msgid "User Inactivity Timeout (in minutes)"
+#~ msgstr "Användares inaktivitetstidsgräns (i minuter)"
+
+#~ msgid "Malformed BOSH Connect Server"
+#~ msgstr "Felutformad BOSH anslutningsserver"
+
+#~ msgid "Failed to open the file"
+#~ msgstr "Kunde inte öppna filen"
+
+#~ msgid "Unable to not load SILC key pair"
+#~ msgstr "Kunde inte ladda SILC nyckelpar"
+
+#~ msgid "Your account is locked, please log in to the Yahoo! website."
+#~ msgstr "Ditt konto är låst, var vänlig och logga in på Yahoo!s webbplats."
+
+#~ msgid ""
+#~ "%s declined your conference invitation to room \"%s\" because \"%s\"."
+#~ msgstr "%s tackade nej till din inbjudan till rum \"%s\" eftersom \"%s\"."
+
+#~ msgid "Invitation Rejected"
+#~ msgstr "Inbjudan avvisad"
+
+#~ msgid "Euskera(Basque)"
+#~ msgstr "Baskiska"
+
+#~ msgid ""
+#~ "<FONT SIZE=\"4\">Help via e-mail:</FONT> <A HREF=\"mailto:support@pidgin."
+#~ "im\">support@pidgin.im</A><BR/><BR/>"
+#~ msgstr ""
+#~ "<FONT SIZE=\"4\">Hjälp via mejl:</FONT> <A HREF=\"mailto:support@pidgin.im"
+#~ "\">support@pidgin.im</A><BR/><BR/>"
+
+#~ msgid "_Resume"
+#~ msgstr "_Återuppta"
+
+#~ msgid ""
+#~ "%s %s\n"
+#~ "Usage: %s [OPTION]...\n"
+#~ "\n"
+#~ "  -c, --config=DIR    use DIR for config files\n"
+#~ "  -d, --debug         print debugging messages to stdout\n"
+#~ "  -f, --force-online  force online, regardless of network status\n"
+#~ "  -h, --help          display this help and exit\n"
+#~ "  -m, --multiple      do not ensure single instance\n"
+#~ "  -n, --nologin       don't automatically login\n"
+#~ "  -l, --login[=NAME]  enable specified account(s) (optional argument "
+#~ "NAME\n"
+#~ "                      specifies account(s) to use, separated by commas.\n"
+#~ "                      Without this only the first account will be "
+#~ "enabled).\n"
+#~ "  --display=DISPLAY   X display to use\n"
+#~ "  -v, --version       display the current version and exit\n"
+#~ msgstr ""
+#~ "%s %s\n"
+#~ "Användning: %s [FLAGGA]...\n"
+#~ "\n"
+#~ "  -c, --config=KATALOG   använd KATALOG för konfigurationsfiler\n"
+#~ "  -d, --debug         skriv felsökningsinformation till standardut\n"
+#~ "  -f, --force-online  tvinga att ansluta, oavsätt nätverksstatus\n"
+#~ "  -h, --help          visa denna hjälp och avsluta\n"
+#~ "  -m, --multiple      begränsar inte till en enda process\n"
+#~ "  -n, --nologin       logga inte in automatiskt\n"
+#~ "  -l, --login[=NAMN]  logga in automatiskt (frivilliga argumentet NAMN\n"
+#~ "                      anger kontot/kontona som ska användas, separerade\n"
+#~ "                      med kommatecken)\n"
+#~ "  --display=DISPLAY   X display att använda\n"
+#~ "  -v, --version       visa den nuvarande versionen och avsluta\n"
+
+#~ msgid ""
+#~ "%s %s\n"
+#~ "Usage: %s [OPTION]...\n"
+#~ "\n"
+#~ "  -c, --config=DIR    use DIR for config files\n"
+#~ "  -d, --debug         print debugging messages to stdout\n"
+#~ "  -f, --force-online  force online, regardless of network status\n"
+#~ "  -h, --help          display this help and exit\n"
+#~ "  -m, --multiple      do not ensure single instance\n"
+#~ "  -n, --nologin       don't automatically login\n"
+#~ "  -l, --login[=NAME]  enable specified account(s) (optional argument "
+#~ "NAME\n"
+#~ "                      specifies account(s) to use, separated by commas.\n"
+#~ "                      Without this only the first account will be "
+#~ "enabled).\n"
+#~ "  -v, --version       display the current version and exit\n"
+#~ msgstr ""
+#~ "%s %s\n"
+#~ "Användning: %s [FLAGGA]...\n"
+#~ "\n"
+#~ "  -c, --config=KATALOG   använd KATALOG för konfigurationsfiler\n"
+#~ "  -d, --debug         skriv felsökningsinformation till standardut\n"
+#~ "  -f, --force-online  tvinga att ansluta, oavsätt nätverksstatus\n"
+#~ "  -h, --help          visa denna hjälp och avsluta\n"
+#~ "  -m, --multiple      begränsar inte till en enda process\n"
+#~ "  -n, --nologin       logga inte in automatiskt\n"
+#~ "  -l, --login[=NAMN]  logga in automatiskt (frivilliga argumentet NAMN\n"
+#~ "                      anger kontot/kontona som ska användas, separerade\n"
+#~ "                      med kommatecken)\n"
+#~ "  -v, --version       visa den nuvarande versionen och avsluta\n"
+
+#~ msgid "Cannot open socket"
+#~ msgstr "Kan inte öppna uttag"
+
+#~ msgid "Could not listen on socket"
+#~ msgstr "Kunde inte lyssna på uttag"
+
+#~ msgid "Unable to read socket"
+#~ msgstr "Kan inte läsa från uttag"
+
+#~ msgid "Connection failed."
+#~ msgstr "Anslutning misslyckad"
+
+#~ msgid "Server has disconnected"
+#~ msgstr "Servern har kopplat ifrån"
+
+#~ msgid "Couldn't create socket"
+#~ msgstr "Kunde inte skapa socket"
+
+#~ msgid "Couldn't connect to host"
+#~ msgstr "Kunde inte ansluta till värden"
+
+#~ msgid "Read error"
+#~ msgstr "Läsfel"
+
+#~ msgid ""
+#~ "Could not establish a connection with the server:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Kunde inte skapa en anslutning med servern:\n"
+#~ "%s"
+
+#~ msgid "Write error"
+#~ msgstr "Skrivfel"
+
+#~ msgid "Last Activity"
+#~ msgstr "Senaste aktivitet"
+
+#~ msgid "Service Discovery Items"
+#~ msgstr "Tjänstupptäckningsföremål"
+
+#~ msgid "Extended Stanza Addressing"
+#~ msgstr "Utökad Strofadressering"
+
+#~ msgid "Multi-User Chat"
+#~ msgstr "Månganvändarchatt"
+
+#~ msgid "In-Band Bytestreams"
+#~ msgstr "In-Band Byteströmmar"
+
+#~ msgid "Ad-Hoc Commands"
+#~ msgstr "'Ad-Hoc' Kommandon"
+
+#~ msgid "SOCKS5 Bytestreams"
+#~ msgstr "SOCKS5 Byteströmmar"
+
+#~ msgid "XHTML-IM"
+#~ msgstr "XHTML-IM"
+
+# Vad menas med In-Band, när används och vad blir då lämplig översättning? Denna har antagligen något med "Out-of-Band att göra men hur hänger de ihop?
+#~ msgid "In-Band Registration"
+#~ msgstr "In-Bandsregistrering"
+
+#~ msgid "User Location"
+#~ msgstr "Placering"
+
+#~ msgid "User Avatar"
+#~ msgstr "Användar-avatar"
+
+#~ msgid "Chat State Notifications"
+#~ msgstr "Chatt-status notifieringar"
+
+#~ msgid "Software Version"
+#~ msgstr "Mjukvaruversion"
+
+#~ msgid "Stream Initiation"
+#~ msgstr "Ströminitiering"
+
+#~ msgid "User Activity"
+#~ msgstr "Användaraktivitet"
+
+# Låter mysko, vet inte i vilket sammanhang.
+#~ msgid "Entity Capabilities"
+#~ msgstr "Existensmöjligheter"
+
+#~ msgid "Encrypted Session Negotiations"
+#~ msgstr "Förhandlingar om krypterade sessioner"
+
+#~ msgid "User Tune"
+#~ msgstr "Användarlåt"
+
+#~ msgid "Roster Item Exchange"
+#~ msgstr "Listinnehållsutbyte"
+
+# Vet inte om detta är bästa, men...
+#~ msgid "Reachability Address"
+#~ msgstr "Nåbar adress"
+
+#~ msgid "Jingle"
+#~ msgstr "Ramsa"
+
+# Vad är dessa?
+#~ msgid "Jingle Audio"
+#~ msgstr "Sångsnutt"
+
+#~ msgid "User Nickname"
+#~ msgstr "Användarsmeknamn"
+
+# Vad är dessa?
+#~ msgid "Jingle ICE UDP"
+#~ msgstr "Ramsa ICE UDP"
+
+# Vad är dessa?
+#~ msgid "Jingle ICE TCP"
+#~ msgstr "Ramsa ICE TCP"
+
+# Vad är dessa?
+#~ msgid "Jingle Raw UDP"
+#~ msgstr "Ramsa Rå UDP"
+
+#~ msgid "Jingle Video"
+#~ msgstr "Ramsa Video"
+
+# Vad är dessa?
+#~ msgid "Jingle DTMF"
+#~ msgstr "Ramsa DTMF"
+
+#~ msgid "Message Receipts"
+#~ msgstr "Meddelandekvitton"
+
+#~ msgid "Public Key Publishing"
+#~ msgstr "Publik nyckelpublisering"
+
+#~ msgid "User Chatting"
+#~ msgstr "Användarchattning"
+
+#~ msgid "User Browsing"
+#~ msgstr "Användarbläddring"
+
+#~ msgid "User Gaming"
+#~ msgstr "Användarspelning"
+
+#~ msgid "User Viewing"
+#~ msgstr "Användarvisning"
+
+#~ msgid "Stanza Encryption"
+#~ msgstr "Strofkryptering"
+
+#~ msgid "Entity Time"
+#~ msgstr "Enhet Tid"
+
+#~ msgid "Delayed Delivery"
+#~ msgstr "Försenad försändelse"
+
+#~ msgid "Collaborative Data Objects"
+#~ msgstr "Kollebrationsdata objekt"
+
+#~ msgid "File Repository and Sharing"
+#~ msgstr "Filförvaringsplats och Delning"
+
+#~ msgid "STUN Service Discovery for Jingle"
+#~ msgstr "STUN Serviceupptäckning för Ramsor"
+
+#~ msgid "Simplified Encrypted Session Negotiation"
+#~ msgstr "Simpel crypterad session förhandling"
+
+#~ msgid "Hop Check"
+#~ msgstr "Hoppkontroll"
+
+#~ msgid "Read Error"
+#~ msgstr "Läsfel"
+
+#~ msgid "Failed to connect to server."
+#~ msgstr "Kunde inte ansluta till servern."
+
+#~ msgid "Read buffer full (2)"
+#~ msgstr "Läsbuffert full (2)"
+
+#~ msgid "Unparseable message"
+#~ msgstr "Otolkbart meddelande"
+
+#~ msgid "Couldn't connect to host: %s (%d)"
+#~ msgstr "Kunde inte ansluta till värd: %s (%d)"
+
+#~ msgid "Login failed (%s)."
+#~ msgstr "Inloggningen misslyckades (%s)."
+
+#~ msgid ""
+#~ "You have been logged out because you logged in at another workstation."
+#~ msgstr "Du har blivit utloggad eftersom du loggat in från en annan dator."
+
+#~ msgid "Error. SSL support is not installed."
+#~ msgstr "Fel. SSL-stöd är inte installerat."
+
+#~ msgid ""
+#~ "Could not connect to BOS server:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Kunde inte ansluta till BOS-server:\n"
+#~ "%s"
+
+#~ msgid "Invalid username."
+#~ msgstr "Ogiltigt användarnamn"
+
+#~ msgid "Incorrect password."
+#~ msgstr "Felaktigt lösenord."
+
+#~ msgid "Could Not Connect"
+#~ msgstr "Kunde inte ansluta"
+
+#~ msgid "You may be disconnected shortly.  Check %s for updates."
+#~ msgstr "Du kanske snart blir frånkopplad. Kolla på %s efter uppdateringar."
+
+#~ msgid "Could not decrypt server reply"
+#~ msgstr "Kan inte avkryptera inloggningssvaret"
+
+#~ msgid "Connection lost"
+#~ msgstr "Anslutningen tappades"
+
+#~ msgid "Couldn't resolve host"
+#~ msgstr "Kunde ej slå upp värden"
+
+#~ msgid "Connection closed (writing)"
+#~ msgstr "Anslutningen stängd (skrivande)"
+
+#~ msgid "Connection reset"
+#~ msgstr "Anslutningen nollställd"
+
+#~ msgid "Error reading from socket: %s"
+#~ msgstr "Fel vid läsning av från uttag %s"
+
+#~ msgid "Unable to connect to host"
+#~ msgstr "Kan inte ansluta till värd"
+
+#~ msgid "Could not write"
+#~ msgstr "Kunde inte skriva"
+
+#~ msgid "Could not create listen socket"
+#~ msgstr "Kunde inte skapa lyssnarsocket"
+
+#~ msgid ""
+#~ "Could not establish a connection with %s:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Kunde inte skapa en anslutning med %s:\n"
+#~ "%s"
+
+#~ msgid "Activate which ID?"
+#~ msgstr "Vilket ID ska aktiveras?"
+
+#~ msgid "Yahoo Japan"
+#~ msgstr "Yahoo Japan"
+
+#~ msgid "Japan Pager server"
+#~ msgstr "Japan Sökarserver"
+
+#~ msgid "Japan file transfer server"
+#~ msgstr "Japan filöverföringsserver"
+
+#~ msgid ""
+#~ "Lost connection with server\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Tappade anslutningen till servern\n"
+#~ "%s"
+
+#~ msgid "Could not resolve host name"
+#~ msgstr "Kunde inte slå upp värdnamnet"
+
+#, fuzzy
+#~ msgid ""
+#~ "Unable to connect to %s: Server requires TLS/SSL, but no TLS/SSL support "
+#~ "was found."
+#~ msgstr ""
+#~ "Servern kräver TLS/SSL vid inloggning. Hittade inget stöd för TLS/SSL."
+
+#~ msgid "_Proxy"
+#~ msgstr "_Proxy"
+
+#~ msgid "Conversation Window Hiding"
+#~ msgstr "Dölj konversationsfönster"
+
+#~ msgid "More Data needed"
+#~ msgstr "Mer Data behövs"
+
+#~ msgid "Please provide a shortcut to associate with the smiley."
+#~ msgstr "Var god ange en genväg att assocciera med den valda smileyn."
+
+#~ msgid "Please select an image for the smiley."
+#~ msgstr "Ange en bild för smileyn."
+
+#~ msgid "Cursor Color"
+#~ msgstr "Färg på markören"
+
+#~ msgid "Secondary Cursor Color"
+#~ msgstr "Sekundär färg på markören"
+
+#~ msgid "Interface colors"
+#~ msgstr "Gränssnittsfärger"
+
+# Osäker: Finns smidigare lösning?
+#~ msgid "Widget Sizes"
+#~ msgstr "Storlek på grafiska element"
+
+#~ msgid "Invite message"
+#~ msgstr "Inbjudningsmeddelande"
+
+#~ msgid ""
+#~ "Please enter the name of the user you wish to invite,\n"
+#~ "along with an optional invite message."
+#~ msgstr ""
+#~ "Ange namnet på den användare du vill bjuda in,\n"
+#~ "samt ett inbjudningsmeddelande om du vill"
+
+#~ msgid "Looking up %s"
+#~ msgstr "Slå upp %s"
+
+#~ msgid "Connect to %s failed"
+#~ msgstr "Anslutning till %s misslyckades"
+
+#~ msgid "Signon: %s"
+#~ msgstr "Inloggning: %s"
+
+#~ msgid "Unable to write file %s."
+#~ msgstr "Kan inte skriva filen %s."
+
+#~ msgid "Unable to read file %s."
+#~ msgstr "Kan inte läsa filen %s."
+
+#~ msgid "Message too long, last %s bytes truncated."
+#~ msgstr "Meddelandet är för långt, de sista %s byten klipptes bort."
+
+#~ msgid "%s not currently logged in."
+#~ msgstr "%s är inte inloggad för tillfället."
+
+#~ msgid "Warning of %s not allowed."
+#~ msgstr "Varning för %s är inte tillåten."
+
+#~ msgid ""
+#~ "A message has been dropped, you are exceeding the server speed limit."
+#~ msgstr ""
+#~ "Ett meddelande har kastats, du överskrider serverns hastighetsgräns."
+
+#~ msgid "Chat in %s is not available."
+#~ msgstr "Chatt i %s är inte tillgänglig."
+
+#~ msgid "You are sending messages too fast to %s."
+#~ msgstr "Du skickar meddelanden för snabbt till %s."
+
+#~ msgid "You missed an IM from %s because it was too big."
+#~ msgstr "Du missade ett snabbmeddelande från %s eftersom det var för stort."
+
+#~ msgid "You missed an IM from %s because it was sent too fast."
+#~ msgstr ""
+#~ "Du missade ett snabbmeddelande från %s eftersom det skickades för snabbt."
+
+#~ msgid "Failure."
+#~ msgstr "Misslyckande."
+
+#~ msgid "Too many matches."
+#~ msgstr "För många träffar."
+
+#~ msgid "Need more qualifiers."
+#~ msgstr "Behöver fler kvalificerare."
+
+#~ msgid "Dir service temporarily unavailable."
+#~ msgstr "Katalogtjänsten är tillfälligt onåbar."
+
+#~ msgid "Email lookup restricted."
+#~ msgstr "E-postuppslagning är begränsad."
+
+#~ msgid "Keyword ignored."
+#~ msgstr "Nyckelordet ignorerades."
+
+#~ msgid "No keywords."
+#~ msgstr "Inga nyckelord."
+
+#~ msgid "User has no directory information."
+#~ msgstr "Användaren har ingen kataloginformation."
+
+#~ msgid "Country not supported."
+#~ msgstr "Landet stöds inte."
+
+#~ msgid "Failure unknown: %s."
+#~ msgstr "Okänt misslyckande: %s."
+
+#~ msgid "Incorrect username or password."
+#~ msgstr "Felaktigt användarnamn eller lösenord"
+
+#~ msgid "The service is temporarily unavailable."
+#~ msgstr "Tjänsten är tillfälligt onåbar."
+
+#~ msgid "Your warning level is currently too high to log in."
+#~ msgstr "Din varningsnivå är för tillfället för hög för att logga in."
+
+#~ msgid ""
+#~ "You have been connecting and disconnecting too frequently.  Wait ten "
+#~ "minutes and try again.  If you continue to try, you will need to wait "
+#~ "even longer."
+#~ msgstr ""
+#~ "Du har anslutit och kopplat ifrån för många gånger. Vänta tio minuter och "
+#~ "prova igen. Om du fortsätter att försöka kommer du att få vänta ännu "
+#~ "längre."
+
+#~ msgid "An unknown error, %d, has occurred.  Info: %s"
+#~ msgstr "Ett okänt fel, %d, har inträffat. Information: %s"
+
+#~ msgid "Invalid Groupname"
+#~ msgstr "Ogiltigt gruppnamn"
+
+#~ msgid "Connection Closed"
+#~ msgstr "Anslutningen stängd"
+
+#~ msgid "Waiting for reply..."
+#~ msgstr "Väntar på svar..."
+
+#~ msgid "TOC has come back from its pause. You may now send messages again."
+#~ msgstr ""
+#~ "TOC har kommit tillbaka från dess paus. Du kan nu skicka meddelanden igen."
+
+#~ msgid "Password Change Successful"
+#~ msgstr "Lösenordsändring lyckades"
+
+#~ msgid "Get Dir Info"
+#~ msgstr "Hämta kataloginformation"
+
+#~ msgid "Set Dir Info"
+#~ msgstr "Ställ in kataloginformation"
+
+#~ msgid "Could not open %s for writing!"
+#~ msgstr "Kunde inte öppna %s för läsning!"
+
+#~ msgid "File transfer failed; other side probably canceled."
+#~ msgstr ""
+#~ "Filöverföringen misslyckades, antagligen eftersom andra sidan avbröt."
+
+#~ msgid "Could not connect for transfer."
+#~ msgstr "Kunde inte ansluta för överföring."
+
+#~ msgid "Could not write file header.  The file will not be transferred."
+#~ msgstr "Kunde inte skriva filhuvud, filen kommer inte att skickas."
+
+#~ msgid "Save As..."
+#~ msgstr "Spara som..."
+
+#~ msgid "%s requests %s to accept %d file: %s (%.2f %s)%s%s"
+#~ msgid_plural "%s requests %s to accept %d files: %s (%.2f %s)%s%s"
+#~ msgstr[0] "%s ber %s att acceptera %d fil: %s (%.2f %s)%s%s"
+#~ msgstr[1] "%s ber %s att acceptera %d filer: %s (%.2f %s)%s%s"
+
+#~ msgid "%s requests you to send them a file"
+#~ msgstr "%s ber att du ska skicka denne en fil"
+
+#~ msgid "TOC Protocol Plugin"
+#~ msgstr "Insticksmodul för TOC-protokoll"
+
+#~ msgid "%s Options"
+#~ msgstr "%s-alternativ"
+
+#~ msgid "Proxy Options"
+#~ msgstr "Proxyalternativ"
+
+#~ msgid "By log size"
+#~ msgstr "Efter loggstorlek"
+
+#~ msgid "_Open Link in Browser"
+#~ msgstr "_Öppna länk i webbläsare"
+
+#~ msgid "Smiley _Image"
+#~ msgstr "Smiley-_bild"
+
+#~ msgid "Smiley S_hortcut"
+#~ msgstr "Smiley-_genväg"
 
 #~ msgid "Unable to retrieve MSN Address Book"
 #~ msgstr "Kunde inte hämta MSN-adressbok"
@@ -14173,9 +15737,6 @@ msgstr "Denna modul är användbar vid felsökning av XMPP serverar och klienter
 #~ msgid "Would you add?"
 #~ msgstr "Vill du lägga till honom?"
 
-#~ msgid "%s"
-#~ msgstr "%s"
-
 #, fuzzy
 #~ msgid "QQ Server Notice"
 #~ msgstr "Serverport"
@@ -14236,9 +15797,6 @@ msgstr "Denna modul är användbar vid felsökning av XMPP serverar och klienter
 #~ msgid "Your request to join group %d has been approved by admin %d"
 #~ msgstr "Din förfrågan att få gå med i %d godkändes av moderator %d"
 
-#~ msgid "This group has been added to your buddy list"
-#~ msgstr "Denna gruppen har lagst till i din kompislista."
-
 #~ msgid "I am applying to join"
 #~ msgstr "Jag söker för att gå med"
 
@@ -14271,9 +15829,6 @@ msgstr "Denna modul är användbar vid felsökning av XMPP serverar och klienter
 
 #~ msgid "Unable to login. Check debug log."
 #~ msgstr "Kan inte logga in. Kolla felsökningsloggen."
-
-#~ msgid "Unable to login"
-#~ msgstr "Kunde inte logga in."
 
 #~ msgid "Failed room reply"
 #~ msgstr "Misslyckades med rumssvar"
@@ -14320,9 +15875,6 @@ msgstr "Denna modul är användbar vid felsökning av XMPP serverar och klienter
 
 #~ msgid "Group Operation Error"
 #~ msgstr "Gruppoperationsfel"
-
-#~ msgid "Error requesting login token"
-#~ msgstr "Problem att efterfråga inloggningsmarkör"
 
 #~ msgid "TCP Address"
 #~ msgstr "TCP-adress"

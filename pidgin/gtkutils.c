@@ -54,6 +54,7 @@
 #include "prpl.h"
 #include "request.h"
 #include "signals.h"
+#include "sound.h"
 #include "util.h"
 
 #include "gtkaccount.h"
@@ -74,7 +75,7 @@ typedef struct {
 } AopMenu;
 
 static guint accels_save_timer = 0;
-static GList *gnome_url_handlers = NULL;
+static GSList *registered_url_handlers = NULL;
 
 static gboolean
 url_clicked_idle_cb(gpointer data)
@@ -112,26 +113,12 @@ pidgin_setup_imhtml(GtkWidget *imhtml)
 
 	gtk_imhtml_set_funcs(GTK_IMHTML(imhtml), &gtkimhtml_cbs);
 
+#ifdef _WIN32
 	if (!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/use_theme_font")) {
 		const char *font = purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/custom_font");
 		desc = pango_font_description_from_string(font);
-	} else if (purple_running_gnome()) {
-		/* Use the GNOME "document" font, if applicable */
-		char *path;
-
-		if ((path = g_find_program_in_path("gconftool-2"))) {
-			char *font = NULL;
-			char *err = NULL;
-			g_free(path);
-			if (g_spawn_command_line_sync(
-					"gconftool-2 -g /desktop/gnome/interface/document_font_name",
-					&font, &err, NULL, NULL)) {
-				desc = pango_font_description_from_string(font);
-			}
-			g_free(err);
-			g_free(font);
-		}
 	}
+#endif
 
 	if (desc) {
 		gtk_widget_modify_font(imhtml, desc);
@@ -358,7 +345,7 @@ GtkWidget *pidgin_new_item(GtkWidget *menu, const char *str)
 }
 
 GtkWidget *pidgin_new_check_item(GtkWidget *menu, const char *str,
-		GtkSignalFunc sf, gpointer data, gboolean checked)
+		GCallback cb, gpointer data, gboolean checked)
 {
 	GtkWidget *menuitem;
 	menuitem = gtk_check_menu_item_new_with_mnemonic(str);
@@ -368,8 +355,8 @@ GtkWidget *pidgin_new_check_item(GtkWidget *menu, const char *str,
 
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), checked);
 
-	if (sf)
-		g_signal_connect(G_OBJECT(menuitem), "activate", sf, data);
+	if (cb)
+		g_signal_connect(G_OBJECT(menuitem), "activate", cb, data);
 
 	gtk_widget_show_all(menuitem);
 
@@ -439,7 +426,7 @@ pidgin_pixbuf_button_from_stock(const char *text, const char *icon,
 }
 
 
-GtkWidget *pidgin_new_item_from_stock(GtkWidget *menu, const char *str, const char *icon, GtkSignalFunc sf, gpointer data, guint accel_key, guint accel_mods, char *mod)
+GtkWidget *pidgin_new_item_from_stock(GtkWidget *menu, const char *str, const char *icon, GCallback cb, gpointer data, guint accel_key, guint accel_mods, char *mod)
 {
 	GtkWidget *menuitem;
 	/*
@@ -456,8 +443,8 @@ GtkWidget *pidgin_new_item_from_stock(GtkWidget *menu, const char *str, const ch
 	if (menu)
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
-	if (sf)
-		g_signal_connect(G_OBJECT(menuitem), "activate", sf, data);
+	if (cb)
+		g_signal_connect(G_OBJECT(menuitem), "activate", cb, data);
 
 	if (icon != NULL) {
 		image = gtk_image_new_from_stock(icon, gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_EXTRA_SMALL));
@@ -525,7 +512,7 @@ aop_option_menu_get_selected(GtkWidget *optmenu, GtkWidget **p_item)
 	GtkWidget *item = gtk_menu_get_active(GTK_MENU(menu));
 	if (p_item)
 		(*p_item) = item;
-	return g_object_get_data(G_OBJECT(item), "aop_per_item_data");
+	return item ? g_object_get_data(G_OBJECT(item), "aop_per_item_data") : NULL;
 }
 
 static void
@@ -950,7 +937,7 @@ pidgin_save_accels_cb(GtkAccelGroup *accel_group, guint arg1,
 	           "accel changed, scheduling save.\n");
 
 	if (!accels_save_timer)
-		accels_save_timer = g_timeout_add(5000, pidgin_save_accels,
+		accels_save_timer = purple_timeout_add_seconds(5, pidgin_save_accels,
 		                                  NULL);
 }
 
@@ -1464,7 +1451,7 @@ static void dnd_image_ok_callback(_DndData *data, int choice)
 					  str);
 			g_free(str);
 
-			return;
+			break;
 		}
 
 		buddy = purple_find_buddy(data->account, data->who);
@@ -1494,7 +1481,7 @@ static void dnd_image_ok_callback(_DndData *data, int choice)
 			g_error_free(err);
 			g_free(str);
 
-			return;
+			break;
 		}
 		id = purple_imgstore_add_with_id(filedata, size, data->filename);
 
@@ -1532,25 +1519,25 @@ static void dnd_set_icon_cancel_cb(_DndData *data)
 void
 pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char *who)
 {
-	GList *tmp;
 	GdkPixbuf *pb;
 	GList *files = purple_uri_list_extract_filenames((const gchar *)sd->data);
 	PurpleConnection *gc = purple_account_get_connection(account);
 	PurplePluginProtocolInfo *prpl_info = NULL;
-	gboolean file_send_ok = FALSE;
 #ifndef _WIN32
 	PurpleDesktopItem *item;
 #endif
+	gchar *filename = NULL;
+	gchar *basename = NULL;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(who != NULL);
 
-	for(tmp = files; tmp != NULL ; tmp = g_list_next(tmp)) {
-		gchar *filename = tmp->data;
-		gchar *basename = g_path_get_basename(filename);
+	for ( ; files; files = g_list_delete_link(files, files)) {
+		g_free(filename);
+		g_free(basename);
 
-		/* Set the default action: don't send anything */
-		file_send_ok = FALSE;
+		filename = files->data;
+		basename = g_path_get_basename(filename);
 
 		/* XXX - Make ft API support creating a transfer with more than one file */
 		if (!g_file_test(filename, G_FILE_TEST_EXISTS)) {
@@ -1570,7 +1557,6 @@ pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char 
 
 			g_free(str);
 			g_free(str2);
-
 			continue;
 		}
 
@@ -1600,8 +1586,8 @@ pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char 
 						    _("You have dragged an image"),
 						    _("You can send this image as a file transfer, "
 						      "embed it into this message, or use it as the buddy icon for this user."),
-						    DND_FILE_TRANSFER, "OK", (GCallback)dnd_image_ok_callback,
-						    "Cancel", (GCallback)dnd_image_cancel_callback,
+						    DND_FILE_TRANSFER, _("OK"), (GCallback)dnd_image_ok_callback,
+						    _("Cancel"), (GCallback)dnd_image_cancel_callback,
 							account, who, NULL,
 							data,
 							_("Set as buddy icon"), DND_BUDDY_ICON,
@@ -1620,14 +1606,20 @@ pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char 
 						    (ft ? _("You can send this image as a file transfer, or use it as the buddy icon for this user.") :
 						    _("You can insert this image into this message, or use it as the buddy icon for this user")),
 						    (ft ? DND_FILE_TRANSFER : DND_IM_IMAGE),
-							"OK", (GCallback)dnd_image_ok_callback,
-						    "Cancel", (GCallback)dnd_image_cancel_callback,
+							_("OK"), (GCallback)dnd_image_ok_callback,
+						    _("Cancel"), (GCallback)dnd_image_cancel_callback,
 							account, who, NULL,
 							data,
 						    _("Set as buddy icon"), DND_BUDDY_ICON,
 						    (ft ? _("Send image file") : _("Insert in message")), (ft ? DND_FILE_TRANSFER : DND_IM_IMAGE),
 							NULL);
-			gdk_pixbuf_unref(pb);
+			g_object_unref(G_OBJECT(pb));
+
+			g_free(basename);
+			while (files) {
+				g_free(files->data);
+				files = g_list_delete_link(files, files);
+			}
 			return;
 		}
 
@@ -1677,21 +1669,29 @@ pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char 
 				 * send.  The only logical one is "Application," but do we really want to send a binary and nothing else?
 				 * Probably not.  I'll just give an error and return. */
 				/* The original patch sent the icon used by the launcher.  That's probably wrong */
-				purple_notify_error(NULL, NULL, _("Cannot send launcher"), _("You dragged a desktop launcher. "
-											   "Most likely you wanted to send whatever this launcher points to instead of this launcher"
-											   " itself."));
+				purple_notify_error(NULL, NULL, _("Cannot send launcher"),
+				                    _("You dragged a desktop launcher. Most "
+				                      "likely you wanted to send the target "
+				                      "of this launcher instead of this "
+				                      "launcher itself."));
 				break;
 			}
 			purple_desktop_item_unref(item);
+			g_free(basename);
+			while (files) {
+				g_free(files->data);
+				files = g_list_delete_link(files, files);
+			}
 			return;
 		}
 #endif /* _WIN32 */
 
 		/* Everything is fine, let's send */
 		serv_send_file(gc, who, filename);
-		g_free(filename);
 	}
-	g_list_free(files);
+
+	g_free(filename);
+	g_free(basename);
 }
 
 void pidgin_buddy_icon_get_scale_size(GdkPixbuf *buf, PurpleBuddyIconSpec *spec, PurpleIconScaleRules rules, int *width, int *height)
@@ -1715,29 +1715,67 @@ GdkPixbuf * pidgin_create_status_icon(PurpleStatusPrimitive prim, GtkWidget *w, 
 {
 	GtkIconSize icon_size = gtk_icon_size_from_name(size);
 	GdkPixbuf *pixbuf = NULL;
+	const char *stock = pidgin_stock_id_from_status_primitive(prim);
 
-	if (prim == PURPLE_STATUS_UNAVAILABLE)
-		pixbuf = gtk_widget_render_icon (w, PIDGIN_STOCK_STATUS_BUSY,
-				icon_size, "GtkWidget");
-	else if (prim == PURPLE_STATUS_AWAY)
-		pixbuf = gtk_widget_render_icon (w, PIDGIN_STOCK_STATUS_AWAY,
-				icon_size, "GtkWidget");
-	else if (prim == PURPLE_STATUS_EXTENDED_AWAY)
-		pixbuf = gtk_widget_render_icon (w, PIDGIN_STOCK_STATUS_XA,
-				icon_size, "GtkWidget");
-	else if (prim == PURPLE_STATUS_INVISIBLE)
-		pixbuf = gtk_widget_render_icon (w, PIDGIN_STOCK_STATUS_INVISIBLE,
-				icon_size, "GtkWidget");
-	else if (prim == PURPLE_STATUS_OFFLINE)
-		pixbuf = gtk_widget_render_icon (w, PIDGIN_STOCK_STATUS_OFFLINE,
-				icon_size, "GtkWidget");
-	else
-		pixbuf = gtk_widget_render_icon (w, PIDGIN_STOCK_STATUS_AVAILABLE,
-				icon_size, "GtkWidget");
+	pixbuf = gtk_widget_render_icon (w, stock ? stock : PIDGIN_STOCK_STATUS_AVAILABLE,
+			icon_size, "GtkWidget");
 	return pixbuf;
-
 }
 
+static const char *
+stock_id_from_status_primitive_idle(PurpleStatusPrimitive prim, gboolean idle)
+{
+	const char *stock = NULL;
+	switch (prim) {
+		case PURPLE_STATUS_UNSET:
+			stock = NULL;
+			break;
+		case PURPLE_STATUS_UNAVAILABLE:
+			stock = idle ? PIDGIN_STOCK_STATUS_BUSY_I : PIDGIN_STOCK_STATUS_BUSY;
+			break;
+		case PURPLE_STATUS_AWAY:
+			stock = idle ? PIDGIN_STOCK_STATUS_AWAY_I : PIDGIN_STOCK_STATUS_AWAY;
+			break;
+		case PURPLE_STATUS_EXTENDED_AWAY:
+			stock = idle ? PIDGIN_STOCK_STATUS_XA_I : PIDGIN_STOCK_STATUS_XA;
+			break;
+		case PURPLE_STATUS_INVISIBLE:
+			stock = PIDGIN_STOCK_STATUS_INVISIBLE;
+			break;
+		case PURPLE_STATUS_OFFLINE:
+			stock = idle ? PIDGIN_STOCK_STATUS_OFFLINE_I : PIDGIN_STOCK_STATUS_OFFLINE;
+			break;
+		default:
+			stock = idle ? PIDGIN_STOCK_STATUS_AVAILABLE_I : PIDGIN_STOCK_STATUS_AVAILABLE;
+			break;
+	}
+	return stock;
+}
+
+const char *
+pidgin_stock_id_from_status_primitive(PurpleStatusPrimitive prim)
+{
+	return stock_id_from_status_primitive_idle(prim, FALSE);
+}
+
+const char *
+pidgin_stock_id_from_presence(PurplePresence *presence)
+{
+	PurpleStatus *status;
+	PurpleStatusType *type;
+	PurpleStatusPrimitive prim;
+	gboolean idle;
+
+	g_return_val_if_fail(presence, NULL);
+
+	status = purple_presence_get_active_status(presence);
+	type = purple_status_get_type(status);
+	prim = purple_status_type_get_primitive(type);
+
+	idle = purple_presence_is_idle(presence);
+
+	return stock_id_from_status_primitive_idle(prim, idle);
+}
 
 GdkPixbuf *
 pidgin_create_prpl_icon(PurpleAccount *account, PidginPrplIconSize size)
@@ -2685,6 +2723,7 @@ pidgin_convert_buddy_icon(PurplePlugin *plugin, const char *path, size_t *len)
 		g_object_unref(G_OBJECT(pixbuf));
 		if (!success) {
 			purple_debug_error("buddyicon", "Could not convert icon to usable format.\n");
+			g_free(filename);
 			return NULL;
 		}
 
@@ -2943,7 +2982,7 @@ void pidgin_set_urgent(GtkWindow *window, gboolean urgent)
 #endif
 }
 
-GSList *minidialogs = NULL;
+static GSList *minidialogs = NULL;
 
 static void *
 pidgin_utils_get_handle(void)
@@ -3538,6 +3577,219 @@ copy_email_address(GtkIMHtml *imhtml, GtkIMHtmlLink *link, GtkWidget *menu)
 	return TRUE;
 }
 
+static void
+file_open_uri(GtkIMHtml *imhtml, const char *uri)
+{
+	/* Copied from gtkft.c:open_button_cb */
+#ifdef _WIN32
+	/* If using Win32... */
+	int code;
+	if (G_WIN32_HAVE_WIDECHAR_API()) {
+		wchar_t *wc_filename = g_utf8_to_utf16(
+				uri, -1, NULL, NULL, NULL);
+
+		code = (int)ShellExecuteW(NULL, NULL, wc_filename, NULL, NULL,
+				SW_SHOW);
+
+		g_free(wc_filename);
+	} else {
+		char *l_filename = g_locale_from_utf8(
+				uri, -1, NULL, NULL, NULL);
+
+		code = (int)ShellExecuteA(NULL, NULL, l_filename, NULL, NULL,
+				SW_SHOW);
+
+		g_free(l_filename);
+	}
+
+	if (code == SE_ERR_ASSOCINCOMPLETE || code == SE_ERR_NOASSOC)
+	{
+		purple_notify_error(imhtml, NULL,
+				_("There is no application configured to open this type of file."), NULL);
+	}
+	else if (code < 32)
+	{
+		purple_notify_error(imhtml, NULL,
+				_("An error occurred while opening the file."), NULL);
+		purple_debug_warning("gtkutils", "filename: %s; code: %d\n", uri, code);
+	}
+#else
+	char *command = NULL;
+	char *tmp = NULL;
+	GError *error = NULL;
+
+	if (purple_running_gnome())
+	{
+		char *escaped = g_shell_quote(uri);
+		command = g_strdup_printf("gnome-open %s", escaped);
+		g_free(escaped);
+	}
+	else if (purple_running_kde())
+	{
+		char *escaped = g_shell_quote(uri);
+
+		if (purple_str_has_suffix(uri, ".desktop"))
+			command = g_strdup_printf("kfmclient openURL %s 'text/plain'", escaped);
+		else
+			command = g_strdup_printf("kfmclient openURL %s", escaped);
+		g_free(escaped);
+	}
+	else
+	{
+		purple_notify_uri(NULL, uri);
+		return;
+	}
+
+	if (purple_program_is_valid(command))
+	{
+		gint exit_status;
+		if (!g_spawn_command_line_sync(command, NULL, NULL, &exit_status, &error))
+		{
+			tmp = g_strdup_printf(_("Error launching %s: %s"),
+							uri, error->message);
+			purple_notify_error(imhtml, NULL, _("Unable to open file."), tmp);
+			g_free(tmp);
+			g_error_free(error);
+		}
+		if (exit_status != 0)
+		{
+			char *primary = g_strdup_printf(_("Error running %s"), command);
+			char *secondary = g_strdup_printf(_("Process returned error code %d"),
+									exit_status);
+			purple_notify_error(imhtml, NULL, primary, secondary);
+			g_free(tmp);
+		}
+	}
+#endif
+}
+
+#define FILELINKSIZE  (sizeof("file://") - 1)
+static gboolean
+file_clicked_cb(GtkIMHtml *imhtml, GtkIMHtmlLink *link)
+{
+	const char *uri = gtk_imhtml_link_get_url(link) + FILELINKSIZE;
+	file_open_uri(imhtml, uri);
+	return TRUE;
+}
+
+static gboolean
+open_containing_cb(GtkIMHtml *imhtml, const char *url)
+{
+	char *dir = g_path_get_dirname(url + FILELINKSIZE);
+	file_open_uri(imhtml, dir);
+	g_free(dir);
+	return TRUE;
+}
+
+static gboolean
+file_context_menu(GtkIMHtml *imhtml, GtkIMHtmlLink *link, GtkWidget *menu)
+{
+	GtkWidget *img, *item;
+	const char *url;
+
+	url = gtk_imhtml_link_get_url(link);
+
+	/* Open File */
+	img = gtk_image_new_from_stock(GTK_STOCK_JUMP_TO, GTK_ICON_SIZE_MENU);
+	item = gtk_image_menu_item_new_with_mnemonic(_("_Open File"));
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
+	g_signal_connect_swapped(G_OBJECT(item), "activate", G_CALLBACK(gtk_imhtml_link_activate), link);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+
+	/* Open Containing Directory */
+#if GTK_CHECK_VERSION(2,6,0)
+	img = gtk_image_new_from_stock(GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU);
+	item = gtk_image_menu_item_new_with_mnemonic(_("Open _Containing Directory"));
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
+#else
+	item = gtk_menu_item_new_with_mnemonic(_("Open _Containing Directory"));
+#endif
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(open_containing_cb), (gpointer)url);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+
+	return TRUE;
+}
+
+#define AUDIOLINKSIZE  (sizeof("audio://") - 1)
+static gboolean
+audio_clicked_cb(GtkIMHtml *imhtml, GtkIMHtmlLink *link)
+{
+	const char *uri;
+	PidginConversation *conv = g_object_get_data(G_OBJECT(imhtml), "gtkconv");
+	if (!conv) /* no playback in debug window */
+		return TRUE;
+	uri = gtk_imhtml_link_get_url(link) + AUDIOLINKSIZE;
+	purple_sound_play_file(uri, NULL);
+	return TRUE;
+}
+
+static void
+savefile_write_cb(gpointer user_data, char *file)
+{
+	char *temp_file = user_data;
+	gchar *contents;
+	gsize length;
+	GError *error = NULL;
+
+	if (!g_file_get_contents(temp_file, &contents, &length, &error)) {
+		purple_debug_error("gtkutils", "Unable to read contents of %s: %s\n",
+		                   temp_file, error->message);
+		g_error_free(error);
+		return;
+	}
+
+	if (!purple_util_write_data_to_file_absolute(file, contents, length)) {
+		purple_debug_error("gtkutils", "Unable to write contents to %s\n",
+		                   file);
+	}
+}
+
+static gboolean
+save_file_cb(GtkWidget *item, const char *url)
+{
+	PidginConversation *conv = g_object_get_data(G_OBJECT(item), "gtkconv");
+	if (!conv)
+		return TRUE;
+	purple_request_file(conv->active_conv, _("Save File"), NULL, TRUE,
+	                    G_CALLBACK(savefile_write_cb), NULL,
+	                    conv->active_conv->account, NULL, conv->active_conv,
+	                    (void *)url);
+	return TRUE;
+}
+
+static gboolean
+audio_context_menu(GtkIMHtml *imhtml, GtkIMHtmlLink *link, GtkWidget *menu)
+{
+	GtkWidget *img, *item;
+	const char *url;
+	PidginConversation *conv = g_object_get_data(G_OBJECT(imhtml), "gtkconv");
+	if (!conv) /* No menu in debug window */
+		return TRUE;
+
+	url = gtk_imhtml_link_get_url(link);
+
+	/* Play Sound */
+#if GTK_CHECK_VERSION(2,6,0)
+	img = gtk_image_new_from_stock(GTK_STOCK_MEDIA_PLAY, GTK_ICON_SIZE_MENU);
+	item = gtk_image_menu_item_new_with_mnemonic(_("_Play Sound"));
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
+#else
+	item = gtk_menu_item_new_with_mnemonic(_("_Play Sound"));
+#endif
+	g_signal_connect_swapped(G_OBJECT(item), "activate", G_CALLBACK(gtk_imhtml_link_activate), link);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+
+	/* Save File */
+	img = gtk_image_new_from_stock(GTK_STOCK_SAVE, GTK_ICON_SIZE_MENU);
+	item = gtk_image_menu_item_new_with_mnemonic(_("_Save File"));
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(save_file_cb), (gpointer)(url+AUDIOLINKSIZE));
+	g_object_set_data(G_OBJECT(item), "gtkconv", conv);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+
+	return TRUE;
+}
+
 /* XXX: The following two functions are for demonstration purposes only! */
 static gboolean
 open_dialog(GtkIMHtml *imhtml, GtkIMHtmlLink *link)
@@ -3625,7 +3877,7 @@ register_gnome_url_handlers(void)
 				start += sizeof("/desktop/gnome/url-handlers/") - 1;
 
 				protocol = g_strdup_printf("%s:", start);
-				gnome_url_handlers = g_list_prepend(gnome_url_handlers, protocol);
+				registered_url_handlers = g_slist_prepend(registered_url_handlers, protocol);
 				gtk_imhtml_class_register_protocol(protocol, url_clicked_cb, link_context_menu);
 			}
 			start = c + 1;
@@ -3633,8 +3885,44 @@ register_gnome_url_handlers(void)
 	}
 	g_free(tmp);
 
-	return (gnome_url_handlers != NULL);
+	return (registered_url_handlers != NULL);
 }
+
+#ifdef _WIN32
+static void
+winpidgin_register_win32_url_handlers(void)
+{
+	int idx = 0;
+	LONG ret = ERROR_SUCCESS;
+
+	do {
+		DWORD nameSize = 256;
+		char start[256];
+		/* I don't think we need to worry about non-ASCII protocol names */
+		ret = RegEnumKeyExA(HKEY_CLASSES_ROOT, idx++, start, &nameSize,
+							NULL, NULL, NULL, NULL);
+		if (ret == ERROR_SUCCESS) {
+			HKEY reg_key = NULL;
+			ret = RegOpenKeyExA(HKEY_CLASSES_ROOT, start, 0, KEY_READ, &reg_key);
+			if (ret == ERROR_SUCCESS) {
+				ret = RegQueryValueExA(reg_key, "URL Protocol", NULL, NULL, NULL, NULL);
+				if (ret == ERROR_SUCCESS) {
+					gchar *protocol = g_strdup_printf("%s:", start);
+					registered_url_handlers = g_slist_prepend(registered_url_handlers, protocol);
+					/* We still pass everything to the "http" "open" handler for security reasons */
+					gtk_imhtml_class_register_protocol(protocol, url_clicked_cb, link_context_menu);
+				}
+				RegCloseKey(reg_key);
+			}
+			ret = ERROR_SUCCESS;
+		}
+	} while (ret == ERROR_SUCCESS);
+
+	if (ret != ERROR_NO_MORE_ITEMS)
+		purple_debug_error("winpidgin", "Error iterating HKEY_CLASSES_ROOT subkeys: %ld\n",
+						   ret);
+}
+#endif
 
 void pidgin_utils_init(void)
 {
@@ -3644,12 +3932,20 @@ void pidgin_utils_init(void)
 	gtk_imhtml_class_register_protocol("gopher://", url_clicked_cb, link_context_menu);
 	gtk_imhtml_class_register_protocol("mailto:", url_clicked_cb, copy_email_address);
 
+	gtk_imhtml_class_register_protocol("file://", file_clicked_cb, file_context_menu);
+	gtk_imhtml_class_register_protocol("audio://", audio_clicked_cb, audio_context_menu);
+
 	/* Example custom URL handler. */
 	gtk_imhtml_class_register_protocol("open://", open_dialog, dummy);
 
 	/* If we're under GNOME, try registering the system URL handlers. */
 	if (purple_running_gnome())
 		register_gnome_url_handlers();
+
+#ifdef _WIN32
+	winpidgin_register_win32_url_handlers();
+#endif
+
 }
 
 void pidgin_utils_uninit(void)
@@ -3657,18 +3953,21 @@ void pidgin_utils_uninit(void)
 	gtk_imhtml_class_register_protocol("open://", NULL, NULL);
 
 	/* If we have GNOME handlers registered, unregister them. */
-	if (gnome_url_handlers)
+	if (registered_url_handlers)
 	{
-		GList *l;
-		for (l = gnome_url_handlers ; l ; l = l->next)
+		GSList *l;
+		for (l = registered_url_handlers; l; l = l->next)
 		{
 			gtk_imhtml_class_register_protocol((char *)l->data, NULL, NULL);
 			g_free(l->data);
 		}
-		g_list_free(gnome_url_handlers);
-		gnome_url_handlers = NULL;
+		g_slist_free(registered_url_handlers);
+		registered_url_handlers = NULL;
 		return;
 	}
+
+	gtk_imhtml_class_register_protocol("audio://", NULL, NULL);
+	gtk_imhtml_class_register_protocol("file://", NULL, NULL);
 
 	gtk_imhtml_class_register_protocol("http://", NULL, NULL);
 	gtk_imhtml_class_register_protocol("https://", NULL, NULL);

@@ -20,9 +20,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include <glib.h>
-#include <string.h>
-
 #include "internal.h"
 #include "theme.h"
 #include "util.h"
@@ -190,7 +187,7 @@ purple_theme_class_init(PurpleThemeClass *klass)
 
 	/* TYPE STRING (read only) */
 	pspec = g_param_spec_string("type", "Type",
-			"The string represtenting the type of the theme",
+			"The string representing the type of the theme",
 			NULL,
 			G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 	g_object_class_install_property(obj_class, PROP_TYPE, pspec);
@@ -241,9 +238,12 @@ purple_theme_get_type(void)
 static gchar *
 theme_clean_text(const gchar *text)
 {
-	gchar *clean_text = g_markup_escape_text(text, -1);
-	g_strdelimit(clean_text, "\n", ' ');
-	purple_str_strip_char(clean_text, '\r');
+	gchar *clean_text = NULL;
+	if (text != NULL) {
+		clean_text = g_markup_escape_text(text, -1);
+		g_strdelimit(clean_text, "\n", ' ');
+		purple_str_strip_char(clean_text, '\r');
+	}
 	return clean_text;
 }
 
@@ -389,9 +389,10 @@ purple_theme_get_image_full(PurpleTheme *theme)
 {
 	const gchar *filename = purple_theme_get_image(theme);
 
-	g_return_val_if_fail(filename, NULL);
-
-	return g_build_filename(purple_theme_get_dir(PURPLE_THEME(theme)), filename, NULL);
+	if (filename)
+		return g_build_filename(purple_theme_get_dir(PURPLE_THEME(theme)), filename, NULL);
+	else
+		return NULL;
 }
 
 void

@@ -48,7 +48,7 @@ peer_odc_close(PeerConnection *conn)
 	else if (conn->disconnect_reason == OSCAR_DISCONNECT_INVALID_DATA)
 		tmp = g_strdup(_("Received invalid data on connection with remote user."));
 	else if (conn->disconnect_reason == OSCAR_DISCONNECT_COULD_NOT_CONNECT)
-		tmp = g_strdup(_("Could not establish a connection with the remote user."));
+		tmp = g_strdup(_("Unable to establish a connection with the remote user."));
 	else
 		/*
 		 * We shouldn't print a message for some disconnect_reasons.
@@ -110,8 +110,8 @@ peer_odc_send(PeerConnection *conn, OdcFrame *frame)
 	byte_stream_put16(&bs, 0x0000);
 	byte_stream_put16(&bs, 0x0000);
 	byte_stream_put32(&bs, frame->payload.len);
-	byte_stream_put16(&bs, 0x0000);
 	byte_stream_put16(&bs, frame->encoding);
+	byte_stream_put16(&bs, 0x0000);	
 	byte_stream_put16(&bs, 0x0000);
 	byte_stream_put16(&bs, frame->flags);
 	byte_stream_put16(&bs, 0x0000);

@@ -22,8 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include "debug.h"
 #include "internal.h"
+#include "debug.h"
 #include "server.h"
 #include "cipher.h"
 #include "request.h"
@@ -72,7 +72,7 @@ static gint8 process_login_ok(PurpleConnection *gc, guint8 *data, gint len)
 		qq_show_packet("Login reply OK, but length < 139", data, len);
 		purple_connection_error_reason(gc,
 				PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR,
-				_("Cannot decrypt server reply"));
+				_("Unable to decrypt server reply"));
 		return QQ_LOGIN_REPLY_ERR;
 	}
 
@@ -160,7 +160,7 @@ static gint8 process_login_redirect(PurpleConnection *gc, guint8 *data, gint len
 	if (len < 11) {
 		purple_connection_error_reason(gc,
 				PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR,
-				_("Cannot decrypt server reply"));
+				_("Unable to decrypt server reply"));
 		return QQ_LOGIN_REPLY_ERR;
 	}
 
@@ -245,10 +245,10 @@ void qq_request_login(PurpleConnection *gc)
 
 	g_return_if_fail(qd->ld.token != NULL && qd->ld.token_len > 0);
 
-	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 16);
-	memset(raw_data, 0, MAX_PACKET_SIZE - 16);
+	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 17);
+	memset(raw_data, 0, MAX_PACKET_SIZE - 17);
 
-	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 16 bytes more */
+	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 17 bytes more */
 
 	bytes = 0;
 	/* now generate the encrypted data
@@ -412,7 +412,7 @@ guint8 qq_process_login( PurpleConnection *gc, guint8 *data, gint data_len)
 			if (!purple_account_get_remember_password(gc->account)) {
 				purple_account_set_password(gc->account, NULL);
 			}
-			error = g_strdup( _("Incorrect password."));
+			error = g_strdup( _("Incorrect password"));
 			reason = PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED;
 			break;
 		case 0x06:		/* need activation */
@@ -609,7 +609,7 @@ void qq_request_get_server(PurpleConnection *gc)
 	raw_data = g_newa(guint8, 128);
 	memset(raw_data, 0, 128);
 
-	encrypted = g_newa(guint8, 128 + 16);	/* 16 bytes more */
+	encrypted = g_newa(guint8, 128 + 17);	/* 17 bytes more */
 
 	bytes = 0;
 	if (qd->redirect == NULL) {
@@ -655,7 +655,7 @@ guint16 qq_process_get_server(PurpleConnection *gc, guint8 *data, gint data_len)
 	if (data_len < 15) {
 		purple_connection_error_reason(gc,
 				PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR,
-				_("Could not decrypt server reply"));
+				_("Unable to decrypt server reply"));
 		return QQ_LOGIN_REPLY_ERR;
 	}
 
@@ -682,10 +682,10 @@ void qq_request_token_ex(PurpleConnection *gc)
 
 	g_return_if_fail(qd->ld.token != NULL && qd->ld.token_len > 0);
 
-	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 16);
-	memset(raw_data, 0, MAX_PACKET_SIZE - 16);
+	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 17);
+	memset(raw_data, 0, MAX_PACKET_SIZE - 17);
 
-	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 16 bytes more */
+	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 17 bytes more */
 
 	bytes = 0;
 	bytes += qq_put8(raw_data + bytes, qd->ld.token_len);
@@ -721,10 +721,10 @@ void qq_request_token_ex_next(PurpleConnection *gc)
 
 	g_return_if_fail(qd->ld.token != NULL && qd->ld.token_len > 0);
 
-	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 16);
-	memset(raw_data, 0, MAX_PACKET_SIZE - 16);
+	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 17);
+	memset(raw_data, 0, MAX_PACKET_SIZE - 17);
 
-	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 16 bytes more */
+	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 17 bytes more */
 
 	bytes = 0;
 	bytes += qq_put8(raw_data + bytes, qd->ld.token_len);
@@ -765,10 +765,10 @@ static void request_token_ex_code(PurpleConnection *gc,
 	g_return_if_fail(qd->ld.token != NULL && qd->ld.token_len > 0);
 	g_return_if_fail(code != NULL && code_len > 0);
 
-	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 16);
-	memset(raw_data, 0, MAX_PACKET_SIZE - 16);
+	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 17);
+	memset(raw_data, 0, MAX_PACKET_SIZE - 17);
 
-	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 16 bytes more */
+	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 17 bytes more */
 
 	bytes = 0;
 	bytes += qq_put8(raw_data + bytes, qd->ld.token_len);
@@ -998,10 +998,10 @@ void qq_request_check_pwd(PurpleConnection *gc)
 
 	g_return_if_fail(qd->ld.token_ex != NULL && qd->ld.token_ex_len > 0);
 
-	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 16);
-	memset(raw_data, 0, MAX_PACKET_SIZE - 16);
+	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 17);
+	memset(raw_data, 0, MAX_PACKET_SIZE - 17);
 
-	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 16 bytes more */
+	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 17 bytes more */
 
 	/* Encrypted password and put in encrypted */
 	bytes = 0;
@@ -1097,7 +1097,7 @@ guint8 qq_process_check_pwd( PurpleConnection *gc, guint8 *data, gint data_len)
 			if (!purple_account_get_remember_password(gc->account)) {
 				purple_account_set_password(gc->account, NULL);
 			}
-			error = g_strdup(_("Incorrect password."));
+			error = g_strdup(_("Incorrect password"));
 			reason = PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED;
 			break;
 		case 0x33:		/* need activation */
@@ -1106,7 +1106,7 @@ guint8 qq_process_check_pwd( PurpleConnection *gc, guint8 *data, gint data_len)
 			reason = PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED;
 			break;
 		case 0xBF:		/* uid is not exist */
-			error = g_strdup(_("Invalid username."));
+			error = g_strdup(_("Username does not exist"));
 			reason = PURPLE_CONNECTION_ERROR_INVALID_USERNAME;
 			break;
 		default:
@@ -1166,10 +1166,10 @@ void qq_request_login_2007(PurpleConnection *gc)
 
 	g_return_if_fail(qd->ld.token != NULL && qd->ld.token_len > 0);
 
-	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 16);
-	memset(raw_data, 0, MAX_PACKET_SIZE - 16);
+	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 17);
+	memset(raw_data, 0, MAX_PACKET_SIZE - 17);
 
-	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 16 bytes more */
+	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 17 bytes more */
 
 	/* Encrypted password and put in encrypted */
 	bytes = 0;
@@ -1342,10 +1342,10 @@ void qq_request_login_2008(PurpleConnection *gc)
 
 	g_return_if_fail(qd->ld.token != NULL && qd->ld.token_len > 0);
 
-	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 16);
-	memset(raw_data, 0, MAX_PACKET_SIZE - 16);
+	raw_data = g_newa(guint8, MAX_PACKET_SIZE - 17);
+	memset(raw_data, 0, MAX_PACKET_SIZE - 17);
 
-	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 16 bytes more */
+	encrypted = g_newa(guint8, MAX_PACKET_SIZE);	/* 17 bytes more */
 
 	/* Encrypted password and put in encrypted */
 	bytes = 0;

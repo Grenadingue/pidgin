@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
 #ifndef _PURPLE_MEDIA_H_
@@ -59,11 +59,11 @@ G_BEGIN_DECLS
 #define PURPLE_MEDIA_TYPE_STATE      (purple_media_state_changed_get_type())
 #define PURPLE_MEDIA_TYPE_INFO_TYPE	(purple_media_info_type_get_type())
 
-/** @copydoc _PurpleMedia */
+/** An opaque structure representing a media call. */
 typedef struct _PurpleMedia PurpleMedia;
-/** @copydoc _PurpleMediaCandidate */
+/** An opaque structure representing a network candidate (IP Address and port pair). */
 typedef struct _PurpleMediaCandidate PurpleMediaCandidate;
-/** @copydoc _PurpleMediaCodec */
+/** An opaque structure representing an audio or video codec. */
 typedef struct _PurpleMediaCodec PurpleMediaCodec;
 
 /** Media caps */
@@ -75,7 +75,7 @@ typedef enum {
 	PURPLE_MEDIA_CAPS_VIDEO_SINGLE_DIRECTION = 1 << 3,
 	PURPLE_MEDIA_CAPS_AUDIO_VIDEO = 1 << 4,
 	PURPLE_MEDIA_CAPS_MODIFY_SESSION = 1 << 5,
-	PURPLE_MEDIA_CAPS_CHANGE_DIRECTION = 1 << 6,
+	PURPLE_MEDIA_CAPS_CHANGE_DIRECTION = 1 << 6
 } PurpleMediaCaps;
 
 /** Media session types */
@@ -93,7 +93,7 @@ typedef enum {
 typedef enum {
 	PURPLE_MEDIA_STATE_NEW = 0,
 	PURPLE_MEDIA_STATE_CONNECTED,
-	PURPLE_MEDIA_STATE_END,
+	PURPLE_MEDIA_STATE_END
 } PurpleMediaState;
 
 /** Media info types */
@@ -103,8 +103,10 @@ typedef enum {
 	PURPLE_MEDIA_INFO_REJECT,
 	PURPLE_MEDIA_INFO_MUTE,
 	PURPLE_MEDIA_INFO_UNMUTE,
+	PURPLE_MEDIA_INFO_PAUSE,
+	PURPLE_MEDIA_INFO_UNPAUSE,
 	PURPLE_MEDIA_INFO_HOLD,
-	PURPLE_MEDIA_INFO_UNHOLD,
+	PURPLE_MEDIA_INFO_UNHOLD
 } PurpleMediaInfoType;
 
 typedef enum {
@@ -112,18 +114,18 @@ typedef enum {
 	PURPLE_MEDIA_CANDIDATE_TYPE_SRFLX,
 	PURPLE_MEDIA_CANDIDATE_TYPE_PRFLX,
 	PURPLE_MEDIA_CANDIDATE_TYPE_RELAY,
-	PURPLE_MEDIA_CANDIDATE_TYPE_MULTICAST,
+	PURPLE_MEDIA_CANDIDATE_TYPE_MULTICAST
 } PurpleMediaCandidateType;
 
 typedef enum {
 	PURPLE_MEDIA_COMPONENT_NONE = 0,
 	PURPLE_MEDIA_COMPONENT_RTP = 1,
-	PURPLE_MEDIA_COMPONENT_RTCP = 2,
+	PURPLE_MEDIA_COMPONENT_RTCP = 2
 } PurpleMediaComponentType;
 
 typedef enum {
 	PURPLE_MEDIA_NETWORK_PROTOCOL_UDP,
-	PURPLE_MEDIA_NETWORK_PROTOCOL_TCP,
+	PURPLE_MEDIA_NETWORK_PROTOCOL_TCP
 } PurpleMediaNetworkProtocol;
 
 #include "signals.h"
@@ -351,26 +353,26 @@ GList *purple_media_codec_list_copy(GList *codecs);
 void purple_media_codec_list_free(GList *codecs);
 
 /**
- * Gets a list of session names.
+ * Gets a list of session IDs.
  *
- * @param media The media session to retrieve session names from.
+ * @param media The media session from which to retrieve session IDs.
  *
- * @return GList of session names.
+ * @return GList of session IDs. The caller must free the list.
  *
  * @since 2.6.0
  */
-GList *purple_media_get_session_names(PurpleMedia *media);
+GList *purple_media_get_session_ids(PurpleMedia *media);
 
 /**
- * Gets the PurpleConnection this media session is on.
+ * Gets the PurpleAccount this media session is on.
  *
- * @param media The media session to retrieve the connection from.
+ * @param media The media session to retrieve the account from.
  *
- * @return The connection retrieved.
+ * @return The account retrieved.
  *
  * @since 2.6.0
  */
-PurpleConnection *purple_media_get_connection(PurpleMedia *media);
+PurpleAccount *purple_media_get_account(PurpleMedia *media);
 
 /**
  * Gets the prpl data from the media session.
@@ -495,14 +497,14 @@ GList *purple_media_get_codecs(PurpleMedia *media, const gchar *sess_id);
  *
  * @param media The media object to find the session in.
  * @param sess_id The session id of the session find the stream in.
- * @param name The name of the remote user to add the candidates for.
+ * @param participant The name of the remote user to add the candidates for.
  * @param remote_candidates The remote candidates to add.
  *
  * @since 2.6.0
  */
 void purple_media_add_remote_candidates(PurpleMedia *media,
 					const gchar *sess_id,
-					const gchar *name,
+					const gchar *participant,
 					GList *remote_candidates);
 
 /**
@@ -510,13 +512,13 @@ void purple_media_add_remote_candidates(PurpleMedia *media,
  *
  * @param media The media object to find the session in.
  * @param sess_id The session id of the session to find the stream in.
- * @param name The name of the remote user to get the candidates from.
+ * @param participant The name of the remote user to get the candidates from.
  *
  * @since 2.6.0
  */
 GList *purple_media_get_local_candidates(PurpleMedia *media,
 					 const gchar *sess_id,
-					 const gchar *name);
+					 const gchar *participant);
 
 #if 0
 /*
@@ -529,24 +531,26 @@ GList *purple_media_get_local_candidates(PurpleMedia *media,
  *
  * @param media The media object to find the session in.
  * @param sess_id The session id of the session to find the stream in.
- * @param name The name of the remote user to get the active candidate from.
+ * @param participant The name of the remote user to get the active candidate
+ *                    from.
  *
  * @return The active candidates retrieved.
  */
 GList *purple_media_get_active_local_candidates(PurpleMedia *media,
-		const gchar *sess_id, const gchar *name);
+		const gchar *sess_id, const gchar *participant);
 
 /**
  * Gets the active remote candidates for the stream.
  *
  * @param media The media object to find the session in.
  * @param sess_id The session id of the session to find the stream in.
- * @param name The name of the remote user to get the remote candidate from.
+ * @param participant The name of the remote user to get the remote candidate
+ *                    from.
  *
  * @return The remote candidates retrieved.
  */
 GList *purple_media_get_active_remote_candidates(PurpleMedia *media,
-		const gchar *sess_id, const gchar *name);
+		const gchar *sess_id, const gchar *participant);
 #endif
 
 /**
@@ -554,14 +558,15 @@ GList *purple_media_get_active_remote_candidates(PurpleMedia *media,
  *
  * @param media The media object to find the session in.
  * @param sess_id The session id of the session find the stream in.
- * @param name The name of the remote user to get the candidates from.
+ * @param participant The name of the remote user to set the candidates from.
+ * @param codecs The list of remote codecs to set.
  *
  * @return @c TRUE The codecs were set successfully, or @c FALSE otherwise.
  *
  * @since 2.6.0
  */
 gboolean purple_media_set_remote_codecs(PurpleMedia *media, const gchar *sess_id,
-					const gchar *name, GList *codecs);
+					const gchar *participant, GList *codecs);
 
 /**
  * Returns whether or not the candidates for set of streams are prepared

@@ -81,6 +81,33 @@ typedef struct
 } PidginRequestData;
 
 static void
+pidgin_widget_decorate_account(GtkWidget *cont, PurpleAccount *account)
+{
+	GtkWidget *image;
+	GdkPixbuf *pixbuf;
+	GtkTooltips *tips;
+
+	if (!account)
+		return;
+
+	pixbuf = pidgin_create_prpl_icon(account, PIDGIN_PRPL_ICON_SMALL);
+	image = gtk_image_new_from_pixbuf(pixbuf);
+	g_object_unref(G_OBJECT(pixbuf));
+
+	tips = gtk_tooltips_new();
+	gtk_tooltips_set_tip(tips, image, purple_account_get_username(account), NULL);
+
+	if (GTK_IS_DIALOG(cont)) {
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(cont)->action_area), image, FALSE, TRUE, 0);
+		gtk_box_reorder_child(GTK_BOX(GTK_DIALOG(cont)->action_area), image, 0);
+	} else if (GTK_IS_HBOX(cont)) {
+		gtk_misc_set_alignment(GTK_MISC(image), 0, 0);
+		gtk_box_pack_end(GTK_BOX(cont), image, FALSE, TRUE, 0);
+	}
+	gtk_widget_show(image);
+}
+
+static void
 generic_response_start(PidginRequestData *data)
 {
 	g_return_if_fail(data != NULL);
@@ -347,6 +374,8 @@ pidgin_request_input(const char *title, const char *primary,
 
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 0);
 
+	pidgin_widget_decorate_account(hbox, account);
+
 	/* Descriptive label */
 	primary_esc = (primary != NULL) ? g_markup_escape_text(primary, -1) : NULL;
 	secondary_esc = (secondary != NULL) ? g_markup_escape_text(secondary, -1) : NULL;
@@ -515,6 +544,8 @@ pidgin_request_choice(const char *title, const char *primary,
 	gtk_misc_set_alignment(GTK_MISC(img), 0, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), img, FALSE, FALSE, 0);
 
+	pidgin_widget_decorate_account(hbox, account);
+
 	/* Vertical box */
 	vbox = gtk_vbox_new(FALSE, PIDGIN_HIG_BORDER);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
@@ -639,6 +670,8 @@ pidgin_request_action(const char *title, const char *primary,
 	vbox = gtk_vbox_new(FALSE, PIDGIN_HIG_BORDER);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
 
+	pidgin_widget_decorate_account(hbox, account);
+
 	/* Descriptive label */
 	primary_esc = (primary != NULL) ? g_markup_escape_text(primary, -1) : NULL;
 	secondary_esc = (secondary != NULL) ? g_markup_escape_text(secondary, -1) : NULL;
@@ -686,9 +719,25 @@ req_entry_field_changed_cb(GtkWidget *entry, PurpleRequestField *field)
 {
 	PurpleRequestFieldGroup *group;
 	PidginRequestData *req_data;
-	const char *text = gtk_entry_get_text(GTK_ENTRY(entry));
 
-	purple_request_field_string_set_value(field, (*text == '\0' ? NULL : text));
+	if (purple_request_field_string_is_multiline(field))
+	{
+		char *text;
+		GtkTextIter start_iter, end_iter;
+
+		gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(entry), &start_iter);
+		gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(entry), &end_iter);
+
+		text = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(entry), &start_iter, &end_iter, FALSE);
+		purple_request_field_string_set_value(field, (!text || !*text) ? NULL : text);
+		g_free(text);
+	}
+	else
+	{
+		const char *text = NULL;
+		text = gtk_entry_get_text(GTK_ENTRY(entry));
+		purple_request_field_string_set_value(field, (*text == '\0') ? NULL : text);
+	}
 
 	group = purple_request_field_get_group(field);
 	req_data = (PidginRequestData *)group->fields_list->ui_data;
@@ -717,12 +766,16 @@ setup_entry_field(GtkWidget *entry, PurpleRequestField *field)
 			GtkWidget *optmenu = NULL;
 			PurpleRequestFieldGroup *group = purple_request_field_get_group(field);
 			GList *fields = group->fields;
+
+			/* Ensure the account option menu is created (if the widget hasn't
+			 * been initialized already) for username auto-completion. */
 			while (fields)
 			{
 				PurpleRequestField *fld = fields->data;
 				fields = fields->next;
 
-				if (purple_request_field_get_type(fld) == PURPLE_REQUEST_FIELD_ACCOUNT)
+				if (purple_request_field_get_type(fld) == PURPLE_REQUEST_FIELD_ACCOUNT &&
+						purple_request_field_is_visible(fld))
 				{
 					const char *type_hint = purple_request_field_get_type_hint(fld);
 					if (type_hint != NULL && strcmp(type_hint, "account") == 0)
@@ -730,7 +783,7 @@ setup_entry_field(GtkWidget *entry, PurpleRequestField *field)
 						optmenu = GTK_WIDGET(purple_request_field_get_ui_data(fld));
 						if (optmenu == NULL) {
 							optmenu = GTK_WIDGET(create_account_field(fld));
-							purple_request_field_set_ui_data(field, optmenu);
+							purple_request_field_set_ui_data(fld, optmenu);
 						}
 						break;
 					}
@@ -787,6 +840,13 @@ create_string_field(PurpleRequestField *field)
 
 		g_signal_connect(G_OBJECT(textview), "focus-out-event",
 						 G_CALLBACK(field_string_focus_out_cb), field);
+
+	    if (purple_request_field_is_required(field))
+	    {
+			GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+			g_signal_connect(G_OBJECT(buffer), "changed",
+							 G_CALLBACK(req_entry_field_changed_cb), field);
+	    }
 	}
 	else
 	{
@@ -1170,6 +1230,8 @@ pidgin_request_fields(const char *title, const char *primary,
 	data->ok_button = button;
 	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 	gtk_window_set_default(GTK_WINDOW(win), button);
+
+	pidgin_widget_decorate_account(hbox, account);
 
 	/* Setup the vbox */
 	vbox = gtk_vbox_new(FALSE, PIDGIN_HIG_BORDER);

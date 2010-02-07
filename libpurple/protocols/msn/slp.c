@@ -34,8 +34,6 @@
 
 /* ms to delay between sending buddy icon requests to the server. */
 #define BUDDY_ICON_DELAY 20
-/*debug SLP*/
-#define MSN_DEBUG_UD
 
 static void send_ok(MsnSlpCall *slpcall, const char *branch,
 					const char *type, const char *content);
@@ -128,22 +126,60 @@ msn_xfer_cancel(PurpleXfer *xfer)
 			g_free(content);
 			msn_slplink_send_queued_slpmsgs(slpcall->slplink);
 
-			msn_slpcall_destroy(slpcall);
+			if (purple_xfer_get_type(xfer) == PURPLE_XFER_SEND)
+				slpcall->wasted = TRUE;
+			else
+				msn_slpcall_destroy(slpcall);
 		}
 	}
 }
 
-void
-msn_xfer_progress_cb(MsnSlpCall *slpcall, gsize total_length, gsize len, gsize offset)
+gssize
+msn_xfer_write(const guchar *data, gsize len, PurpleXfer *xfer)
 {
-	PurpleXfer *xfer;
+	MsnSlpCall *slpcall;
 
-	xfer = slpcall->xfer;
+	g_return_val_if_fail(xfer != NULL, -1);
+	g_return_val_if_fail(data != NULL, -1);
+	g_return_val_if_fail(len > 0, -1);
 
-	xfer->bytes_sent = (offset + len);
-	xfer->bytes_remaining = total_length - (offset + len);
+	g_return_val_if_fail(purple_xfer_get_type(xfer) == PURPLE_XFER_SEND, -1);
 
-	purple_xfer_update_progress(xfer);
+	slpcall = xfer->data;
+	/* Not sure I trust it'll be there */
+	g_return_val_if_fail(slpcall != NULL, -1);
+
+	g_return_val_if_fail(slpcall->xfer_msg != NULL, -1);
+
+	slpcall->u.outgoing.len = len;
+	slpcall->u.outgoing.data = data;
+	msn_slplink_send_msgpart(slpcall->slplink, slpcall->xfer_msg);
+	return MIN(1202, len);
+}
+
+gssize
+msn_xfer_read(guchar **data, PurpleXfer *xfer)
+{
+	MsnSlpCall *slpcall;
+	gsize len;
+
+	g_return_val_if_fail(xfer != NULL, -1);
+	g_return_val_if_fail(data != NULL, -1);
+
+	g_return_val_if_fail(purple_xfer_get_type(xfer) == PURPLE_XFER_RECEIVE, -1);
+
+	slpcall = xfer->data;
+	/* Not sure I trust it'll be there */
+	g_return_val_if_fail(slpcall != NULL, -1);
+
+	/* Just pass up the whole GByteArray. We'll make another. */
+	*data = slpcall->u.incoming_data->data;
+	len = slpcall->u.incoming_data->len;
+
+	g_byte_array_free(slpcall->u.incoming_data, FALSE);
+	slpcall->u.incoming_data = g_byte_array_new();
+
+	return len;
 }
 
 void
@@ -212,10 +248,8 @@ send_ok(MsnSlpCall *slpcall, const char *branch,
 								"MSNSLP/1.0 200 OK",
 								branch, type, content);
 
-#ifdef MSN_DEBUG_SLP
 	slpmsg->info = "SLP 200 OK";
 	slpmsg->text_body = TRUE;
-#endif
 
 	msn_slplink_queue_slpmsg(slplink, slpmsg);
 
@@ -236,12 +270,42 @@ send_decline(MsnSlpCall *slpcall, const char *branch,
 								"MSNSLP/1.0 603 Decline",
 								branch, type, content);
 
-#ifdef MSN_DEBUG_SLP
 	slpmsg->info = "SLP 603 Decline";
 	slpmsg->text_body = TRUE;
-#endif
 
 	msn_slplink_queue_slpmsg(slplink, slpmsg);
+}
+
+/* XXX: this could be improved if we tracked custom smileys
+ * per-protocol, per-account, per-session or (ideally) per-conversation
+ */
+static PurpleStoredImage *
+find_valid_emoticon(PurpleAccount *account, const char *path)
+{
+	GList *smileys;
+
+	if (!purple_account_get_bool(account, "custom_smileys", TRUE))
+		return NULL;
+
+	smileys = purple_smileys_get_all();
+
+	for (; smileys; smileys = g_list_delete_link(smileys, smileys)) {
+		PurpleSmiley *smiley;
+		PurpleStoredImage *img;
+
+		smiley = smileys->data;
+		img = purple_smiley_get_stored_image(smiley);
+
+		if (purple_strequal(path, purple_imgstore_get_filename(img))) {
+			g_list_free(smileys);
+			return img;
+		}
+
+		purple_imgstore_unref(img);
+	}
+
+	purple_debug_error("msn", "Received illegal request for file %s\n", path);
+	return NULL;
 }
 
 #define MAX_FILE_NAME_LEN 0x226
@@ -250,6 +314,8 @@ static void
 got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 			   const char *euf_guid, const char *context)
 {
+	gboolean accepted = FALSE;
+
 	if (!strcmp(euf_guid, MSN_OBJ_GUID))
 	{
 		/* Emoticon or UserDisplay */
@@ -259,7 +325,7 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 		MsnSlpMessage *slpmsg;
 		MsnObject *obj;
 		char *msnobj_data;
-		PurpleStoredImage *img;
+		PurpleStoredImage *img = NULL;
 		int type;
 
 		/* Send Ok */
@@ -277,54 +343,40 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 		obj = msn_object_new_from_string(msnobj_data);
 		type = msn_object_get_type(obj);
 		g_free(msnobj_data);
-
-		if ((type != MSN_OBJECT_USERTILE) && (type != MSN_OBJECT_EMOTICON))
-		{
-			purple_debug_error("msn", "Wrong object?\n");
-			msn_object_destroy(obj);
-			g_return_if_reached();
-		}
-
 		if (type == MSN_OBJECT_EMOTICON) {
-			char *path;
-			path = g_build_filename(purple_smileys_get_storing_dir(),
-					obj->location, NULL);
-			img = purple_imgstore_new_from_file(path);
-			g_free(path);
-		} else {
+			img = find_valid_emoticon(slplink->session->account, obj->location);
+		} else if (type == MSN_OBJECT_USERTILE) {
 			img = msn_object_get_image(obj);
 			if (img)
 				purple_imgstore_ref(img);
 		}
 		msn_object_destroy(obj);
 
-		if (img == NULL)
-		{
+		if (img != NULL) {
+			/* DATA PREP */
+			slpmsg = msn_slpmsg_new(slplink);
+			slpmsg->slpcall = slpcall;
+			slpmsg->session_id = slpcall->session_id;
+			msn_slpmsg_set_body(slpmsg, NULL, 4);
+			slpmsg->info = "SLP DATA PREP";
+			msn_slplink_queue_slpmsg(slplink, slpmsg);
+
+			/* DATA */
+			slpmsg = msn_slpmsg_new(slplink);
+			slpmsg->slpcall = slpcall;
+			slpmsg->flags = 0x20;
+			slpmsg->info = "SLP DATA";
+			msn_slpmsg_set_image(slpmsg, img);
+			msn_slplink_queue_slpmsg(slplink, slpmsg);
+			purple_imgstore_unref(img);
+
+			accepted = TRUE;
+
+		} else {
 			purple_debug_error("msn", "Wrong object.\n");
-			g_return_if_reached();
 		}
-
-		/* DATA PREP */
-		slpmsg = msn_slpmsg_new(slplink);
-		slpmsg->slpcall = slpcall;
-		slpmsg->session_id = slpcall->session_id;
-		msn_slpmsg_set_body(slpmsg, NULL, 4);
-#ifdef MSN_DEBUG_SLP
-		slpmsg->info = "SLP DATA PREP";
-#endif
-		msn_slplink_queue_slpmsg(slplink, slpmsg);
-
-		/* DATA */
-		slpmsg = msn_slpmsg_new(slplink);
-		slpmsg->slpcall = slpcall;
-		slpmsg->flags = 0x20;
-#ifdef MSN_DEBUG_SLP
-		slpmsg->info = "SLP DATA";
-#endif
-		msn_slpmsg_set_image(slpmsg, img);
-		msn_slplink_queue_slpmsg(slplink, slpmsg);
-		purple_imgstore_unref(img);
 	}
+
 	else if (!strcmp(euf_guid, MSN_FT_GUID))
 	{
 		/* File Transfer */
@@ -334,13 +386,10 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 		gsize bin_len;
 		guint32 file_size;
 		char *file_name;
-		gunichar2 *uni_name;
 
 		account = slpcall->slplink->session->account;
 
-		slpcall->cb = msn_xfer_completed_cb;
 		slpcall->end_cb = msn_xfer_end_cb;
-		slpcall->progress_cb = msn_xfer_progress_cb;
 		slpcall->branch = g_strdup(branch);
 
 		slpcall->pending = TRUE;
@@ -352,23 +401,21 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 			bin = (char *)purple_base64_decode(context, &bin_len);
 			file_size = GUINT32_FROM_LE(*(gsize *)(bin + 8));
 
-			uni_name = (gunichar2 *)(bin + 20);
-			while(*uni_name != 0 && ((char *)uni_name - (bin + 20)) < MAX_FILE_NAME_LEN) {
-				*uni_name = GUINT16_FROM_LE(*uni_name);
-				uni_name++;
-			}
-
-			file_name = g_utf16_to_utf8((const gunichar2 *)(bin + 20), -1,
-										NULL, NULL, NULL);
+			file_name = g_convert(bin + 20, MAX_FILE_NAME_LEN, "UTF-8", "UTF-16LE",
+			                      NULL, NULL, NULL);
 
 			g_free(bin);
 
-			purple_xfer_set_filename(xfer, file_name);
+			purple_xfer_set_filename(xfer, file_name ? file_name : "");
 			g_free(file_name);
 			purple_xfer_set_size(xfer, file_size);
 			purple_xfer_set_init_fnc(xfer, msn_xfer_init);
 			purple_xfer_set_request_denied_fnc(xfer, msn_xfer_cancel);
 			purple_xfer_set_cancel_recv_fnc(xfer, msn_xfer_cancel);
+			purple_xfer_set_read_fnc(xfer, msn_xfer_read);
+			purple_xfer_set_write_fnc(xfer, msn_xfer_write);
+
+			slpcall->u.incoming_data = g_byte_array_new();
 
 			slpcall->xfer = xfer;
 			purple_xfer_ref(slpcall->xfer);
@@ -377,8 +424,63 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 
 			purple_xfer_request(xfer);
 		}
+
+		accepted = TRUE;
+
+	} else if (!strcmp(euf_guid, MSN_CAM_REQUEST_GUID)) {
+		purple_debug_info("msn", "Cam request.\n");
+		if (slpcall && slpcall->slplink &&
+				slpcall->slplink->session) {
+			PurpleConversation *conv;
+			gchar *from = slpcall->slplink->remote_user;
+			conv = purple_find_conversation_with_account(
+					PURPLE_CONV_TYPE_IM, from,
+					slpcall->slplink->session->account);
+			if (conv) {
+				char *buf;
+				buf = g_strdup_printf(
+						_("%s requests to view your "
+						"webcam, but this request is "
+						"not yet supported."), from);
+				purple_conversation_write(conv, NULL, buf,
+						PURPLE_MESSAGE_SYSTEM |
+						PURPLE_MESSAGE_NOTIFY,
+						time(NULL));
+				g_free(buf);
+			}
+		}
+
+	} else if (!strcmp(euf_guid, MSN_CAM_GUID)) {
+		purple_debug_info("msn", "Cam invite.\n");
+		if (slpcall && slpcall->slplink &&
+				slpcall->slplink->session) {
+			PurpleConversation *conv;
+			gchar *from = slpcall->slplink->remote_user;
+			conv = purple_find_conversation_with_account(
+					PURPLE_CONV_TYPE_IM, from,
+					slpcall->slplink->session->account);
+			if (conv) {
+				char *buf;
+				buf = g_strdup_printf(
+						_("%s invited you to view his/her webcam, but "
+						"this is not yet supported."), from);
+				purple_conversation_write(conv, NULL, buf,
+						PURPLE_MESSAGE_SYSTEM |
+						PURPLE_MESSAGE_NOTIFY,
+						time(NULL));
+				g_free(buf);
+			}
+		}
+
 	} else
 		purple_debug_warning("msn", "SLP SessionReq with unknown EUF-GUID: %s\n", euf_guid);
+
+	if (!accepted) {
+		char *content = g_strdup_printf("SessionID: %lu\r\n\r\n",
+		                                slpcall->session_id);
+		send_decline(slpcall, branch, "application/x-msnmsgr-sessionreqbody", content);
+		g_free(content);
+	}
 }
 
 void
@@ -404,10 +506,8 @@ send_bye(MsnSlpCall *slpcall, const char *type)
 								"\r\n");
 	g_free(header);
 
-#ifdef MSN_DEBUG_SLP
 	slpmsg->info = "SLP BYE";
 	slpmsg->text_body = TRUE;
-#endif
 
 	msn_slplink_queue_slpmsg(slplink, slpmsg);
 }
@@ -575,10 +675,8 @@ got_ok(MsnSlpCall *slpcall,
 										"application/x-msnmsgr-transreqbody",
 										content);
 
-#ifdef MSN_DEBUG_SLP
 			slpmsg->info = "SLP INVITE";
 			slpmsg->text_body = TRUE;
-#endif
 			msn_slplink_send_slpmsg(slplink, slpmsg);
 
 			g_free(header);
@@ -669,7 +767,15 @@ msn_slp_sip_recv(MsnSlpLink *slplink, const char *body)
 
 		content = get_token(body, "\r\n\r\n", NULL);
 
-		got_invite(slpcall, branch, content_type, content);
+		if (branch && content_type && content)
+		{
+			got_invite(slpcall, branch, content_type, content);
+		}
+		else
+		{
+			msn_slpcall_destroy(slpcall);
+			slpcall = NULL;
+		}
 
 		g_free(branch);
 		g_free(content_type);
@@ -795,9 +901,8 @@ got_emoticon(MsnSlpCall *slpcall,
 		purple_conv_custom_smiley_write(conv, slpcall->data_info, data, size);
 		purple_conv_custom_smiley_close(conv, slpcall->data_info );
 	}
-#ifdef MSN_DEBUG_UD
-	purple_debug_info("msn", "Got smiley: %s\n", slpcall->data_info);
-#endif
+	if (purple_debug_is_verbose())
+		purple_debug_info("msn", "Got smiley: %s\n", slpcall->data_info);
 }
 
 void
@@ -919,9 +1024,8 @@ msn_release_buddy_icon_request(MsnUserList *userlist)
 
 	g_return_if_fail(userlist != NULL);
 
-#ifdef MSN_DEBUG_UD
-	purple_debug_info("msn", "Releasing buddy icon request\n");
-#endif
+	if (purple_debug_is_verbose())
+		purple_debug_info("msn", "Releasing buddy icon request\n");
 
 	if (userlist->buddy_icon_window > 0)
 	{
@@ -942,10 +1046,10 @@ msn_release_buddy_icon_request(MsnUserList *userlist)
 		userlist->buddy_icon_window--;
 		request_user_display(user);
 
-#ifdef MSN_DEBUG_UD
-		purple_debug_info("msn", "msn_release_buddy_icon_request(): buddy_icon_window-- yields =%d\n",
-						userlist->buddy_icon_window);
-#endif
+		if (purple_debug_is_verbose())
+			purple_debug_info("msn",
+			                  "msn_release_buddy_icon_request(): buddy_icon_window-- yields =%d\n",
+			                  userlist->buddy_icon_window);
 	}
 }
 
@@ -995,10 +1099,9 @@ msn_queue_buddy_icon_request(MsnUser *user)
 		userlist = user->userlist;
 		queue = userlist->buddy_icon_requests;
 
-#ifdef MSN_DEBUG_UD
-		purple_debug_info("msn", "Queueing buddy icon request for %s (buddy_icon_window = %i)\n",
-						user->passport, userlist->buddy_icon_window);
-#endif
+		if (purple_debug_is_verbose())
+			purple_debug_info("msn", "Queueing buddy icon request for %s (buddy_icon_window = %i)\n",
+			                  user->passport, userlist->buddy_icon_window);
 
 		g_queue_push_tail(queue, user);
 
@@ -1018,9 +1121,8 @@ got_user_display(MsnSlpCall *slpcall,
 	g_return_if_fail(slpcall != NULL);
 
 	info = slpcall->data_info;
-#ifdef MSN_DEBUG_UD
-	purple_debug_info("msn", "Got User Display: %s\n", slpcall->slplink->remote_user);
-#endif
+	if (purple_debug_is_verbose())
+		purple_debug_info("msn", "Got User Display: %s\n", slpcall->slplink->remote_user);
 
 	userlist = slpcall->slplink->session->userlist;
 	account = slpcall->slplink->session->account;
@@ -1046,9 +1148,8 @@ end_user_display(MsnSlpCall *slpcall, MsnSession *session)
 
 	g_return_if_fail(session != NULL);
 
-#ifdef MSN_DEBUG_UD
-	purple_debug_info("msn", "End User Display\n");
-#endif
+	if (purple_debug_is_verbose())
+		purple_debug_info("msn", "End User Display\n");
 
 	userlist = session->userlist;
 
@@ -1106,9 +1207,8 @@ request_user_display(MsnUser *user)
 		gconstpointer data = NULL;
 		size_t len = 0;
 
-#ifdef MSN_DEBUG_UD
-		purple_debug_info("msn", "Requesting our own user display\n");
-#endif
+		if (purple_debug_is_verbose())
+			purple_debug_info("msn", "Requesting our own user display\n");
 
 		my_obj = msn_user_get_object(session->user);
 
@@ -1124,10 +1224,9 @@ request_user_display(MsnUser *user)
 		/* Free one window slot */
 		session->userlist->buddy_icon_window++;
 
-#ifdef MSN_DEBUG_UD
-		purple_debug_info("msn", "request_user_display(): buddy_icon_window++ yields =%d\n",
-						session->userlist->buddy_icon_window);
-#endif
+		if (purple_debug_is_verbose())
+			purple_debug_info("msn", "request_user_display(): buddy_icon_window++ yields =%d\n",
+			                  session->userlist->buddy_icon_window);
 
 		msn_release_buddy_icon_request(session->userlist);
 	}

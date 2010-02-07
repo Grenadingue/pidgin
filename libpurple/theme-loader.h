@@ -71,18 +71,19 @@ G_BEGIN_DECLS
 GType purple_theme_loader_get_type(void);
 
 /**
- * Returns the string represtenting the type of the theme loader
+ * Returns the string representing the type of the theme loader
  *
  * @param self The theme loader
  *
- * @returns The string represting this type
+ * @returns The string representing this type
  */
 const gchar *purple_theme_loader_get_type_string(PurpleThemeLoader *self);
 
 /**
  * Creates a new PurpleTheme
  *
- * @param dir The directory containing the theme
+ * @param loader The theme loader
+ * @param dir    The directory containing the theme
  *
  * @returns A PurpleTheme containing the information from the directory
  */

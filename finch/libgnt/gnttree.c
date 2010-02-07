@@ -20,6 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
+#include "gntinternal.h"
 #include "gntmarshal.h"
 #include "gntstyle.h"
 #include "gnttree.h"
@@ -432,7 +433,7 @@ redraw_tree(GntTree *tree)
 
 	if (tree->top == NULL)
 		tree->top = tree->root;
-	if (tree->current == NULL) {
+	if (tree->current == NULL && tree->root != NULL) {
 		tree->current = tree->root;
 		tree_selection_changed(tree, NULL, tree->current);
 	}
@@ -491,6 +492,13 @@ redraw_tree(GntTree *tree)
 		tree->top = get_next(tree->top);
 	row = tree->top;
 	scrcol = widget->priv.width - 1 - 2 * pos;  /* exclude the borders and the scrollbar */
+
+	if (tree->current && !row_matches_search(tree->current)) {
+		GntTreeRow *old = tree->current;
+		tree->current = tree->top;
+		tree_selection_changed(tree, old, tree->current);
+	}
+
 	for (i = start + pos; row && i < widget->priv.height - pos;
 				i++, row = get_next(row))
 	{
@@ -542,7 +550,7 @@ redraw_tree(GntTree *tree)
 		}
 
 		wbkgdset(widget->window, '\0' | attr);
-		mvwaddstr(widget->window, i, pos, str);
+		mvwaddstr(widget->window, i, pos, C_(str));
 		whline(widget->window, ' ', scrcol - wr);
 		tree->bottom = row;
 		g_free(str);
@@ -808,7 +816,7 @@ gnt_tree_key_pressed(GntWidget *widget, const char *text)
 		gnt_widget_activate(widget);
 	} else if (tree->priv->search) {
 		gboolean changed = TRUE;
-		if (isalnum(*text)) {
+		if (g_unichar_isprint(*text)) {
 			tree->priv->search = g_string_append_c(tree->priv->search, *text);
 		} else if (g_utf8_collate(text, GNT_KEY_BACKSPACE) == 0) {
 			if (tree->priv->search->len)
@@ -949,6 +957,45 @@ end_search_action(GntBindable *bindable, GList *list)
 	return TRUE;
 }
 
+static gboolean
+move_first_action(GntBindable *bind, GList *null)
+{
+	GntTree *tree = GNT_TREE(bind);
+	GntTreeRow *row = tree->root;
+	GntTreeRow *old = tree->current;
+	if (row && !row_matches_search(row))
+		row = get_next(row);
+	if (row) {
+		tree->current = row;
+		redraw_tree(tree);
+		if (old != tree->current)
+			tree_selection_changed(tree, old, tree->current);
+	}
+
+	return TRUE;
+}
+
+static gboolean
+move_last_action(GntBindable *bind, GList *null)
+{
+	GntTree *tree = GNT_TREE(bind);
+	GntTreeRow *old = tree->current;
+	GntTreeRow *row = tree->bottom;
+	GntTreeRow *next;
+
+	while ((next = get_next(row)))
+		row = next;
+
+	if (row) {
+		tree->current = row;
+		redraw_tree(tree);
+		if (old != tree->current)
+			tree_selection_changed(tree, old, tree->current);
+	}
+
+	return TRUE;
+}
+
 static void
 gnt_tree_set_property(GObject *obj, guint prop_id, const GValue *value,
 		GParamSpec *spec)
@@ -1068,6 +1115,10 @@ gnt_tree_class_init(GntTreeClass *klass)
 				"/", NULL);
 	gnt_bindable_class_register_action(bindable, "end-search", end_search_action,
 				"\033", NULL);
+	gnt_bindable_class_register_action(bindable, "move-first", move_first_action,
+			GNT_KEY_HOME, NULL);
+	gnt_bindable_class_register_action(bindable, "move-last", move_last_action,
+			GNT_KEY_END, NULL);
 
 	gnt_style_read_actions(G_OBJECT_CLASS_TYPE(klass), bindable);
 	GNTDEBUG;
