@@ -67,6 +67,7 @@ version 2.6.6 (??/??/20??):
 	* When getting info on a domain-only (server) JID, show uptime
 	  (when given by the result of the "last query") and don't show status as
 	  offline.
+	* Fix getting info on your own JID.
 	* Wrap XHTML messages in <p>, as described in XEP-0071, for compatibility
 	  with some clients.
 	* Don't do an SRV lookup for a STUN server associated with the account
@@ -76,6 +77,9 @@ version 2.6.6 (??/??/20??):
 	  disconnected by servers that dislike overly-large stanzas.
 	* Fix receiving messages without markup over an Openfire BOSH connection
 	  (forcibly put the stanzas in the jabber:client namespace).
+	* The default value for the file transfer proxies is automatically
+	  updated when an account connects, if it is still the old (broken)
+	  default (from 'proxy.jabber.org' to 'proxy.eu.jabber.org').
 
 	Yahoo:
 	* Don't send <span> and </span> tags.  (Fartash Faghri)
