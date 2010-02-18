@@ -874,7 +874,6 @@ x509_ca_init(void)
 #else
 # ifdef SSL_CERTIFICATES_DIR
 		x509_ca_paths = g_list_append(NULL, g_strdup(SSL_CERTIFICATES_DIR));
-# else
 # endif
 		x509_ca_paths = g_list_append(x509_ca_paths,
 			g_build_filename(DATADIR, "purple", "ca-certs", NULL));
@@ -1431,9 +1430,8 @@ x509_tls_cached_complete(PurpleCertificateVerificationRequest *vrq,
 	tls_peers = purple_certificate_find_pool(x509_tls_cached.scheme_name,
 						 "tls_peers");
 	if (tls_peers) {
-		if (!purple_certificate_pool_contains(tls_peers, vrq->subject_name) &&
-		        !purple_certificate_pool_store(tls_peers,vrq->subject_name,
-		                                       peer_crt)) {
+		if (!purple_certificate_pool_store(tls_peers,vrq->subject_name,
+		                                   peer_crt)) {
 			purple_debug_error("certificate/x509/tls_cached",
 			                   "FAILED to cache peer certificate\n");
 		}

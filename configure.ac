@@ -43,19 +43,19 @@ AC_PREREQ([2.50])
 #
 # Make sure to update finch/libgnt/configure.ac with libgnt version changes.
 #
-m4_define([purple_lt_current], [6])
+m4_define([purple_lt_current], [7])
 m4_define([purple_major_version], [2])
-m4_define([purple_minor_version], [6])
-m4_define([purple_micro_version], [5])
+m4_define([purple_minor_version], [7])
+m4_define([purple_micro_version], [0])
 m4_define([purple_version_suffix], [devel])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
 m4_define([purple_display_version], purple_version[]m4_ifdef([purple_version_suffix],[purple_version_suffix]))
 
-m4_define([gnt_lt_current], [6])
+m4_define([gnt_lt_current], [7])
 m4_define([gnt_major_version], [2])
-m4_define([gnt_minor_version], [6])
-m4_define([gnt_micro_version], [5])
+m4_define([gnt_minor_version], [7])
+m4_define([gnt_micro_version], [0])
 m4_define([gnt_version_suffix], [devel])
 m4_define([gnt_version],
           [gnt_major_version.gnt_minor_version.gnt_micro_version])
@@ -144,7 +144,7 @@ darwin*)
 	;;
 esac
 
-ALL_LINGUAS="af am ar az be@latin bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr ga gl gu he hi hu hy id it ja ka km kn ko ku lo lt mk mn ms_MY my_MM nb ne nl nn oc pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv sw ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
+ALL_LINGUAS="af am ar az be@latin bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr ga gl gu he hi hu hy id it ja ka km kn ko ku lo lt mk mn mr ms_MY my_MM nb ne nl nn oc or pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv sw ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
 AM_GLIB_GNU_GETTEXT
 
 dnl If we don't have msgfmt, then po/ is going to fail -- ensure that
@@ -211,6 +211,7 @@ AC_CHECK_FUNC(getaddrinfo,
 	[AC_CHECK_LIB(socket, getaddrinfo,
 		[AC_DEFINE([HAVE_GETADDRINFO]) LIBS="-lsocket -lsnl $LIBS"], , , -lnsl)])
 AC_CHECK_FUNCS(inet_ntop)
+AC_CHECK_FUNCS(getifaddrs)
 dnl Check for socklen_t (in Unix98)
 AC_MSG_CHECKING(for socklen_t)
 AC_TRY_COMPILE([
@@ -310,13 +311,13 @@ int main()
 )
 
 dnl #######################################################################
-dnl # Check for GLib 2.0 (required)
+dnl # Check for GLib 2.12 (required)
 dnl #######################################################################
-PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.4.0 gobject-2.0 gmodule-2.0 gthread-2.0], , [
+PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.12.0 gobject-2.0 gmodule-2.0 gthread-2.0], , [
 	AC_MSG_RESULT(no)
 	AC_MSG_ERROR([
 
-You must have GLib 2.4.0 or newer development headers installed to build.
+You must have GLib 2.12.0 or newer development headers installed to build.
 
 If you have these installed already you may need to install pkg-config so
 I can find them.
@@ -352,7 +353,7 @@ AC_ARG_ENABLE(consoleui, [AC_HELP_STRING([--disable-consoleui],
 	[enable_consoleui=$enableval force_finch=$enableval], [enable_consoleui=yes force_finch=no])
 
 dnl #######################################################################
-dnl # Check for GTK+ 2.0 and other things used by the GTK UI
+dnl # Check for GTK+ 2.10 and other things used by the GTK UI
 dnl #######################################################################
 AC_ARG_ENABLE(screensaver,
 	[AC_HELP_STRING([--disable-screensaver],
@@ -399,11 +400,11 @@ else
 fi
 
 if test "x$enable_gtkui" = "xyes" ; then
-	PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.4.0], , [
+	PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= 2.10.0], , [
 		AC_MSG_RESULT(no)
 		AC_MSG_ERROR([
 
-You must have GTK+ 2.4.0 or newer development headers installed to compile
+You must have GTK+ 2.10.0 or newer development headers installed to compile
 Pidgin.  If you want to build only Finch then specify --disable-gtkui when
 running configure.
 ])])
@@ -426,6 +427,7 @@ running configure.
 					X11_LIBS="$x_libpath_add"
 					X11_CFLAGS="$x_incpath_add"
 				else
+					with_x="no"
 					if test "x$force_deps" = "xyes" ; then
 						AC_MSG_ERROR([
 X11 development headers not found.
@@ -528,6 +530,7 @@ Use --disable-sm if you do not need session management support.
 	if test "x$enable_startup_notification" = "xyes"; then
 		PKG_CHECK_MODULES(STARTUP_NOTIFICATION, [libstartup-notification-1.0 >= 0.5], , [
 			AC_MSG_RESULT(no)
+			enable_startup_notification="no"
 			if test "x$force_deps" = "xyes" ; then
 				AC_MSG_ERROR([
 Startup notification development headers not found.
@@ -548,6 +551,7 @@ Use --disable-startup-notification if you do not need it.
 	if test "x$enable_gtkspell" = "xyes" ; then
 		PKG_CHECK_MODULES(GTKSPELL, gtkspell-2.0 >= 2.0.2, , [
 			AC_MSG_RESULT(no)
+			enable_gtkspell="no"
 			if test "x$force_deps" = "xyes" ; then
 				AC_MSG_ERROR([
 GtkSpell development headers not found.
@@ -598,6 +602,7 @@ Use --disable-gevolution if you do not need it.
 	if test "x$enable_cap" = "xyes"; then
 		PKG_CHECK_MODULES(SQLITE3, sqlite3 >= 3.3,,[
 			AC_MSG_RESULT(no)
+			enable_cap="no"
 			if test "x$force_deps" = "xyes" ; then
 				AC_MSG_ERROR([
 sqlite3 development headers not found.
@@ -746,6 +751,7 @@ if test "x$enable_gst" != "xno"; then
 			[], [$GSTREAMER_LIBS])
 	], [
 		AC_MSG_RESULT(no)
+		enable_gst="no"
 		if test "x$force_deps" = "xyes" ; then
 			AC_MSG_ERROR([
 GStreamer development headers not found.
@@ -812,6 +818,10 @@ Or use --disable-vv if you do not need voice/video support.
 fi
 AM_CONDITIONAL(USE_VV, test "x$enable_gstreamer" != "xno" -a "x$enable_gstinterfaces" != "xno" -a "x$enable_farsight" != "xno")
 
+dnl #######################################################################
+dnl # Check for Internationalized Domain Name support
+dnl #######################################################################
+
 AC_ARG_ENABLE(idn,
 	[AC_HELP_STRING([--disable-idn], [compile without IDN support])],
 	[enable_idn="$enableval" force_idn=$enableval], [enable_idn="yes" force_idn=no])
@@ -822,6 +832,7 @@ if test "x$enable_idn" != "xno"; then
 		AC_SUBST(IDN_LIBS)
 	], [
 		AC_MSG_RESULT(no)
+		enable_idn="no"
 		if test "x$force_deps" = "xyes" ; then
 			AC_MSG_ERROR([
 GNU Libidn development headers not found.
@@ -894,11 +905,14 @@ if test "x$enable_avahi" = "xyes"; then
 	AC_CHECK_LIB(avahi-client, avahi_client_new, [avahilibs=yes], [avahilibs=no], $AVAHI_LIBS)
 fi
 
-if test "x$enable_avahi" = "xyes" -a "x$force_deps" = "xyes" -a \( "x$avahiincludes" = "xno" -o "x$avahilibs" = "xno" \); then
-	AC_MSG_ERROR([
+if test "x$enable_avahi" = "xyes" -a \( "x$avahiincludes" = "xno" -o "x$avahilibs" = "xno" \); then
+	enable_avahi="no"
+	if test "x$force_deps" = "xyes"; then
+		AC_MSG_ERROR([
 avahi development headers not found.
 Use --disable-avahi if you do not need avahi (Bonjour) support.
 ])
+	fi
 fi
 AC_SUBST(AVAHI_CFLAGS)
 AC_SUBST(AVAHI_LIBS)
@@ -2380,30 +2394,6 @@ if test $ac_cv_struct_tm_gmtoff = yes; then
         AC_DEFINE(HAVE_TM_GMTOFF, 1, [Define if you have a tm_gmtoff member in struct tm])
 fi
 
-AC_CACHE_CHECK([whether va_lists can be copied by value], ac_cv_va_val_copy,[
-	AC_TRY_RUN([#include <stdarg.h>
-#include <stdlib.h>
-	void f (int i, ...) {
-	va_list args1, args2;
-	va_start (args1, i);
-	args2 = args1;
-	if (va_arg (args2, int) != 42 || va_arg (args1, int) != 42)
-	  exit (1);
-	va_end (args1); va_end (args2);
-	}
-	int main() {
-	  f (0, 42);
-	  return 0;
-	}],
-	[ac_cv_va_val_copy=yes],
-	[ac_cv_va_val_copy=no],
-	[ac_cv_va_val_copy=yes])
-])
-
-if test "x$ac_cv_va_val_copy" = "xno"; then
-	AC_DEFINE(VA_COPY_AS_ARRAY, 1, ['va_lists' cannot be copied as values])
-fi
-
 dnl #######################################################################
 dnl # Check for check
 dnl #######################################################################
@@ -2502,6 +2492,8 @@ AC_OUTPUT([Makefile
 		   pidgin/Makefile
 		   pidgin/pidgin.pc
 		   pidgin/pidgin-uninstalled.pc
+		   pidgin/pidgin-2.pc
+		   pidgin/pidgin-2-uninstalled.pc
 		   pidgin/pixmaps/Makefile
 		   pidgin/pixmaps/emotes/default/24/Makefile
 		   pidgin/pixmaps/emotes/none/Makefile
@@ -2519,6 +2511,8 @@ AC_OUTPUT([Makefile
 		   libpurple/gconf/Makefile
 		   libpurple/purple.pc
 		   libpurple/purple-uninstalled.pc
+		   libpurple/purple-2.pc
+		   libpurple/purple-2-uninstalled.pc
 		   libpurple/plugins/Makefile
 		   libpurple/plugins/mono/Makefile
 		   libpurple/plugins/mono/api/Makefile

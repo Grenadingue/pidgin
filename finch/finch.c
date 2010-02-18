@@ -19,8 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#include "finch.h"
 #include <internal.h>
+#include "finch.h"
 
 #include "account.h"
 #include "conversation.h"
@@ -431,9 +431,7 @@ int main(int argc, char *argv[])
 	g_thread_init(NULL);
 
 	g_set_prgname("Finch");
-#if GLIB_CHECK_VERSION(2,2,0)
 	g_set_application_name(_("Finch"));
-#endif
 
 	if (gnt_start(&argc, &argv)) {
 		gnt_main();

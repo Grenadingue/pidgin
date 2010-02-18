@@ -1341,7 +1341,8 @@ request_auth_cb(void *data)
 
 	handles = g_list_remove(handles, info);
 
-	info->auth_cb(info->userdata);
+	if (info->auth_cb != NULL)
+		info->auth_cb(info->userdata);
 
 	purple_signal_emit(purple_accounts_get_handle(),
 			"account-authorization-granted", info->account, info->user);
@@ -1356,7 +1357,8 @@ request_deny_cb(void *data)
 
 	handles = g_list_remove(handles, info);
 
-	info->deny_cb(info->userdata);
+	if (info->deny_cb != NULL)
+		info->deny_cb(info->userdata);
 
 	purple_signal_emit(purple_accounts_get_handle(),
 			"account-authorization-denied", info->account, info->user);
@@ -1383,10 +1385,12 @@ purple_account_request_authorization(PurpleAccount *account, const char *remote_
 				"account-authorization-requested", account, remote_user));
 
 	if (plugin_return > 0) {
-		auth_cb(user_data);
+		if (auth_cb != NULL)
+			auth_cb(user_data);
 		return NULL;
 	} else if (plugin_return < 0) {
-		deny_cb(user_data);
+		if (deny_cb != NULL)
+			deny_cb(user_data);
 		return NULL;
 	}
 
@@ -2032,6 +2036,42 @@ purple_account_get_connection(const PurpleAccount *account)
 	return account->gc;
 }
 
+const gchar *
+purple_account_get_name_for_display(const PurpleAccount *account)
+{
+	PurpleBuddy *self = NULL;
+	PurpleConnection *gc = NULL;
+	const gchar *name = NULL, *username = NULL, *displayname = NULL;
+
+	name = purple_account_get_alias(account);
+
+	if (name) {
+		return name;
+	}
+
+	username = purple_account_get_username(account);
+	self = purple_find_buddy((PurpleAccount *)account, username);
+
+	if (self) {
+		const gchar *calias= purple_buddy_get_contact_alias(self);
+
+		/* We don't want to return the buddy name if the buddy/contact
+		 * doesn't have an alias set. */
+		if (!purple_strequal(username, calias)) {
+			return calias;
+		}
+	}
+
+	gc = purple_account_get_connection(account);
+	displayname = purple_connection_get_display_name(gc);
+
+	if (displayname) {
+		return displayname;
+	}
+
+	return username;
+}
+
 gboolean
 purple_account_get_remember_password(const PurpleAccount *account)
 {
@@ -2311,7 +2351,7 @@ purple_account_add_buddy(PurpleAccount *account, PurpleBuddy *buddy)
 
 	gc = purple_account_get_connection(account);
 	if (gc != NULL)
-	        prpl = purple_connection_get_prpl(gc);
+		prpl = purple_connection_get_prpl(gc);
 
 	if (prpl != NULL)
 		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(prpl);
@@ -2328,7 +2368,7 @@ purple_account_add_buddies(PurpleAccount *account, GList *buddies)
 	PurplePlugin *prpl = NULL;
 
 	if (gc != NULL)
-	        prpl = purple_connection_get_prpl(gc);
+		prpl = purple_connection_get_prpl(gc);
 
 	if (prpl != NULL)
 		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(prpl);
@@ -2367,7 +2407,7 @@ purple_account_remove_buddy(PurpleAccount *account, PurpleBuddy *buddy,
 	PurplePlugin *prpl = NULL;
 
 	if (gc != NULL)
-	        prpl = purple_connection_get_prpl(gc);
+		prpl = purple_connection_get_prpl(gc);
 
 	if (prpl != NULL)
 		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(prpl);
@@ -2384,7 +2424,7 @@ purple_account_remove_buddies(PurpleAccount *account, GList *buddies, GList *gro
 	PurplePlugin *prpl = NULL;
 
 	if (gc != NULL)
-	        prpl = purple_connection_get_prpl(gc);
+		prpl = purple_connection_get_prpl(gc);
 
 	if (prpl != NULL)
 		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(prpl);
@@ -2412,7 +2452,7 @@ purple_account_remove_group(PurpleAccount *account, PurpleGroup *group)
 	PurplePlugin *prpl = NULL;
 
 	if (gc != NULL)
-	        prpl = purple_connection_get_prpl(gc);
+		prpl = purple_connection_get_prpl(gc);
 
 	if (prpl != NULL)
 		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(prpl);
@@ -2432,7 +2472,7 @@ purple_account_change_password(PurpleAccount *account, const char *orig_pw,
 	purple_account_set_password(account, new_pw);
 
 	if (gc != NULL)
-	        prpl = purple_connection_get_prpl(gc);
+		prpl = purple_connection_get_prpl(gc);
 
 	if (prpl != NULL)
 		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(prpl);
@@ -2704,11 +2744,12 @@ purple_accounts_find(const char *name, const char *protocol_id)
 	char *who;
 
 	g_return_val_if_fail(name != NULL, NULL);
+	g_return_val_if_fail(protocol_id != NULL, NULL);
 
 	for (l = purple_accounts_get_all(); l != NULL; l = l->next) {
 		account = (PurpleAccount *)l->data;
-		if (protocol_id && !purple_strequal(account->protocol_id, protocol_id))
-		  continue;
+		if (!purple_strequal(account->protocol_id, protocol_id))
+			continue;
 
 		who = g_strdup(purple_normalize(account, name));
 		if (purple_strequal(purple_normalize(account, purple_account_get_username(account)), who)) {

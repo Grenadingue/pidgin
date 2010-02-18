@@ -23,9 +23,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
 
-#include <string.h>
-#include <errno.h>
-
+#include "internal.h"
 #include "purple.h"
 #include "prpl.h"
 
@@ -306,7 +304,7 @@ void multimx_created(struct MXitSession* session, struct contact* contact)
 	serv_got_joined_chat(gc, multimx->chatid, multimx->roomname);
 
 	/* Send ".list" command to GroupChat server to retrieve current member-list */
-	mxit_send_message(session, multimx->roomid, ".list", FALSE);
+	mxit_send_message(session, multimx->roomid, ".list", FALSE, FALSE);
 }
 
 
@@ -581,7 +579,7 @@ int mxit_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMess
 	}
 
 	/* Send packet to MXit */
-	mxit_send_message(session, multimx->roomid, message, TRUE);
+	mxit_send_message(session, multimx->roomid, message, TRUE, FALSE);
 	
 	/* Determine our nickname to display */
 	if (session->profile && (session->profile->nickname[0] != '\0'))		/* default is profile name (since that's what everybody else sees) */
