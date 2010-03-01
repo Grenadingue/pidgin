@@ -36,6 +36,8 @@
 #include "imgstore.h"
 #include "time.h"
 
+#include <math.h>
+
 static GSList *loggers = NULL;
 
 static PurpleLogLogger *html_logger;
@@ -302,7 +304,7 @@ gint purple_log_get_activity_score(PurpleLogType type, const char *name, PurpleA
 			}
 		}
 
-		score = (gint)score_double;
+		score = (gint) ceil(score_double);
 		g_hash_table_replace(logsize_users_decayed, lu, GINT_TO_POINTER(score));
 	}
 	return score;

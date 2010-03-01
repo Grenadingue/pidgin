@@ -70,6 +70,8 @@
 #include "jingle/jingle.h"
 #include "jingle/rtp.h"
 
+#define PING_TIMEOUT 60
+
 GList *jabber_features = NULL;
 GList *jabber_identities = NULL;
 static GSList *jabber_cmds = NULL;
@@ -521,9 +523,12 @@ static gboolean jabber_keepalive_timeout(PurpleConnection *gc)
 
 void jabber_keepalive(PurpleConnection *gc)
 {
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
+	time_t now = time(NULL);
 
-	if (js->keepalive_timeout == 0) {
+	if (js->keepalive_timeout == 0 && (now - js->last_ping) >= PING_TIMEOUT) {
+		js->last_ping = now;
+
 		jabber_keepalive_ping(js);
 		js->keepalive_timeout = purple_timeout_add_seconds(120,
 				(GSourceFunc)(jabber_keepalive_timeout), gc);
@@ -2952,7 +2957,16 @@ gboolean jabber_send_attention(PurpleConnection *gc, const char *username, guint
 	gchar *error = NULL;
 
 	if (!_jabber_send_buzz(js, username, &error)) {
+		PurpleAccount *account = purple_connection_get_account(gc);
+		PurpleConversation *conv =
+			purple_find_conversation_with_account(PURPLE_CONV_TYPE_ANY, username, account);
 		purple_debug_error("jabber", "jabber_send_attention: jabber_cmd_buzz failed with error: %s\n", error ? error : "(NULL)");
+
+		if (conv) {
+			purple_conversation_write(conv, username, error, PURPLE_MESSAGE_ERROR,
+			    time(NULL));
+		}
+
 		g_free(error);
 		return FALSE;
 	}
