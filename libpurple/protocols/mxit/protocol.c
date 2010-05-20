@@ -962,6 +962,31 @@ void mxit_send_splashclick( struct MXitSession* session, const char* splashid )
 
 
 /*------------------------------------------------------------------------
+ * Send a message event packet.
+ *
+ *  @param session		The MXit session object
+ *  @param to           The username of the original sender (ie, recipient of the event)
+ *  @param id			The identifier of the event (received in message)
+ *  @param event		Identified the type of event
+ */
+void mxit_send_msgevent( struct MXitSession* session, const char* to, const char* id, int event)
+{
+	char		data[CP_MAX_PACKET];
+	int			datalen;
+
+	purple_debug_info( MXIT_PLUGIN_ID, "mxit_send_msgevent: to=%s id=%s event=%i\n", to, id, event );
+
+	/* convert the packet to a byte stream */
+	datalen = sprintf( data,	"ms=%s%c%s%c%i",		/* "ms"=contactAddress \1 id \1 event */
+								to, CP_FLD_TERM, id, CP_FLD_TERM, event
+	);
+
+	/* queue packet for transmission */
+	mxit_queue_packet( session, data, datalen, CP_CMD_MSGEVENT );
+}
+
+
+/*------------------------------------------------------------------------
  * Send packet to create a MultiMX room.
  *
  *  @param session		The MXit session object
@@ -1158,7 +1183,7 @@ void mxit_send_file_received( struct MXitSession* session, const char* fileid, s
 		return;
 	}
 
-	set_chunk_type( chunk, CP_CHUNK_RECIEVED );
+	set_chunk_type( chunk, CP_CHUNK_RECEIVED );
 	set_chunk_length( chunk, size );
 	datalen += MXIT_CHUNK_HEADER_SIZE + size;
 
@@ -1353,6 +1378,12 @@ static void mxit_parse_cmd_message( struct MXitSession* session, struct record**
 		g_snprintf( msg, sizeof( msg ), _( "%s sent you an encrypted message, but it is not supported on this client." ), name );
 		mxit_popup( PURPLE_NOTIFY_MSG_WARNING, _( "Message Error" ), msg );
 		return;
+	}
+
+	if ( msgflags & CP_MSG_NOTIFY_DELIVERY ) {
+		/* delivery notification is requested */
+		if ( records[0]->fcount >= 4 )
+			mxit_send_msgevent( session, records[0]->fields[0]->data, records[0]->fields[3]->data, CP_MSGEVENT_DELIVERED );
 	}
 
 	/* create and initialise new markup struct */
@@ -1752,7 +1783,7 @@ static void mxit_parse_cmd_media( struct MXitSession* session, struct record** r
 			/* this is a ack for a file send. no action is required */
 			break;
 
-		case CP_CHUNK_RECIEVED :
+		case CP_CHUNK_RECEIVED :
 			/* this is a ack for a file received. no action is required */
 			break;
 
@@ -1917,6 +1948,8 @@ static int process_success_response( struct MXitSession* session, struct rx_pack
 				/* profile update */
 		case CP_CMD_SPLASHCLICK :
 				/* splash-screen clickthrough */
+		case CP_CMD_MSGEVENT :
+				/* event message */
 				break;
 
 		default :
@@ -2020,6 +2053,7 @@ static int process_error_response( struct MXitSession* session, struct rx_packet
 				mxit_popup( PURPLE_NOTIFY_MSG_WARNING, _( "Profile Error" ), _( errdesc ) );
 				break;
 		case CP_CMD_SPLASHCLICK :
+		case CP_CMD_MSGEVENT :
 				/* ignore error */
 				break;
 		case CP_CMD_PING :
