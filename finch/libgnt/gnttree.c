@@ -1346,6 +1346,10 @@ GntTreeRow *gnt_tree_add_row_after(GntTree *tree, void *key, GntTreeRow *row, vo
 {
 	GntTreeRow *pr = NULL;
 
+	if (g_hash_table_lookup(tree->hash, key)) {
+		gnt_tree_remove(tree, key);
+	}
+
 	row->tree = tree;
 	row->key = key;
 	row->data = NULL;
@@ -1920,5 +1924,35 @@ gpointer gnt_tree_get_parent_key(GntTree *tree, gpointer key)
 {
 	GntTreeRow *row = g_hash_table_lookup(tree->hash, key);
 	return (row && row->parent) ? row->parent->key : NULL;
+}
+
+gpointer gnt_tree_row_get_key(GntTree *tree, GntTreeRow *row)
+{
+	g_return_val_if_fail(row && row->tree == tree, NULL);
+	return row->key;
+}
+
+GntTreeRow * gnt_tree_row_get_next(GntTree *tree, GntTreeRow *row)
+{
+	g_return_val_if_fail(row && row->tree == tree, NULL);
+	return row->next;
+}
+
+GntTreeRow * gnt_tree_row_get_prev(GntTree *tree, GntTreeRow *row)
+{
+	g_return_val_if_fail(row && row->tree == tree, NULL);
+	return row->prev;
+}
+
+GntTreeRow * gnt_tree_row_get_child(GntTree *tree, GntTreeRow *row)
+{
+	g_return_val_if_fail(row && row->tree == tree, NULL);
+	return row->child;
+}
+
+GntTreeRow * gnt_tree_row_get_parent(GntTree *tree, GntTreeRow *row)
+{
+	g_return_val_if_fail(row && row->tree == tree, NULL);
+	return row->parent;
 }
 

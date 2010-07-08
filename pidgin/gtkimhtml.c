@@ -152,6 +152,7 @@ enum {
 	MESSAGE_SEND,
 	UNDO,
 	REDO,
+	PASTE,
 	LAST_SIGNAL
 };
 static guint signals [LAST_SIGNAL] = { 0 };
@@ -191,7 +192,7 @@ clipboard_win32_to_html(char *clipboard) {
 
 	purple_debug_info("imhtml clipboard", "from clipboard: %s\n", clipboard);
 
-	fd = g_fopen("e:\\purplecb.txt", "wb");
+	fd = g_fopen("c:\\purplecb.txt", "wb");
 	fprintf(fd, "%s", clipboard);
 	fclose(fd);
 #endif
@@ -1184,9 +1185,23 @@ static void paste_received_cb (GtkClipboard *clipboard, GtkSelectionData *select
 		printf("\n");
 		}
 #endif
-		text = g_malloc(selection_data->length);
+
+		text = g_malloc(selection_data->length + 1);
 		memcpy(text, selection_data->data, selection_data->length);
+		/* Make sure the paste data is null-terminated.  Given that
+		 * we're passed length (but assume later that it is
+		 * null-terminated), this seems sensible to me.
+		 */
+		text[selection_data->length] = '\0';
 	}
+
+#ifdef _WIN32
+	if (gtk_selection_data_get_data_type(selection_data) == gdk_atom_intern("HTML Format", FALSE)) {
+		char *tmp = clipboard_win32_to_html(text);
+		g_free(text);
+		text = tmp;
+	}
+#endif
 
 	if (selection_data->length >= 2 &&
 		(*(guint16 *)text == 0xfeff || *(guint16 *)text == 0xfffe)) {
@@ -1247,13 +1262,16 @@ static void paste_clipboard_cb(GtkIMHtml *imhtml, gpointer blah)
 #ifdef _WIN32
 	/* If we're on windows, let's see if we can get data from the HTML Format
 	   clipboard before we try to paste from the GTK buffer */
-	if (!clipboard_paste_html_win32(imhtml))
-#endif
-	{
+	if (!clipboard_paste_html_win32(imhtml) && gtk_text_view_get_editable(GTK_TEXT_VIEW(imhtml))) {
+		GtkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(imhtml), GDK_SELECTION_CLIPBOARD);
+		gtk_clipboard_request_text(clipboard, paste_plaintext_received_cb, imhtml);
+
+	}
+#else
 	GtkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(imhtml), GDK_SELECTION_CLIPBOARD);
 	gtk_clipboard_request_contents(clipboard, gdk_atom_intern("text/html", FALSE),
 				       paste_received_cb, imhtml);
-	}
+#endif
 	g_signal_stop_emission_by_name(imhtml, "paste-clipboard");
 }
 
@@ -1330,6 +1348,18 @@ gtk_imhtml_redo(GtkIMHtml *imhtml)
 static gboolean imhtml_message_send(GtkIMHtml *imhtml)
 {
 	return FALSE;
+}
+
+static void
+imhtml_paste_cb(GtkIMHtml *imhtml, const char *str)
+{
+	if (!gtk_text_view_get_editable(GTK_TEXT_VIEW(imhtml)))
+		return;
+
+	if (!str || !*str || !strcmp(str, "html"))
+		g_signal_emit_by_name(imhtml, "paste_clipboard");
+	else if (!strcmp(str, "text"))
+		paste_unformatted_cb(NULL, imhtml);
 }
 
 static void imhtml_toggle_format(GtkIMHtml *imhtml, GtkIMHtmlButtons buttons)
@@ -1502,24 +1532,31 @@ static void gtk_imhtml_class_init (GtkIMHtmlClass *klass)
 					     NULL,
 					     0, g_cclosure_marshal_VOID__VOID,
 					     G_TYPE_NONE, 0);
-        signals [UNDO] = g_signal_new ("undo",
-                        		      G_TYPE_FROM_CLASS (klass),
-		                              G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                		              G_STRUCT_OFFSET (GtkIMHtmlClass, undo),
-		                              NULL,
-		                              NULL,
-                		              gtksourceview_marshal_VOID__VOID,
-		                              G_TYPE_NONE,
-		                              0);
-        signals [REDO] = g_signal_new ("redo",
-                        		      G_TYPE_FROM_CLASS (klass),
-		                              G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-		                              G_STRUCT_OFFSET (GtkIMHtmlClass, redo),
-		                              NULL,
-		                              NULL,
-		                              gtksourceview_marshal_VOID__VOID,
-		                              G_TYPE_NONE,
-		                              0);
+	signals[PASTE] = g_signal_new("paste",
+					     G_TYPE_FROM_CLASS(gobject_class),
+					     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+						 0,
+					     NULL,
+					     0, g_cclosure_marshal_VOID__STRING,
+					     G_TYPE_NONE, 1, G_TYPE_STRING);
+	signals [UNDO] = g_signal_new ("undo",
+			G_TYPE_FROM_CLASS (klass),
+			G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+			G_STRUCT_OFFSET (GtkIMHtmlClass, undo),
+			NULL,
+			NULL,
+			gtksourceview_marshal_VOID__VOID,
+			G_TYPE_NONE,
+			0);
+	signals [REDO] = g_signal_new ("redo",
+			G_TYPE_FROM_CLASS (klass),
+			G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+			G_STRUCT_OFFSET (GtkIMHtmlClass, redo),
+			NULL,
+			NULL,
+			gtksourceview_marshal_VOID__VOID,
+			G_TYPE_NONE,
+			0);
 
 
 
@@ -1604,10 +1641,10 @@ static void gtk_imhtml_class_init (GtkIMHtmlClass *klass)
 	gtk_binding_entry_add_signal (binding_set, GDK_r, GDK_CONTROL_MASK, "format_function_clear", 0);
 	gtk_binding_entry_add_signal (binding_set, GDK_KP_Enter, 0, "message_send", 0);
 	gtk_binding_entry_add_signal (binding_set, GDK_Return, 0, "message_send", 0);
-        gtk_binding_entry_add_signal (binding_set, GDK_z, GDK_CONTROL_MASK, "undo", 0);
-        gtk_binding_entry_add_signal (binding_set, GDK_z, GDK_CONTROL_MASK | GDK_SHIFT_MASK, "redo", 0);
-        gtk_binding_entry_add_signal (binding_set, GDK_F14, 0, "undo", 0);
-
+	gtk_binding_entry_add_signal (binding_set, GDK_z, GDK_CONTROL_MASK, "undo", 0);
+	gtk_binding_entry_add_signal (binding_set, GDK_z, GDK_CONTROL_MASK | GDK_SHIFT_MASK, "redo", 0);
+	gtk_binding_entry_add_signal (binding_set, GDK_F14, 0, "undo", 0);
+	gtk_binding_entry_add_signal(binding_set, GDK_v, GDK_CONTROL_MASK | GDK_SHIFT_MASK, "paste", 1, G_TYPE_STRING, "text");
 }
 
 static void gtk_imhtml_init (GtkIMHtml *imhtml)
@@ -1678,9 +1715,12 @@ static void gtk_imhtml_init (GtkIMHtml *imhtml)
 	g_signal_connect(G_OBJECT(imhtml), "paste-clipboard", G_CALLBACK(paste_clipboard_cb), NULL);
 	g_signal_connect_after(G_OBJECT(imhtml), "realize", G_CALLBACK(imhtml_realized_remove_primary), NULL);
 	g_signal_connect(G_OBJECT(imhtml), "unrealize", G_CALLBACK(imhtml_destroy_add_primary), NULL);
+	g_signal_connect(G_OBJECT(imhtml), "paste", G_CALLBACK(imhtml_paste_cb), NULL);
 
+#ifndef _WIN32
 	g_signal_connect_after(G_OBJECT(GTK_IMHTML(imhtml)->text_buffer), "mark-set",
 		               G_CALLBACK(mark_set_so_update_selection_cb), imhtml);
+#endif
 
 	gtk_widget_add_events(GTK_WIDGET(imhtml),
 			GDK_LEAVE_NOTIFY_MASK | GDK_ENTER_NOTIFY_MASK);
@@ -2131,68 +2171,59 @@ gtk_imhtml_is_smiley (GtkIMHtml   *imhtml,
 	return (*len > 0);
 }
 
-GtkIMHtmlSmiley *
-gtk_imhtml_smiley_get(GtkIMHtml *imhtml,
-	const gchar *sml,
-	const gchar *text)
+static GtkIMHtmlSmiley *gtk_imhtml_smiley_get_from_tree(GtkSmileyTree *t, const gchar *text)
 {
-	GtkSmileyTree *t;
 	const gchar *x = text;
-	if (sml == NULL)
-		t = imhtml->default_smilies;
-	else
-		t = g_hash_table_lookup(imhtml->smiley_data, sml);
-
+	gchar *pos;
 
 	if (t == NULL)
-		return sml ? gtk_imhtml_smiley_get(imhtml, NULL, text) : NULL;
+		return NULL;
 
 	while (*x) {
-		gchar *pos;
+		if (!t->values)
+			return NULL;
 
-		if (!t->values) {
-			return sml ? gtk_imhtml_smiley_get(imhtml, NULL, text) : NULL;
-		}
+		pos = strchr(t->values->str, *x);
+		if (!pos)
+			return NULL;
 
-		pos = strchr (t->values->str, *x);
-		if (pos) {
-			t = t->children [GPOINTER_TO_INT(pos) - GPOINTER_TO_INT(t->values->str)];
-		} else {
-			return sml ? gtk_imhtml_smiley_get(imhtml, NULL, text) : NULL;
-		}
+		t = t->children[GPOINTER_TO_INT(pos) - GPOINTER_TO_INT(t->values->str)];
 		x++;
 	}
 
 	return t->image;
 }
 
-static GdkPixbufAnimation *
-gtk_smiley_get_image(GtkIMHtmlSmiley *smiley)
+GtkIMHtmlSmiley *
+gtk_imhtml_smiley_get(GtkIMHtml *imhtml, const gchar *sml, const gchar *text)
 {
-	if (!smiley->icon && smiley->file) {
-		smiley->icon = gdk_pixbuf_animation_new_from_file(smiley->file, NULL);
-	} else if (!smiley->icon && smiley->loader) {
-		smiley->icon = gdk_pixbuf_loader_get_animation(smiley->loader);
-		if (smiley->icon)
-			g_object_ref(G_OBJECT(smiley->icon));
+	GtkIMHtmlSmiley *ret;
+
+	/* Look for custom smileys first */
+	if (sml != NULL) {
+		ret = gtk_imhtml_smiley_get_from_tree(g_hash_table_lookup(imhtml->smiley_data, sml), text);
+		if (ret != NULL)
+			return ret;
 	}
 
-	return smiley->icon;
+	/* Fall back to check for default smileys */
+	return gtk_imhtml_smiley_get_from_tree(imhtml->default_smilies, text);
 }
 
 static GdkPixbufAnimation *
-gtk_smiley_tree_image (GtkIMHtml     *imhtml,
-		       const gchar   *sml,
-		       const gchar   *text)
+gtk_smiley_get_image(GtkIMHtmlSmiley *smiley)
 {
-	GtkIMHtmlSmiley *smiley;
+	if (!smiley->icon) {
+		if (smiley->file) {
+			smiley->icon = gdk_pixbuf_animation_new_from_file(smiley->file, NULL);
+		} else if (smiley->loader) {
+			smiley->icon = gdk_pixbuf_loader_get_animation(smiley->loader);
+			if (smiley->icon)
+				g_object_ref(G_OBJECT(smiley->icon));
+		}
+	}
 
-	smiley = gtk_imhtml_smiley_get(imhtml,sml,text);
-
-	if (!smiley)
-		return NULL;
-
-	return gtk_smiley_get_image(smiley);
+	return smiley->icon;
 }
 
 #define VALID_TAG(x)	do { \
@@ -2652,6 +2683,8 @@ void gtk_imhtml_insert_html_at_iter(GtkIMHtml        *imhtml,
 	len = strlen(text);
 	ws = g_malloc(len + 1);
 	ws[0] = '\0';
+
+	g_object_set_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_thismsg", GINT_TO_POINTER(0));
 
 	gtk_text_buffer_begin_user_action(imhtml->text_buffer);
 	while (pos < len) {
@@ -3504,6 +3537,8 @@ gtk_imhtml_delete(GtkIMHtml *imhtml, GtkTextIter *start, GtkTextIter *end) {
 		sl = next;
 	}
 	gtk_text_buffer_delete(imhtml->text_buffer, start, end);
+
+	g_object_set_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_total", GINT_TO_POINTER(0));
 
 	g_object_unref(object);
 }
@@ -4861,12 +4896,33 @@ void gtk_imhtml_insert_smiley_at_iter(GtkIMHtml *imhtml, const char *sml, char *
 	GdkPixbufAnimation *annipixbuf = NULL;
 	GtkWidget *icon = NULL;
 	GtkTextChildAnchor *anchor = NULL;
-	char *unescaped = purple_unescape_html(smiley);
-	GtkIMHtmlSmiley *imhtml_smiley = gtk_imhtml_smiley_get(imhtml, sml, unescaped);
+	char *unescaped;
+	GtkIMHtmlSmiley *imhtml_smiley;
 	GtkWidget *ebox = NULL;
+	int numsmileys_thismsg, numsmileys_total;
+
+	/*
+	 * This GtkIMHtml has the maximum number of smileys allowed, so don't
+	 * add any more.  We do this for performance reasons, because smileys
+	 * are apparently pretty inefficient.  Hopefully we can remove this
+	 * restriction when we're using a better HTML widget.
+	 */
+	numsmileys_thismsg = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_thismsg"));
+	if (numsmileys_thismsg >= 30) {
+		gtk_text_buffer_insert(imhtml->text_buffer, iter, smiley, -1);
+		return;
+	}
+	numsmileys_total = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_total"));
+	if (numsmileys_total >= 300) {
+		gtk_text_buffer_insert(imhtml->text_buffer, iter, smiley, -1);
+		return;
+	}
+
+	unescaped = purple_unescape_html(smiley);
+	imhtml_smiley = gtk_imhtml_smiley_get(imhtml, sml, unescaped);
 
 	if (imhtml->format_functions & GTK_IMHTML_SMILEY) {
-		annipixbuf = gtk_smiley_tree_image(imhtml, sml, unescaped);
+		annipixbuf = imhtml_smiley ? gtk_smiley_get_image(imhtml_smiley) : NULL;
 		if (annipixbuf) {
 			if (gdk_pixbuf_animation_is_static_image(annipixbuf)) {
 				pixbuf = gdk_pixbuf_animation_get_static_image(annipixbuf);
@@ -4918,6 +4974,9 @@ void gtk_imhtml_insert_smiley_at_iter(GtkIMHtml *imhtml, const char *sml, char *
 		if (ebox)
 			gtk_container_add(GTK_CONTAINER(ebox), icon);
 		gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(imhtml), ebox ? ebox : icon, anchor);
+
+		g_object_set_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_thismsg", GINT_TO_POINTER(numsmileys_thismsg + 1));
+		g_object_set_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_total", GINT_TO_POINTER(numsmileys_total + 1));
 	} else if (imhtml_smiley != NULL && (imhtml->format_functions & GTK_IMHTML_SMILEY)) {
 		anchor = gtk_text_buffer_create_child_anchor(imhtml->text_buffer, iter);
 		imhtml_smiley->anchors = g_slist_append(imhtml_smiley->anchors, g_object_ref(anchor));
@@ -4930,6 +4989,9 @@ void gtk_imhtml_insert_smiley_at_iter(GtkIMHtml *imhtml, const char *sml, char *
 			g_object_set_data_full(G_OBJECT(anchor), "gtkimhtml_htmltext", g_strdup(smiley), g_free);
 			gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(imhtml), ebox, anchor);
 		}
+
+		g_object_set_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_thismsg", GINT_TO_POINTER(numsmileys_thismsg + 1));
+		g_object_set_data(G_OBJECT(imhtml), "gtkimhtml_numsmileys_total", GINT_TO_POINTER(numsmileys_total + 1));
 	} else {
 		gtk_text_buffer_insert(imhtml->text_buffer, iter, smiley, -1);
 	}

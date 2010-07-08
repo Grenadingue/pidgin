@@ -672,10 +672,12 @@ void mxit_send_login( struct MXitSession* session )
 	/* convert the packet to a byte stream */
 	datalen = sprintf( data,	"ms=%s%c%s%c%i%c"			/* "ms"=password\1version\1getContacts\1 */
 								"%s%c%s%c%i%c"				/* capabilities\1dc\1features\1 */
-								"%s%c%s",					/* dialingcode\1locale */
+								"%s%c%s%c"					/* dialingcode\1locale\1 */
+								"%i%c%i%c%i",				/* maxReplyLen\1protocolVer\1lastRosterUpdate */
 								session->encpwd, CP_FLD_TERM, MXIT_CP_VERSION, CP_FLD_TERM, 1, CP_FLD_TERM,
 								MXIT_CP_CAP, CP_FLD_TERM, session->distcode, CP_FLD_TERM, MXIT_CP_FEATURES, CP_FLD_TERM,
-								session->dialcode, CP_FLD_TERM, locale
+								session->dialcode, CP_FLD_TERM, locale, CP_FLD_TERM,
+								CP_MAX_FILESIZE, CP_FLD_TERM, MXIT_CP_PROTO_VESION, CP_FLD_TERM, 0
 	);
 
 	/* include "custom resource" information */
@@ -695,12 +697,12 @@ void mxit_send_login( struct MXitSession* session )
  *  @param to			The username of the recipient
  *  @param msg			The message text
  */
-void mxit_send_message( struct MXitSession* session, const char* to, const char* msg, gboolean parse_markup )
+void mxit_send_message( struct MXitSession* session, const char* to, const char* msg, gboolean parse_markup, gboolean is_command )
 {
 	char		data[CP_MAX_PACKET];
 	char*		markuped_msg;
 	int			datalen;
-	int			msgtype = CP_MSGTYPE_NORMAL;
+	int			msgtype = ( is_command ? CP_MSGTYPE_COMMAND : CP_MSGTYPE_NORMAL );
 
 	/* first we need to convert the markup from libPurple to MXit format */
 	if ( parse_markup )
@@ -962,6 +964,31 @@ void mxit_send_splashclick( struct MXitSession* session, const char* splashid )
 
 
 /*------------------------------------------------------------------------
+ * Send a message event packet.
+ *
+ *  @param session		The MXit session object
+ *  @param to           The username of the original sender (ie, recipient of the event)
+ *  @param id			The identifier of the event (received in message)
+ *  @param event		Identified the type of event
+ */
+void mxit_send_msgevent( struct MXitSession* session, const char* to, const char* id, int event)
+{
+	char		data[CP_MAX_PACKET];
+	int			datalen;
+
+	purple_debug_info( MXIT_PLUGIN_ID, "mxit_send_msgevent: to=%s id=%s event=%i\n", to, id, event );
+
+	/* convert the packet to a byte stream */
+	datalen = sprintf( data,	"ms=%s%c%s%c%i",		/* "ms"=contactAddress \1 id \1 event */
+								to, CP_FLD_TERM, id, CP_FLD_TERM, event
+	);
+
+	/* queue packet for transmission */
+	mxit_queue_packet( session, data, datalen, CP_CMD_MSGEVENT );
+}
+
+
+/*------------------------------------------------------------------------
  * Send packet to create a MultiMX room.
  *
  *  @param session		The MXit session object
@@ -1158,7 +1185,7 @@ void mxit_send_file_received( struct MXitSession* session, const char* fileid, s
 		return;
 	}
 
-	set_chunk_type( chunk, CP_CHUNK_RECIEVED );
+	set_chunk_type( chunk, CP_CHUNK_RECEIVED );
 	set_chunk_length( chunk, size );
 	datalen += MXIT_CHUNK_HEADER_SIZE + size;
 
@@ -1254,6 +1281,7 @@ static void mxit_parse_cmd_login( struct MXitSession* session, struct record** r
 {
 	PurpleStatus*	status;
 	int				presence;
+	const char*		statusmsg;
 	const char*		profilelist[] = { CP_PROFILE_BIRTHDATE, CP_PROFILE_GENDER, CP_PROFILE_HIDENUMBER, CP_PROFILE_FULLNAME,
 									CP_PROFILE_TITLE, CP_PROFILE_FIRSTNAME, CP_PROFILE_LASTNAME, CP_PROFILE_EMAIL,
 									CP_PROFILE_MOBILENR };
@@ -1265,22 +1293,6 @@ static void mxit_parse_cmd_login( struct MXitSession* session, struct record** r
 	purple_connection_update_progress( session->con, _( "Successfully Logged In..." ), 3, 4 );
 	purple_connection_set_state( session->con, PURPLE_CONNECTED );
 
-	/* display the current splash-screen */
-	if ( splash_popup_enabled( session ) )
-		splash_display( session );
-
-	/* update presence status */
-	status = purple_account_get_active_status( session->acc );
-	presence = mxit_convert_presence( purple_status_get_id( status ) );
-	if ( presence != MXIT_PRESENCE_ONLINE ) {
-		/* when logging into MXit, your default presence is online. but with the UI, one can change
-		 * the presence to whatever. in the case where its changed to a different presence setting
-		 * we need to send an update to the server, otherwise the user's presence will be out of
-		 * sync between the UI and MXit.
-		 */
-		mxit_send_presence( session, presence, purple_status_get_attr_string( status, "message" ) );
-	}
-
 	/* save extra info if this is a HTTP connection */
 	if ( session->http ) {
 		/* save the http server to use for this session */
@@ -1288,6 +1300,34 @@ static void mxit_parse_cmd_login( struct MXitSession* session, struct record** r
 
 		/* save the session id */
 		session->http_sesid = atoi( records[0]->fields[0]->data );
+	}
+
+	/* extract MXitId (from protocol 5.9) */
+	if ( records[1]->fcount >= 9 )
+		session->mxitId = g_strdup( records[1]->fields[8]->data );
+
+	/* display the current splash-screen */
+	if ( splash_popup_enabled( session ) )
+		splash_display( session );
+
+	/* update presence status */
+	status = purple_account_get_active_status( session->acc );
+	presence = mxit_convert_presence( purple_status_get_id( status ) );
+	statusmsg = purple_status_get_attr_string( status, "message" );
+
+	if ( ( presence != MXIT_PRESENCE_ONLINE ) || ( statusmsg ) ) {
+		/* when logging into MXit, your default presence is online. but with the UI, one can change
+		 * the presence to whatever. in the case where its changed to a different presence setting
+		 * we need to send an update to the server, otherwise the user's presence will be out of
+		 * sync between the UI and MXit.
+		 */
+		char* statusmsg1 = purple_markup_strip_html( statusmsg );
+		char* statusmsg2 = g_strndup( statusmsg1, CP_MAX_STATUS_MSG );
+
+		mxit_send_presence( session, presence, statusmsg2 );
+
+		g_free( statusmsg1 );
+		g_free( statusmsg2 );
 	}
 
 	/* retrieve our MXit profile */
@@ -1344,6 +1384,12 @@ static void mxit_parse_cmd_message( struct MXitSession* session, struct record**
 		g_snprintf( msg, sizeof( msg ), _( "%s sent you an encrypted message, but it is not supported on this client." ), name );
 		mxit_popup( PURPLE_NOTIFY_MSG_WARNING, _( "Message Error" ), msg );
 		return;
+	}
+
+	if ( msgflags & CP_MSG_NOTIFY_DELIVERY ) {
+		/* delivery notification is requested */
+		if ( records[0]->fcount >= 4 )
+			mxit_send_msgevent( session, records[0]->fields[0]->data, records[0]->fields[3]->data, CP_MSGEVENT_DELIVERED );
 	}
 
 	/* create and initialise new markup struct */
@@ -1473,9 +1519,13 @@ static void mxit_parse_cmd_contact( struct MXitSession* session, struct record**
 		contact->mood = atoi( rec->fields[5]->data );
 
 		if ( rec->fcount > 6 ) {
-			/* added in protocol 5.9.0 - flags & subtype */
+			/* added in protocol 5.9 - flags & subtype */
 			contact->flags = atoi( rec->fields[6]->data );
 			contact->subtype = rec->fields[7]->data[0];
+		}
+		if ( rec->fcount > 8 ) {
+			/* added in protocol 6.0 - reject message */
+			contact->msg = g_strdup( rec->fields[8]->data );
 		}
 
 		/* add the contact to the buddy list */
@@ -1542,7 +1592,16 @@ static void mxit_parse_cmd_extprofile( struct MXitSession* session, struct recor
 
 	purple_debug_info( MXIT_PLUGIN_ID, "mxit_parse_cmd_extprofile: profile for '%s'\n", mxitId );
 
-	profile = g_new0( struct MXitProfile, 1 );
+	if ( records[0]->fields[0]->len == 0 ) {
+		/* no MXitId provided, so this must be our own profile information */
+		if ( session->profile == NULL )
+			session->profile = g_new0( struct MXitProfile, 1 );
+		profile = session->profile;
+	}
+	else {
+		/* is a buddy's profile */
+		profile = g_new0( struct MXitProfile, 1 );
+	}
 
 	/* set the count for attributes */
 	count = atoi( records[0]->fields[1]->data );
@@ -1607,23 +1666,19 @@ static void mxit_parse_cmd_extprofile( struct MXitSession* session, struct recor
 			/* mobile number */
 			g_strlcpy( profile->mobilenr, fvalue, sizeof( profile->mobilenr ) );
 		}
+		else if ( strcmp( CP_PROFILE_REGCOUNTRY, fname ) == 0 ) {
+			/* registered country */
+			g_strlcpy( profile->regcountry, fvalue, sizeof( profile->regcountry ) );
+		}
 		else {
 			/* invalid profile attribute */
 			purple_debug_error( MXIT_PLUGIN_ID, "Invalid profile attribute received '%s' \n", fname );
 		}
 	}
 
-	if ( records[0]->fields[0]->len == 0 ) {
-		/* no MXit id provided, so this must be our own profile information */
-		if ( session->profile )
-			g_free( session->profile );
-		session->profile = profile;
-	}
-	else {
-		/* display other user's profile */
+	/* if this is not our profile, just display it */
+	if ( profile != session->profile ) {
 		mxit_show_profile( session, mxitId, profile );
-
-		/* cleanup */
 		g_free( profile );
 	}
 }
@@ -1743,7 +1798,7 @@ static void mxit_parse_cmd_media( struct MXitSession* session, struct record** r
 			/* this is a ack for a file send. no action is required */
 			break;
 
-		case CP_CHUNK_RECIEVED :
+		case CP_CHUNK_RECEIVED :
 			/* this is a ack for a file received. no action is required */
 			break;
 
@@ -1908,6 +1963,8 @@ static int process_success_response( struct MXitSession* session, struct rx_pack
 				/* profile update */
 		case CP_CMD_SPLASHCLICK :
 				/* splash-screen clickthrough */
+		case CP_CMD_MSGEVENT :
+				/* event message */
 				break;
 
 		default :
@@ -2011,6 +2068,7 @@ static int process_error_response( struct MXitSession* session, struct rx_packet
 				mxit_popup( PURPLE_NOTIFY_MSG_WARNING, _( "Profile Error" ), _( errdesc ) );
 				break;
 		case CP_CMD_SPLASHCLICK :
+		case CP_CMD_MSGEVENT :
 				/* ignore error */
 				break;
 		case CP_CMD_PING :
@@ -2429,6 +2487,8 @@ void mxit_close_connection( struct MXitSession* session )
 	mxit_free_emoticon_cache( session );
 
 	/* free allocated memory */
+	if ( session->mxitId )
+		g_free( session->mxitId );
 	g_free( session->encpwd );
 	session->encpwd = NULL;
 
