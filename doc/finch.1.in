@@ -305,6 +305,13 @@ right = focus-next
 left = focus-prev
 
 .br
+[GntComboBox::binding]
+.br
+down = dropdown
+.br
+up = dropdown
+
+.br
 [GntEntry::binding]
 .br
 c-a = cursor-home
@@ -338,6 +345,10 @@ tab = suggest-show
 down = suggest-next
 .br
 up = suggest-prev
+.br
+page-down = suggest-next-page
+.br
+page-up = suggest-prev-page
 .br
 c-w = delete-prev-word
 .br

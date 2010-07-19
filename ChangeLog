@@ -1,6 +1,37 @@
 Pidgin and Finch: The Pimpin' Penguin IM Clients That're Good for the Soul
 
 version 2.7.2 (??/??/????):
+	libpurple:
+	* Fix the TURN server settings (broken in 2.7.0).
+
+	Pidgin:
+	* Re-focus the input area after clicking the attention toolbar button.
+
+	Finch:
+	* Rebindable 'suggest-next-page' and 'suggest-prev-page' actions for
+	  textboxes (GntEntry) to scroll through list of suggestions.
+	* Rebindable 'dropdown' action for comboboxes (GntComboBox) to show the
+	  dropdown list of options.
+
+	IRC:
+	* Fix non-ASCII arguments to /mode et al.  (thanks to Max Ulidtko)
+
+	XMPP:
+	* Allow connecting to servers that only advertise GSSAPI and expect
+	  a fallback to legacy IQ authentication (broken in 2.7.0).
+	* Fix a crash when receiving custom emoticons that don't adhere to
+	  the specification.
+
+	Yahoo/Yahoo JAPAN:
+	* Renamed "Use account proxy for SSL connections" to "Use account proxy
+	  for HTTP and HTTPS requests" and tied the option to HTTP requests too.
+	* Properly detect HTTP proxy server use when the HTTP proxy is the global
+	  proxy server, an account-level non-HTTP proxy server is configured, and
+	  the "Use account proxy for HTTP and HTTPS requests" account option is
+	  turned off.  This fixes connecting for some HTTP proxy servers.
+	* Fall back to connecting to scsa.msg.yahoo.com (not configurable) if the
+	  HTTP-based connect server lookup fails.  This does not work for Yahoo
+	  JAPAN accounts.
 
 version 2.7.1 (05/29/2010):
 	General:

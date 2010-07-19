@@ -3686,7 +3686,7 @@ static GtkItemFactoryEntry blist_menu[] =
 	{ N_("/Tools/Plu_gins"), "<CTL>U", pidgin_plugin_dialog_show, 2, "<StockItem>", PIDGIN_STOCK_TOOLBAR_PLUGINS },
 	{ N_("/Tools/Pr_eferences"), "<CTL>P", pidgin_prefs_show, 0, "<StockItem>", GTK_STOCK_PREFERENCES },
 	{ N_("/Tools/Pr_ivacy"), NULL, pidgin_privacy_dialog_show, 0, "<Item>", NULL },
-	{ N_("/Tools/Set _Mood"), "<CTL>M", set_mood_show, 0, "<Item>", NULL },
+	{ N_("/Tools/Set _Mood"), "<CTL>O", set_mood_show, 0, "<Item>", NULL },
 	{ "/Tools/sep2", NULL, NULL, 0, "<Separator>", NULL },
 	{ N_("/Tools/_File Transfers"), "<CTL>T", pidgin_xfer_dialog_show, 0, "<StockItem>", PIDGIN_STOCK_TOOLBAR_TRANSFER },
 	{ N_("/Tools/R_oom List"), NULL, pidgin_roomlist_dialog_show, 0, "<Item>", NULL },
@@ -4590,7 +4590,7 @@ sign_on_off_cb(PurpleConnection *gc, PurpleBuddyList *blist)
 }
 
 static void
-plugin_changed_cb(PurplePlugin *p, gpointer *data)
+plugin_changed_cb(PurplePlugin *p, gpointer data)
 {
 	pidgin_blist_update_plugin_actions();
 }
