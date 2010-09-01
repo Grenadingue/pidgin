@@ -109,6 +109,16 @@ void pidgin_setup_imhtml(GtkWidget *imhtml);
 GtkWidget *pidgin_create_imhtml(gboolean editable, GtkWidget **imhtml_ret, GtkWidget **toolbar_ret, GtkWidget **sw_ret);
 
 /**
+ * Creates a small button
+ *
+ * @param  image   A button image.
+ *
+ * @return   A GtkButton created from the image.
+ * @since 2.7.0
+ */
+GtkWidget *pidgin_create_small_button(GtkWidget *image);
+
+/**
  * Creates a new window
  *
  * @param title        The window title, or @c NULL
@@ -400,6 +410,9 @@ void pidgin_setup_screenname_autocomplete(GtkWidget *entry, GtkWidget *optmenu, 
  * @param filesel The file selection window.
  *
  * @return TRUE if given path is a directory, FALSE otherwise.
+ * @deprecated Pidgin no longer uses GtkFileSelection internally. It has also
+ *             been deprecated by GTK+. Use GtkFileChooser instead and ignore
+ *             this function.
  */
 gboolean pidgin_check_if_dir(const char *path, GtkFileSelection *filesel);
 
@@ -703,6 +716,17 @@ typedef void (*PidginUtilMiniDialogCallback)(gpointer user_data, GtkButton *);
 GtkWidget *pidgin_make_mini_dialog(PurpleConnection *handle,
 	const char* stock_id, const char *primary, const char *secondary,
 	void *user_data, ...) G_GNUC_NULL_TERMINATED;
+
+/**
+ * Does exactly what pidgin_make_mini_dialog() does, except you can specify
+ * a custom icon for the dialog.
+ */
+GtkWidget *pidgin_make_mini_dialog_with_custom_icon(PurpleConnection *gc,
+	GdkPixbuf *custom_icon,
+	const char *primary,
+	const char *secondary,
+	void *user_data,
+	...) G_GNUC_NULL_TERMINATED;
 
 /**
  * This is a callback function to be used for Ctrl+F searching in treeviews.

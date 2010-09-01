@@ -20,18 +20,18 @@
  *
  */
 
-/* libaim is the AIM protocol plugin. It is linked against liboscarcommon,
+/* libaim is the AIM protocol plugin. It is linked against liboscar,
  * which contains all the shared implementation code with libicq
  */
 
 #include "oscarcommon.h"
+#include "oscar.h"
 
 static PurplePluginProtocolInfo prpl_info =
 {
 	OPT_PROTO_MAIL_CHECK | OPT_PROTO_IM_IMAGE,
 	NULL,					/* user_splits */
 	NULL,					/* protocol_options */
-	/* The mimimum icon size below is not needed in AIM 6.0 */
 	{"gif,jpeg,bmp,ico", 0, 0, 100, 100, 7168, PURPLE_ICON_SCALE_DISPLAY}, /* icon_spec */
 	oscar_list_icon_aim,		/* list_icon */
 	oscar_list_emblem,		/* list_emblems */
@@ -58,7 +58,7 @@ static PurplePluginProtocolInfo prpl_info =
 	oscar_add_deny,			/* add_deny */
 	oscar_rem_permit,		/* rem_permit */
 	oscar_rem_deny,			/* rem_deny */
-	oscar_set_permit_deny,	/* set_permit_deny */
+	oscar_set_aim_permdeny,	/* set_permit_deny */
 	oscar_join_chat,		/* join_chat */
 	NULL,					/* reject_chat */
 	oscar_get_chat_name,	/* get_chat_name */
@@ -98,7 +98,9 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* get_account_text_table */
 	NULL,					/* initiate_media */
 	NULL,					/* get_media_caps */
-	NULL					/* get_moods */
+	NULL,					/* get_moods */
+	NULL,					/* set_public_alias */
+	NULL					/* get_public_alias */
 };
 
 static PurplePluginInfo info =

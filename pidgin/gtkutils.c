@@ -153,6 +153,27 @@ pidgin_create_window(const char *title, guint border_width, const char *role, gb
 }
 
 GtkWidget *
+pidgin_create_small_button(GtkWidget *image)
+{
+	GtkWidget *button;
+
+	button = gtk_button_new();
+	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
+
+	/* don't allow focus on the close button */
+	gtk_button_set_focus_on_click(GTK_BUTTON(button), FALSE);
+
+	/* set style to make it as small as possible */
+	gtk_widget_set_name(button, "pidgin-small-close-button");
+
+	gtk_widget_show(image);
+
+	gtk_container_add(GTK_CONTAINER(button), image);
+
+	return button;
+}
+
+GtkWidget *
 pidgin_create_dialog(const char *title, guint border_width, const char *role, gboolean resizable)
 {
 	GtkWindow *wnd = NULL;
@@ -659,7 +680,6 @@ static AopMenu *
 create_protocols_menu(const char *default_proto_id)
 {
 	AopMenu *aop_menu = NULL;
-	PurplePluginProtocolInfo *prpl_info;
 	PurplePlugin *plugin;
 	GdkPixbuf *pixbuf = NULL;
 	GtkSizeGroup *sg;
@@ -681,7 +701,6 @@ create_protocols_menu(const char *default_proto_id)
 		 p = p->next, i++) {
 
 		plugin = (PurplePlugin *)p->data;
-		prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
 
 		if (gtalk_name && strcmp(gtalk_name, plugin->info->name) < 0) {
 			char *filename = g_build_filename(DATADIR, "pixmaps", "pidgin", "protocols",
@@ -763,8 +782,6 @@ create_account_menu(PurpleAccount *default_account,
 	sg = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
 	for (p = list, i = 0; p != NULL; p = p->next, i++) {
-		PurplePlugin *plugin;
-
 		if (show_all)
 			account = (PurpleAccount *)p->data;
 		else {
@@ -777,8 +794,6 @@ create_account_menu(PurpleAccount *default_account,
 			i--;
 			continue;
 		}
-
-		plugin = purple_find_prpl(purple_account_get_protocol_id(account));
 
 		pixbuf = pidgin_create_prpl_icon(account, PIDGIN_PRPL_ICON_SMALL);
 
@@ -1015,7 +1030,7 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 	char *username = NULL;
 	char *alias    = NULL;
 	char *str;
-	char *c, *s;
+	char *s;
 	gboolean valid;
 
 	g_return_val_if_fail(msg          != NULL, FALSE);
@@ -1057,7 +1072,7 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 		if (*s == '\r') *s++ = '\0';
 		if (*s == '\n') *s++ = '\0';
 
-		if ((c = strchr(key, ':')) != NULL)
+		if (strchr(key, ':') != NULL)
 		{
 			if (!g_ascii_strcasecmp(key, "X-IM-Username:"))
 				username = g_strdup(value);
@@ -2311,7 +2326,9 @@ GtkWidget *pidgin_buddy_icon_chooser_new(GtkWindow *parent, void(*callback)(cons
 	return dialog->icon_filesel;
 }
 
-
+/**
+ * @return True if any string from array a exists in array b.
+ */
 static gboolean
 str_array_match(char **a, char **b)
 {
@@ -2330,165 +2347,171 @@ gpointer
 pidgin_convert_buddy_icon(PurplePlugin *plugin, const char *path, size_t *len)
 {
 	PurplePluginProtocolInfo *prpl_info;
-	char **prpl_formats;
-	int width, height;
-	char **pixbuf_formats = NULL;
+	PurpleBuddyIconSpec *spec;
+	int orig_width, orig_height, new_width, new_height;
 	GdkPixbufFormat *format;
-	GdkPixbuf *pixbuf;
+	char **pixbuf_formats;
+	char **prpl_formats;
+	GError *error = NULL;
 	gchar *contents;
 	gsize length;
+	GdkPixbuf *pixbuf, *original;
+	float scale_factor;
+	int i;
+	gchar *tmp;
 
 	prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
+	spec = &prpl_info->icon_spec;
+	g_return_val_if_fail(spec->format != NULL, NULL);
 
-	g_return_val_if_fail(prpl_info->icon_spec.format != NULL, NULL);
-
-
-	format = gdk_pixbuf_get_file_info(path, &width, &height);
-
-	if (format == NULL)
+	format = gdk_pixbuf_get_file_info(path, &orig_width, &orig_height);
+	if (format == NULL) {
+		purple_debug_warning("buddyicon", "Could not get file info of %s\n", path);
 		return NULL;
+	}
 
 	pixbuf_formats = gdk_pixbuf_format_get_extensions(format);
-	prpl_formats = g_strsplit(prpl_info->icon_spec.format,",",0);
-	if (str_array_match(pixbuf_formats, prpl_formats) &&                  /* This is an acceptable format AND */
-		 (!(prpl_info->icon_spec.scale_rules & PURPLE_ICON_SCALE_SEND) ||   /* The prpl doesn't scale before it sends OR */
-		  (prpl_info->icon_spec.min_width <= width &&
-		   prpl_info->icon_spec.max_width >= width &&
-		   prpl_info->icon_spec.min_height <= height &&
-		   prpl_info->icon_spec.max_height >= height)))                   /* The icon is the correct size */
+	prpl_formats = g_strsplit(spec->format, ",", 0);
+
+	if (str_array_match(pixbuf_formats, prpl_formats) && /* This is an acceptable format AND */
+		 (!(spec->scale_rules & PURPLE_ICON_SCALE_SEND) || /* The prpl doesn't scale before it sends OR */
+		  (spec->min_width <= orig_width && spec->max_width >= orig_width &&
+		   spec->min_height <= orig_height && spec->max_height >= orig_height))) /* The icon is the correct size */
 	{
-		g_strfreev(prpl_formats);
 		g_strfreev(pixbuf_formats);
 
-		/* We don't need to scale the image. */
-		contents = NULL;
-		if (!g_file_get_contents(path, &contents, &length, NULL))
-		{
-			g_free(contents);
-			return NULL;
-		}
-	}
-	else
-	{
-		int i;
-		GError *error = NULL;
-		GdkPixbuf *scale;
-		gboolean success = FALSE;
-		char *filename = NULL;
-
-		g_strfreev(pixbuf_formats);
-
-		pixbuf = gdk_pixbuf_new_from_file(path, &error);
-		if (error) {
-			purple_debug_error("buddyicon", "Could not open icon for conversion: %s\n", error->message);
-			g_error_free(error);
+		if (!g_file_get_contents(path, &contents, &length, &error)) {
+			purple_debug_warning("buddyicon", "Could not get file contents "
+					"of %s: %s\n", path, error->message);
 			g_strfreev(prpl_formats);
 			return NULL;
 		}
 
-		if ((prpl_info->icon_spec.scale_rules & PURPLE_ICON_SCALE_SEND) &&
-			(width < prpl_info->icon_spec.min_width ||
-			 width > prpl_info->icon_spec.max_width ||
-			 height < prpl_info->icon_spec.min_height ||
-			 height > prpl_info->icon_spec.max_height))
-		{
-			int new_width = width;
-			int new_height = height;
-
-			purple_buddy_icon_get_scale_size(&prpl_info->icon_spec, &new_width, &new_height);
-
-			scale = gdk_pixbuf_scale_simple(pixbuf, new_width, new_height,
-					GDK_INTERP_HYPER);
-			g_object_unref(G_OBJECT(pixbuf));
-			pixbuf = scale;
+		if (spec->max_filesize == 0 || length < spec->max_filesize) {
+			/* The supplied image fits the file size, dimensions and type
+			   constraints.  Great!  Return it without making any changes. */
+			if (len)
+				*len = length;
+			g_strfreev(prpl_formats);
+			return contents;
 		}
 
-		for (i = 0; prpl_formats[i]; i++) {
-			FILE *fp;
-
-			g_free(filename);
-			fp = purple_mkstemp(&filename, TRUE);
-			if (!fp)
-			{
-				g_free(filename);
-				return NULL;
-			}
-			fclose(fp);
-
-			purple_debug_info("buddyicon", "Converting buddy icon to %s as %s\n", prpl_formats[i], filename);
-			/* The "compression" param wasn't supported until gdk-pixbuf 2.8.
-			 * Using it in previous versions causes the save to fail (and an assert message).  */
-			if ((gdk_pixbuf_major_version > 2 || (gdk_pixbuf_major_version == 2
-						&& gdk_pixbuf_minor_version >= 8))
-					&& strcmp(prpl_formats[i], "png") == 0) {
-				if (gdk_pixbuf_save(pixbuf, filename, prpl_formats[i],
-						&error, "compression", "9", NULL)) {
-					success = TRUE;
-					break;
-				}
-			} else if (gdk_pixbuf_save(pixbuf, filename, prpl_formats[i],
-					&error, NULL)) {
-				success = TRUE;
-				break;
-			}
-
-			/* The NULL checking is necessary due to this bug:
-			 * http://bugzilla.gnome.org/show_bug.cgi?id=405539 */
-			purple_debug_warning("buddyicon", "Could not convert to %s: %s\n", prpl_formats[i],
-				(error && error->message) ? error->message : "Unknown error");
-			g_error_free(error);
-			error = NULL;
-		}
-		g_strfreev(prpl_formats);
-		g_object_unref(G_OBJECT(pixbuf));
-		if (!success) {
-			purple_debug_error("buddyicon", "Could not convert icon to usable format.\n");
-			g_free(filename);
-			return NULL;
-		}
-
-		contents = NULL;
-		if (!g_file_get_contents(filename, &contents, &length, NULL))
-		{
-			purple_debug_error("buddyicon",
-					"Could not read '%s', which we just wrote to disk.\n",
-					filename);
-
-			g_free(contents);
-			g_free(filename);
-			return NULL;
-		}
-
-		g_unlink(filename);
-		g_free(filename);
+		/* The image was too big.  Fall-through and try scaling it down. */
+		g_free(contents);
+	} else {
+		g_strfreev(pixbuf_formats);
 	}
 
-	/* Check the image size */
-	/*
-	 * TODO: If the file is too big, it would be cool if we checked if
-	 *       the prpl supported jpeg, and then we could convert to that
-	 *       and use a lower quality setting.
-	 */
-	if ((prpl_info->icon_spec.max_filesize != 0) &&
-	    (length > prpl_info->icon_spec.max_filesize))
-	{
-		gchar *tmp;
-		tmp = g_strdup_printf(_("The file '%s' is too large for %s.  Please try a smaller image.\n"),
-				path, plugin->info->name);
-		purple_notify_error(NULL, _("Icon Error"),
-				_("Could not set icon"), tmp);
-		purple_debug_info("buddyicon",
-				"'%s' was converted to an image which is %" G_GSIZE_FORMAT
-				" bytes, but the maximum icon size for %s is %" G_GSIZE_FORMAT
-				" bytes\n", path, length, plugin->info->name,
-				prpl_info->icon_spec.max_filesize);
-		g_free(tmp);
+	/* The original image wasn't compatible.  Scale it or convert file type. */
+	pixbuf = gdk_pixbuf_new_from_file(path, &error);
+	if (error) {
+		purple_debug_warning("buddyicon", "Could not open icon '%s' for "
+				"conversion: %s\n", path, error->message);
+		g_error_free(error);
+		g_strfreev(prpl_formats);
 		return NULL;
 	}
+	original = g_object_ref(G_OBJECT(pixbuf));
 
-	if (len)
-		*len = length;
-	return contents;
+	new_width = orig_width;
+	new_height = orig_height;
+
+	/* Make sure the image is the correct dimensions */
+	if (spec->scale_rules & PURPLE_ICON_SCALE_SEND &&
+		(orig_width < spec->min_width || orig_width > spec->max_width ||
+		 orig_height < spec->min_height || orig_height > spec->max_height))
+	{
+		purple_buddy_icon_get_scale_size(spec, &new_width, &new_height);
+
+		g_object_unref(G_OBJECT(pixbuf));
+		pixbuf = gdk_pixbuf_scale_simple(original, new_width, new_height, GDK_INTERP_HYPER);
+	}
+
+	scale_factor = 1;
+	do {
+		for (i = 0; prpl_formats[i]; i++) {
+			int quality = 100;
+			do {
+				const char *key = NULL;
+				const char *value = NULL;
+				gchar tmp_buf[4];
+
+				purple_debug_info("buddyicon", "Converting buddy icon to %s\n", prpl_formats[i]);
+
+				if (g_str_equal(prpl_formats[i], "png")) {
+					key = "compression";
+					value = "9";
+				} else if (g_str_equal(prpl_formats[i], "jpeg")) {
+					sprintf(tmp_buf, "%u", quality);
+					key = "quality";
+					value = tmp_buf;
+				}
+
+				if (!gdk_pixbuf_save_to_buffer(pixbuf, &contents, &length,
+						prpl_formats[i], &error, key, value, NULL))
+				{
+					/* The NULL checking of error is necessary due to this bug:
+					 * http://bugzilla.gnome.org/show_bug.cgi?id=405539 */
+					purple_debug_warning("buddyicon",
+							"Could not convert to %s: %s\n", prpl_formats[i],
+							(error && error->message) ? error->message : "Unknown error");
+					g_error_free(error);
+					error = NULL;
+
+					/* We couldn't convert to this image type.  Try the next
+					   image type. */
+					break;
+				}
+
+				if (spec->max_filesize == 0 || length <= spec->max_filesize) {
+					/* We were able to save the image as this image type and
+					   have it be within the size constraints.  Great!  Return
+					   the image. */
+					purple_debug_info("buddyicon", "Converted image from "
+							"%dx%d to %dx%d, format=%s, quality=%u, "
+							"filesize=%zu\n", orig_width, orig_height,
+							new_width, new_height, prpl_formats[i], quality,
+							length);
+					if (len)
+						*len = length;
+					g_strfreev(prpl_formats);
+					g_object_unref(G_OBJECT(pixbuf));
+					g_object_unref(G_OBJECT(original));
+					return contents;
+				}
+
+				g_free(contents);
+
+				if (!g_str_equal(prpl_formats[i], "jpeg")) {
+					/* File size was too big and we can't lower the quality,
+					   so skip to the next image type. */
+					break;
+				}
+
+				/* File size was too big, but we're dealing with jpeg so try
+				   lowering the quality. */
+				quality -= 5;
+			} while (quality >= 70);
+		}
+
+		/* We couldn't save the image in any format that was below the max
+		   file size.  Maybe we can reduce the image dimensions? */
+		scale_factor *= 0.8;
+		new_width = orig_width * scale_factor;
+		new_height = orig_height * scale_factor;
+		g_object_unref(G_OBJECT(pixbuf));
+		pixbuf = gdk_pixbuf_scale_simple(original, new_width, new_height, GDK_INTERP_HYPER);
+	} while ((new_width > 10 || new_height > 10) && new_width > spec->min_width && new_height > spec->min_height);
+	g_strfreev(prpl_formats);
+	g_object_unref(G_OBJECT(pixbuf));
+	g_object_unref(G_OBJECT(original));
+
+	tmp = g_strdup_printf(_("The file '%s' is too large for %s.  Please try a smaller image.\n"),
+			path, plugin->info->name);
+	purple_notify_error(NULL, _("Icon Error"), _("Could not set icon"), tmp);
+	g_free(tmp);
+
+	return NULL;
 }
 
 void pidgin_set_custom_buddy_icon(PurpleAccount *account, const char *who, const char *filename)
@@ -2582,18 +2605,11 @@ old_mini_dialog_destroy_cb(GtkWidget *dialog,
 	}
 }
 
-GtkWidget *
-pidgin_make_mini_dialog(PurpleConnection *gc,
-                        const char *icon_name,
-                        const char *primary,
-                        const char *secondary,
-                        void *user_data,
-                        ...)
+static void
+mini_dialog_init(PidginMiniDialog *mini_dialog, PurpleConnection *gc, void *user_data, va_list args)
 {
-	PidginMiniDialog *mini_dialog;
 	const char *button_text;
 	GList *cb_datas = NULL;
-	va_list args;
 	static gboolean first_call = TRUE;
 
 	if (first_call) {
@@ -2603,12 +2619,10 @@ pidgin_make_mini_dialog(PurpleConnection *gc,
 		                      PURPLE_CALLBACK(connection_signed_off_cb), NULL);
 	}
 
-	mini_dialog = pidgin_mini_dialog_new(primary, secondary, icon_name);
 	g_object_set_data(G_OBJECT(mini_dialog), "gc" ,gc);
 	g_signal_connect(G_OBJECT(mini_dialog), "destroy",
 		G_CALLBACK(alert_killed_cb), NULL);
 
-	va_start(args, user_data);
 	while ((button_text = va_arg(args, char*))) {
 		struct _old_button_clicked_cb_data *data = NULL;
 		PidginMiniDialogCallback wrapper_cb = NULL;
@@ -2625,12 +2639,40 @@ pidgin_make_mini_dialog(PurpleConnection *gc,
 			wrapper_cb, data);
 		cb_datas = g_list_append(cb_datas, data);
 	}
-	va_end(args);
 
 	g_signal_connect(G_OBJECT(mini_dialog), "destroy",
 		G_CALLBACK(old_mini_dialog_destroy_cb), cb_datas);
+}
 
+#define INIT_AND_RETURN_MINI_DIALOG(mini_dialog) \
+	va_list args; \
+	va_start(args, user_data); \
+	mini_dialog_init(mini_dialog, gc, user_data, args); \
+	va_end(args); \
 	return GTK_WIDGET(mini_dialog);
+
+GtkWidget *
+pidgin_make_mini_dialog(PurpleConnection *gc,
+                        const char *icon_name,
+                        const char *primary,
+                        const char *secondary,
+                        void *user_data,
+                        ...)
+{
+	PidginMiniDialog *mini_dialog = pidgin_mini_dialog_new(primary, secondary, icon_name);
+	INIT_AND_RETURN_MINI_DIALOG(mini_dialog);
+}
+
+GtkWidget *
+pidgin_make_mini_dialog_with_custom_icon(PurpleConnection *gc,
+					GdkPixbuf *custom_icon,
+					const char *primary,
+					const char *secondary,
+					void *user_data,
+					...)
+{
+	PidginMiniDialog *mini_dialog = pidgin_mini_dialog_new_with_custom_icon(primary, secondary, custom_icon);
+	INIT_AND_RETURN_MINI_DIALOG(mini_dialog);
 }
 
 /*
@@ -2742,79 +2784,78 @@ gboolean pidgin_tree_view_search_equal_func(GtkTreeModel *model, gint column,
 
 
 gboolean pidgin_gdk_pixbuf_is_opaque(GdkPixbuf *pixbuf) {
-        int width, height, rowstride, i;
-        unsigned char *pixels;
-        unsigned char *row;
+	int height, rowstride, i;
+	unsigned char *pixels;
+	unsigned char *row;
 
-        if (!gdk_pixbuf_get_has_alpha(pixbuf))
-                return TRUE;
+	if (!gdk_pixbuf_get_has_alpha(pixbuf))
+		return TRUE;
 
-        width = gdk_pixbuf_get_width (pixbuf);
-        height = gdk_pixbuf_get_height (pixbuf);
-        rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-        pixels = gdk_pixbuf_get_pixels (pixbuf);
+	height = gdk_pixbuf_get_height (pixbuf);
+	rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+	pixels = gdk_pixbuf_get_pixels (pixbuf);
 
-        row = pixels;
-        for (i = 3; i < rowstride; i+=4) {
-                if (row[i] < 0xfe)
-                        return FALSE;
-        }
+	row = pixels;
+	for (i = 3; i < rowstride; i+=4) {
+		if (row[i] < 0xfe)
+			return FALSE;
+	}
 
-        for (i = 1; i < height - 1; i++) {
-                row = pixels + (i*rowstride);
-                if (row[3] < 0xfe || row[rowstride-1] < 0xfe) {
-                        return FALSE;
-            }
-        }
+	for (i = 1; i < height - 1; i++) {
+		row = pixels + (i * rowstride);
+		if (row[3] < 0xfe || row[rowstride - 1] < 0xfe) {
+			return FALSE;
+	    }
+	}
 
-        row = pixels + ((height-1) * rowstride);
-        for (i = 3; i < rowstride; i+=4) {
-                if (row[i] < 0xfe)
-                        return FALSE;
-        }
+	row = pixels + ((height - 1) * rowstride);
+	for (i = 3; i < rowstride; i += 4) {
+		if (row[i] < 0xfe)
+			return FALSE;
+	}
 
-        return TRUE;
+	return TRUE;
 }
 
 void pidgin_gdk_pixbuf_make_round(GdkPixbuf *pixbuf) {
 	int width, height, rowstride;
-        guchar *pixels;
-        if (!gdk_pixbuf_get_has_alpha(pixbuf))
-                return;
-        width = gdk_pixbuf_get_width(pixbuf);
-        height = gdk_pixbuf_get_height(pixbuf);
-        rowstride = gdk_pixbuf_get_rowstride(pixbuf);
-        pixels = gdk_pixbuf_get_pixels(pixbuf);
+	guchar *pixels;
+	if (!gdk_pixbuf_get_has_alpha(pixbuf))
+		return;
+	width = gdk_pixbuf_get_width(pixbuf);
+	height = gdk_pixbuf_get_height(pixbuf);
+	rowstride = gdk_pixbuf_get_rowstride(pixbuf);
+	pixels = gdk_pixbuf_get_pixels(pixbuf);
 
-        if (width < 6 || height < 6)
-                return;
-        /* Top left */
-        pixels[3] = 0;
-        pixels[7] = 0x80;
-        pixels[11] = 0xC0;
-        pixels[rowstride + 3] = 0x80;
-        pixels[rowstride * 2 + 3] = 0xC0;
+	if (width < 6 || height < 6)
+		return;
+	/* Top left */
+	pixels[3] = 0;
+	pixels[7] = 0x80;
+	pixels[11] = 0xC0;
+	pixels[rowstride + 3] = 0x80;
+	pixels[rowstride * 2 + 3] = 0xC0;
 
-        /* Top right */
-        pixels[width * 4 - 1] = 0;
-        pixels[width * 4 - 5] = 0x80;
-        pixels[width * 4 - 9] = 0xC0;
-        pixels[rowstride + (width * 4) - 1] = 0x80;
-        pixels[(2 * rowstride) + (width * 4) - 1] = 0xC0;
+	/* Top right */
+	pixels[width * 4 - 1] = 0;
+	pixels[width * 4 - 5] = 0x80;
+	pixels[width * 4 - 9] = 0xC0;
+	pixels[rowstride + (width * 4) - 1] = 0x80;
+	pixels[(2 * rowstride) + (width * 4) - 1] = 0xC0;
 
-        /* Bottom left */
-        pixels[(height - 1) * rowstride + 3] = 0;
-        pixels[(height - 1) * rowstride + 7] = 0x80;
-        pixels[(height - 1) * rowstride + 11] = 0xC0;
-        pixels[(height - 2) * rowstride + 3] = 0x80;
-        pixels[(height - 3) * rowstride + 3] = 0xC0;
+	/* Bottom left */
+	pixels[(height - 1) * rowstride + 3] = 0;
+	pixels[(height - 1) * rowstride + 7] = 0x80;
+	pixels[(height - 1) * rowstride + 11] = 0xC0;
+	pixels[(height - 2) * rowstride + 3] = 0x80;
+	pixels[(height - 3) * rowstride + 3] = 0xC0;
 
-        /* Bottom right */
-        pixels[height * rowstride - 1] = 0;
-        pixels[(height - 1) * rowstride - 1] = 0x80;
-        pixels[(height - 2) * rowstride - 1] = 0xC0;
-        pixels[height * rowstride - 5] = 0x80;
-        pixels[height * rowstride - 9] = 0xC0;
+	/* Bottom right */
+	pixels[height * rowstride - 1] = 0;
+	pixels[(height - 1) * rowstride - 1] = 0x80;
+	pixels[(height - 2) * rowstride - 1] = 0xC0;
+	pixels[height * rowstride - 5] = 0x80;
+	pixels[height * rowstride - 9] = 0xC0;
 }
 
 const char *pidgin_get_dim_grey_string(GtkWidget *widget) {
@@ -3447,6 +3488,19 @@ void pidgin_utils_init(void)
 	/* If we're under GNOME, try registering the system URL handlers. */
 	if (purple_running_gnome())
 		register_gnome_url_handlers();
+
+	/* Used to make small buttons */
+	gtk_rc_parse_string("style \"pidgin-small-close-button\"\n"
+	                    "{\n"
+	                    "GtkWidget::focus-padding = 0\n"
+	                    "GtkWidget::focus-line-width = 0\n"
+	                    "xthickness = 0\n"
+	                    "ythickness = 0\n"
+	                    "GtkContainer::border-width = 0\n"
+	                    "GtkButton::inner-border = {0, 0, 0, 0}\n"
+	                    "GtkButton::default-border = {0, 0, 0, 0}\n"
+	                    "}\n"
+	                    "widget \"*.pidgin-small-close-button\" style \"pidgin-small-close-button\"");
 
 #ifdef _WIN32
 	winpidgin_register_win32_url_handlers();

@@ -46,16 +46,16 @@ AC_PREREQ([2.50])
 m4_define([purple_lt_current], [7])
 m4_define([purple_major_version], [2])
 m4_define([purple_minor_version], [7])
-m4_define([purple_micro_version], [0])
+m4_define([purple_micro_version], [4])
 m4_define([purple_version_suffix], [devel])
 m4_define([purple_version],
           [purple_major_version.purple_minor_version.purple_micro_version])
 m4_define([purple_display_version], purple_version[]m4_ifdef([purple_version_suffix],[purple_version_suffix]))
 
-m4_define([gnt_lt_current], [7])
+m4_define([gnt_lt_current], [8])
 m4_define([gnt_major_version], [2])
-m4_define([gnt_minor_version], [7])
-m4_define([gnt_micro_version], [0])
+m4_define([gnt_minor_version], [8])
+m4_define([gnt_micro_version], [1])
 m4_define([gnt_version_suffix], [devel])
 m4_define([gnt_version],
           [gnt_major_version.gnt_minor_version.gnt_micro_version])
@@ -75,6 +75,8 @@ fi
 AC_CANONICAL_HOST
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9 -Wno-portability dist-bzip2])
+dnl TODO: Always use AM_SILENT_RULES when we depend on automake >= 1.11
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 PURPLE_MAJOR_VERSION=purple_major_version
 PURPLE_MINOR_VERSION=purple_minor_version
@@ -112,61 +114,11 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 LIBTOOL="$LIBTOOL --silent"
 AC_PROG_INSTALL
-AC_PROG_INTLTOOL
 PKG_PROG_PKG_CONFIG
 AC_FUNC_ALLOCA
-GETTEXT_PACKAGE=pidgin
-AC_SUBST(GETTEXT_PACKAGE)
 
-
-# before gettexting, in case iconv matters
-case "$host_os" in
-darwin*)
-	AC_CHECK_LIB(resolv, res_query)
-
-	AC_CHECK_HEADER(CoreFoundation/CoreFoundation.h, [
-		AC_CHECK_HEADER(IOKit/IOKitLib.h, [
-			AC_DEFINE(HAVE_IOKIT, 1, [Define if we have IOKit])
-			LIBS="$LIBS -framework IOKit -framework CoreFoundation"
-		], [])
-	], [])
-
-	AC_MSG_CHECKING([for fink])
-	if test -d /sw; then
-		AC_MSG_RESULT([found, adding /sw to search paths])
-		CPPFLAGS="$CPPFLAGS -I/sw/include"
-		LDFLAGS="$LDFLAGS -L/sw/lib"
-	else
-		AC_MSG_RESULT([not found])
-	fi
-	;;
-*)
-	;;
-esac
-
-ALL_LINGUAS="af am ar az be@latin bg bn bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr ga gl gu he hi hu hy id it ja ka km kn ko ku lo lt mk mn mr ms_MY my_MM nb ne nl nn oc or pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv sw ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
-AM_GLIB_GNU_GETTEXT
-
-dnl If we don't have msgfmt, then po/ is going to fail -- ensure that
-dnl AM_GLIB_GNU_GETTEXT found it.
-
-if test x$MSGFMT = xno -o x$MSGFMT$GMSGFMT$INTLTOOL_MSGFMT = x
-then
-	AC_MSG_ERROR([
-
-The msgfmt command is required to build libpurple.  If it is installed
-on your system, ensure that it is in your path.  If it is not, install
-GNU gettext to continue.
-
-If you have msgfmt installed, but for some reason this error message
-is still displayed, you have encountered what appears to be a bug in
-third-party configure macros.  Try setting the MSGFMT environment
-variable to the absolute path to your msgfmt binary and trying
-configure again, like this:
-
-MSGFMT=/path/to/msgfmt ./configure ...
-])
-fi
+dnl Check for Sun compiler
+AC_CHECK_DECL([__SUNPRO_C], [SUNCC="yes"], [SUNCC="no"])
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -237,6 +189,12 @@ AC_CHECK_MEMBER([struct sockaddr.sa_len],
 	[Define if struct sockaddr has an sa_len member])],[:],
 	[#include <sys/socket.h>])
 
+dnl Check for v6-only sockets
+AC_CHECK_DECL([IPV6_V6ONLY],
+	[AC_DEFINE([HAVE_IPV6_V6ONLY],[1],
+	[Define if the IPV6_V6ONLY setsockopt option exists])],
+	[], [#include <netinet/in.h>])
+
 dnl to prevent the g_stat()/g_unlink() crash,
 dnl (09:50:07) Robot101: LSchiere2: it's easy. +LC_SYS_LARGEFILE somewhere in configure.ac
 AC_SYS_LARGEFILE
@@ -304,6 +262,69 @@ int main()
 	# This will enable the compatibility code.
 	AC_MSG_RESULT(no)
 ])
+
+dnl #######################################################################
+dnl # Disable creation and installation of translation files
+dnl #######################################################################
+AC_ARG_ENABLE(nls, AC_HELP_STRING([--disable-nls], [disable installation of translation files]), enable_i18n="$enableval", enable_i18n=yes)
+
+if test x$enable_i18n = xyes; then
+	AC_PROG_INTLTOOL
+	GETTEXT_PACKAGE=pidgin
+	AC_SUBST(GETTEXT_PACKAGE)
+
+
+	# before gettexting, in case iconv matters
+	case "$host_os" in
+	darwin*)
+		AC_CHECK_LIB(resolv, res_query)
+
+		AC_CHECK_HEADER(CoreFoundation/CoreFoundation.h, [
+			AC_CHECK_HEADER(IOKit/IOKitLib.h, [
+				AC_DEFINE(HAVE_IOKIT, 1, [Define if we have IOKit])
+				LIBS="$LIBS -framework IOKit -framework CoreFoundation"
+			], [])
+		], [])
+
+		AC_MSG_CHECKING([for fink])
+		if test -d /sw; then
+			AC_MSG_RESULT([found, adding /sw to search paths])
+			CPPFLAGS="$CPPFLAGS -I/sw/include"
+			LDFLAGS="$LDFLAGS -L/sw/lib"
+		else
+			AC_MSG_RESULT([not found])
+		fi
+		;;
+	*)
+		;;
+	esac
+
+	ALL_LINGUAS="af am ar az be@latin bg bn bn_IN bs ca ca@valencia cs da de dz el en_AU en_CA en_GB eo es et eu fa fi fr ga gl gu he hi hu hy id it ja ka km kn ko ku lo lt mk mn mr ms_MY my_MM nb ne nl nn oc or pa pl pt_BR pt ps ro ru si sk sl sq sr sr@latin sv sw ta te th tr uk ur vi xh zh_CN zh_HK zh_TW"
+	AM_GLIB_GNU_GETTEXT
+
+	dnl If we don't have msgfmt, then po/ is going to fail -- ensure that
+	dnl AM_GLIB_GNU_GETTEXT found it.
+
+	if test x$MSGFMT = xno -o x$MSGFMT$GMSGFMT$INTLTOOL_MSGFMT = x
+	then
+		AC_MSG_ERROR([
+
+The msgfmt command is required to build libpurple.  If it is installed
+on your system, ensure that it is in your path.  If it is not, install
+GNU gettext to continue.
+
+If you have msgfmt installed, but for some reason this error message
+is still displayed, you have encountered what appears to be a bug in
+third-party configure macros.  Try setting the MSGFMT environment
+variable to the absolute path to your msgfmt binary and trying
+configure again, like this:
+
+MSGFMT=/path/to/msgfmt ./configure ...
+	])
+	fi
+fi #enable_i18n
+
+AM_CONDITIONAL(INSTALL_I18N, test "x$enable_i18n" = "xyes")
 
 dnl #######################################################################
 dnl # Check for GLib 2.12 (required)
@@ -641,6 +662,10 @@ if test "x$enable_consoleui" = "xyes"; then
 		for location in $ac_ncurses_includes $NCURSES_HEADERS /usr/include/ncursesw /usr/include
 		do
 			f="$location/ncurses.h"
+			orig_CFLAGS="$CFLAGS"
+			orig_CPPFLAGS="$CPPFLAGS"
+			CFLAGS="$CFLAGS -I$location"
+			CPPFLAGS="$CPPFLAGS -I$location"
 			AC_CHECK_HEADER($f,[
 				AC_MSG_CHECKING([if $f supports wide characters])
 				AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
@@ -659,9 +684,13 @@ if test "x$enable_consoleui" = "xyes"; then
 					fi
 
 					found_ncurses_h=yes
+					CFLAGS="$orig_CFLAGS"
+					CPPFLAGS="$orig_CPPFLAGS"
 					AC_MSG_RESULT([yes])
 					break
 				], [
+					CFLAGS="$orig_CFLAGS"
+					CPPFLAGS="$orig_CPPFLAGS"
 					AC_MSG_RESULT([no])
 				])
 			])
@@ -1091,6 +1120,10 @@ fi
 
 AM_CONDITIONAL(USE_INTERNAL_LIBGADU, test "x$gadu_libs" != "xyes")
 
+if test "x$gadu_libs" = "x"; then
+	gadu_libs=no
+fi
+
 AC_SUBST(GADU_LIBS)
 AC_SUBST(GADU_CFLAGS)
 
@@ -1319,6 +1352,10 @@ if test "x$GCC" = "xyes"; then
 	DEBUG_CFLAGS="-Wall $DEBUG_CFLAGS"
 	CFLAGS="-g $CFLAGS"
 fi
+
+if test "x$SUNCC" = "xyes"; then
+        CFLAGS="$CFLAGS -features=extensions" 
+fi
 AC_SUBST(CFLAGS)
 
 AC_PATH_PROG(pidginpath, pidgin)
@@ -1390,7 +1427,7 @@ AC_ARG_WITH([python],
 						   [which python interpreter to use for dbus code generation]),
 			PYTHON=$withval)
 
-if test "x$enable_dbus" = "xyes" ; then
+if test "x$enable_dbus" = "xyes" || test "x$enable_consoleui" = "xyes" ; then
 	if test -z "$PYTHON" -o "x$PYTHON" = "xyes"; then
 		AC_PATH_PROG([PYTHON], [python], [no])
 	fi
@@ -1399,9 +1436,7 @@ if test "x$enable_dbus" = "xyes" ; then
 		AC_MSG_WARN([python interpreter not found in your path])
 		enable_dbus=no
 	fi
-fi
 
-if test "x$enable_dbus" = "xyes" ; then
 	if $PYTHON -c "import sys; sys.exit(sys.version[[:3]] >= '2.4')" ; then
 		AC_MSG_WARN([python version >= 2.4 required])
 		enable_dbus=no
@@ -1451,7 +1486,7 @@ if test x"$enable_dbus" = "xyes" ; then
 			done
 
 			if test -z $DBUS_SERVICES_DIR ; then
-				AC_MSG_ERROR([D-Bus services directory was not found!  Please use --with-dbus-services and specify it's location.])
+				AC_MSG_ERROR([D-Bus services directory was not found!  Please use --with-dbus-services and specify its location.])
 			fi
 		else
 			DBUS_SERVICES_DIR="$datadir/dbus-1/services"
@@ -1472,14 +1507,13 @@ AM_CONDITIONAL(ENABLE_DBUS, test "x$enable_dbus" = "xyes")
 
 dnl Check for Python headers (currently useful only for libgnt)
 dnl (Thanks to XChat)
-AC_PATH_PROG(pythonpath, python)
-if test "_$pythonpath" != _ ; then
+if test "x$enable_consoleui" = "xyes" -a ! -z "$PYTHON" -a x"$PYTHON" != x"no" ; then
 	AC_MSG_CHECKING(for Python compile flags)
-	PY_PREFIX=`$pythonpath -c 'import sys ; print sys.prefix'`
-	PY_EXEC_PREFIX=`$pythonpath -c 'import sys ; print sys.exec_prefix'`
+	PY_PREFIX=`$PYTHON -c 'import sys ; print sys.prefix'`
+	PY_EXEC_PREFIX=`$PYTHON -c 'import sys ; print sys.exec_prefix'`
 	changequote(<<, >>)dnl
-	PY_VERSION=`$pythonpath -c 'import sys ; print sys.version[0:3]'`
-	PY_MAJOR=`$pythonpath -c 'import sys ; print sys.version[0:2]'`
+	PY_VERSION=`$PYTHON -c 'import sys ; print sys.version[0:3]'`
+	PY_MAJOR=`$PYTHON -c 'import sys ; print sys.version[0:2]'`
 	changequote([, ])dnl
 	if test -f $PY_PREFIX/include/python$PY_VERSION/Python.h -a "$PY_MAJOR" = "2."; then
 		AC_MSG_RESULT()
@@ -1672,6 +1706,9 @@ AC_ARG_WITH(system-ssl-certs, [AC_HELP_STRING([--with-system-ssl-certs=<dir>], [
 
 SSL_CERTIFICATES_DIR=""
 if ! test -z "$ssl_certificates_dir" ; then
+	if test "x$ssl_certificates_dir" = "xyes" ; then
+		AC_MSG_ERROR([--with-system-ssl-certs requires that a location is specified, eg. --with-system-ssl-certs=/etc/pki/tls/certs])
+	fi
 	if ! test -d "$ssl_certificates_dir" ; then
 		AC_MSG_ERROR([$ssl_certificates_dir does not exist, if this is the correct location please make sure that it exists.])
 	fi
@@ -1779,13 +1816,13 @@ AC_SUBST(GNUTLS_CFLAGS)
 AC_SUBST(GNUTLS_LIBS)
 
 if test "x$enable_gnutls" = "xyes"; then
-	AC_MSG_CHECKING(for gnutls_priority_set_direct)
+	AC_MSG_CHECKING(for gnutls_priority_set_direct and gnutls_priority_set)
 	LIBS_save="$LIBS"
 	LIBS="$LIBS $GNUTLS_LIBS"
 	CPPFLAGS_save="$CPPFLAGS"
 	CPPFLAGS="$CPPFLAGS $GNUTLS_CFLAGS"
 	AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <gnutls/gnutls.h>]],
-                                        [[gnutls_session s; gnutls_priority_set_direct(s, NULL, NULL);]])],
+                                        [[gnutls_session s; gnutls_priority_set_direct(s, NULL, NULL); gnutls_priority_set(s, NULL);]])],
 	               [AC_DEFINE([HAVE_GNUTLS_PRIORITY_FUNCS], 1,
                                   [Define if your gnutls has gnutls_priority_set_direct and friends])
 	                AC_MSG_RESULT(yes)],
@@ -2211,6 +2248,7 @@ if test "$enable_tcl" = yes -a "$enable_tk" = yes; then
 	TKCONFIG=no
 	TKCONFIGDIRS="/usr/lib \
 			/usr/lib64 \
+			/usr/lib/tk8.5 \
 			/usr/lib/tk8.4 \
 			/usr/lib/tk8.3 \
 			/usr/lib/tk8.2 \
@@ -2440,11 +2478,11 @@ AC_ARG_ENABLE(pixmaps-install, AC_HELP_STRING([--disable-pixmaps-install], [disa
 AM_CONDITIONAL(INSTALL_PIXMAPS, test "x$enable_pixmaps" = "xyes")
 
 dnl #######################################################################
-dnl # Disable installation of translation files
+dnl # Tweak status tray icon installation directory
 dnl #######################################################################
-AC_ARG_ENABLE(nls, AC_HELP_STRING([--disable-nls], [disable installation of translation files]), enable_i18n="$enableval", enable_i18n=yes)
+AC_ARG_ENABLE(trayicon-compat, AC_HELP_STRING([--enable-trayicon-compat], [install tray icons in location compatible with older releases of hicolor-icon-theme]), enable_traycompat="$enableval", enable_traycompat=no)
 
-AM_CONDITIONAL(INSTALL_I18N, test "x$enable_i18n" = "xyes")
+AM_CONDITIONAL(ENABLE_TRAYCOMPAT, test "x$enable_traycompat" = "xyes")
 
 dnl #######################################################################
 dnl # Check for Doxygen and dot (part of GraphViz)
@@ -2615,6 +2653,7 @@ echo Use kerberos 4 with zephyr.... : $kerberos
 echo Use external libzephyr........ : $zephyr
 echo Use external libgadu.......... : $gadu_libs
 echo Install pixmaps............... : $enable_pixmaps
+echo Old tray icon compatibility... : $enable_traycompat
 echo Install translations.......... : $enable_i18n
 echo Has you....................... : yes
 echo
@@ -2638,7 +2677,13 @@ fi
 if test "x$enable_pixmaps" = "xno" ; then
 	echo
 	echo Warning: You have disabled the installation of pixmap data, but Pidgin
-	echo still requires installed pixmaps.  Be sure you know what you\'re doing.
+	echo still requires installed pixmaps.  Be sure you know what you are doing.
+fi
+if test "x$enable_i18n" = "xno" ; then
+	echo
+	echo Warning: You have disabled the building and installation of translation
+	echo data.  This will prevent building pidgin.desktop and the GConf schemas.
+	echo Be sure you know what you are doing.
 fi
 echo
 echo configure complete, now type \'make\'
