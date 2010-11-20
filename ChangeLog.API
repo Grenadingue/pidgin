@@ -5,12 +5,31 @@ version 2.8.0 (??/??/????):
 		Added:
 		* purple_notify_user_info_add_pair_plaintext
 
-version 2.7.2 (??/??/????):
+version 2.7.6 (??/??/????):
+
+version 2.7.5 (10/31/2010):
+	* No changes
+
+version 2.7.4 (10/20/2010):
+	Perl:
+		Added:
+		* Purple::BuddyList::Chat::get_components
+
+		Changed:
+		* Purple::BuddyList::Chat::new now works properly.  Thanks
+		  to Rafael in devel@conference.pidgin.im for reporting and
+		  testing.
+
+version 2.7.3 (08/10/2010):
 	libpurple:
 		Fixed:
 		* purple_account_[gs]et_public_alias no longer crash when
 		  called for a protocol that doesn't support the underlying
 		  calls and the caller does not specify a failure callback.
+
+	Perl:
+		Added:
+		* Exposed log-subsystem signals.
 
 	Pidgin:
 		Changed:
@@ -19,11 +38,17 @@ version 2.7.2 (??/??/????):
 		  the visibility of the entries in the 'lean' view
 		  (the default toolbar view).
 
+		Deprecated:
+		* pidgin_check_if_dir
+
 	libgnt:
 		Added:
 		* gnt_tree_row_get_key, gnt_tree_row_get_next,
 		  gnt_tree_row_get_prev, gnt_tree_row_get_child and
 		  gnt_tree_row_get_parent.
+
+version 2.7.2 (07/21/2010):
+	* No changes
 
 version 2.7.1 (05/29/2010):
 	* No changes
