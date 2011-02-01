@@ -1,4 +1,5 @@
 CERTIFICATES = \
+		AddTrust_External_Root.pem \
 		America_Online_Root_Certification_Authority_1.pem \
 		CAcert_Root.pem \
 		CAcert_Class3.pem \
@@ -22,7 +23,9 @@ CERTIFICATES = \
 EXTRA_CERTS = \
 		AOL_Member_CA.pem \
 		Microsoft_Internet_Authority.pem \
+		Microsoft_Internet_Authority_2010.pem \
 		Microsoft_Secure_Server_Authority.pem \
+		Microsoft_Secure_Server_Authority_2010.pem \
 		VeriSign_Class3_Extended_Validation_CA.pem \
 		VeriSign_International_Server_Class_3_CA.pem
 

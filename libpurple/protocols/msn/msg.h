@@ -74,12 +74,11 @@ typedef void (*MsnMsgCb)(MsnMessage *, void *data);
  */
 struct _MsnMessage
 {
-	size_t ref_count;           /**< The reference count.       */
+	guint ref_count;        /**< The reference count.       */
 
 	MsnMsgType type;
 
 	gboolean msnslp_message;
-	MsnSlpMessage *slpmsg;
 	MsnSlpMessagePart *part;
 
 	char *remote_user;
@@ -89,8 +88,8 @@ struct _MsnMessage
 	char *charset;
 	char *body;
 	gsize body_len;
-	guint total_chunks;   /**< How many chunks in this multi-part message */
-	guint received_chunks; /**< How many chunks we've received so far */
+	guint total_chunks;     /**< How many chunks in this multi-part message */
+	guint received_chunks;  /**< How many chunks we've received so far */
 
 	GHashTable *header_table;
 	GList *header_list;
@@ -99,15 +98,12 @@ struct _MsnMessage
 								  been ref'ed for using it in a callback. */
 
 	MsnCommand *cmd;
-	MsnTransaction *trans;
 
 	MsnMsgCb ack_cb; /**< The callback to call when we receive an ACK of this
 					   message. */
 	MsnMsgCb nak_cb; /**< The callback to call when we receive a NAK of this
 					   message. */
 	void *ack_data; /**< The data used by callbacks. */
-
-	MsnMsgErrorType error; /**< The error of the message. */
 
 	guint32 retries;
 };
@@ -171,13 +167,6 @@ void msn_message_parse_payload(MsnMessage *msg, const char *payload,
 						  const char *line_dem,const char *body_dem);
 
 /**
- * Destroys a message.
- *
- * @param msg The message to destroy.
- */
-void msn_message_destroy(MsnMessage *msg);
-
-/**
  * Increments the reference count on a message.
  *
  * @param msg The message.
@@ -195,7 +184,7 @@ MsnMessage *msn_message_ref(MsnMessage *msg);
  *
  * @return @a msg, or @c NULL if the new count is 0.
  */
-MsnMessage *msn_message_unref(MsnMessage *msg);
+void msn_message_unref(MsnMessage *msg);
 
 /**
  * Generates the payload data of a message.
@@ -308,8 +297,6 @@ GHashTable *msn_message_get_hashtable_from_body(const MsnMessage *msg);
 
 void msn_message_show_readable(MsnMessage *msg, const char *info,
 							   gboolean text_body);
-
-char *msn_message_gen_slp_body(MsnMessage *msg, size_t *ret_size);
 
 char *msn_message_to_string(MsnMessage *msg);
 

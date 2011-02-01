@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ar\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-21 00:11-0400\n"
+"POT-Creation-Date: 2010-12-19 13:33-0500\n"
 "PO-Revision-Date: 2008-11-01 17:41+0200\n"
 "Last-Translator: Khaled Hosny <khaledhosny@eglug.org>\n"
 "Language-Team: Arabic <doc@arabeyes.org>\n"
@@ -747,9 +747,9 @@ msgstr "ألبث"
 #, c-format
 msgid "File Transfers - %d%% of %d file"
 msgid_plural "File Transfers - %d%% of %d files"
-msgstr[0] "نقل الملفات - %d%% من %0.sصفر ملفات"
-msgstr[1] "نقل الملفات - %d%% من %0.sملف واحد"
-msgstr[2] "نقل الملفات - %d%% من %0.sملفين"
+msgstr[0] "نقل الملفات - %d%% من صفر ملفات"
+msgstr[1] "نقل الملفات - %d%% من ملف واحد"
+msgstr[2] "نقل الملفات - %d%% من ملفين"
 msgstr[3] "نقل الملفات - %d%% من %d ملفات"
 msgstr[4] "نقل الملفات - %d%% من %d ملفا"
 msgstr[5] "نقل الملفات - %d%% من %d ملف"
@@ -921,9 +921,9 @@ msgstr "الموضوع"
 #, c-format
 msgid "%s (%s) has %d new message."
 msgid_plural "%s (%s) has %d new messages."
-msgstr[0] "لا رسائل%0.s جديدة لـ ‏%s (%s)."
-msgstr[1] "‏%s (%s) لديه %0.sرسالة واحدة جديدة"
-msgstr[2] "‏%s (%s) لديه %0.sرسالتان جديدتان."
+msgstr[0] "لا رسائل جديدة لـ ‏%s ‏(%s)."
+msgstr[1] "‏%s (%s) لديه رسالة واحدة جديدة"
+msgstr[2] "‏%s (%s) لديه رسالتان جديدتان."
 msgstr[3] "‏%s (%s) لديه %d رسائل جديدة."
 msgstr[4] "‏%s (%s) لديه %d رسالة جديدة."
 msgstr[5] "‏%s (%s) لديه %d رسالة جديدة."
@@ -4891,17 +4891,6 @@ msgstr "طردك %s (%s)"
 msgid "Unknown Error in presence"
 msgstr "خطأ مجهول في التواجد"
 
-#, fuzzy
-msgid "An error occurred on the in-band bytestream transfer\n"
-msgstr "حدث عطل أثناء فتح الملف."
-
-#, fuzzy
-msgid "Transfer was closed."
-msgstr "فشل إرسال الملف"
-
-msgid "Failed to open in-band bytestream"
-msgstr ""
-
 #, c-format
 msgid "Unable to send file to %s, user does not support file transfers"
 msgstr "تعذّر إرسال ملف إلى %s، المستخدم لا يدعم نقل الملفات"
@@ -5270,26 +5259,6 @@ msgstr ""
 msgid "The username specified does not exist."
 msgstr "اسم المستخدم المحدد غير صالح."
 
-#, c-format
-msgid "Buddy list synchronization issue in %s (%s)"
-msgstr "مشكلة في مزامنة قائمة الأصدقاء في %s (%s)"
-
-#, c-format
-msgid ""
-"%s on the local list is inside the group \"%s\" but not on the server list. "
-"Do you want this buddy to be added?"
-msgstr ""
-"‏%s مدرج في مجموعة \"%s\" على القائمة المحلية لكن ليس على قائمة الخادوم. هل "
-"تريد أن يضاف هذا الصديق؟"
-
-#, c-format
-msgid ""
-"%s is on the local list but not on the server list. Do you want this buddy "
-"to be added?"
-msgstr ""
-"‏%s مدرج في القائمة المحلية لكن ليس على قائمة الخادوم. هل تريد أن يضاف هذا "
-"الصديق؟"
-
 msgid "Unable to parse message"
 msgstr "تعذّر تحليل الرسالة"
 
@@ -5461,6 +5430,26 @@ msgstr "رمز خطأ مجهول %d"
 msgid "MSN Error: %s\n"
 msgstr "خطأ MSN: %s\n"
 
+#, c-format
+msgid "Buddy list synchronization issue in %s (%s)"
+msgstr "مشكلة في مزامنة قائمة الأصدقاء في %s (%s)"
+
+#, c-format
+msgid ""
+"%s on the local list is inside the group \"%s\" but not on the server list. "
+"Do you want this buddy to be added?"
+msgstr ""
+"‏%s مدرج في مجموعة \"%s\" على القائمة المحلية لكن ليس على قائمة الخادوم. هل "
+"تريد أن يضاف هذا الصديق؟"
+
+#, c-format
+msgid ""
+"%s is on the local list but not on the server list. Do you want this buddy "
+"to be added?"
+msgstr ""
+"‏%s مدرج في القائمة المحلية لكن ليس على قائمة الخادوم. هل تريد أن يضاف هذا "
+"الصديق؟"
+
 msgid "Other Contacts"
 msgstr "مراسلون آخرون"
 
@@ -5508,11 +5497,53 @@ msgstr "اسمك الودّي في MSN أطول من المسموح."
 msgid "Set friendly name for %s."
 msgstr "اضبط اسمك الودّي."
 
-msgid "Set your friendly name."
-msgstr "اضبط اسمك الودّي."
+#, fuzzy
+msgid "Set Friendly Name"
+msgstr "أدخل اسما ودّيا..."
 
 msgid "This is the name that other MSN buddies will see you as."
 msgstr "هذا هو الاسم الذي سيراك أصدقاؤك على MSN "
+
+#, fuzzy
+msgid "This Location"
+msgstr "موضع المستخدم"
+
+#, fuzzy
+msgid "This is the name that identifies this location"
+msgstr "هذا هو الاسم الذي سيراك أصدقاؤك على MSN "
+
+#, fuzzy
+msgid "Other Locations"
+msgstr "موضع المستخدم"
+
+#, fuzzy
+msgid "You can sign out from other locations here"
+msgstr "قمت بالدخول من موقع آخر."
+
+#. TODO: Due to limitations in our current request field API, the
+#. following string will show up with a trailing colon.  This should
+#. be fixed either by adding an "include_colon" boolean, or creating
+#. a separate purple_request_field_label_new_without_colon function,
+#. or by never automatically adding the colon and requiring that
+#. callers add the colon themselves.
+#, fuzzy
+msgid "You are not signed in from any other locations."
+msgstr "قمت بالدخول من موقع آخر."
+
+#, fuzzy
+msgid "Allow multiple logins?"
+msgstr "اسمح بأكثر من ولوج في آن واحد"
+
+msgid ""
+"Do you want to allow or disallow connecting from multiple locations "
+"simultaneously?"
+msgstr ""
+
+msgid "Allow"
+msgstr "اسمح"
+
+msgid "Disallow"
+msgstr "لا تسمح"
 
 msgid "Set your home phone number."
 msgstr "أدخل رقم هاتف منزلك."
@@ -5532,12 +5563,6 @@ msgid ""
 msgstr ""
 "هل تريد أن تسمح لمن في قائمة أصدقائك بأن يرسلوا صفحات MSN المحمول إلى هاتفك "
 "أو أجهزتك النقالة الاخرى؟"
-
-msgid "Allow"
-msgstr "اسمح"
-
-msgid "Disallow"
-msgstr "لا تسمح"
 
 #, c-format
 msgid "Blocked Text for %s"
@@ -5602,6 +5627,10 @@ msgstr "عنوان اللحن"
 msgid "Set Friendly Name..."
 msgstr "أدخل اسما ودّيا..."
 
+#, fuzzy
+msgid "View Locations..."
+msgstr "اختر موضعا..."
+
 msgid "Set Home Phone Number..."
 msgstr "أدخل رقم هاتف المنزل..."
 
@@ -5613,6 +5642,10 @@ msgstr "أدخل رقم الهاتف المحمول..."
 
 msgid "Enable/Disable Mobile Devices..."
 msgstr "فعّل/عطّل الأجهزة المحمولة..."
+
+#, fuzzy
+msgid "Allow/Disallow Multiple Logins..."
+msgstr "اسمح/ارفض الصفحات المتنقلة..."
 
 msgid "Allow/Disallow Mobile Pages..."
 msgstr "اسمح/ارفض الصفحات المتنقلة..."
@@ -5832,6 +5865,9 @@ msgstr "اعرض البسمات المخصصة"
 #, fuzzy
 msgid "Allow direct connections"
 msgstr "تعذّر إنشاء اتصال"
+
+msgid "Allow connecting from multiple locations"
+msgstr ""
 
 msgid "nudge: nudge a user to get their attention"
 msgstr ""
@@ -7067,11 +7103,20 @@ msgstr ""
 "قمت بالاتصال و قطعته مرات عديدة في وقت قصير جدا. انتظر عشر دقائق وحاول "
 "مجددا. إذا استمريت في المحاولة الآن فسينبغي لك الانتظار مدة أطول."
 
+msgid ""
+"You required encryption in your account settings, but one of the servers "
+"doesn't support it."
+msgstr ""
+
 #. Note to translators: The first %s is a URL, the second is an
 #. error message.
 #, fuzzy, c-format
 msgid "Error requesting %s: %s"
 msgstr "خطأ أثناء استجلاء %s"
+
+#, fuzzy
+msgid "The server returned an empty response"
+msgstr "تعذّر الاتصال بالخادوم. من فضلك أدخل عنوان الخادوم الذي تود الاتصال به."
 
 msgid ""
 "Server requested that you fill out a CAPTCHA in order to sign in, but this "
@@ -7080,10 +7125,6 @@ msgstr ""
 
 msgid "AOL does not allow your screen name to authenticate here"
 msgstr ""
-
-#, fuzzy, c-format
-msgid "Error requesting %s"
-msgstr "خطأ أثناء استجلاء %s"
 
 msgid ""
 "(There was an error receiving this message.  The buddy you are speaking with "
@@ -7400,6 +7441,11 @@ msgstr ""
 "تعذّر الولوج: لم يمكن الولوج باسم %s لأنه اسم غير صحيح. يجب أن يكون الاسم "
 "عنوان بريد صحيح، أو أن يبدأ بحرف و يحوي فقط أحرفا و أرقاما و مسافات، أو "
 "أرقاما فقط."
+
+msgid ""
+"You required encryption in your account settings, but encryption is not "
+"supported by your system."
+msgstr ""
 
 #, fuzzy, c-format
 msgid "You may be disconnected shortly.  If so, check %s for updates."
@@ -7947,6 +7993,10 @@ msgid "Search for Buddy by Email Address..."
 msgstr "ابحث عن صديق بواسطة عنوان البريد الإلكتروني..."
 
 #, fuzzy
+msgid "Don't use encryption"
+msgstr "اشترط التصريح"
+
+#, fuzzy
 msgid "Use clientLogin"
 msgstr "لم يلِج المستخدم"
 
@@ -8144,7 +8194,7 @@ msgid "Personal Web Page"
 msgstr "صفحة وِب الشخصية"
 
 #. aim_userinfo_t
-#. strip_html_tags
+#. use_html_status
 msgid "Additional Information"
 msgstr "معلومات إضافية"
 
@@ -8172,17 +8222,29 @@ msgstr "عضو منذ"
 msgid "Capabilities"
 msgstr "الإمكانات"
 
-#. 4 separate strings are needed in order to ease translators' job
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear online to the chosen user even when your status is set to
+#. Invisible.
 msgid "Appear Online"
 msgstr "ابد متصلا"
 
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear offline to the chosen user when your status is set to
+#. Invisible (this is the default).
 #, fuzzy
 msgid "Don't Appear Online"
 msgstr "ابد متصلا"
 
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to always appear offline to the chosen user (even when your status
+#. isn't Invisible).
 msgid "Appear Offline"
 msgstr "أظهر غير متصل"
 
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear offline to the chosen user if you are invisible, and
+#. appear online to the chosen user if you are not invisible (this is the
+#. default).
 #, fuzzy
 msgid "Don't Appear Offline"
 msgstr "أظهر غير متصل"
@@ -11169,9 +11231,9 @@ msgstr[5] "%d يوم"
 #, c-format
 msgid "%s, %d hour"
 msgid_plural "%s, %d hours"
-msgstr[0] "%s، %0.sلا ساعات"
-msgstr[1] "‏%s، %0.sساعة واحدة"
-msgstr[2] "‏%s، %0.sساعتين"
+msgstr[0] "%s، لا ساعات"
+msgstr[1] "‏%s، ساعة واحدة"
+msgstr[2] "‏%s، ساعتين"
 msgstr[3] "‏%s، %d ساعات"
 msgstr[4] "‏%s، %d ساعة"
 msgstr[5] "‏%s، %d ساعة"
@@ -11189,9 +11251,9 @@ msgstr[5] "%d ساعة"
 #, c-format
 msgid "%s, %d minute"
 msgid_plural "%s, %d minutes"
-msgstr[0] "‏%s، %0.sلا دقائق"
-msgstr[1] "‏%s، %0.sدقيقة واحدة"
-msgstr[2] "‏%s، %0.sدقيقتين"
+msgstr[0] "‏%s، لا دقائق"
+msgstr[1] "‏%s، دقيقة واحدة"
+msgstr[2] "‏%s، دقيقتين"
 msgstr[3] "%s، %d دقائق"
 msgstr[4] "%s، %d دقيقة"
 msgstr[5] "%s، %d دقيقة"
@@ -11542,13 +11604,12 @@ msgstr ""
 msgid "The text information for a buddy's status"
 msgstr "غيّر معلومات المستخدم لأجل %s"
 
-#, c-format
 msgid "You have %d contact named %s. Would you like to merge them?"
 msgid_plural ""
 "You currently have %d contacts named %s. Would you like to merge them?"
-msgstr[0] "لا مراسلين%0.s لديك باسم %s. أتريد دمجهم؟"
-msgstr[1] "لديك مراسل واحد%0.s باسم %s. أتريد دمجه؟"
-msgstr[2] "لديك مراسليْن%0.s باسم %s. أتريد دمجهما؟"
+msgstr[0] "%0.sلا مراسلين لديك باسم %s. أتريد دمجهم؟"
+msgstr[1] "%0.sلديك مراسل واحد باسم %s. أتريد دمجه؟"
+msgstr[2] "%0.sلديك مراسليْن باسم %s. أتريد دمجهما؟"
 msgstr[3] "لديك %d مراسلين باسم %s. أتريد دمجهم؟"
 msgstr[4] "لديك %d مراسلا باسم %s. أتريد دمجهم؟"
 msgstr[5] "لديك %d مراسل باسم %s. أتريد دمجهم؟"
@@ -11886,12 +11947,11 @@ msgstr "/الأدوات/الخصوصيّة"
 msgid "/Tools/Room List"
 msgstr "/الأدوات/قائمة الغرف"
 
-#, c-format
 msgid "%d unread message from %s\n"
 msgid_plural "%d unread messages from %s\n"
-msgstr[0] "لا رسائل%0.s غير مقروءة من %s\n"
-msgstr[1] "رسالة واحدة%0.s غير مقروءة من %s\n"
-msgstr[2] "رسالتان%0.s غير مقروءتان من %s\n"
+msgstr[0] "%0.sلا رسائل غير مقروءة من %s\n"
+msgstr[1] "%0.sرسالة واحدة غير مقروءة من %s\n"
+msgstr[2] "%0.sرسالتان غير مقروءتان من %s\n"
 msgstr[3] "%d رسائل غير مقروءة من %s\n"
 msgstr[4] "%d رسالة غير مقروءة من %s\n"
 msgstr[5] "%d رسالة غير مقروءة من %s\n"
@@ -12541,11 +12601,11 @@ msgstr "يونانية"
 msgid "Australian English"
 msgstr "إنگليزية أسترالية"
 
-msgid "Canadian English"
-msgstr "إنگليزية كندية"
-
 msgid "British English"
 msgstr "إنگليزية بريطانية"
+
+msgid "Canadian English"
+msgstr "إنگليزية كندية"
 
 msgid "Esperanto"
 msgstr "إسبرانتو"
@@ -12626,6 +12686,9 @@ msgstr "كردية"
 
 msgid "Lao"
 msgstr "لاو"
+
+msgid "Maithili"
+msgstr ""
 
 msgid "Macedonian"
 msgstr "مقدونية"
@@ -12867,13 +12930,13 @@ msgid_plural ""
 "You are about to remove the contact containing %s and %d other buddies from "
 "your buddy list.  Do you want to continue?"
 msgstr[0] ""
-"أنت بصدد إزالة مراسل يحتوي %s و %0.sلا أصدقاء من قائمة أصدقائك.  هل تريد "
+"أنت بصدد إزالة مراسل يحتوي %s ولا أصدقاء من قائمة أصدقائك.  هل تريد "
 "الاستمرار؟"
 msgstr[1] ""
-"أنت بصدد إزالة مراسل يحتوي %s و %0.sصديق آخر من قائمة أصدقائك.  هل تريد "
+"أنت بصدد إزالة مراسل يحتوي %s وصديق آخر من قائمة أصدقائك.  هل تريد "
 "الاستمرار؟"
 msgstr[2] ""
-"أنت بصدد إزالة مراسل يحتوي %s و %0.sصديقين آخرين من قائمة أصدقائك.  هل تريد "
+"أنت بصدد إزالة مراسل يحتوي %s وصديقين آخرين من قائمة أصدقائك.  هل تريد "
 "الاستمرار؟"
 msgstr[3] ""
 "أنت بصدد إزالة مراسل يحتوي %s و %d أصدقاء آخرين من قائمة أصدقائك.  هل تريد "
@@ -13439,12 +13502,12 @@ msgstr "_جمّد"
 #, c-format
 msgid "%s has %d new message."
 msgid_plural "%s has %d new messages."
-msgstr[0] "لا رسائل%0.s جديدة ل %s."
-msgstr[1] "رسالة%0.s جديدة ل %s."
-msgstr[2] "رسالتان%0.s جديدتان ل %s."
-msgstr[3] "%Id رسائل جديدة ل %s."
-msgstr[4] "%Id رسالة جديدة ل %s."
-msgstr[5] "%Id رسالة جديدة ل %s."
+msgstr[0] "لا رسائل جديدة ل‍ %s."
+msgstr[1] "رسالة جديدة ل‍ %s."
+msgstr[2] "رسالتان جديدتان ل‍ %s."
+msgstr[3] "%2$d رسائل جديدة ل‍ %1$s."
+msgstr[4] "%2$d رسالة جديدة ل‍ %1$s."
+msgstr[5] "%2$d رسالة جديدة ل‍ %1$s."
 
 #, c-format
 msgid "<b>%d new email.</b>"
@@ -14314,6 +14377,9 @@ msgstr "نص الحالة"
 
 msgid "Google Talk"
 msgstr "Google Talk"
+
+msgid "Facebook (XMPP)"
+msgstr ""
 
 #, c-format
 msgid "The following error has occurred loading %s: %s"
@@ -15809,6 +15875,21 @@ msgstr "قم بزيارة صفحة بدجن على الوِب"
 msgid "You do not have permission to uninstall this application."
 msgstr "لا تملك الصلاحيات لتثبيت هذا التطبيق."
 
+#, fuzzy
+#~ msgid "An error occurred on the in-band bytestream transfer\n"
+#~ msgstr "حدث عطل أثناء فتح الملف."
+
+#, fuzzy
+#~ msgid "Transfer was closed."
+#~ msgstr "فشل إرسال الملف"
+
+#~ msgid "Set your friendly name."
+#~ msgstr "اضبط اسمك الودّي."
+
+#, fuzzy
+#~ msgid "Error requesting %s"
+#~ msgstr "خطأ أثناء استجلاء %s"
+
 #~ msgid "Require SSL/TLS"
 #~ msgstr "يتطلب SSL/TLS"
 
@@ -16248,9 +16329,6 @@ msgstr "لا تملك الصلاحيات لتثبيت هذا التطبيق."
 
 #~ msgid "In-Band Registration"
 #~ msgstr "التسجيل داخل الحزمة"
-
-#~ msgid "User Location"
-#~ msgstr "موضع المستخدم"
 
 #~ msgid "User Avatar"
 #~ msgstr "أيقونة المستخدم"

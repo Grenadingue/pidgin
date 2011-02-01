@@ -116,6 +116,7 @@ libpurple/protocols/msn/oim.c
 libpurple/protocols/msn/servconn.c
 libpurple/protocols/msn/session.c
 libpurple/protocols/msn/slp.c
+libpurple/protocols/msn/slpcall.c
 libpurple/protocols/msn/state.c
 libpurple/protocols/msn/switchboard.c
 libpurple/protocols/msn/userlist.c
@@ -123,8 +124,8 @@ libpurple/protocols/mxit/actions.c
 libpurple/protocols/mxit/filexfer.c
 libpurple/protocols/mxit/http.c
 libpurple/protocols/mxit/login.c
-libpurple/protocols/mxit/mxit.c
 libpurple/protocols/mxit/multimx.c
+libpurple/protocols/mxit/mxit.c
 libpurple/protocols/mxit/profile.c
 libpurple/protocols/mxit/protocol.c
 libpurple/protocols/mxit/roster.c
@@ -147,8 +148,8 @@ libpurple/protocols/oscar/odc.c
 libpurple/protocols/oscar/oft.c
 libpurple/protocols/oscar/oscar.c
 libpurple/protocols/oscar/peer.c
-libpurple/protocols/oscar/util.c
 libpurple/protocols/oscar/userinfo.c
+libpurple/protocols/oscar/util.c
 libpurple/protocols/oscar/visibility.c
 libpurple/protocols/qq/buddy_info.c
 libpurple/protocols/qq/buddy_list.c

@@ -45,12 +45,9 @@ struct _MsnSlpMessage
 	MsnSlpLink *slplink; /**< The slplink through which this slp message is being sent. */
 	MsnSession *session;
 
-	MsnP2PHeader *header;
-	MsnP2PFooter *footer;
+	MsnP2PInfo *p2p_info;
 
 	long id;
-
-	gboolean sip; /**< A flag that states if this is a SIP slp message. */
 
 	gboolean ft;
 	PurpleStoredImage *img;
@@ -78,16 +75,6 @@ struct _MsnSlpMessage
 MsnSlpMessage *msn_slpmsg_new(MsnSlpLink *slplink);
 
 /**
- * Creates a MsnSlpMessage without a MsnSlpLink by parsing the raw data.
- *
- * @param data 		The raw data with the slp message.
- * @param data_len 	The len of the data
- *
- * @return The createed slp message.
- */
-MsnSlpMessage *msn_slpmsg_new_from_data(const char *data, size_t data_len);
-
-/**
  * Destroys a slp message
  *
  * @param slpmsg The slp message to destory.
@@ -104,8 +91,6 @@ void msn_slpmsg_set_slplink(MsnSlpMessage *slpmsg, MsnSlpLink *slplink);
 void msn_slpmsg_set_body(MsnSlpMessage *slpmsg, const char *body,
 						 long long size);
 void msn_slpmsg_set_image(MsnSlpMessage *slpmsg, PurpleStoredImage *img);
-void msn_slpmsg_open_file(MsnSlpMessage *slpmsg,
-						  const char *file_name);
 MsnSlpMessage * msn_slpmsg_sip_new(MsnSlpCall *slpcall, int cseq,
 								   const char *header,
 								   const char *branch,
@@ -119,7 +104,7 @@ MsnSlpMessage * msn_slpmsg_sip_new(MsnSlpCall *slpcall, int cseq,
  *
  * @return A new SlpMessage with ACK headers
  */
-MsnSlpMessage *msn_slpmsg_ack_new(MsnP2PHeader *header);
+MsnSlpMessage *msn_slpmsg_ack_new(MsnP2PInfo *info);
 
 /**
  * Create a new SLP message for MsnObject data.
@@ -135,7 +120,7 @@ MsnSlpMessage *msn_slpmsg_obj_new(MsnSlpCall *slpcall, PurpleStoredImage *img);
  * Create a new SLP message for data preparation.
  *
  * @param slpcall 	The slpcall that manages this message.
- * 
+ *
  * @return A new SlpMessage with data preparation info.
  */
 MsnSlpMessage *msn_slpmsg_dataprep_new(MsnSlpCall *slpcall);

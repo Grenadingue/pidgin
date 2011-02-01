@@ -511,7 +511,8 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 		/* File Transfer */
 		PurpleAccount *account;
 		PurpleXfer *xfer;
-		MsnFileContext *header;
+		MsnFileContext *file_context;
+		char *buf;
 		gsize bin_len;
 		guint32 file_size;
 		char *file_name;
@@ -526,13 +527,13 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 		xfer = purple_xfer_new(account, PURPLE_XFER_RECEIVE,
 							 slpcall->slplink->remote_user);
 
-		header = (MsnFileContext *)purple_base64_decode(context, &bin_len);
-		if (header != NULL && bin_len >= sizeof(MsnFileContext) - 1 &&
-			(header->version == 2 ||
-			 (header->version == 3 && header->length == sizeof(MsnFileContext) + 63))) {
-			file_size = GUINT64_FROM_LE(header->file_size);
+		buf = (char *)purple_base64_decode(context, &bin_len);
+		file_context = msn_file_context_from_wire(buf, bin_len);
 
-			file_name = g_convert((const gchar *)&header->file_name,
+		if (file_context != NULL) {
+			file_size = file_context->file_size;
+
+			file_name = g_convert((const gchar *)&file_context->file_name,
 			                      MAX_FILE_NAME_LEN * 2,
 			                      "UTF-8", "UTF-16LE",
 			                      NULL, NULL, NULL);
@@ -553,15 +554,17 @@ got_sessionreq(MsnSlpCall *slpcall, const char *branch,
 
 			xfer->data = slpcall;
 
-			if (header->type == 0 && bin_len >= sizeof(MsnFileContext)) {
-				purple_xfer_set_thumbnail(xfer, &header->preview,
-				                          bin_len - sizeof(MsnFileContext),
+			if (file_context->preview) {
+				purple_xfer_set_thumbnail(xfer, file_context->preview,
+				                          file_context->preview_len,
 				    					  "image/png");
+				g_free(file_context->preview);
 			}
 
 			purple_xfer_request(xfer);
 		}
-		g_free(header);
+		g_free(file_context);
+		g_free(buf);
 
 		accepted = TRUE;
 
@@ -826,6 +829,7 @@ got_ok(MsnSlpCall *slpcall,
 
 		/* Try direct file transfer by sending a second INVITE */
 		dc = msn_dc_new(slpcall);
+		g_free(slpcall->branch);
 		slpcall->branch = rand_guid();
 
 		dc->listen_data = purple_network_listen_range(
@@ -1055,16 +1059,21 @@ msn_slp_process_msg(MsnSlpLink *slplink, MsnSlpMessage *slpmsg)
 	MsnSlpCall *slpcall;
 	const guchar *body;
 	gsize body_len;
+	guint32 session_id;
+	guint32 flags;
 
 	slpcall = NULL;
 	body = slpmsg->buffer;
-	body_len = slpmsg->header->offset;
+	body_len = msn_p2p_info_get_offset(slpmsg->p2p_info);
 
-	if (slpmsg->header->flags == P2P_NO_FLAG || slpmsg->header->flags == P2P_WML2009_COMP)
+	session_id = msn_p2p_info_get_session_id(slpmsg->p2p_info);
+	flags = msn_p2p_info_get_flags(slpmsg->p2p_info);
+
+	if (flags == P2P_NO_FLAG || flags == P2P_WLM2009_COMP)
 	{
 		char *body_str;
 
-		if (slpmsg->header->session_id == 64)
+		if (session_id == 64)
 		{
 			/* This is for handwritten messages (Ink) */
 			GError *error = NULL;
@@ -1121,9 +1130,9 @@ msn_slp_process_msg(MsnSlpLink *slplink, MsnSlpMessage *slpmsg)
 		}
 		g_free(body_str);
 	}
-	 else if (msn_p2p_msg_is_data(slpmsg->header->flags))
+	 else if (msn_p2p_msg_is_data(flags))
 	{
-		slpcall = msn_slplink_find_slp_call_with_session_id(slplink, slpmsg->header->session_id);
+		slpcall = msn_slplink_find_slp_call_with_session_id(slplink, session_id);
 
 		if (slpcall != NULL)
 		{
@@ -1138,22 +1147,13 @@ msn_slp_process_msg(MsnSlpLink *slplink, MsnSlpMessage *slpmsg)
 			slpcall->wasted = TRUE;
 		}
 	}
-#if 0
-	else if (slpmsg->header->flags == 0x100)
-	{
-		slpcall = slplink->directconn->initial_call;
-
-		if (slpcall != NULL)
-			msn_slpcall_session_init(slpcall);
-	}
-#endif
-	else if (slpmsg->header->flags == P2P_ACK)
+	else if (flags == P2P_ACK)
 	{
 		/* Acknowledgement of previous message. Don't do anything currently. */
 	}
 	else
 		purple_debug_warning("msn", "Unprocessed SLP message with flags 0x%04x\n",
-		                     slpmsg->header->flags);
+		                     flags);
 
 	return slpcall;
 }

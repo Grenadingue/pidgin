@@ -530,6 +530,7 @@ Section Uninstall
     Push "xmpp"
     Call un.UnregisterURIHandler
 
+    Delete "$INSTDIR\ca-certs\AddTrust_External_Root.pem"
     Delete "$INSTDIR\ca-certs\America_Online_Root_Certification_Authority_1.pem"
     Delete "$INSTDIR\ca-certs\AOL_Member_CA.pem"
     Delete "$INSTDIR\ca-certs\CAcert_Class3.pem"
@@ -541,7 +542,9 @@ Section Uninstall
     Delete "$INSTDIR\ca-certs\Go_Daddy_Class_2_CA.pem"
     Delete "$INSTDIR\ca-certs\GTE_CyberTrust_Global_Root.pem"
     Delete "$INSTDIR\ca-certs\Microsoft_Internet_Authority.pem"
+    Delete "$INSTDIR\ca-certs\Microsoft_Internet_Authority_2010.pem"
     Delete "$INSTDIR\ca-certs\Microsoft_Secure_Server_Authority.pem"
+    Delete "$INSTDIR\ca-certs\Microsoft_Secure_Server_Authority_2010.pem"
     Delete "$INSTDIR\ca-certs\StartCom_Certification_Authority.pem"
     Delete "$INSTDIR\ca-certs\StartCom_Free_SSL_CA.pem"
     Delete "$INSTDIR\ca-certs\Thawte_Premium_Server_CA.pem"
