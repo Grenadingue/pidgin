@@ -103,7 +103,6 @@ EMBLEMS_16 = \
 		emblems/16/male.png \
 		emblems/16/not-authorized.png \
 		emblems/16/operator.png \
-		emblems/16/qq-member.png \
 		emblems/16/secure.png \
 		emblems/16/unavailable.png \
 		emblems/16/video.png \
@@ -119,7 +118,6 @@ EMBLEMS_SCALABLE = \
 		emblems/scalable/game.svg \
 		emblems/scalable/male.svg \
 		emblems/scalable/not-authorized.svg \
-		emblems/scalable/qq-member.svg \
 		emblems/scalable/secure.svg \
 		emblems/scalable/unavailable.svg \
 		emblems/scalable/video.svg \
@@ -181,7 +179,6 @@ EMOTES_DEFAULT_24_SCALABLE = \
 		emotes/default/24/scalable/plate.svg \
 		emotes/default/24/scalable/poop.svg \
 		emotes/default/24/scalable/present.svg \
-		emotes/default/24/scalable/qq.svg \
 		emotes/default/24/scalable/rainbow.svg \
 		emotes/default/24/scalable/rain.svg \
 		emotes/default/24/scalable/rose-dead.svg \
@@ -216,7 +213,6 @@ PROTOCOLS_16_SCALABLE = \
 		protocols/16/scalable/jabber.svg \
 		protocols/16/scalable/meanwhile.svg \
 		protocols/16/scalable/msn.svg \
-		protocols/16/scalable/qq.svg \
 		protocols/16/scalable/silc.svg \
 		protocols/16/scalable/simple.svg \
 		protocols/16/scalable/yahoo.svg \
@@ -225,6 +221,7 @@ PROTOCOLS_16_SCALABLE = \
 PROTOCOLS_16 = \
 		protocols/16/aim.png \
 		protocols/16/bonjour.png \
+		protocols/16/facebook.png \
 		protocols/16/gadu-gadu.png \
 		protocols/16/google-talk.png \
 		protocols/16/novell.png \
@@ -235,7 +232,6 @@ PROTOCOLS_16 = \
 		protocols/16/msn.png \
 		protocols/16/mxit.png \
 		protocols/16/myspace.png \
-		protocols/16/qq.png \
 		protocols/16/silc.png \
 		protocols/16/simple.png \
 		protocols/16/yahoo.png \
@@ -272,7 +268,6 @@ PROTOCOLS_22_SCALABLE = \
 		protocols/22/scalable/jabber.svg \
 		protocols/22/scalable/meanwhile.svg \
 		protocols/22/scalable/msn.svg \
-		protocols/22/scalable/qq.svg \
 		protocols/22/scalable/silc.svg \
 		protocols/22/scalable/simple.svg \
 		protocols/22/scalable/yahoo.svg \
@@ -281,6 +276,7 @@ PROTOCOLS_22_SCALABLE = \
 PROTOCOLS_22 = \
 		protocols/22/aim.png \
 		protocols/22/bonjour.png \
+		protocols/22/facebook.png \
 		protocols/22/gadu-gadu.png \
 		protocols/22/google-talk.png \
 		protocols/22/novell.png \
@@ -289,8 +285,8 @@ PROTOCOLS_22 = \
 		protocols/22/jabber.png \
 		protocols/22/meanwhile.png \
 		protocols/22/msn.png \
+		protocols/22/mxit.png \
 		protocols/22/myspace.png \
-		protocols/22/qq.png \
 		protocols/22/silc.png \
 		protocols/22/simple.png \
 		protocols/22/yahoo.png \
@@ -299,6 +295,7 @@ PROTOCOLS_22 = \
 PROTOCOLS_48 = \
 		protocols/48/aim.png \
 		protocols/48/bonjour.png \
+		protocols/48/facebook.png \
 		protocols/48/gadu-gadu.png \
 		protocols/48/novell.png \
 		protocols/48/icq.png \
@@ -308,7 +305,6 @@ PROTOCOLS_48 = \
 		protocols/48/msn.png \
 		protocols/48/mxit.png \
 		protocols/48/myspace.png \
-		protocols/48/qq.png \
 		protocols/48/silc.png \
 		protocols/48/simple.png \
 		protocols/48/yahoo.png \
@@ -326,7 +322,6 @@ PROTOCOLS_SCALABLE = \
 		protocols/scalable/meanwhile.svg \
 		protocols/scalable/msn.svg \
 		protocols/scalable/mxit.svg \
-		protocols/scalable/qq.svg \
 		protocols/scalable/silc.svg \
 		protocols/scalable/simple.svg \
 		protocols/scalable/yahoo.svg \

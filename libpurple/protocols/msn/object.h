@@ -50,6 +50,8 @@ typedef struct
 	char *friendly;
 	char *sha1d;
 	char *sha1c;
+	char *url;
+	char *url1;
 } MsnObject;
 
 /**
@@ -84,9 +86,10 @@ MsnObject *msn_object_new_from_image(PurpleStoredImage *img,
 /**
  * Destroys an MsnObject structure.
  *
- * @param obj The object structure.
+ * @param obj         The object structure.
+ * @param only_remote Only destroy non-local objects.
  */
-void msn_object_destroy(MsnObject *obj);
+void msn_object_destroy(MsnObject *obj, gboolean only_remote);
 
 /**
  * Outputs a string representation of an MsnObject.
@@ -153,6 +156,20 @@ void msn_object_set_sha1c(MsnObject *obj, const char *sha1c);
  * @param img The image to associate.
  */
 void msn_object_set_image(MsnObject *obj, PurpleStoredImage *img);
+
+/**
+ * Sets the url field in a MsnObject.
+ *
+ * @param url The url value.
+ */
+void msn_object_set_url(MsnObject *obj, const char *url);
+
+/**
+ * Sets the url1 field in a MsnObject.
+ *
+ * @param url1 The url1 value.
+ */
+void msn_object_set_url1(MsnObject *obj, const char *url);
 
 /**
  * Returns a MsnObject's creator value.
@@ -234,6 +251,26 @@ const char *msn_object_get_sha1(const MsnObject *obj);
  * @return The associated image.
  */
 PurpleStoredImage *msn_object_get_image(const MsnObject *obj);
+
+/**
+ * Returns a MsnObject's url value.
+ *
+ * @param obj The object.
+ *
+ * @return The url value.
+ */
+const char *msn_object_get_url(const MsnObject *obj);
+
+/**
+ * Returns a MsnObject's url1 value.
+ *
+ * @param obj The object.
+ *
+ * @return The url1 value.
+ */
+const char *msn_object_get_url1(const MsnObject *obj);
+
+MsnObject * msn_object_find_local(const char *sha1);
 
 void msn_object_set_local(MsnObject *obj);
 

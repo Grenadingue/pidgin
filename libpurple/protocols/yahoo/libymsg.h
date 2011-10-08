@@ -28,6 +28,7 @@
 #include "circbuffer.h"
 #include "cmds.h"
 #include "prpl.h"
+#include "network.h"
 
 #define YAHOO_PAGER_HOST_REQ_URL "http://vcs1.msg.yahoo.com/capacity"
 #define YAHOO_PAGER_HOST_FALLBACK "scsa.msg.yahoo.com"
@@ -47,7 +48,7 @@
 #define YAHOO_ROOMLIST_LOCALE "us"
 
 /* Yahoo! JAPAN stuff */
-#define YAHOOJP_PAGER_HOST_REQ_URL "http://cs1.msg.vip.ogk.yahoo.co.jp/capacity"
+#define YAHOOJP_PAGER_HOST_REQ_URL "http://cs1.yahoo.co.jp/capacity"
 #define YAHOOJP_TOKEN_URL "https://login.yahoo.co.jp/config/pwtoken_get?src=ymsgr&ts=&login=%s&passwd=%s&chal=%s"
 #define YAHOOJP_LOGIN_URL "https://login.yahoo.co.jp/config/pwtoken_login?src=ymsgr&ts=&token=%s"
 #define YAHOOJP_PROFILE_URL "http://profiles.yahoo.co.jp/"
@@ -64,7 +65,7 @@
 
 #define WEBMESSENGER_URL "http://login.yahoo.com/config/login?.src=pg"
 
-#define YAHOO_SMS_CARRIER_URL "http://lookup.msg.vip.mud.yahoo.com"
+#define YAHOO_SMS_CARRIER_URL "http://validate.msg.yahoo.com"
 
 #define YAHOO_USERINFO_URL "http://address.yahoo.com/yab/us?v=XM&sync=1&tags=short&useutf8=1&noclear=1&legenc=codepage-1252"
 #define YAHOOJP_USERINFO_URL "http://address.yahoo.co.jp/yab/jp?v=XM&sync=1&tags=short&useutf8=1&noclear=1&legenc=codepage-1252"
@@ -243,6 +244,7 @@ typedef struct {
 	GSList *url_datas;
 	GHashTable *xfer_peer_idstring_map;/* Hey, i dont know, but putting this HashTable next to friends gives a run time fault... */
 	GSList *cookies;/* contains all cookies, including _y and _t */
+	PurpleNetworkListenData *listen_data;
 
 	/**
 	 * We may receive a list15 in multiple packets with no prior warning as to how many we'll be getting;
@@ -369,7 +371,7 @@ int yahoo_send_im(PurpleConnection *gc, const char *who, const char *what, Purpl
 unsigned int yahoo_send_typing(PurpleConnection *gc, const char *who, PurpleTypingState state);
 void yahoo_set_status(PurpleAccount *account, PurpleStatus *status);
 void yahoo_set_idle(PurpleConnection *gc, int idle);
-void yahoo_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *g);
+void yahoo_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *g, const char *message);
 void yahoo_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group);
 void yahoo_add_deny(PurpleConnection *gc, const char *who);
 void yahoo_rem_deny(PurpleConnection *gc, const char *who);

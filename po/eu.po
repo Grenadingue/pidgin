@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: eu\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-30 23:15-0400\n"
+"POT-Creation-Date: 2011-08-18 00:02-0700\n"
 "PO-Revision-Date: 2009-08-29 23:23+0200\n"
 "Last-Translator: Mikel Pascual Aldabaldetreku <mikel.paskual@gmail.com>\n"
 "Language-Team:  <en@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.9.1\n"
-"Plural-Forms: Plural-Forms: Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Translators may want to transliterate the name.
 #. It is not to be translated.
@@ -61,11 +61,23 @@ msgstr ""
 msgid "Error"
 msgstr "Errorea"
 
+#, fuzzy
+msgid "Account was not modified"
+msgstr "Ez da kontua gehitu"
+
 msgid "Account was not added"
 msgstr "Ez da kontua gehitu"
 
 msgid "Username of an account must be non-empty."
 msgstr "Kontuaren erabiltzaile-izena ezin da hutsik egon."
+
+msgid ""
+"The account's protocol cannot be changed while it is connected to the server."
+msgstr ""
+
+msgid ""
+"The account's username cannot be changed while it is connected to the server."
+msgstr ""
 
 msgid "New mail notifications"
 msgstr "Mezu berrien jakinarazpenak"
@@ -198,6 +210,10 @@ msgid "Username"
 msgstr "Erabiltzaile-izena"
 
 msgid "Alias (optional)"
+msgstr "Ezizena (opzionala)"
+
+#, fuzzy
+msgid "Invite message (optional)"
 msgstr "Ezizena (opzionala)"
 
 msgid "Add in group"
@@ -514,7 +530,6 @@ msgstr "Zertifikatu-ezabatzea konfirmatu"
 msgid "Certificate Manager"
 msgstr "Zertifikatu-Kudeatzailea"
 
-#. Creating the user splits
 msgid "Hostname"
 msgstr "Ostalaria"
 
@@ -789,7 +804,7 @@ msgstr "Gelditu"
 msgid "Waiting for transfer to begin"
 msgstr "Transferentzia hasteko zain"
 
-msgid "Canceled"
+msgid "Cancelled"
 msgstr "Bertan behera utzi da"
 
 msgid "Failed"
@@ -1259,6 +1274,10 @@ msgstr "Beste batzuk berriketan ari dira"
 msgid "Someone says your username in chat"
 msgstr "Norbaitek zure erabiltzaile-izena dio solasaldian"
 
+#, fuzzy
+msgid "Attention received"
+msgstr "Aktibazioa beharrezkoa"
+
 msgid "GStreamer Failure"
 msgstr "GStreamer Errorea"
 
@@ -1549,7 +1568,7 @@ msgstr "URLa(k) dituen mezu bat jasotzean, TinyURL erabili errazago kopiatzeko"
 msgid "Online"
 msgstr "Konektatuta"
 
-#. primative,						no,							id,			name
+#. primitive,						no,							id,			name
 msgid "Offline"
 msgstr "Deskonektatuta"
 
@@ -1653,6 +1672,7 @@ msgstr "Protokolo honek ez ditu berriketa-gelak jasaten."
 msgid "Unknown"
 msgstr "Ezezaguna"
 
+#. Changing this string?  Look in add_purple_buddy_to_groups
 msgid "Buddies"
 msgstr "Lagunak"
 
@@ -1667,10 +1687,15 @@ msgid ""
 "currently trusted."
 msgstr ""
 
-msgid "The certificate is not valid yet."
-msgstr "Zertifikatua ez da baliozkoa oraindik."
+msgid ""
+"The certificate is not valid yet.  Check that your computer's date and time "
+"are accurate."
+msgstr ""
 
-msgid "The certificate has expired and should not be considered valid."
+#, fuzzy
+msgid ""
+"The certificate has expired and should not be considered valid.  Check that "
+"your computer's date and time are accurate."
 msgstr "Iraungi egin da zertifikatua, eta ezin da baliozkotzat hartu."
 
 #. Translators: "domain" refers to a DNS domain (e.g. talk.google.com)
@@ -1907,6 +1932,9 @@ msgstr "Hari-sorrera errorea: %s"
 
 msgid "Unknown reason"
 msgstr "Arrazoi ezezaguna"
+
+msgid "Aborting DNS lookup in Tor Proxy mode."
+msgstr ""
 
 #, c-format
 msgid ""
@@ -2326,8 +2354,11 @@ msgstr ""
 "Fitxategiak non gordeko diren\n"
 "(Bide oso bat eman ezazu)"
 
-msgid "Automatically reject from users not in buddy list"
-msgstr "Automatikoki ezetsi lagun-zerrendan ez dauden erabiltzaileak"
+#, fuzzy
+msgid ""
+"When a file-transfer request arrives from a user who is\n"
+"*not* on your buddy list:"
+msgstr "%s(e)tik fitxategi-transferentzia jasotzean"
 
 msgid ""
 "Notify with a popup when an autoaccepted file transfer is complete\n"
@@ -2339,6 +2370,10 @@ msgstr ""
 
 msgid "Create a new directory for each user"
 msgstr "Direktorio berria sortu erabiltzaile bakoitzarentzat"
+
+#, fuzzy
+msgid "Escape the filenames"
+msgstr "%s(e)k bertan behera utzi du fitxategi-transferentzia"
 
 msgid "Notes"
 msgstr "Oharrak"
@@ -3148,6 +3183,25 @@ msgstr "Zure UIN-arentzako oraingo pasahitza eta pasahitz berria sar itzazu:"
 msgid "Change Gadu-Gadu Password"
 msgstr "Gadu-Gadu Pasahitza Aldatu"
 
+#, fuzzy
+msgid "Show status to:"
+msgstr "_Egoera honetara aldatu:"
+
+msgid "All people"
+msgstr ""
+
+#, fuzzy
+msgid "Only buddies"
+msgstr "Online Lagunak"
+
+#, fuzzy
+msgid "Change status broadcasting"
+msgstr "Egoera honetara aldatu"
+
+#, fuzzy
+msgid "Please, select who can see your status"
+msgstr "Erabili egoera _ezbedinak kontu batzuentzat"
+
 #, c-format
 msgid "Select a chat for buddy: %s"
 msgstr "Lagunarentzako berriketa bat hautatu: %s "
@@ -3179,9 +3233,7 @@ msgid "UIN"
 msgstr "UINa"
 
 #. first name
-#. purple_notify_user_info_add_pair( info, _( "Hidden Number" ), profile->hidden ? _( "Yes" ) : _( "No" ) );
 #. optional information
-#. purple_notify_user_info_add_pair( info, _( "Title" ), profile->title );
 msgid "First Name"
 msgstr "Lehen Abizena"
 
@@ -3293,6 +3345,23 @@ msgstr "Gadu-Gadu Erabiltzailea"
 msgid "GG server"
 msgstr "GG-zerbitzaria"
 
+#, fuzzy
+msgid "Don't use encryption"
+msgstr "Baimena eskatu"
+
+#, fuzzy
+msgid "Use encryption if available"
+msgstr "Erabili TLS erabilgarri badago"
+
+#. TODO
+#, fuzzy
+msgid "Require encryption"
+msgstr "Baimena eskatu"
+
+#, fuzzy
+msgid "Connection security"
+msgstr "Konexioa berabierazten "
+
 #, c-format
 msgid "Unknown command: %s"
 msgstr "Agindu ezezaguna: %s"
@@ -3328,7 +3397,6 @@ msgstr "%s - MOTD"
 #. * buffer that stores what is "being sent" until the
 #. * PurpleHTTPConnection reports it is fully sent.
 #.
-#. TODO: what to do here - do we really have to disconnect?
 #. TODO: do we really want to disconnect on a failure to write?
 #, c-format
 msgid "Lost connection with server: %s"
@@ -3584,6 +3652,10 @@ msgstr "%s(r)en astinduak"
 msgid "action &lt;action to perform&gt;:  Perform an action."
 msgstr "action &lt;burutuko den ekintza&gt;:  Wkintza bat burutu."
 
+#, fuzzy
+msgid "authserv: Send a command to authserv"
+msgstr "chanserv: Chanserv-ri agindu bat bidali"
+
 msgid ""
 "away [message]:  Set an away message, or use no message to return from being "
 "away."
@@ -3793,7 +3865,10 @@ msgid "Server requires plaintext authentication over an unencrypted stream"
 msgstr ""
 "Zerbitzariak testu-arrunt balioztatzea behar du, enkriptatu gabeko jarioan"
 
-#. This should never happen!
+#. This happens when the server sends back jibberish
+#. * in the "additional data with success" case.
+#. * Seen with Wildfire 3.0.1.
+#.
 msgid "Invalid response from server"
 msgstr "Erantzun baliogabea zerbitzaritik"
 
@@ -3819,6 +3894,19 @@ msgstr "Erronka baliogabea zerbitzaritik"
 
 msgid "Server thinks authentication is complete, but client does not"
 msgstr ""
+
+#, fuzzy
+msgid "Server may require plaintext authentication over an unencrypted stream"
+msgstr ""
+"Zerbitzariak testu-arrunt balioztatzea behar du, enkriptatu gabeko jarioan"
+
+#, fuzzy, c-format
+msgid ""
+"%s may require plaintext authentication over an unencrypted connection.  "
+"Allow this and continue authentication?"
+msgstr ""
+"%s(e)k testu-arrunt balioztatzea behar du, enkriptatu gabeko jarioan.   Hau "
+"baimendu eta balioztatzearekin jarraitu?"
 
 msgid "SASL authentication failed"
 msgstr "Errorea SASL balioztatzean"
@@ -3930,7 +4018,6 @@ msgstr "Eskualdea"
 msgid "Postal Code"
 msgstr "Posta-Kodea"
 
-#. purple_notify_user_info_add_pair( info, _( "Email" ), profile->email );
 msgid "Country"
 msgstr "Estatua"
 
@@ -4658,7 +4745,8 @@ msgstr ""
 msgid "invite &lt;user&gt; [message]:  Invite a user to the room."
 msgstr "invite &lt;erabiltzailea&gt; [mezua]:  Erabiltzailea gelara gonbidatu."
 
-msgid "join: &lt;room&gt; [password]:  Join a chat on this server."
+#, fuzzy
+msgid "join: &lt;room[@server]&gt; [password]:  Join a chat."
 msgstr "join: &lt;gela&gt; [pasahitza]:  Zerbitzariko solasaldi batera batu."
 
 msgid "kick &lt;user&gt; [reason]:  Kick a user from the room."
@@ -4701,11 +4789,8 @@ msgstr "XMPP Protokolo-Plugina"
 msgid "Domain"
 msgstr "Domeinua"
 
-msgid "Require SSL/TLS"
-msgstr "SSL/TLS Eskatu"
-
-msgid "Force old (port 5223) SSL"
-msgstr "SSL zaharra (5223 ataka) behartu"
+msgid "Use old-style SSL"
+msgstr ""
 
 msgid "Allow plaintext auth over unencrypted streams"
 msgstr "Enkriptatu gabeko jarioen bidezko testu-arrunt balioztatzea onartu"
@@ -4811,21 +4896,13 @@ msgstr "Kanporatua (%s)"
 msgid "Unknown Error in presence"
 msgstr "Errore Ezezaguna Presentzian"
 
-msgid "An error occurred on the in-band bytestream transfer\n"
-msgstr "Errorea banda barruko byte-jario transferentzian\n"
-
-msgid "Transfer was closed."
-msgstr "Transferentzia itxiarazi da."
-
-msgid "Failed to open in-band bytestream"
-msgstr "Ezin banda barneko byte-jarioa ireki"
-
 #, c-format
 msgid "Unable to send file to %s, user does not support file transfers"
 msgstr ""
 "Ezin fitxategia bidali %s erabiltzaileari, ez duelako fitxategi-"
 "transferentziarik onartzen"
 
+#. not success
 msgid "File Send Failed"
 msgstr "Errorea Fitxategia Bidaltzean"
 
@@ -5192,26 +5269,6 @@ msgstr "Errorea laguna gehitzean"
 msgid "The username specified does not exist."
 msgstr "Zehaztu duzun erabiltzaile-izena ez da existitzen."
 
-#, c-format
-msgid "Buddy list synchronization issue in %s (%s)"
-msgstr "Arazoa lagun-zerrenda sinkronizatzean: %s (%s)"
-
-#, c-format
-msgid ""
-"%s on the local list is inside the group \"%s\" but not on the server list. "
-"Do you want this buddy to be added?"
-msgstr ""
-"Zerrenda lokaleko \"%s\" taldean dago %s, baina ez zerbitzariko zerrendan. "
-"Lagun hau gehitzea nahi al duzu?"
-
-#, c-format
-msgid ""
-"%s is on the local list but not on the server list. Do you want this buddy "
-"to be added?"
-msgstr ""
-"Zerrenda lokalean dago %s, baina ez zerbitzariko zerrendan. Lagun hau "
-"gehitzea nahi al duzu?"
-
 msgid "Unable to parse message"
 msgstr "Ezin mezua analizatu"
 
@@ -5382,6 +5439,26 @@ msgstr "Errore-Kode Ezezaguna: %d"
 msgid "MSN Error: %s\n"
 msgstr "MSN Errorea: %s\n"
 
+#, c-format
+msgid "Buddy list synchronization issue in %s (%s)"
+msgstr "Arazoa lagun-zerrenda sinkronizatzean: %s (%s)"
+
+#, c-format
+msgid ""
+"%s on the local list is inside the group \"%s\" but not on the server list. "
+"Do you want this buddy to be added?"
+msgstr ""
+"Zerrenda lokaleko \"%s\" taldean dago %s, baina ez zerbitzariko zerrendan. "
+"Lagun hau gehitzea nahi al duzu?"
+
+#, c-format
+msgid ""
+"%s is on the local list but not on the server list. Do you want this buddy "
+"to be added?"
+msgstr ""
+"Zerrenda lokalean dago %s, baina ez zerbitzariko zerrendan. Lagun hau "
+"gehitzea nahi al duzu?"
+
 msgid "Other Contacts"
 msgstr "Beste Kontaktuak"
 
@@ -5434,11 +5511,53 @@ msgstr "MSN-lagunarteko izen berria luzeegia da."
 msgid "Set friendly name for %s."
 msgstr "Zure lagunarteko izena ezarri."
 
-msgid "Set your friendly name."
-msgstr "Zure lagunarteko izena ezarri."
+#, fuzzy
+msgid "Set Friendly Name"
+msgstr "Lagunarteko Izena Ezarri..."
 
 msgid "This is the name that other MSN buddies will see you as."
 msgstr "MSNko lagunek izen honekin ikusiko zaituzte."
+
+#, fuzzy
+msgid "This Location"
+msgstr "Kokalekua"
+
+#, fuzzy
+msgid "This is the name that identifies this location"
+msgstr "MSNko lagunek izen honekin ikusiko zaituzte."
+
+#, fuzzy
+msgid "Other Locations"
+msgstr "Kokalekua"
+
+#, fuzzy
+msgid "You can sign out from other locations here"
+msgstr "Beste nonbaitetik konektatu zara"
+
+#. TODO: Due to limitations in our current request field API, the
+#. following string will show up with a trailing colon.  This should
+#. be fixed either by adding an "include_colon" boolean, or creating
+#. a separate purple_request_field_label_new_without_colon function,
+#. or by never automatically adding the colon and requiring that
+#. callers add the colon themselves.
+#, fuzzy
+msgid "You are not signed in from any other locations."
+msgstr "Beste nonbaitetik konektatu zara"
+
+#, fuzzy
+msgid "Allow multiple logins?"
+msgstr "istantzia ugari onartu"
+
+msgid ""
+"Do you want to allow or disallow connecting from multiple locations "
+"simultaneously?"
+msgstr ""
+
+msgid "Allow"
+msgstr "Onartu"
+
+msgid "Disallow"
+msgstr "Ez onartu"
 
 msgid "Set your home phone number."
 msgstr "Zure etxeko telefonoa ezarri."
@@ -5458,12 +5577,6 @@ msgid ""
 msgstr ""
 "Zure lagun-zerrendako jendeak zure telefono mugikorrera edo gailu "
 "mogikorretara MSN Mobile orriak bidaltzea onartu nahi al duzu?"
-
-msgid "Allow"
-msgstr "Onartu"
-
-msgid "Disallow"
-msgstr "Ez onartu"
 
 #, c-format
 msgid "Blocked Text for %s"
@@ -5527,6 +5640,10 @@ msgstr "Lanpostua"
 msgid "Set Friendly Name..."
 msgstr "Lagunarteko Izena Ezarri..."
 
+#, fuzzy
+msgid "View Locations..."
+msgstr "Kokalekua Hautatu..."
+
 msgid "Set Home Phone Number..."
 msgstr "Etxeko Telefonoa Ezarri..."
 
@@ -5538,6 +5655,10 @@ msgstr "Telefono Mugikorra ezarri..."
 
 msgid "Enable/Disable Mobile Devices..."
 msgstr "Gailu Mugikorrak Gaitu/Ezgaitu..."
+
+#, fuzzy
+msgid "Allow/Disallow Multiple Logins..."
+msgstr "Mobile Pages Onartu/Ez-onartu..."
 
 msgid "Allow/Disallow Mobile Pages..."
 msgstr "Mobile Pages Onartu/Ez-onartu..."
@@ -5565,18 +5686,6 @@ msgstr ""
 
 msgid "Unable to Add"
 msgstr "Ezin Gehitu"
-
-msgid "Authorization Request Message:"
-msgstr "Baimena Eskatzeko Mezua:"
-
-msgid "Please authorize me!"
-msgstr "Emadaizu baimena!"
-
-#. *
-#. * A wrapper for purple_request_action() that uses @c OK and @c Cancel buttons.
-#.
-msgid "_OK"
-msgstr "_Ados"
 
 msgid "Error retrieving profile"
 msgstr "Errorea profila eskuratzean"
@@ -5759,6 +5868,9 @@ msgstr "Smiley pertsonalak erakutsi"
 msgid "Allow direct connections"
 msgstr "Ezin konexio sortu"
 
+msgid "Allow connecting from multiple locations"
+msgstr ""
+
 msgid "nudge: nudge a user to get their attention"
 msgstr "nudge: erabiltzaile bati ukondokada eman, bere harreta eskuratzeko"
 
@@ -5789,6 +5901,10 @@ msgstr "Ezin erabiltzailea gehitu"
 
 msgid "Mobile message was not sent because it was too long."
 msgstr "Ez da mugikor-mezua bidali, luzeegia delako."
+
+#, fuzzy
+msgid "Mobile message was not sent because an unknown error occurred."
+msgstr "Ez da mezua bidali, errore ezezaguna gertatu delako."
 
 #, c-format
 msgid ""
@@ -5953,22 +6069,7 @@ msgid "The username specified is invalid."
 msgstr "Baliogabea da zehaztutako erabiltzaile-izena."
 
 #, fuzzy
-msgid "The PIN you entered is invalid."
-msgstr "Baliogabea da sartutako SecurID-gakoa"
-
-#, fuzzy
-msgid "The PIN you entered has an invalid length [4-10]."
-msgstr "Baliogabea da sartutako SecurID-gakoa"
-
-msgid "The PIN is invalid. It should only consist of digits [0-9]."
-msgstr ""
-
-#, fuzzy
-msgid "The two PINs you entered do not match."
-msgstr "Pasahitz berriak ez datoz bat."
-
-#, fuzzy
-msgid "The name you entered is invalid."
+msgid "The Display Name you entered is invalid."
 msgstr "Baliogabea da sartutako SecurID-gakoa"
 
 msgid ""
@@ -5988,25 +6089,19 @@ msgstr "Profila"
 msgid "Your profile information is not yet retrieved. Please try again later."
 msgstr ""
 
-msgid "Your MXitId"
-msgstr ""
-
-#. pin
-#. pin (required)
-#, fuzzy
-msgid "PIN"
-msgstr "UINa"
-
-msgid "Verify PIN"
-msgstr ""
-
 #. display name
+#. nick name (required)
 #, fuzzy
 msgid "Display Name"
 msgstr "Deitura"
 
-#. hidden
-msgid "Hide my number"
+#. about me
+#, fuzzy
+msgid "About Me"
+msgstr "Niri buruz"
+
+#. where I live
+msgid "Where I Live"
 msgstr ""
 
 #. mobile number
@@ -6014,12 +6109,56 @@ msgstr ""
 msgid "Mobile Number"
 msgstr "Telefono Zenbaki Mugikorra"
 
+#. is searchable
+msgid "Can be searched"
+msgstr ""
+
+#. is suggestable
+msgid "Can be suggested"
+msgstr ""
+
 #, fuzzy
-msgid "Update your Profile"
+msgid "Update your MXit Profile"
 msgstr "MSN profila"
 
-msgid "Here you can update your MXit profile"
+#, fuzzy
+msgid "The PIN you entered is invalid."
+msgstr "Baliogabea da sartutako SecurID-gakoa"
+
+#, fuzzy
+msgid "The PIN you entered has an invalid length [4-10]."
+msgstr "Baliogabea da sartutako SecurID-gakoa"
+
+msgid "The PIN is invalid. It should only consist of digits [0-9]."
 msgstr ""
+
+#, fuzzy
+msgid "The two PINs you entered do not match."
+msgstr "Pasahitz berriak ez datoz bat."
+
+#. show error to user
+#, fuzzy
+msgid "PIN Update Error"
+msgstr "Idazketa-Errorea "
+
+#. pin
+#. pin (required)
+#, fuzzy
+msgid "PIN"
+msgstr "UINa"
+
+#. verify pin
+msgid "Verify PIN"
+msgstr ""
+
+#. (reference: "libpurple/request.h")
+#, fuzzy
+msgid "Change PIN"
+msgstr "Ikonoa Aldatu"
+
+#, fuzzy
+msgid "Change MXit PIN"
+msgstr "Ikonoa Aldatu"
 
 msgid "View Splash"
 msgstr ""
@@ -6032,10 +6171,40 @@ msgstr "Berriketa ez dago erabilgarri"
 msgid "About"
 msgstr "Niri buruz"
 
+#, fuzzy
+msgid "Search for user"
+msgstr "Erabiltzailea bilatu"
+
+#, fuzzy
+msgid "Search for a MXit contact"
+msgstr "Erabiltzailea bilatu"
+
+#, fuzzy
+msgid "Type search information"
+msgstr "Erabiltzaile-Informazioa"
+
+msgid "_Search"
+msgstr "_Bilatu"
+
 #. display / change profile
 #, fuzzy
 msgid "Change Profile..."
 msgstr "Pasahitza Aldatu..."
+
+#. change PIN
+#, fuzzy
+msgid "Change PIN..."
+msgstr "Pasahitza aldatu..."
+
+#. suggested friends
+#, fuzzy
+msgid "Suggested friends..."
+msgstr "Lagunarteko Izena Ezarri..."
+
+#. search for contacts
+#, fuzzy
+msgid "Search for contacts..."
+msgstr "Erabiltzaileak Bilatu..."
 
 #. display splash-screen
 #, fuzzy
@@ -6075,7 +6244,7 @@ msgid "Connecting..."
 msgstr "Konektatzen"
 
 #, fuzzy
-msgid "The nick name you entered is invalid."
+msgid "The Display Name you entered is too short."
 msgstr "Baliogabea da sartutako SecurID-gakoa"
 
 #, fuzzy
@@ -6083,13 +6252,8 @@ msgid "The PIN you entered has an invalid length [7-10]."
 msgstr "Baliogabea da sartutako SecurID-gakoa"
 
 #. mxit login name
-msgid "MXit Login Name"
+msgid "MXit ID"
 msgstr ""
-
-#. nick name (required)
-#, fuzzy
-msgid "Nick Name"
-msgstr "Goitizena"
 
 #. show the form to the user to complete
 #, fuzzy
@@ -6119,10 +6283,10 @@ msgstr ""
 msgid "Invalid country selected. Please try again."
 msgstr ""
 
-msgid "Username is not registered. Please register first."
+msgid "The MXit ID you entered is not registered. Please register first."
 msgstr ""
 
-msgid "Username is already registered. Please choose another username."
+msgid "The MXit ID you entered is already registered. Please choose another."
 msgstr ""
 
 #, fuzzy
@@ -6162,6 +6326,23 @@ msgid "Retrieving User Information..."
 msgstr "Zerbitzari-Informazioa"
 
 #, fuzzy
+msgid "was kicked"
+msgstr "Tiket baliogabea"
+
+#, fuzzy
+msgid "You have been kicked from this MultiMX."
+msgstr "Kanporatua izan zara: (%s)"
+
+#, fuzzy
+msgid "_Room Name:"
+msgstr "_Gela:"
+
+#. Display system message in chat window
+#, fuzzy
+msgid "You have invited"
+msgstr "Posta daukazu!"
+
+#, fuzzy
 msgid "Loading menu..."
 msgstr "Konektatzen"
 
@@ -6179,8 +6360,21 @@ msgid "Hidden Number"
 msgstr "Bigarren Izena"
 
 #, fuzzy
-msgid "Your Mobile Number..."
-msgstr "Telefono Mugikorra ezarri..."
+msgid "No profile available"
+msgstr "Eskuragaitz"
+
+#, fuzzy
+msgid "This contact does not have a profile."
+msgstr "Kontu honek ez dauka e-posta gaituta."
+
+#, fuzzy
+msgid "Your MXit ID..."
+msgstr "Yahoo IDa..."
+
+#. contact is in Deleted, Rejected or None state
+#, fuzzy
+msgid "Re-Invite"
+msgstr "Gonbidatu"
 
 #. Configuration options
 #. WAP server (reference: "libpurple/accountopt.h")
@@ -6195,18 +6389,41 @@ msgstr "TCP bidez konektatu"
 msgid "Enable splash-screen popup"
 msgstr ""
 
-#. you were kicked
 #, fuzzy
-msgid "You have been kicked from this MultiMX."
-msgstr "Kanporatua izan zara: (%s)"
+msgid "Last Online"
+msgstr "Konektatuta"
 
 #, fuzzy
-msgid "was kicked"
-msgstr "Tiket baliogabea"
+msgid "Invite Message"
+msgstr "Txertatu irudia mezuan"
 
 #, fuzzy
-msgid "_Room Name:"
-msgstr "_Gela:"
+msgid "No results"
+msgstr "Bilaketaren emaitzak"
+
+#, fuzzy
+msgid "No contacts found."
+msgstr "Ez da erabiltzailerik aurkitu"
+
+#. define columns
+#, fuzzy
+msgid "UserId"
+msgstr "Erabiltzailea"
+
+msgid "Where I live"
+msgstr ""
+
+#, c-format
+msgid "You have %i suggested friend."
+msgid_plural "You have %i suggested friends."
+msgstr[0] ""
+msgstr[1] ""
+
+#, c-format
+msgid "We found %i contact that matches your search."
+msgid_plural "We found %i contacts that match your search."
+msgstr[0] ""
+msgstr[1] ""
 
 #. we must have lost the connection, so terminate it so that we can reconnect
 #, fuzzy
@@ -6955,6 +7172,21 @@ msgstr "Zerbitzariaren helbidea"
 msgid "Server port"
 msgstr "Zerbitzariaren ataka"
 
+msgid "Please authorize me so I can add you to my buddy list."
+msgstr "Zu nire lagun-zerrendara gehitzeko baimena emaidazu, mesedez."
+
+msgid "No reason given."
+msgstr "Ez da arrazoirik eman."
+
+msgid "Authorization Denied Message:"
+msgstr "Baimena Ezesteko Mezua:"
+
+#. *
+#. * A wrapper for purple_request_action() that uses @c OK and @c Cancel buttons.
+#.
+msgid "_OK"
+msgstr "_Ados"
+
 #, fuzzy, c-format
 msgid "Received unexpected response from %s: %s"
 msgstr "Espero ez zen erantzuna jaso da %s(e)tik"
@@ -6971,11 +7203,22 @@ msgstr ""
 "saiatu aurretik. Saiatzen jarraituz gero, agian gehiago ere itxaron beharko "
 "duzu."
 
+msgid ""
+"You required encryption in your account settings, but one of the servers "
+"doesn't support it."
+msgstr ""
+
 #. Note to translators: The first %s is a URL, the second is an
 #. error message.
 #, c-format
 msgid "Error requesting %s: %s"
 msgstr "Errorea %s eskatzean: %s"
+
+#, fuzzy
+msgid "The server returned an empty response"
+msgstr ""
+"Ezin zerbitzarira konektatu. Konektatu nahi duzun zerbitzariaren helbidea "
+"sartu ezazu."
 
 msgid ""
 "Server requested that you fill out a CAPTCHA in order to sign in, but this "
@@ -6985,9 +7228,23 @@ msgstr ""
 msgid "AOL does not allow your screen name to authenticate here"
 msgstr "AOL-k ez du zure pantaila-izena hemen balioztatzea onartzen"
 
-#, fuzzy, c-format
-msgid "Error requesting %s"
-msgstr "Errorea %s eskatzean: %s"
+msgid ""
+"(There was an error receiving this message.  The buddy you are speaking with "
+"is probably using a different encoding than expected.  If you know what "
+"encoding he is using, you can specify it in the advanced account options for "
+"your AIM/ICQ account.)"
+msgstr ""
+"(Errorea mezu hau jasotzean.  Agian, espero zena ez den beste kodeketa bat "
+"darabil zure lagunak.  Zein kodeketa darabilen badakizu, zure AIM/ICQ "
+"kontuaren aukera aurreratuetan zehaztu dezakezu.)"
+
+#, c-format
+msgid ""
+"(There was an error receiving this message.  Either you and %s have "
+"different encodings selected, or %s has a buggy client.)"
+msgstr ""
+"((Errorea mezu hau jasotzean.  Kodeketa ezberdinak hautatu dituzue zuk eta %s"
+"(e)k, edo %s(e)k bezero akatsduna dauka.)"
 
 msgid "Could not join chat room"
 msgstr "Ezin gelara batu"
@@ -7224,94 +7481,6 @@ msgid "File %s is %s, which is larger than the maximum size of %s."
 msgstr ""
 "%s fitxategiak %s dauzka, hau da, %s tamaina maximoa baina handiagoa da."
 
-msgid ""
-"(There was an error receiving this message.  The buddy you are speaking with "
-"is probably using a different encoding than expected.  If you know what "
-"encoding he is using, you can specify it in the advanced account options for "
-"your AIM/ICQ account.)"
-msgstr ""
-"(Errorea mezu hau jasotzean.  Agian, espero zena ez den beste kodeketa bat "
-"darabil zure lagunak.  Zein kodeketa darabilen badakizu, zure AIM/ICQ "
-"kontuaren aukera aurreratuetan zehaztu dezakezu.)"
-
-#, c-format
-msgid ""
-"(There was an error receiving this message.  Either you and %s have "
-"different encodings selected, or %s has a buggy client.)"
-msgstr ""
-"((Errorea mezu hau jasotzean.  Kodeketa ezberdinak hautatu dituzue zuk eta %s"
-"(e)k, edo %s(e)k bezero akatsduna dauka.)"
-
-#. Label
-msgid "Buddy Icon"
-msgstr "Lagun-Ikonoa"
-
-msgid "Voice"
-msgstr "Ahotsa"
-
-msgid "AIM Direct IM"
-msgstr "AIM Direct IM"
-
-msgid "Get File"
-msgstr "Fitxategia Hartu"
-
-msgid "Games"
-msgstr "Jokoak"
-
-msgid "ICQ Xtraz"
-msgstr ""
-
-msgid "Add-Ins"
-msgstr "Osagarriak"
-
-msgid "Send Buddy List"
-msgstr "Lagun-Zerrenda Bidali"
-
-msgid "ICQ Direct Connect"
-msgstr "ICQ Zuzeneko Konexioa"
-
-msgid "AP User"
-msgstr "AP Erabiltzailea"
-
-msgid "ICQ RTF"
-msgstr "ICQ RTF"
-
-msgid "Nihilist"
-msgstr "Nihilista"
-
-msgid "ICQ Server Relay"
-msgstr "ICQ Server Relay"
-
-msgid "Old ICQ UTF8"
-msgstr "ICQ UTF8 Zaharra"
-
-msgid "Trillian Encryption"
-msgstr "Trillian Enkripzioa"
-
-msgid "ICQ UTF8"
-msgstr "ICQ UTF8"
-
-msgid "Hiptop"
-msgstr "Hiptop"
-
-msgid "Security Enabled"
-msgstr "Segurtasuna Gaituta"
-
-msgid "Video Chat"
-msgstr "Bideo-Berriketa"
-
-msgid "iChat AV"
-msgstr "iChat AV"
-
-msgid "Live Video"
-msgstr "Zuzeneko Bideoa"
-
-msgid "Camera"
-msgstr "Kamera"
-
-msgid "Screen Sharing"
-msgstr "Pantaila-Partekatzea"
-
 msgid "Free For Chat"
 msgstr "Berriketarako Libre"
 
@@ -7347,15 +7516,6 @@ msgstr "Sarea"
 msgid "At lunch"
 msgstr "Bazkaltzen"
 
-msgid "IP Address"
-msgstr "IP Helbidea"
-
-msgid "Warning Level"
-msgstr "Abisu-Maila"
-
-msgid "Buddy Comment"
-msgstr "Lagun-Iruzkina"
-
 #, c-format
 msgid "Unable to connect to authentication server: %s"
 msgstr "Ezin balioztatze-zerbitzarira konektatu: %s"
@@ -7385,6 +7545,11 @@ msgstr ""
 "batekin hasi eta letrak, zenbakiak eta zuriuneak bakarrik eduki, edo bestela "
 "zenbakiak bakarrik."
 
+msgid ""
+"You required encryption in your account settings, but encryption is not "
+"supported by your system."
+msgstr ""
+
 #, c-format
 msgid "You may be disconnected shortly.  If so, check %s for updates."
 msgstr ""
@@ -7401,7 +7566,6 @@ msgid "Received authorization"
 msgstr "Baimena jaso da"
 
 #. Unregistered username
-#. uid is not exist
 #. the username does not exist
 msgid "Username does not exist"
 msgstr "Erabiltzaile-izena ez da existitzen"
@@ -7454,15 +7618,6 @@ msgstr "Pasahitza bidali da"
 
 msgid "Unable to initialize connection"
 msgstr "Ezin konexioa hasiarazi"
-
-msgid "Please authorize me so I can add you to my buddy list."
-msgstr "Zu nire lagun-zerrendara gehitzeko baimena emaidazu, mesedez."
-
-msgid "No reason given."
-msgstr "Ez da arrazoirik eman."
-
-msgid "Authorization Denied Message:"
-msgstr "Baimena Ezesteko Mezua:"
 
 #, c-format
 msgid ""
@@ -7576,58 +7731,20 @@ msgid_plural "You missed %hu messages from %s for an unknown reason."
 msgstr[0] "Mezu %hu galdu duzu (%s(r)ena), arrazoi ezezagun baten erruz."
 msgstr[1] "%hu mezu galdu dituzu (%s(r)enak), arrazoi ezezagun baten erruz."
 
-#, c-format
-msgid "User information not available: %s"
-msgstr "Erabiltzaile-datuak ez daude eskuragarri: %s"
-
-msgid "Online Since"
-msgstr "Noiztik Online"
-
-msgid "Member Since"
-msgstr "Noiztik Kidea"
-
-msgid "Capabilities"
-msgstr "Gaitasunak"
-
 msgid "Your AIM connection may be lost."
 msgstr "Beharbada AIM konexioa galdu duzu."
-
-#. The conversion failed!
-msgid ""
-"[Unable to display a message from this user because it contained invalid "
-"characters.]"
-msgstr ""
-"[Ezin erabiltzaile honen mezu bat erakutsi, karaktere baliogabeak dituelako.]"
 
 #, c-format
 msgid "You have been disconnected from chat room %s."
 msgstr "%s berriketa-gelatik deskonektatu egin zaituzte."
 
-msgid "Mobile Phone"
-msgstr "Telefono Mugikorra"
+msgid "The new formatting is invalid."
+msgstr "Formatu berria ez da baliozkoa."
 
-msgid "Personal Web Page"
-msgstr "Webgune Pertsonala"
-
-#. aim_userinfo_t
-#. strip_html_tags
-msgid "Additional Information"
-msgstr "Informazio Gehigarria"
-
-msgid "Zip Code"
-msgstr "Posta-Kodea"
-
-msgid "Work Information"
-msgstr "Laneko Datuak"
-
-msgid "Division"
-msgstr "Saila"
-
-msgid "Position"
-msgstr "Kargua"
-
-msgid "Web Page"
-msgstr "Webgunea"
+msgid "Username formatting can change only capitalization and whitespace."
+msgstr ""
+"Erabiltzaile-izenak formateatzean maiuskula/minuskulak eta hutsuneak "
+"bakarrik aldatu ditzake."
 
 msgid "Pop-Up Message"
 msgstr "Pop-Up Mezua"
@@ -7900,18 +8017,11 @@ msgstr ""
 msgid "ICQ Privacy Options"
 msgstr "ICQ Pribatutasun Ezarpenak"
 
-msgid "The new formatting is invalid."
-msgstr "Formatu berria ez da baliozkoa."
-
-msgid "Username formatting can change only capitalization and whitespace."
-msgstr ""
-"Erabiltzaile-izenak formateatzean maiuskula/minuskulak eta hutsuneak "
-"bakarrik aldatu ditzake."
-
 msgid "Change Address To:"
 msgstr "Helbide Hau Ezarri:"
 
-msgid "<i>you are not waiting for authorization</i>"
+#, fuzzy
+msgid "you are not waiting for authorization"
 msgstr "<i>ez zaude baimenaren zain</i>"
 
 msgid "You are awaiting authorization from the following buddies"
@@ -7933,9 +8043,6 @@ msgstr "Helbide elektronikoaren bidez bilatu lagun bat"
 msgid "Type the email address of the buddy you are searching for."
 msgstr "Bilatu nahi duzun lagunaren helbide elektronikoa idatz ezazu."
 
-msgid "_Search"
-msgstr "_Bilatu"
-
 msgid "Set User Info (web)..."
 msgstr "Erabiltzaile-Informazioa Ezarri (web)..."
 
@@ -7949,6 +8056,14 @@ msgstr "IM-Birbidalketa Konfiguratu (URLa)"
 #. ICQ actions
 msgid "Set Privacy Options..."
 msgstr "Pribatutasun Aukerak Ezarri..."
+
+#, fuzzy
+msgid "Show Visible List"
+msgstr "Lagun-_Zerrenda Erakutsi"
+
+#, fuzzy
+msgid "Show Invisible List"
+msgstr "Gonbidatu-Zerrenda"
 
 #. AIM actions
 msgid "Confirm Account"
@@ -7965,9 +8080,6 @@ msgstr "Baimenaren Zain dauden Lagunak Bistaratu"
 
 msgid "Search for Buddy by Email Address..."
 msgstr "Helbide Elektronikoaren bidez Bilatu Laguna..."
-
-msgid "Search for Buddy by Information"
-msgstr "Informazioaren bidez Bilatu Laguna"
 
 msgid "Use clientLogin"
 msgstr ""
@@ -8009,14 +8121,132 @@ msgstr ""
 "Irudietarako. Zure IP helbidea erakutsiko denez, pribatutasun-arrisku bat "
 "suposa dezake."
 
+#. Label
+msgid "Buddy Icon"
+msgstr "Lagun-Ikonoa"
+
+msgid "Voice"
+msgstr "Ahotsa"
+
+msgid "AIM Direct IM"
+msgstr "AIM Direct IM"
+
+msgid "Get File"
+msgstr "Fitxategia Hartu"
+
+msgid "Games"
+msgstr "Jokoak"
+
+msgid "ICQ Xtraz"
+msgstr ""
+
+msgid "Add-Ins"
+msgstr "Osagarriak"
+
+msgid "Send Buddy List"
+msgstr "Lagun-Zerrenda Bidali"
+
+msgid "ICQ Direct Connect"
+msgstr "ICQ Zuzeneko Konexioa"
+
+msgid "AP User"
+msgstr "AP Erabiltzailea"
+
+msgid "ICQ RTF"
+msgstr "ICQ RTF"
+
+msgid "Nihilist"
+msgstr "Nihilista"
+
+msgid "ICQ Server Relay"
+msgstr "ICQ Server Relay"
+
+msgid "Old ICQ UTF8"
+msgstr "ICQ UTF8 Zaharra"
+
+msgid "Trillian Encryption"
+msgstr "Trillian Enkripzioa"
+
+msgid "ICQ UTF8"
+msgstr "ICQ UTF8"
+
+msgid "Hiptop"
+msgstr "Hiptop"
+
+msgid "Security Enabled"
+msgstr "Segurtasuna Gaituta"
+
+msgid "Video Chat"
+msgstr "Bideo-Berriketa"
+
+msgid "iChat AV"
+msgstr "iChat AV"
+
+msgid "Live Video"
+msgstr "Zuzeneko Bideoa"
+
+msgid "Camera"
+msgstr "Kamera"
+
+msgid "Screen Sharing"
+msgstr "Pantaila-Partekatzea"
+
+msgid "IP Address"
+msgstr "IP Helbidea"
+
+msgid "Warning Level"
+msgstr "Abisu-Maila"
+
+msgid "Buddy Comment"
+msgstr "Lagun-Iruzkina"
+
+#, c-format
+msgid "User information not available: %s"
+msgstr "Erabiltzaile-datuak ez daude eskuragarri: %s"
+
+msgid "Mobile Phone"
+msgstr "Telefono Mugikorra"
+
+msgid "Personal Web Page"
+msgstr "Webgune Pertsonala"
+
+#. aim_userinfo_t
+#. use_html_status
+msgid "Additional Information"
+msgstr "Informazio Gehigarria"
+
+msgid "Zip Code"
+msgstr "Posta-Kodea"
+
+msgid "Work Information"
+msgstr "Laneko Datuak"
+
+msgid "Division"
+msgstr "Saila"
+
+msgid "Position"
+msgstr "Kargua"
+
+msgid "Web Page"
+msgstr "Webgunea"
+
+msgid "Online Since"
+msgstr "Noiztik Online"
+
+msgid "Member Since"
+msgstr "Noiztik Kidea"
+
+msgid "Capabilities"
+msgstr "Gaitasunak"
+
 msgid "Invalid SNAC"
 msgstr "SNAC baliogabea"
 
-msgid "Rate to host"
-msgstr "Ostalariarekiko tasa"
+msgid "Server rate limit exceeded"
+msgstr ""
 
-msgid "Rate to client"
-msgstr "Bezeroarekiko tasa"
+msgid "Client rate limit exceeded"
+msgstr ""
 
 msgid "Service unavailable"
 msgstr "Zerbitzua eskuragaitz"
@@ -8078,719 +8308,58 @@ msgstr "Ilara beteta"
 msgid "Not while on AOL"
 msgstr "Ez AOLn egon bitartean"
 
-msgid "Aquarius"
-msgstr "Akuario"
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear online to the chosen user even when your status is set to
+#. Invisible.
+msgid "Appear Online"
+msgstr "Online Agertu"
 
-msgid "Pisces"
-msgstr "Piszis"
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear offline to the chosen user when your status is set to
+#. Invisible (this is the default).
+#, fuzzy
+msgid "Don't Appear Online"
+msgstr "Online Agertu"
 
-msgid "Aries"
-msgstr "Aries"
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to always appear offline to the chosen user (even when your status
+#. isn't Invisible).
+msgid "Appear Offline"
+msgstr "Offline Agertu"
 
-msgid "Taurus"
-msgstr "Tauro"
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear offline to the chosen user if you are invisible, and
+#. appear online to the chosen user if you are not invisible (this is the
+#. default).
+#, fuzzy
+msgid "Don't Appear Offline"
+msgstr "Offline Agertu"
 
-msgid "Gemini"
-msgstr "Geminis"
+#, fuzzy
+msgid "you have no buddies on this list"
+msgstr "Kanporatua izan zara: (%s)"
 
-msgid "Cancer"
-msgstr "Kantzer"
+#, fuzzy, c-format
+msgid ""
+"You can add a buddy to this list by right-clicking on them and selecting \"%s"
+"\""
+msgstr ""
+"Lagun hauei baimena berriro eskatzeko, eskuin-klik egizu lagunen gainean eta "
+"\"Baimena Berriro Eskatu\" hautatu ezazu."
 
-msgid "Leo"
-msgstr "Leo"
-
-msgid "Virgo"
-msgstr "V‏irgo"
-
-msgid "Libra"
-msgstr "Libra"
-
-msgid "Scorpio"
-msgstr "Eskorpio"
-
-msgid "Sagittarius"
-msgstr "Sagitario"
-
-msgid "Capricorn"
-msgstr "Kaprikornio"
-
-msgid "Rat"
-msgstr "Sagua"
-
-msgid "Ox"
-msgstr "Idia"
-
-msgid "Tiger"
-msgstr "Tigrea"
-
-msgid "Rabbit"
-msgstr "Untxia"
-
-msgid "Dragon"
-msgstr "Herensugea"
-
-msgid "Snake"
-msgstr "Sugea"
-
-msgid "Horse"
-msgstr "Zaldia"
-
-msgid "Goat"
-msgstr "Ahuntza"
-
-msgid "Monkey"
-msgstr "Tximinoa"
-
-msgid "Rooster"
-msgstr "Oilarra"
-
-msgid "Dog"
-msgstr "Txakurra"
-
-msgid "Pig"
-msgstr "Txerria"
-
-msgid "Other"
-msgstr "Besteak"
-
-msgid "Visible"
+#, fuzzy
+msgid "Visible List"
 msgstr "Ikusgarri"
 
-msgid "Friend Only"
-msgstr "Lagunak Bakarrik"
-
-msgid "Private"
-msgstr "Pribatua"
-
-msgid "QQ Number"
-msgstr "QQ Zenbakia"
-
-msgid "Country/Region"
-msgstr "Herrialdea/Zona"
-
-msgid "Province/State"
-msgstr "Probintzia/Estatua"
-
-msgid "Zipcode"
-msgstr "Posta-kodea"
-
-msgid "Phone Number"
-msgstr "Telefono Zenbakia"
-
-msgid "Authorize adding"
+msgid "These buddies will see your status when you switch to \"Invisible\""
 msgstr ""
-
-msgid "Cellphone Number"
-msgstr "Mugikoe Telefono"
-
-msgid "Personal Introduction"
-msgstr "Hitzaurre Pertsonala"
-
-msgid "City/Area"
-msgstr "Herria/Area"
-
-msgid "Publish Mobile"
-msgstr "Mugikorra Argitaratu"
-
-msgid "Publish Contact"
-msgstr "Kontaktua Argitaratu"
-
-msgid "College"
-msgstr "Eskola"
-
-msgid "Horoscope"
-msgstr "Horoskopoa"
-
-msgid "Zodiac"
-msgstr "Zodiakoa"
-
-msgid "Blood"
-msgstr "Odola"
-
-msgid "True"
-msgstr "Egia"
-
-msgid "False"
-msgstr "Gezurra"
-
-msgid "Modify Contact"
-msgstr "Kontaktua Aldatu"
-
-msgid "Modify Address"
-msgstr "Helbidea Aldatu"
-
-msgid "Modify Extended Information"
-msgstr "Informazio Gehigarria Aldatu"
-
-msgid "Modify Information"
-msgstr "Informazioa Aldatu"
-
-msgid "Update"
-msgstr "Eguneratu"
-
-msgid "Could not change buddy information."
-msgstr "Ezin lagunaren informazioa aldatu."
-
-msgid "Note"
-msgstr "Oharra"
-
-#. callback
-msgid "Buddy Memo"
-msgstr ""
-
-msgid "Change his/her memo as you like"
-msgstr ""
-
-msgid "_Modify"
-msgstr "_Modifikatu"
-
-msgid "Memo Modify"
-msgstr ""
-
-msgid "Server says:"
-msgstr "Zerbitzariak dio:"
-
-msgid "Your request was accepted."
-msgstr "Zure eskaera onartu da."
-
-msgid "Your request was rejected."
-msgstr "Zure eskaera ezetsi da."
-
-#, c-format
-msgid "%u requires verification"
-msgstr "%u(e)k egiaztapena behar du"
-
-msgid "Add buddy question"
-msgstr "Lagun-galdera gehitu"
-
-msgid "Enter answer here"
-msgstr "Hemen sartu erantzuna"
-
-msgid "Send"
-msgstr "Bidali"
-
-msgid "Invalid answer."
-msgstr "Erantzun baliogabea."
-
-msgid "Authorization denied message:"
-msgstr "Autorizazioa ezesteko mezua:"
-
-msgid "Sorry, you're not my style."
-msgstr "Lastima, ez zara nire tipoa."
-
-#, c-format
-msgid "%u needs authorization"
-msgstr "%u(e)k autorizazioa behar du"
-
-msgid "Add buddy authorize"
-msgstr "Lagun-autorizazioa gehitu"
-
-msgid "Enter request here"
-msgstr "Hemen sartu eskaera"
-
-msgid "Would you be my friend?"
-msgstr "Nire laguna izan nahi al duzu?"
-
-msgid "QQ Buddy"
-msgstr "QQ Laguna"
-
-msgid "Add buddy"
-msgstr "Laguna gehitu"
-
-msgid "Invalid QQ Number"
-msgstr "QQ-Zenbaki Baliogabea"
-
-msgid "Failed sending authorize"
-msgstr "Ezin autorizazioa bidali"
-
-#, c-format
-msgid "Failed removing buddy %u"
-msgstr "Ezin %u laguna kendu"
-
-#, c-format
-msgid "Failed removing me from %d's buddy list"
-msgstr "Ezin ni kendu %d lagunaren zerrendatik."
-
-msgid "No reason given"
-msgstr "Arrazoirik ez"
-
-#. only need to get value
-#, c-format
-msgid "You have been added by %s"
-msgstr "%s erabiltzaileak gehitu zaitu"
-
-msgid "Would you like to add him?"
-msgstr "Bera gehitu nahi al duzu?"
-
-#, c-format
-msgid "Rejected by %s"
-msgstr "%s(e)k ezetsia"
-
-#, c-format
-msgid "Message: %s"
-msgstr "Mezua: %s"
-
-msgid "ID: "
-msgstr "IDa:"
-
-msgid "Group ID"
-msgstr "Talde IDa"
-
-msgid "QQ Qun"
-msgstr "QQ Qun"
-
-msgid "Please enter Qun number"
-msgstr "Qun zenbakia sartu"
-
-msgid "You can only search for permanent Qun\n"
-msgstr "Qun iraunkorrak bakarrik bilatu ditzakezu\n"
-
-msgid "(Invalid UTF-8 string)"
-msgstr "(UTF-8 kate baliogabea)"
-
-msgid "Not member"
-msgstr "Ez kidea"
-
-msgid "Member"
-msgstr "Kidea"
-
-msgid "Requesting"
-msgstr "Eskatzen"
-
-msgid "Admin"
-msgstr "Administratzailea"
-
-#. XXX: Should this be "Topic"?
-#, fuzzy
-msgid "Room Title"
-msgstr "Gela-Zerrenda"
-
-msgid "Notice"
-msgstr "Oharra"
-
-msgid "Detail"
-msgstr "Xehetasunak"
-
-msgid "Creator"
-msgstr "Sortzailea"
-
-msgid "About me"
-msgstr "Niri buruz"
-
-msgid "Category"
-msgstr "Kategoria"
-
-msgid "The Qun does not allow others to join"
-msgstr "Qun-ak ez du erabiltzaile gehiago batzea onartzen"
-
-msgid "Join QQ Qun"
-msgstr "QQ Qun-era Batu"
-
-msgid "Input request here"
-msgstr "Hemen sartu eskaera"
-
-#, c-format
-msgid "Successfully joined Qun %s (%u)"
-msgstr "Arrakastaz batua %s Qun-era (%u)"
-
-msgid "Successfully joined Qun"
-msgstr "Arrakastaz batua Qun-era"
-
-#, c-format
-msgid "Qun %u denied from joining"
-msgstr ""
-
-msgid "QQ Qun Operation"
-msgstr "QQ Qun Eragiketa"
-
-msgid "Failed:"
-msgstr "Errorea:"
-
-msgid "Join Qun, Unknown Reply"
-msgstr "Qun-era Batu, Erantzun Ezezaguna"
-
-msgid "Quit Qun"
-msgstr "Qun-etik Irten"
-
-msgid ""
-"Note, if you are the creator, \n"
-"this operation will eventually remove this Qun."
-msgstr ""
-"Oharra, sortzailea bazara, \n"
-"eragiketa honek Qun hau ken dezake."
-
-msgid "Sorry, you are not our style"
-msgstr "Lastima, ez zara nire tipoa"
-
-msgid "Successfully changed Qun members"
-msgstr "Arrakastaz aldatu dira Qun kideak"
-
-msgid "Successfully changed Qun information"
-msgstr "Arrakastaz aldatu da Qun informazioa"
-
-msgid "You have successfully created a Qun"
-msgstr "Arrakastaz sortu duzu Qun bat"
-
-msgid "Would you like to set up detailed information now?"
-msgstr "Informazio xehea konfiguratu nahi al duzu orain?"
-
-msgid "Setup"
-msgstr "Konfiguratu"
-
-#, c-format
-msgid "%u requested to join Qun %u for %s"
-msgstr "%u(e)k %u Qun-era batu nahi du %s(e)rako"
-
-#, c-format
-msgid "%u request to join Qun %u"
-msgstr "%u(e)k %u Qun-era batu nahi du"
-
-#, c-format
-msgid "Failed to join Qun %u, operated by admin %u"
-msgstr "Ezin %u Qun-era batu (%u administratzaileak kudeatua)"
-
-#, c-format
-msgid "<b>Joining Qun %u is approved by admin %u for %s</b>"
-msgstr ""
-"<b>%u Qun-era batu zaitezke (%u administratzaileak baimendua %s(e)rako)</b>"
-
-#, c-format
-msgid "<b>Removed buddy %u.</b>"
-msgstr "<b>%u.laguna kenduta.</b>"
-
-#, c-format
-msgid "<b>New buddy %u joined.</b>"
-msgstr "<b>%u lagun berria batu da.</b>"
-
-#, c-format
-msgid "Unknown-%d"
-msgstr "Ezezaguna-%d"
-
-msgid "Level"
-msgstr "Maila"
-
-msgid " VIP"
-msgstr "VIP"
-
-msgid " TCP"
-msgstr "TCP"
-
-msgid " FromMobile"
-msgstr " Mugikorretik"
 
 #, fuzzy
-msgid " BindMobile"
-msgstr " MugikorraLotu"
+msgid "Invisible List"
+msgstr "Gonbidatu-Zerrenda"
 
-msgid " Video"
-msgstr " Bideoa"
-
-msgid " Zone"
-msgstr " Zona"
-
-msgid "Flag"
-msgstr "Bandera"
-
-msgid "Ver"
-msgstr "Ber"
-
-msgid "Invalid name"
-msgstr "Izen baliogabea"
-
-msgid "Select icon..."
-msgstr "Ikonoa hautatu..."
-
-#, c-format
-msgid "<b>Login time</b>: %d-%d-%d, %d:%d:%d<br>\n"
-msgstr "<b>Konexio-ordua</b>: %d-%d-%d, %d:%d:%d<br>\n"
-
-#, c-format
-msgid "<b>Total Online Buddies</b>: %d<br>\n"
-msgstr "<b>Lagun Konektatuak Guztira</b>: %d<br>\n"
-
-#, c-format
-msgid "<b>Last Refresh</b>: %d-%d-%d, %d:%d:%d<br>\n"
-msgstr "<b>Azken Freskatzea</b>: %d-%d-%d, %d:%d:%d<br>\n"
-
-#, c-format
-msgid "<b>Server</b>: %s<br>\n"
-msgstr "<b>Zerbitzaria</b>: %s<br>\n"
-
-#, c-format
-msgid "<b>Client Tag</b>: %s<br>\n"
-msgstr "<b>Bezero-Etiketa</b>: %s<br>\n"
-
-#, c-format
-msgid "<b>Connection Mode</b>: %s<br>\n"
-msgstr "<b>Konexio-Modua</b>: %s<br>\n"
-
-#, c-format
-msgid "<b>My Internet IP</b>: %s:%d<br>\n"
-msgstr "<b>Nire Internet-IPa</b>: %s:%d<br>\n"
-
-#, c-format
-msgid "<b>Sent</b>: %lu<br>\n"
-msgstr "<b>Bidalita</b>: %lu<br>\n"
-
-#, c-format
-msgid "<b>Resend</b>: %lu<br>\n"
-msgstr "<b>Birbidali</b>: %lu<br>\n"
-
-#, c-format
-msgid "<b>Lost</b>: %lu<br>\n"
-msgstr "<b>Galduta</b>: %lu<br>\n"
-
-#, c-format
-msgid "<b>Received</b>: %lu<br>\n"
-msgstr "<b>Jasota</b>: %lu<br>\n"
-
-#, c-format
-msgid "<b>Received Duplicate</b>: %lu<br>\n"
-msgstr "<b>Jasotako Bikoiztua</b>: %lu<br>\n"
-
-#, c-format
-msgid "<b>Time</b>: %d-%d-%d, %d:%d:%d<br>\n"
-msgstr "<b>Ordua</b>: %d-%d-%d, %d:%d:%d<br>\n"
-
-#, c-format
-msgid "<b>IP</b>: %s<br>\n"
-msgstr "<b>IPa</b>: %s<br>\n"
-
-msgid "Login Information"
-msgstr "Konexio-Informazioa"
-
-msgid "<p><b>Original Author</b>:<br>\n"
-msgstr "<p><b>Jatorrizko Egilea</b>:<br>\n"
-
-msgid "<p><b>Code Contributors</b>:<br>\n"
-msgstr "<p><b>Kode-Kontribuitzaileak</b>:<br>\n"
-
-msgid "<p><b>Lovely Patch Writers</b>:<br>\n"
-msgstr "<p><b>Partxe-Idazle Maitagarriak</b>:<br>\n"
-
-msgid "<p><b>Acknowledgement</b>:<br>\n"
-msgstr "<p><b>Eskerrak</b>:<br>\n"
-
-msgid "<p><b>Scrupulous Testers</b>:<br>\n"
-msgstr "<p><b>Frogatzaile Arduratsuak</b>:<br>\n"
-
-msgid "and more, please let me know... thank you!))"
-msgstr "eta gehiago, mesedez esaidazue.... esker mila!))"
-
-msgid "<p><i>And, all the boys in the backroom...</i><br>\n"
-msgstr "<p><i>Eta, atzeko gelako mutiko guztiak...</i><br>\n"
-
-msgid "<i>Feel free to join us!</i> :)"
-msgstr "<i>Zatoz gurekin!</i> :)"
-
-#, c-format
-msgid "About OpenQ %s"
-msgstr "OpenQ %s(e)ri Buruz"
-
-msgid "Change Icon"
-msgstr "Ikonoa Aldatu"
-
-msgid "Change Password"
-msgstr "Pasahitza Aldatu"
-
-msgid "Account Information"
-msgstr "Kontuaren Informazioa"
-
-msgid "Update all QQ Quns"
-msgstr "QQ Qun guztiak eguneratu"
-
-msgid "About OpenQ"
-msgstr "OpenQ-ri Buruz"
-
-msgid "Modify Buddy Memo"
+msgid "These buddies will always see you as offline"
 msgstr ""
-
-#. *< type
-#. *< ui_requirement
-#. *< flags
-#. *< dependencies
-#. *< priority
-#. *< id
-#. *< name
-#. *< version
-#. *  summary
-#. *  description
-msgid "QQ Protocol Plugin"
-msgstr "QQ Protokolo-Plugina"
-
-msgid "Auto"
-msgstr "Auto"
-
-msgid "Select Server"
-msgstr "Zerbitzaria Hautatu"
-
-msgid "QQ2005"
-msgstr "QQ2005"
-
-msgid "QQ2007"
-msgstr "QQ2007"
-
-msgid "QQ2008"
-msgstr "QQ2008"
-
-msgid "Connect by TCP"
-msgstr "TCP bidez konektatu"
-
-msgid "Show server notice"
-msgstr "Zerbitzari-oharra erakutsi"
-
-msgid "Show server news"
-msgstr "Zerbitzari-albisteak erakutsi"
-
-msgid "Show chat room when msg comes"
-msgstr "Solasaldi-gela erakutsi mezua jasotzean"
-
-msgid "Keep alive interval (seconds)"
-msgstr "Bizirik mantentzeko tartea (segundoak)"
-
-msgid "Update interval (seconds)"
-msgstr "Eguneratze-tartea (segundoak)"
-
-msgid "Unable to decrypt server reply"
-msgstr "Ezin zerbitzariaren erantzuna desenkriptatu"
-
-#, c-format
-msgid "Failed requesting token, 0x%02X"
-msgstr "Ezin testigua eskatu, 0x%02X"
-
-#, c-format
-msgid "Invalid token len, %d"
-msgstr "Testigu-luzera baliogabea, %d"
-
-#. extend redirect used in QQ2006
-msgid "Redirect_EX is not currently supported"
-msgstr "Redirect_EX ez dago jasana oraindik"
-
-#. need activation
-#. need activation
-#. need activation
-msgid "Activation required"
-msgstr "Aktibazioa beharrezkoa"
-
-#, c-format
-msgid "Unknown reply code when logging in (0x%02X)"
-msgstr "Erantzun-kode ezezaguna konektatzean (0x%02X)"
-
-msgid "Requesting captcha"
-msgstr "Captcha eskatzen"
-
-msgid "Checking captcha"
-msgstr "Captcha egiaztatzen"
-
-msgid "Failed captcha verification"
-msgstr "Errorea captcha egiaztapenean"
-
-msgid "Captcha Image"
-msgstr "Captcha Irudia"
-
-msgid "Enter code"
-msgstr "Kodea sartu"
-
-msgid "QQ Captcha Verification"
-msgstr "QQ Captcha-Egiaztapena"
-
-msgid "Enter the text from the image"
-msgstr "Irudiko testua sartu ezazu"
-
-#, c-format
-msgid "Unknown reply when checking password (0x%02X)"
-msgstr "Erantzun ezezaguna pasahitza egiaztatzean (0x%02X)"
-
-#, c-format
-msgid ""
-"Unknown reply code when logging in (0x%02X):\n"
-"%s"
-msgstr ""
-"Erantzun-kode ezezaguna konektatzean (0x%02X)\n"
-"%s"
-
-msgid "Socket error"
-msgstr "Socket errorea"
-
-msgid "Getting server"
-msgstr "Zerbitzaria eskuratzen"
-
-msgid "Requesting token"
-msgstr "Testigua eskatzen"
-
-msgid "Unable to resolve hostname"
-msgstr "Ezin ostalari-izena ebaztu"
-
-msgid "Invalid server or port"
-msgstr "Zerbitzari edo ataka baliogabea"
-
-msgid "Connecting to server"
-msgstr "Zerbitzarira konektatzen"
-
-msgid "QQ Error"
-msgstr "QQ Errorea"
-
-#, c-format
-msgid ""
-"Server News:\n"
-"%s\n"
-"%s\n"
-"%s"
-msgstr ""
-"Zerbitzariko Albisteak\n"
-"%s\n"
-"%s\n"
-"%s"
-
-#, c-format
-msgid "%s:%s"
-msgstr "%s:%s"
-
-#, c-format
-msgid "From %s:"
-msgstr "%s(e)tik:"
-
-#, c-format
-msgid ""
-"Server notice From %s: \n"
-"%s"
-msgstr ""
-"Zerbitzari-oharra %s(e)tik:\n"
-"%s"
-
-msgid "Unknown SERVER CMD"
-msgstr "SERVER CMD Ezezaguna"
-
-#, c-format
-msgid ""
-"Error reply of %s(0x%02X)\n"
-"Room %u, reply 0x%02X"
-msgstr ""
-"%s(r)en errore-erantzuna (0x%02X)\n"
-"%u gela, 0x%02X erantzuna"
-
-msgid "QQ Qun Command"
-msgstr "QQ Qun Agindua"
-
-msgid "Unable to decrypt login reply"
-msgstr "Ezin konexio-erantzuna desenkriptatu"
-
-msgid "Unknown LOGIN CMD"
-msgstr "LOGIN CMD Ezezaguna"
-
-msgid "Unknown CLIENT CMD"
-msgstr "CLIENT CMD Ezezaguna"
-
-#, c-format
-msgid "%d has declined the file %s"
-msgstr "%d(e)k ez du %s fitxategia onartu"
-
-msgid "File Send"
-msgstr "Fitxategi Bidalia"
-
-#, c-format
-msgid "%d cancelled the transfer of %s"
-msgstr "%d(e)k bertan behera utzi du %s fitxategiaren transferentzia"
 
 #, c-format
 msgid "<b>Group Title:</b> %s<br>"
@@ -9571,6 +9140,9 @@ msgstr "Erakundea"
 msgid "Unit"
 msgstr "Saila"
 
+msgid "Note"
+msgstr "Oharra"
+
 msgid "Join Chat"
 msgstr "Berriketara Batu"
 
@@ -10215,6 +9787,9 @@ msgstr "Zerbitzari-erantzun ezezaguna"
 msgid "Unable to create listen socket"
 msgstr "Ezin entzuteko socket-a sortu"
 
+msgid "Unable to resolve hostname"
+msgstr "Ezin ostalari-izena ebaztu"
+
 msgid "SIP usernames may not contain whitespaces or @ symbols"
 msgstr "SIP ezizenek ezin dute zuriunerik edo @ ikurrik eduki"
 
@@ -10294,7 +9869,8 @@ msgstr "Solasaldi-gelaren lokalizazioa"
 msgid "Ignore conference and chatroom invitations"
 msgstr "Konferentzia eta berriketa-geletarako gonbidapenak ezikusi"
 
-msgid "Use account proxy for SSL connections"
+#, fuzzy
+msgid "Use account proxy for HTTP and HTTPS connections"
 msgstr "Kontuaren proxy-a erabili SSL konexioetarako"
 
 msgid "Chat room list URL"
@@ -10329,6 +9905,9 @@ msgstr "Ez da zure Yahoo!-mezua bidali."
 #, c-format
 msgid "Yahoo! system message for %s:"
 msgstr "Yahoo! sistema-mezua - %s:"
+
+msgid "Authorization denied message:"
+msgstr "Autorizazioa ezesteko mezua:"
 
 #, c-format
 msgid ""
@@ -10479,17 +10058,11 @@ msgstr "Kanpoan"
 msgid "Not on server list"
 msgstr "Ez dago zerbitzari-zerrendan"
 
-msgid "Appear Online"
-msgstr "Online Agertu"
-
 msgid "Appear Permanently Offline"
 msgstr "Iraunkorki Agertu Offline"
 
 msgid "Presence"
 msgstr "Presentzia"
-
-msgid "Appear Offline"
-msgstr "Offline Agertu"
 
 msgid "Don't Appear Permanently Offline"
 msgstr "Ez Iraunkorki Agertu Offline"
@@ -11037,27 +10610,22 @@ msgid " (%s)"
 msgstr " (%s)"
 
 #. 10053
-#, c-format
 msgid "Connection interrupted by other software on your computer."
 msgstr "Zure ordenagailuko beste software batek moztu du konexioa."
 
 #. 10054
-#, c-format
 msgid "Remote host closed connection."
 msgstr "Konexioa itxi du urruneko ostalariak."
 
 #. 10060
-#, c-format
 msgid "Connection timed out."
 msgstr "Konexioaren denbora-muga agortua."
 
 #. 10061
-#, c-format
 msgid "Connection refused."
 msgstr "Konexioa ezetsia "
 
 #. 10048
-#, c-format
 msgid "Address already in use."
 msgstr "Erabilpean dago jadanik helbidea."
 
@@ -11122,14 +10690,17 @@ msgstr "Proxy-Ezarpen Orokorrak Erabili"
 msgid "No Proxy"
 msgstr "Proxy-rik Ez"
 
-msgid "HTTP"
-msgstr "HTTP"
-
 msgid "SOCKS 4"
 msgstr "SOCKS 4"
 
 msgid "SOCKS 5"
 msgstr "SOCKS 5"
+
+msgid "Tor/Privacy (SOCKS5)"
+msgstr ""
+
+msgid "HTTP"
+msgstr "HTTP"
 
 msgid "Use Environmental Settings"
 msgstr "Ingurune-Ezarpenak Erabili"
@@ -11157,6 +10728,14 @@ msgstr "_Ataka:"
 
 msgid "Pa_ssword:"
 msgstr "Pa_sahitza:"
+
+#, fuzzy
+msgid "Use _silence suppression"
+msgstr "Sesioa berrabiarazten"
+
+#, fuzzy
+msgid "_Voice and Video"
+msgstr "ahotsa eta bideoa"
 
 msgid "Unable to save new account"
 msgstr "Ezin kontu berria gorde"
@@ -11203,6 +10782,20 @@ msgstr ""
 "\n"
 "Lagun-Zerrenda leihoko <b>Kontuak->Kontuak Kudeatu</b> sakatu ezazu leiho "
 "honetara itzuli eta kontuak gehitu, editatu edo kentzeko"
+
+#, fuzzy, c-format
+msgid ""
+"<a href=\"viewinfo\">%s</a>%s%s%s wants to add you (%s) to his or her buddy "
+"list%s%s"
+msgstr "%s%s%s%s(e)k bere lagun-zerrendara gehitu nahi du %s %s%s."
+
+#, fuzzy, c-format
+msgid "%s%s%s%s wants to add you (%s) to his or her buddy list%s%s"
+msgstr "%s%s%s%s(e)k bere lagun-zerrendara gehitu nahi du %s %s%s."
+
+#, fuzzy
+msgid "Send Instant Message"
+msgstr "Istanteko Mezu Berria"
 
 #. Buddy List
 msgid "Background Color"
@@ -11458,6 +11051,8 @@ msgstr "Ezizena (opzionala)"
 msgid "Edit User Mood"
 msgstr "Erabiltzaile-Umorea Editatu"
 
+#. NOTE: Do not set any accelerator to Control+O. It is mapped by
+#. gtk_blist_key_press_cb to "Get User Info" on the selected buddy.
 #. Buddies menu
 msgid "/_Buddies"
 msgstr "/_Lagunak"
@@ -11569,6 +11164,10 @@ msgstr "/Laguntza/_Arazketa-Leihoa"
 #, fuzzy
 msgid "/Help/De_veloper Information"
 msgstr "Zerbitzari-Informazioa"
+
+#, fuzzy
+msgid "/Help/_Plugin Information"
+msgstr "Lagunaren Informazioa"
 
 #, fuzzy
 msgid "/Help/_Translator Information"
@@ -11752,6 +11351,10 @@ msgstr "Lagunaren e_rabiltzaile-izena:"
 
 msgid "(Optional) A_lias:"
 msgstr "(Opzionala) E_zizena:"
+
+#, fuzzy
+msgid "(Optional) _Invite message:"
+msgstr "Txertatu irudia mezuan"
 
 msgid "Add buddy to _group:"
 msgstr "_Talde batera gehitu laguna:"
@@ -12189,15 +11792,8 @@ msgstr "Errorea"
 msgid "Fatal Error"
 msgstr "Errore Konponezina"
 
-msgid "bug master"
-msgstr ""
-
 msgid "artist"
 msgstr "artista"
-
-#. feel free to not translate this
-msgid "Ka-Hing Cheung"
-msgstr "Ka-Hing Cheung"
 
 msgid "voice and video"
 msgstr "ahotsa eta bideoa"
@@ -12208,11 +11804,12 @@ msgstr "euskarria"
 msgid "webmaster"
 msgstr "webmaster-a"
 
-msgid "Senior Contributor/QA"
-msgstr ""
-
 msgid "win32 port"
 msgstr "win32 bertsioa"
+
+#. feel free to not translate this
+msgid "Ka-Hing Cheung"
+msgstr "Ka-Hing Cheung"
 
 msgid "maintainer"
 msgstr "mantentzailea"
@@ -12235,6 +11832,9 @@ msgstr "jatorrizko egilea"
 
 msgid "lead developer"
 msgstr "garatzaile-burua"
+
+msgid "Senior Contributor/QA"
+msgstr ""
 
 msgid "Afrikaans"
 msgstr "Afrikaans"
@@ -12286,11 +11886,11 @@ msgstr "Greziera"
 msgid "Australian English"
 msgstr "Ingelesa (Australia)"
 
-msgid "Canadian English"
-msgstr "Ingelesa (Kanada)"
-
 msgid "British English"
 msgstr "Ingelesa (Britainia)"
+
+msgid "Canadian English"
+msgstr "Ingelesa (Kanada)"
 
 msgid "Esperanto"
 msgstr "Esperanto"
@@ -12331,6 +11931,9 @@ msgstr "Hebreera"
 msgid "Hindi"
 msgstr "Hindi"
 
+msgid "Croatian"
+msgstr ""
+
 msgid "Hungarian"
 msgstr "Hungariera"
 
@@ -12369,6 +11972,14 @@ msgstr "Kurduera"
 
 msgid "Lao"
 msgstr "Laoera"
+
+#, fuzzy
+msgid "Maithili"
+msgstr "Swahili"
+
+#, fuzzy
+msgid "Meadow Mari"
+msgstr "Posta Berria"
 
 msgid "Macedonian"
 msgstr "Mazedoniera"
@@ -12573,6 +12184,14 @@ msgstr "Lehengo Itzultzaileak"
 #, fuzzy, c-format
 msgid "%s Translator Information"
 msgstr "Laneko Datuak"
+
+#, fuzzy, c-format
+msgid "%s Plugin Information"
+msgstr "Lagunaren Informazioa"
+
+#, fuzzy
+msgid "Plugin Information"
+msgstr "Konexio-Informazioa"
 
 msgid "_Name"
 msgstr "_Izena"
@@ -13157,11 +12776,13 @@ msgstr ""
 msgid "Exiting because another libpurple client is already running.\n"
 msgstr "Ixten, beste libpurple-bezero bat martxan dagoelako jadanik.\n"
 
-msgid "/_Media"
+#, fuzzy
+msgid "_Media"
 msgstr "/_Multimedia"
 
-msgid "/Media/_Hangup"
-msgstr "/Multimedia/E_skegi"
+#, fuzzy
+msgid "_Hangup"
+msgstr "Eskegi"
 
 #, c-format
 msgid "%s wishes to start an audio/video session with you."
@@ -13217,6 +12838,13 @@ msgstr "<span weight=\"bold\" size=\"larger\">Posta daukazu!</span>"
 msgid "New Pounces"
 msgstr "Alerta Berriak"
 
+#. Translators: Make sure you translate "Dismiss" differently than
+#. "close"!  This string is used in the "You have pounced" dialog
+#. that appears when one of your Buddy Pounces is triggered.  In
+#. this context "Dismiss" means "I acknowledge that I've seen that
+#. this pounce was triggered--remove it from this list."  Translating
+#. it as "Remove" is acceptable if you can't think of a more precise
+#. word.
 msgid "Dismiss"
 msgstr "Mespretxatu"
 
@@ -13520,6 +13148,14 @@ msgstr "Korritze leuna erabili"
 msgid "F_lash window when IMs are received"
 msgstr "Leihoa_kliskatu IMak jasotzean"
 
+#, fuzzy
+msgid "Resize incoming custom smileys"
+msgstr "Smiley pertsonalizatuak _kudeatu"
+
+#, fuzzy
+msgid "Maximum size:"
+msgstr "Erantzunen denbora-muga:"
+
 msgid "Minimum input area height in lines:"
 msgstr "Sarrera-eremuaren altuera minimoa:"
 
@@ -13593,6 +13229,14 @@ msgid "_TURN server:"
 msgstr "ST_UN Zerbitzaria:"
 
 #, fuzzy
+msgid "_UDP Port:"
+msgstr "_Ataka:"
+
+#, fuzzy
+msgid "T_CP Port:"
+msgstr "_Ataka:"
+
+#, fuzzy
 msgid "Use_rname:"
 msgstr "Erabiltzaile-Izena:"
 
@@ -13615,6 +13259,11 @@ msgstr "Mozilla"
 msgid "Konqueror"
 msgstr "Konqueror"
 
+msgid "Google Chrome"
+msgstr ""
+
+#. Do not move the line below.  Code below expects gnome-open to be in
+#. * this list immediately after xdg-open!
 msgid "Desktop Default"
 msgstr "Mahaigainaren Lehenetsia"
 
@@ -13632,6 +13281,14 @@ msgstr "Firebird"
 
 msgid "Epiphany"
 msgstr "Epiphany"
+
+#. Translators: please do not translate "chromium-browser" here!
+msgid "Chromium (chromium-browser)"
+msgstr ""
+
+#. Translators: please do not translate "chrome" here!
+msgid "Chromium (chrome)"
+msgstr ""
 
 msgid "Manual"
 msgstr "Eskuz"
@@ -13987,10 +13644,6 @@ msgstr "Lasterbide-Testua"
 msgid "Custom Smiley Manager"
 msgstr "Smiley Pertsonalizatuen Kudeatzailea"
 
-#, fuzzy
-msgid "Attention received"
-msgstr "Aktibazioa beharrezkoa"
-
 msgid "Select Buddy Icon"
 msgstr "Lagun-Ikonoa Hautatu"
 
@@ -14014,6 +13667,9 @@ msgstr "Egoera-Hautatzailea"
 
 msgid "Google Talk"
 msgstr "Google Talk"
+
+msgid "Facebook (XMPP)"
+msgstr ""
 
 #, c-format
 msgid "The following error has occurred loading %s: %s"
@@ -14185,7 +13841,8 @@ msgstr "batere ez"
 msgid "Small"
 msgstr "Txikia"
 
-msgid "Smaller versions of the default smilies"
+#, fuzzy
+msgid "Smaller versions of the default smileys"
 msgstr "Smily-en bertsio txikiagoak"
 
 msgid "Response Probability:"
@@ -14348,6 +14005,9 @@ msgstr "PubSub Kolekzioa"
 
 msgid "PubSub Leaf"
 msgstr ""
+
+msgid "Other"
+msgstr "Besteak"
 
 msgid ""
 "\n"
@@ -15214,6 +14874,24 @@ msgstr "P_lugina"
 msgid "D_evice"
 msgstr "G_ailua"
 
+msgid "DROP"
+msgstr ""
+
+#, fuzzy
+msgid "Volume:"
+msgstr "B_olumena:"
+
+#, fuzzy
+msgid "Silence threshold:"
+msgstr "Muga:"
+
+msgid "Input and Output Settings"
+msgstr ""
+
+#, fuzzy
+msgid "Microphone Test"
+msgstr "Mikrofonoa"
+
 #. *< magic
 #. *< major version
 #. *< minor version
@@ -15357,7 +15035,7 @@ msgstr ""
 msgid "This plugin is useful for debugging XMPP servers or clients."
 msgstr "XMPP zerbitzariak edo bezeroak arazteko erabilgarria da plugin hau."
 
-#. $(^Name) is the current Version name (e.g. Pidgin 2.7.0).  $_CLICK will become a translated version of "Click Next to continue."
+#. $(^Name) is the current Version name (e.g. Pidgin 2.7.0).  $_CLICK will become a translated version of "Click Next to continue."  DO NOT translate the CLICK in $_CLICK.  It will break the installer.
 msgid ""
 "$(^Name) is released under the GNU General Public License (GPL). The license "
 "is provided here for information purposes only. $_CLICK"
@@ -15488,6 +15166,696 @@ msgstr "Pidgin Webgunera etorri"
 msgid "You do not have permission to uninstall this application."
 msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 
+#~ msgid "Automatically reject from users not in buddy list"
+#~ msgstr "Automatikoki ezetsi lagun-zerrendan ez dauden erabiltzaileak"
+
+#~ msgid "Authorization Request Message:"
+#~ msgstr "Baimena Eskatzeko Mezua:"
+
+#~ msgid "Please authorize me!"
+#~ msgstr "Emadaizu baimena!"
+
+#~ msgid "Aquarius"
+#~ msgstr "Akuario"
+
+#~ msgid "Pisces"
+#~ msgstr "Piszis"
+
+#~ msgid "Aries"
+#~ msgstr "Aries"
+
+#~ msgid "Taurus"
+#~ msgstr "Tauro"
+
+#~ msgid "Gemini"
+#~ msgstr "Geminis"
+
+#~ msgid "Cancer"
+#~ msgstr "Kantzer"
+
+#~ msgid "Leo"
+#~ msgstr "Leo"
+
+#~ msgid "Virgo"
+#~ msgstr "V‏irgo"
+
+#~ msgid "Libra"
+#~ msgstr "Libra"
+
+#~ msgid "Scorpio"
+#~ msgstr "Eskorpio"
+
+#~ msgid "Sagittarius"
+#~ msgstr "Sagitario"
+
+#~ msgid "Capricorn"
+#~ msgstr "Kaprikornio"
+
+#~ msgid "Rat"
+#~ msgstr "Sagua"
+
+#~ msgid "Ox"
+#~ msgstr "Idia"
+
+#~ msgid "Tiger"
+#~ msgstr "Tigrea"
+
+#~ msgid "Rabbit"
+#~ msgstr "Untxia"
+
+#~ msgid "Dragon"
+#~ msgstr "Herensugea"
+
+#~ msgid "Snake"
+#~ msgstr "Sugea"
+
+#~ msgid "Horse"
+#~ msgstr "Zaldia"
+
+#~ msgid "Goat"
+#~ msgstr "Ahuntza"
+
+#~ msgid "Monkey"
+#~ msgstr "Tximinoa"
+
+#~ msgid "Rooster"
+#~ msgstr "Oilarra"
+
+#~ msgid "Dog"
+#~ msgstr "Txakurra"
+
+#~ msgid "Pig"
+#~ msgstr "Txerria"
+
+#~ msgid "Visible"
+#~ msgstr "Ikusgarri"
+
+#~ msgid "Friend Only"
+#~ msgstr "Lagunak Bakarrik"
+
+#~ msgid "Private"
+#~ msgstr "Pribatua"
+
+#~ msgid "QQ Number"
+#~ msgstr "QQ Zenbakia"
+
+#~ msgid "Country/Region"
+#~ msgstr "Herrialdea/Zona"
+
+#~ msgid "Province/State"
+#~ msgstr "Probintzia/Estatua"
+
+#~ msgid "Zipcode"
+#~ msgstr "Posta-kodea"
+
+#~ msgid "Phone Number"
+#~ msgstr "Telefono Zenbakia"
+
+#~ msgid "Cellphone Number"
+#~ msgstr "Mugikoe Telefono"
+
+#~ msgid "Personal Introduction"
+#~ msgstr "Hitzaurre Pertsonala"
+
+#~ msgid "City/Area"
+#~ msgstr "Herria/Area"
+
+#~ msgid "Publish Mobile"
+#~ msgstr "Mugikorra Argitaratu"
+
+#~ msgid "Publish Contact"
+#~ msgstr "Kontaktua Argitaratu"
+
+#~ msgid "College"
+#~ msgstr "Eskola"
+
+#~ msgid "Horoscope"
+#~ msgstr "Horoskopoa"
+
+#~ msgid "Zodiac"
+#~ msgstr "Zodiakoa"
+
+#~ msgid "Blood"
+#~ msgstr "Odola"
+
+#~ msgid "True"
+#~ msgstr "Egia"
+
+#~ msgid "False"
+#~ msgstr "Gezurra"
+
+#~ msgid "Modify Contact"
+#~ msgstr "Kontaktua Aldatu"
+
+#~ msgid "Modify Address"
+#~ msgstr "Helbidea Aldatu"
+
+#~ msgid "Modify Extended Information"
+#~ msgstr "Informazio Gehigarria Aldatu"
+
+#~ msgid "Modify Information"
+#~ msgstr "Informazioa Aldatu"
+
+#~ msgid "Update"
+#~ msgstr "Eguneratu"
+
+#~ msgid "Could not change buddy information."
+#~ msgstr "Ezin lagunaren informazioa aldatu."
+
+#~ msgid "_Modify"
+#~ msgstr "_Modifikatu"
+
+#~ msgid "Server says:"
+#~ msgstr "Zerbitzariak dio:"
+
+#~ msgid "Your request was accepted."
+#~ msgstr "Zure eskaera onartu da."
+
+#~ msgid "Your request was rejected."
+#~ msgstr "Zure eskaera ezetsi da."
+
+#, fuzzy
+#~ msgid "%u requires verification: %s"
+#~ msgstr "%u(e)k egiaztapena behar du"
+
+#~ msgid "Add buddy question"
+#~ msgstr "Lagun-galdera gehitu"
+
+#~ msgid "Enter answer here"
+#~ msgstr "Hemen sartu erantzuna"
+
+#~ msgid "Send"
+#~ msgstr "Bidali"
+
+#~ msgid "Invalid answer."
+#~ msgstr "Erantzun baliogabea."
+
+#~ msgid "Sorry, you're not my style."
+#~ msgstr "Lastima, ez zara nire tipoa."
+
+#~ msgid "%u needs authorization"
+#~ msgstr "%u(e)k autorizazioa behar du"
+
+#~ msgid "Add buddy authorize"
+#~ msgstr "Lagun-autorizazioa gehitu"
+
+#~ msgid "Enter request here"
+#~ msgstr "Hemen sartu eskaera"
+
+#~ msgid "Would you be my friend?"
+#~ msgstr "Nire laguna izan nahi al duzu?"
+
+#~ msgid "QQ Buddy"
+#~ msgstr "QQ Laguna"
+
+#~ msgid "Add buddy"
+#~ msgstr "Laguna gehitu"
+
+#~ msgid "Invalid QQ Number"
+#~ msgstr "QQ-Zenbaki Baliogabea"
+
+#~ msgid "Failed sending authorize"
+#~ msgstr "Ezin autorizazioa bidali"
+
+#~ msgid "Failed removing buddy %u"
+#~ msgstr "Ezin %u laguna kendu"
+
+#~ msgid "Failed removing me from %d's buddy list"
+#~ msgstr "Ezin ni kendu %d lagunaren zerrendatik."
+
+#~ msgid "No reason given"
+#~ msgstr "Arrazoirik ez"
+
+#~ msgid "You have been added by %s"
+#~ msgstr "%s erabiltzaileak gehitu zaitu"
+
+#~ msgid "Would you like to add him?"
+#~ msgstr "Bera gehitu nahi al duzu?"
+
+#~ msgid "Rejected by %s"
+#~ msgstr "%s(e)k ezetsia"
+
+#~ msgid "Message: %s"
+#~ msgstr "Mezua: %s"
+
+#~ msgid "ID: "
+#~ msgstr "IDa:"
+
+#~ msgid "Group ID"
+#~ msgstr "Talde IDa"
+
+#~ msgid "QQ Qun"
+#~ msgstr "QQ Qun"
+
+#~ msgid "Please enter Qun number"
+#~ msgstr "Qun zenbakia sartu"
+
+#~ msgid "You can only search for permanent Qun\n"
+#~ msgstr "Qun iraunkorrak bakarrik bilatu ditzakezu\n"
+
+#~ msgid "(Invalid UTF-8 string)"
+#~ msgstr "(UTF-8 kate baliogabea)"
+
+#~ msgid "Not member"
+#~ msgstr "Ez kidea"
+
+#~ msgid "Member"
+#~ msgstr "Kidea"
+
+#~ msgid "Requesting"
+#~ msgstr "Eskatzen"
+
+#~ msgid "Admin"
+#~ msgstr "Administratzailea"
+
+#, fuzzy
+#~ msgid "Room Title"
+#~ msgstr "Gela-Zerrenda"
+
+#~ msgid "Notice"
+#~ msgstr "Oharra"
+
+#~ msgid "Detail"
+#~ msgstr "Xehetasunak"
+
+#~ msgid "Creator"
+#~ msgstr "Sortzailea"
+
+#~ msgid "Category"
+#~ msgstr "Kategoria"
+
+#~ msgid "The Qun does not allow others to join"
+#~ msgstr "Qun-ak ez du erabiltzaile gehiago batzea onartzen"
+
+#~ msgid "Join QQ Qun"
+#~ msgstr "QQ Qun-era Batu"
+
+#~ msgid "Input request here"
+#~ msgstr "Hemen sartu eskaera"
+
+#~ msgid "Successfully joined Qun %s (%u)"
+#~ msgstr "Arrakastaz batua %s Qun-era (%u)"
+
+#~ msgid "Successfully joined Qun"
+#~ msgstr "Arrakastaz batua Qun-era"
+
+#~ msgid "QQ Qun Operation"
+#~ msgstr "QQ Qun Eragiketa"
+
+#~ msgid "Failed:"
+#~ msgstr "Errorea:"
+
+#~ msgid "Join Qun, Unknown Reply"
+#~ msgstr "Qun-era Batu, Erantzun Ezezaguna"
+
+#~ msgid "Quit Qun"
+#~ msgstr "Qun-etik Irten"
+
+#~ msgid ""
+#~ "Note, if you are the creator, \n"
+#~ "this operation will eventually remove this Qun."
+#~ msgstr ""
+#~ "Oharra, sortzailea bazara, \n"
+#~ "eragiketa honek Qun hau ken dezake."
+
+#~ msgid "Sorry, you are not our style"
+#~ msgstr "Lastima, ez zara nire tipoa"
+
+#~ msgid "Successfully changed Qun members"
+#~ msgstr "Arrakastaz aldatu dira Qun kideak"
+
+#~ msgid "Successfully changed Qun information"
+#~ msgstr "Arrakastaz aldatu da Qun informazioa"
+
+#~ msgid "You have successfully created a Qun"
+#~ msgstr "Arrakastaz sortu duzu Qun bat"
+
+#~ msgid "Would you like to set up detailed information now?"
+#~ msgstr "Informazio xehea konfiguratu nahi al duzu orain?"
+
+#~ msgid "Setup"
+#~ msgstr "Konfiguratu"
+
+#~ msgid "%u requested to join Qun %u for %s"
+#~ msgstr "%u(e)k %u Qun-era batu nahi du %s(e)rako"
+
+#~ msgid "%u request to join Qun %u"
+#~ msgstr "%u(e)k %u Qun-era batu nahi du"
+
+#~ msgid "Failed to join Qun %u, operated by admin %u"
+#~ msgstr "Ezin %u Qun-era batu (%u administratzaileak kudeatua)"
+
+#~ msgid "<b>Joining Qun %u is approved by admin %u for %s</b>"
+#~ msgstr ""
+#~ "<b>%u Qun-era batu zaitezke (%u administratzaileak baimendua %s(e)rako)</"
+#~ "b>"
+
+#~ msgid "<b>Removed buddy %u.</b>"
+#~ msgstr "<b>%u.laguna kenduta.</b>"
+
+#~ msgid "<b>New buddy %u joined.</b>"
+#~ msgstr "<b>%u lagun berria batu da.</b>"
+
+#~ msgid "Unknown-%d"
+#~ msgstr "Ezezaguna-%d"
+
+#~ msgid "Level"
+#~ msgstr "Maila"
+
+#~ msgid " VIP"
+#~ msgstr "VIP"
+
+#~ msgid " TCP"
+#~ msgstr "TCP"
+
+#~ msgid " FromMobile"
+#~ msgstr " Mugikorretik"
+
+#, fuzzy
+#~ msgid " BindMobile"
+#~ msgstr " MugikorraLotu"
+
+#~ msgid " Video"
+#~ msgstr " Bideoa"
+
+#~ msgid " Zone"
+#~ msgstr " Zona"
+
+#~ msgid "Flag"
+#~ msgstr "Bandera"
+
+#~ msgid "Ver"
+#~ msgstr "Ber"
+
+#~ msgid "Invalid name"
+#~ msgstr "Izen baliogabea"
+
+#~ msgid "Select icon..."
+#~ msgstr "Ikonoa hautatu..."
+
+#~ msgid "<b>Login time</b>: %d-%d-%d, %d:%d:%d<br>\n"
+#~ msgstr "<b>Konexio-ordua</b>: %d-%d-%d, %d:%d:%d<br>\n"
+
+#~ msgid "<b>Total Online Buddies</b>: %d<br>\n"
+#~ msgstr "<b>Lagun Konektatuak Guztira</b>: %d<br>\n"
+
+#~ msgid "<b>Last Refresh</b>: %d-%d-%d, %d:%d:%d<br>\n"
+#~ msgstr "<b>Azken Freskatzea</b>: %d-%d-%d, %d:%d:%d<br>\n"
+
+#~ msgid "<b>Server</b>: %s<br>\n"
+#~ msgstr "<b>Zerbitzaria</b>: %s<br>\n"
+
+#~ msgid "<b>Client Tag</b>: %s<br>\n"
+#~ msgstr "<b>Bezero-Etiketa</b>: %s<br>\n"
+
+#~ msgid "<b>Connection Mode</b>: %s<br>\n"
+#~ msgstr "<b>Konexio-Modua</b>: %s<br>\n"
+
+#~ msgid "<b>My Internet IP</b>: %s:%d<br>\n"
+#~ msgstr "<b>Nire Internet-IPa</b>: %s:%d<br>\n"
+
+#~ msgid "<b>Sent</b>: %lu<br>\n"
+#~ msgstr "<b>Bidalita</b>: %lu<br>\n"
+
+#~ msgid "<b>Resend</b>: %lu<br>\n"
+#~ msgstr "<b>Birbidali</b>: %lu<br>\n"
+
+#~ msgid "<b>Lost</b>: %lu<br>\n"
+#~ msgstr "<b>Galduta</b>: %lu<br>\n"
+
+#~ msgid "<b>Received</b>: %lu<br>\n"
+#~ msgstr "<b>Jasota</b>: %lu<br>\n"
+
+#~ msgid "<b>Received Duplicate</b>: %lu<br>\n"
+#~ msgstr "<b>Jasotako Bikoiztua</b>: %lu<br>\n"
+
+#~ msgid "<b>Time</b>: %d-%d-%d, %d:%d:%d<br>\n"
+#~ msgstr "<b>Ordua</b>: %d-%d-%d, %d:%d:%d<br>\n"
+
+#~ msgid "<b>IP</b>: %s<br>\n"
+#~ msgstr "<b>IPa</b>: %s<br>\n"
+
+#~ msgid "<p><b>Original Author</b>:<br>\n"
+#~ msgstr "<p><b>Jatorrizko Egilea</b>:<br>\n"
+
+#~ msgid "<p><b>Code Contributors</b>:<br>\n"
+#~ msgstr "<p><b>Kode-Kontribuitzaileak</b>:<br>\n"
+
+#~ msgid "<p><b>Lovely Patch Writers</b>:<br>\n"
+#~ msgstr "<p><b>Partxe-Idazle Maitagarriak</b>:<br>\n"
+
+#~ msgid "<p><b>Acknowledgement</b>:<br>\n"
+#~ msgstr "<p><b>Eskerrak</b>:<br>\n"
+
+#~ msgid "<p><b>Scrupulous Testers</b>:<br>\n"
+#~ msgstr "<p><b>Frogatzaile Arduratsuak</b>:<br>\n"
+
+#~ msgid "and more, please let me know... thank you!))"
+#~ msgstr "eta gehiago, mesedez esaidazue.... esker mila!))"
+
+#~ msgid "<p><i>And, all the boys in the backroom...</i><br>\n"
+#~ msgstr "<p><i>Eta, atzeko gelako mutiko guztiak...</i><br>\n"
+
+#~ msgid "<i>Feel free to join us!</i> :)"
+#~ msgstr "<i>Zatoz gurekin!</i> :)"
+
+#~ msgid "About OpenQ %s"
+#~ msgstr "OpenQ %s(e)ri Buruz"
+
+#~ msgid "Change Password"
+#~ msgstr "Pasahitza Aldatu"
+
+#~ msgid "Account Information"
+#~ msgstr "Kontuaren Informazioa"
+
+#~ msgid "Update all QQ Quns"
+#~ msgstr "QQ Qun guztiak eguneratu"
+
+#~ msgid "About OpenQ"
+#~ msgstr "OpenQ-ri Buruz"
+
+#~ msgid "QQ Protocol Plugin"
+#~ msgstr "QQ Protokolo-Plugina"
+
+#~ msgid "Auto"
+#~ msgstr "Auto"
+
+#~ msgid "Select Server"
+#~ msgstr "Zerbitzaria Hautatu"
+
+#~ msgid "QQ2005"
+#~ msgstr "QQ2005"
+
+#~ msgid "QQ2007"
+#~ msgstr "QQ2007"
+
+#~ msgid "QQ2008"
+#~ msgstr "QQ2008"
+
+#~ msgid "Connect by TCP"
+#~ msgstr "TCP bidez konektatu"
+
+#~ msgid "Show server notice"
+#~ msgstr "Zerbitzari-oharra erakutsi"
+
+#~ msgid "Show server news"
+#~ msgstr "Zerbitzari-albisteak erakutsi"
+
+#~ msgid "Show chat room when msg comes"
+#~ msgstr "Solasaldi-gela erakutsi mezua jasotzean"
+
+#~ msgid "Keep alive interval (seconds)"
+#~ msgstr "Bizirik mantentzeko tartea (segundoak)"
+
+#~ msgid "Update interval (seconds)"
+#~ msgstr "Eguneratze-tartea (segundoak)"
+
+#~ msgid "Unable to decrypt server reply"
+#~ msgstr "Ezin zerbitzariaren erantzuna desenkriptatu"
+
+#~ msgid "Failed requesting token, 0x%02X"
+#~ msgstr "Ezin testigua eskatu, 0x%02X"
+
+#~ msgid "Invalid token len, %d"
+#~ msgstr "Testigu-luzera baliogabea, %d"
+
+#~ msgid "Redirect_EX is not currently supported"
+#~ msgstr "Redirect_EX ez dago jasana oraindik"
+
+#~ msgid "Activation required"
+#~ msgstr "Aktibazioa beharrezkoa"
+
+#~ msgid "Unknown reply code when logging in (0x%02X)"
+#~ msgstr "Erantzun-kode ezezaguna konektatzean (0x%02X)"
+
+#~ msgid "Requesting captcha"
+#~ msgstr "Captcha eskatzen"
+
+#~ msgid "Checking captcha"
+#~ msgstr "Captcha egiaztatzen"
+
+#~ msgid "Failed captcha verification"
+#~ msgstr "Errorea captcha egiaztapenean"
+
+#~ msgid "Captcha Image"
+#~ msgstr "Captcha Irudia"
+
+#~ msgid "Enter code"
+#~ msgstr "Kodea sartu"
+
+#~ msgid "QQ Captcha Verification"
+#~ msgstr "QQ Captcha-Egiaztapena"
+
+#~ msgid "Enter the text from the image"
+#~ msgstr "Irudiko testua sartu ezazu"
+
+#~ msgid "Unknown reply when checking password (0x%02X)"
+#~ msgstr "Erantzun ezezaguna pasahitza egiaztatzean (0x%02X)"
+
+#~ msgid ""
+#~ "Unknown reply code when logging in (0x%02X):\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Erantzun-kode ezezaguna konektatzean (0x%02X)\n"
+#~ "%s"
+
+#~ msgid "Socket error"
+#~ msgstr "Socket errorea"
+
+#~ msgid "Getting server"
+#~ msgstr "Zerbitzaria eskuratzen"
+
+#~ msgid "Requesting token"
+#~ msgstr "Testigua eskatzen"
+
+#~ msgid "Invalid server or port"
+#~ msgstr "Zerbitzari edo ataka baliogabea"
+
+#~ msgid "Connecting to server"
+#~ msgstr "Zerbitzarira konektatzen"
+
+#~ msgid "QQ Error"
+#~ msgstr "QQ Errorea"
+
+#~ msgid ""
+#~ "Server News:\n"
+#~ "%s\n"
+#~ "%s\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Zerbitzariko Albisteak\n"
+#~ "%s\n"
+#~ "%s\n"
+#~ "%s"
+
+#~ msgid "%s:%s"
+#~ msgstr "%s:%s"
+
+#~ msgid "From %s:"
+#~ msgstr "%s(e)tik:"
+
+#~ msgid ""
+#~ "Server notice From %s: \n"
+#~ "%s"
+#~ msgstr ""
+#~ "Zerbitzari-oharra %s(e)tik:\n"
+#~ "%s"
+
+#~ msgid "Unknown SERVER CMD"
+#~ msgstr "SERVER CMD Ezezaguna"
+
+#~ msgid ""
+#~ "Error reply of %s(0x%02X)\n"
+#~ "Room %u, reply 0x%02X"
+#~ msgstr ""
+#~ "%s(r)en errore-erantzuna (0x%02X)\n"
+#~ "%u gela, 0x%02X erantzuna"
+
+#~ msgid "QQ Qun Command"
+#~ msgstr "QQ Qun Agindua"
+
+#~ msgid "Unable to decrypt login reply"
+#~ msgstr "Ezin konexio-erantzuna desenkriptatu"
+
+#~ msgid "Unknown LOGIN CMD"
+#~ msgstr "LOGIN CMD Ezezaguna"
+
+#~ msgid "Unknown CLIENT CMD"
+#~ msgstr "CLIENT CMD Ezezaguna"
+
+#~ msgid "%d has declined the file %s"
+#~ msgstr "%d(e)k ez du %s fitxategia onartu"
+
+#~ msgid "File Send"
+#~ msgstr "Fitxategi Bidalia"
+
+#~ msgid "%d cancelled the transfer of %s"
+#~ msgstr "%d(e)k bertan behera utzi du %s fitxategiaren transferentzia"
+
+#, fuzzy
+#~ msgid "Voice and Video Settings"
+#~ msgstr "Ahots/Bideo Ezarpenak"
+
+#~ msgid "An error occurred on the in-band bytestream transfer\n"
+#~ msgstr "Errorea banda barruko byte-jario transferentzian\n"
+
+#~ msgid "Transfer was closed."
+#~ msgstr "Transferentzia itxiarazi da."
+
+#~ msgid "Failed to open in-band bytestream"
+#~ msgstr "Ezin banda barneko byte-jarioa ireki"
+
+#~ msgid "Set your friendly name."
+#~ msgstr "Zure lagunarteko izena ezarri."
+
+#, fuzzy
+#~ msgid "Error requesting %s"
+#~ msgstr "Errorea %s eskatzean: %s"
+
+#~ msgid "Require SSL/TLS"
+#~ msgstr "SSL/TLS Eskatu"
+
+#~ msgid "Force old (port 5223) SSL"
+#~ msgstr "SSL zaharra (5223 ataka) behartu"
+
+#, fuzzy
+#~ msgid "The name you entered is invalid."
+#~ msgstr "Baliogabea da sartutako SecurID-gakoa"
+
+#~ msgid ""
+#~ "[Unable to display a message from this user because it contained invalid "
+#~ "characters.]"
+#~ msgstr ""
+#~ "[Ezin erabiltzaile honen mezu bat erakutsi, karaktere baliogabeak "
+#~ "dituelako.]"
+
+#~ msgid "Search for Buddy by Information"
+#~ msgstr "Informazioaren bidez Bilatu Laguna"
+
+#~ msgid "The certificate is not valid yet."
+#~ msgstr "Zertifikatua ez da baliozkoa oraindik."
+
+#, fuzzy
+#~ msgid "The nick name you entered is invalid."
+#~ msgstr "Baliogabea da sartutako SecurID-gakoa"
+
+#, fuzzy
+#~ msgid "Nick Name"
+#~ msgstr "Goitizena"
+
+#, fuzzy
+#~ msgid "Your Mobile Number..."
+#~ msgstr "Telefono Mugikorra ezarri..."
+
+#~ msgid "Rate to host"
+#~ msgstr "Ostalariarekiko tasa"
+
+#~ msgid "Rate to client"
+#~ msgstr "Bezeroarekiko tasa"
+
+#~ msgid "/Media/_Hangup"
+#~ msgstr "/Multimedia/E_skegi"
+
 #~ msgid "Unknown reason."
 #~ msgstr "Arrazoi ezezaguna."
 
@@ -15512,10 +15880,6 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 #, fuzzy
 #~ msgid "How do you feel right now?"
 #~ msgstr "Oraintxe ez nago hemen"
-
-#, fuzzy
-#~ msgid "Change Mood..."
-#~ msgstr "Pasahitza aldatu..."
 
 #~ msgid "Yahoo Chat server"
 #~ msgstr "Yahoo Solasaldi zerbitzaria"
@@ -15662,9 +16026,6 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 
 #~ msgid "Auto-away"
 #~ msgstr "Auto-atera"
-
-#~ msgid "Change _status to:"
-#~ msgstr "_Egoera honetara aldatu:"
 
 #~ msgid "Failed to open file '%s': %s"
 #~ msgstr "Ezin '%s' fitxategia ireki: %s"
@@ -15896,10 +16257,6 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 #~ msgstr "Erregistratze-errorea"
 
 #, fuzzy
-#~ msgid "User Location"
-#~ msgstr "Kokalekua"
-
-#, fuzzy
 #~ msgid "User Avatar"
 #~ msgstr "Erabiltzaile bilaketa"
 
@@ -16040,9 +16397,6 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 #~ msgid "Connection closed (writing)"
 #~ msgstr "Konexioa itxi da (idazten)"
 
-#~ msgid "Connection reset"
-#~ msgstr "Konexioa berabierazten "
-
 #~ msgid "Error reading from socket: %s"
 #~ msgstr "Errorea socket-etik irakurtzean:%s."
 
@@ -16099,10 +16453,6 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 #~ msgstr "IMko solasaldi-leihoak"
 
 #, fuzzy
-#~ msgid "Please select an image for the smiley."
-#~ msgstr "Erabili egoera _ezbedinak kontu batzuentzat"
-
-#, fuzzy
 #~ msgid "Activate which ID?"
 #~ msgstr "Zein ID aktibatu?"
 
@@ -16117,10 +16467,6 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 
 #~ msgid "Widget Sizes"
 #~ msgstr "Widget neurriak"
-
-#, fuzzy
-#~ msgid "Invite message"
-#~ msgstr "Txertatu irudia mezuan"
 
 #, fuzzy
 #~ msgid ""
@@ -16281,7 +16627,7 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 #~ msgid "Could not open %s for writing!"
 #~ msgstr "Ezin izan da %s ireki idazteko!"
 
-#~ msgid "File transfer failed; other side probably canceled."
+#~ msgid "File transfer failed; other side probably cancelled."
 #~ msgstr ""
 #~ "Fitxategi-transferentziak huts egin du; beste aldekoak beharbada bertan "
 #~ "behera utziko zuen."
@@ -16970,9 +17316,6 @@ msgstr "Ez daukazu aplikazio hau kentzeko baimenik."
 
 #~ msgid "Jabber Protocol Plugin"
 #~ msgstr "Jabber protokoloaren plugin-a"
-
-#~ msgid "Use TLS if available"
-#~ msgstr "Erabili TLS erabilgarri badago"
 
 #~ msgid "The user %s wants to add %s to his or her buddy list."
 #~ msgstr "%s erabiltzaileak %s gehitu nahi du bere lagunen zerrendan."

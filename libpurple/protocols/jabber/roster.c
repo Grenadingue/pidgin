@@ -27,7 +27,8 @@
 
 #include "buddy.h"
 #include "chat.h"
-#include "google.h"
+#include "google/google.h"
+#include "google/google_roster.h"
 #include "presence.h"
 #include "roster.h"
 #include "iq.h"
@@ -76,11 +77,8 @@ static void roster_request_cb(JabberStream *js, const char *from,
 
 void jabber_roster_request(JabberStream *js)
 {
-	PurpleAccount *account;
 	JabberIq *iq;
 	xmlnode *query;
-
-	account = purple_connection_get_account(js->gc);
 
 	iq = jabber_iq_new_query(js, JABBER_IQ_GET, "jabber:iq:roster");
 	query = xmlnode_get_child(iq->node, "query");
@@ -245,7 +243,6 @@ void jabber_roster_parse(JabberStream *js, const char *from,
 			remove_purple_buddies(js, jid);
 		} else {
 			GSList *groups = NULL;
-			gboolean seen_empty = FALSE;
 
 			if (js->server_caps & JABBER_CAP_GOOGLE_ROSTER)
 				if (!jabber_google_roster_incoming(js, item))
@@ -254,10 +251,9 @@ void jabber_roster_parse(JabberStream *js, const char *from,
 			for(group = xmlnode_get_child(item, "group"); group; group = xmlnode_get_next_twin(group)) {
 				char *group_name = xmlnode_get_data(group);
 
-				if (!group_name && !seen_empty) {
-					group_name = g_strdup("");
-					seen_empty = TRUE;
-				}
+				if (group_name == NULL || *group_name == '\0')
+					/* Changing this string?  Look in add_purple_buddy_to_groups */
+					group_name = g_strdup(_("Buddies"));
 
 				/*
 				 * See the note in add_purple_buddy_to_groups; the core handles
@@ -362,9 +358,9 @@ static void jabber_roster_update(JabberStream *js, const char *name,
 }
 
 void jabber_roster_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
-		PurpleGroup *group)
+		PurpleGroup *group, const char *message)
 {
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
 	char *who;
 	JabberID *jid;
 	JabberBuddy *jb;
@@ -435,7 +431,7 @@ void jabber_roster_alias_change(PurpleConnection *gc, const char *name, const ch
 		purple_debug_info("jabber", "jabber_roster_alias_change(): Aliased %s to %s\n",
 				name, alias ? alias : "(null)");
 
-		jabber_roster_update(gc->proto_data, name, NULL);
+		jabber_roster_update(purple_connection_get_protocol_data(gc), name, NULL);
 	}
 }
 
@@ -465,7 +461,7 @@ void jabber_roster_group_change(PurpleConnection *gc, const char *name,
 	purple_debug_info("jabber", "jabber_roster_group_change(): Moving %s from %s to %s\n",
 	                  name, old_group, new_group);
 
-	jabber_roster_update(gc->proto_data, name, groups);
+	jabber_roster_update(purple_connection_get_protocol_data(gc), name, groups);
 }
 
 void jabber_roster_group_rename(PurpleConnection *gc, const char *old_name,
@@ -500,9 +496,9 @@ void jabber_roster_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy,
 		purple_debug_info("jabber", "jabber_roster_remove_buddy(): Removing %s from %s\n",
 		                  purple_buddy_get_name(buddy), purple_group_get_name(group));
 
-		jabber_roster_update(gc->proto_data, name, groups);
+		jabber_roster_update(purple_connection_get_protocol_data(gc), name, groups);
 	} else {
-		JabberIq *iq = jabber_iq_new_query(gc->proto_data, JABBER_IQ_SET,
+		JabberIq *iq = jabber_iq_new_query(purple_connection_get_protocol_data(gc), JABBER_IQ_SET,
 				"jabber:iq:roster");
 		xmlnode *query = xmlnode_get_child(iq->node, "query");
 		xmlnode *item = xmlnode_new_child(query, "item");

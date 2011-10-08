@@ -52,7 +52,7 @@ jabber_parser_element_start_libxml(void *user_data,
 			 */
 			purple_debug_error("jabber", "Expecting stream header, got %s with "
 			                   "xmlns %s\n", element_name, namespace);
-			purple_connection_error_reason(js->gc,
+			purple_connection_error(js->gc,
 					PURPLE_CONNECTION_ERROR_AUTHENTICATION_IMPOSSIBLE,
 					_("XMPP stream header missing"));
 			return;
@@ -73,7 +73,7 @@ jabber_parser_element_start_libxml(void *user_data,
 
 				if (js->protocol_version.major > 1) {
 					/* TODO: Send <unsupported-version/> error */
-					purple_connection_error_reason(js->gc,
+					purple_connection_error(js->gc,
 							PURPLE_CONNECTION_ERROR_AUTHENTICATION_IMPOSSIBLE,
 							_("XMPP Version Mismatch"));
 					g_free(attrib);
@@ -93,10 +93,25 @@ jabber_parser_element_start_libxml(void *user_data,
 			}
 		}
 
-		if (js->stream_id == NULL)
-			purple_connection_error_reason(js->gc,
+		if (js->stream_id == NULL) {
+#if 0
+			/* This was underspecified in rfc3920 as only being a SHOULD, so
+			 * we cannot rely on it.  See #12331 and Oracle's server.
+			 */
+			purple_connection_error(js->gc,
 					PURPLE_CONNECTION_ERROR_AUTHENTICATION_IMPOSSIBLE,
 					_("XMPP stream missing ID"));
+#else
+			/* Instead, let's make up a placeholder stream ID, which we need
+			 * to do because we flag on it being NULL as a special case
+			 * in this parsing code.
+			 */
+			js->stream_id = g_strdup("");
+			purple_debug_info("jabber", "Server failed to specify a stream "
+			                  "ID (underspecified in rfc3920, but intended "
+			                  "to be a MUST; digest legacy auth may fail.\n");
+#endif
+		}
 	} else {
 
 		if(js->current)
@@ -285,7 +300,7 @@ void jabber_parser_process(JabberStream *js, const char *buf, int len)
 				break;
 			case XML_ERR_FATAL:
 				purple_debug_error("jabber", "xmlParseChunk returned fatal %i\n", ret);
-				purple_connection_error_reason (js->gc,
+				purple_connection_error (js->gc,
 				                                PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
 				                                _("XML Parse error"));
 				break;

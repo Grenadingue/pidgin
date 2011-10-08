@@ -425,7 +425,7 @@ _client_socket_handler(gpointer data, gint socket, PurpleInputCondition conditio
 			bonjour_jabber_close_conversation(bconv);
 			if (bconv->pb != NULL) {
 				BonjourBuddy *bb = purple_buddy_get_protocol_data(bconv->pb);
-				
+
 				if(bb != NULL)
 					bb->conversation = NULL;
 			}
@@ -534,7 +534,7 @@ static gboolean bonjour_jabber_send_stream_init(BonjourJabberConversation *bconv
 	if (bname == NULL)
 		bname = "";
 
-	stream_start = g_strdup_printf(DOCTYPE, purple_account_get_username(bconv->account), bname);
+	stream_start = g_strdup_printf(DOCTYPE, bonjour_get_jid(bconv->account), bname);
 	len = strlen(stream_start);
 
 	bconv->sent_stream_start = PARTIALLY_SENT;
@@ -744,7 +744,7 @@ start_serversocket_listening(int port, int socket, struct sockaddr *addr, size_t
 
 #if 0
 	/* TODO: Why isn't this being used? */
-	data->socket = purple_network_listen(jdata->port, SOCK_STREAM);
+	data->socket = purple_network_listen(jdata->port, AF_UNSPEC, SOCK_STREAM, TRUE);
 
 	if (jdata->socket == -1)
 	{
@@ -774,6 +774,10 @@ bonjour_jabber_start(BonjourJabber *jdata)
 #ifdef PF_INET6
 	if (jdata->socket6 != -1) {
 		struct sockaddr_in6 addr6;
+#ifdef IPV6_V6ONLY
+		int on = 1;
+		setsockopt(jdata->socket6, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on));
+#endif
 	        memset(&addr6, 0, sizeof(addr6));
 		addr6.sin6_family = AF_INET6;
 		addr6.sin6_port = htons(jdata->port);
@@ -827,11 +831,44 @@ _connected_to_buddy(gpointer data, gint source, const gchar *error)
 	if (source < 0) {
 		PurpleConversation *conv = NULL;
 		PurpleAccount *account = NULL;
+		GSList *tmp = bb->ips;
 
-		purple_debug_error("bonjour", "Error connecting to buddy %s at %s:%d error: %s\n",
-				   purple_buddy_get_name(pb), bb->conversation->ip, bb->port_p2pj, error ? error : "(null)");
+		purple_debug_error("bonjour", "Error connecting to buddy %s at %s:%d (%s); Trying next IP address\n",
+				   purple_buddy_get_name(pb), bb->conversation->ip, bb->port_p2pj, error);
+
+		/* There may be multiple entries for the same IP - one per
+		 * presence recieved (e.g. multiple interfaces).
+		 * We need to make sure that we find the previously used entry.
+		 */
+		while (tmp && bb->conversation->ip_link != tmp->data)
+			tmp = g_slist_next(tmp);
+		if (tmp)
+			tmp = g_slist_next(tmp);
 
 		account = purple_buddy_get_account(pb);
+
+		if (tmp != NULL) {
+			const gchar *ip;
+			PurpleProxyConnectData *connect_data;
+
+			bb->conversation->ip_link = ip = tmp->data;
+
+			purple_debug_info("bonjour", "Starting conversation with %s at %s:%d\n",
+					  purple_buddy_get_name(pb), ip, bb->port_p2pj);
+
+			connect_data = purple_proxy_connect(purple_account_get_connection(account),
+							    account, ip, bb->port_p2pj, _connected_to_buddy, pb);
+
+			if (connect_data != NULL) {
+				g_free(bb->conversation->ip);
+				bb->conversation->ip = g_strdup(ip);
+				bb->conversation->connect_data = connect_data;
+
+				return;
+			}
+		}
+
+		purple_debug_error("bonjour", "No more addresses for buddy %s. Aborting", purple_buddy_get_name(pb));
 
 		conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, bb->name, account);
 		if (conv != NULL)
@@ -892,7 +929,9 @@ bonjour_jabber_conv_match_by_name(BonjourJabberConversation *bconv) {
 		while(tmp) {
 			ip = tmp->data;
 			if (ip != NULL && g_ascii_strcasecmp(ip, bconv->ip) == 0) {
-				BonjourJabber *jdata = ((BonjourData*) bconv->account->gc->proto_data)->jabber_data;
+				PurpleConnection *pc = purple_account_get_connection(bconv->account);
+				BonjourData *bd = purple_connection_get_protocol_data(pc);
+				BonjourJabber *jdata = bd->jabber_data;
 
 				purple_debug_info("bonjour", "Matched buddy %s to incoming conversation \"from\" attrib and IP (%s)\n",
 					purple_buddy_get_name(pb), bconv->ip);
@@ -925,7 +964,9 @@ bonjour_jabber_conv_match_by_name(BonjourJabberConversation *bconv) {
 
 void
 bonjour_jabber_conv_match_by_ip(BonjourJabberConversation *bconv) {
-	BonjourJabber *jdata = ((BonjourData*) bconv->account->gc->proto_data)->jabber_data;
+	PurpleConnection *pc = purple_account_get_connection(bconv->account);
+	BonjourData *bd = purple_connection_get_protocol_data(pc);
+	BonjourJabber *jdata = bd->jabber_data;
 	struct _match_buddies_by_address_t *mbba;
 	GSList *buddies;
 
@@ -991,10 +1032,9 @@ _find_or_start_conversation(BonjourJabber *jdata, const gchar *to)
 	{
 		PurpleProxyConnectData *connect_data;
 		PurpleProxyInfo *proxy_info;
-		/* For better or worse, use the first IP*/
-		const char *ip = bb->ips->data;
+		const char *ip = bb->ips->data; /* Start with the first IP address. */
 
-		purple_debug_info("bonjour", "Starting conversation with %s\n", to);
+		purple_debug_info("bonjour", "Starting conversation with %s at %s:%d\n", to, ip, bb->port_p2pj);
 
 		/* Make sure that the account always has a proxy of "none".
 		 * This is kind of dirty, but proxy_connect_none() isn't exposed. */
@@ -1017,6 +1057,7 @@ _find_or_start_conversation(BonjourJabber *jdata, const gchar *to)
 
 		bb->conversation = bonjour_jabber_conv_new(pb, jdata->account, ip);
 		bb->conversation->connect_data = connect_data;
+		bb->conversation->ip_link = ip;
 		/* We don't want _send_data() to register the tx_handler;
 		 * that neeeds to wait until we're actually connected. */
 		bb->conversation->tx_handler = 0;
@@ -1044,7 +1085,7 @@ bonjour_jabber_send_message(BonjourJabber *jdata, const gchar *to, const gchar *
 
 	message_node = xmlnode_new("message");
 	xmlnode_set_attrib(message_node, "to", bb->name);
-	xmlnode_set_attrib(message_node, "from", purple_account_get_username(jdata->account));
+	xmlnode_set_attrib(message_node, "from", bonjour_get_jid(jdata->account));
 	xmlnode_set_attrib(message_node, "type", "chat");
 
 	/* Enclose the message from the UI within a "font" node */
@@ -1085,7 +1126,9 @@ _async_bonjour_jabber_close_conversation_cb(gpointer data) {
 
 void
 async_bonjour_jabber_close_conversation(BonjourJabberConversation *bconv) {
-	BonjourJabber *jdata = ((BonjourData*) bconv->account->gc->proto_data)->jabber_data;
+	PurpleConnection *pc = purple_account_get_connection(bconv->account);
+	BonjourData *bd = purple_connection_get_protocol_data(pc);
+	BonjourJabber *jdata = bd->jabber_data;
 
 	jdata->pending_conversations = g_slist_remove(jdata->pending_conversations, bconv);
 
@@ -1105,8 +1148,9 @@ bonjour_jabber_close_conversation(BonjourJabberConversation *bconv)
 	if (bconv != NULL) {
 		BonjourData *bd = NULL;
 
-		if(PURPLE_CONNECTION_IS_VALID(bconv->account->gc)) {
-			bd = bconv->account->gc->proto_data;
+		PurpleConnection *pc = purple_account_get_connection(bconv->account);
+		if (PURPLE_CONNECTION_IS_VALID(pc)) {
+			bd = purple_connection_get_protocol_data(pc);
 			bd->jabber_data->pending_conversations = g_slist_remove(bd->jabber_data->pending_conversations, bconv);
 		}
 
@@ -1178,7 +1222,7 @@ bonjour_jabber_stop(BonjourJabber *jdata)
 		purple_input_remove(jdata->watcher_id6);
 
 	/* Close all the conversation sockets and remove all the watchers after sending end streams */
-	if (jdata->account->gc != NULL) {
+	if (!purple_account_is_disconnected(jdata->account)) {
 		GSList *buddies, *l;
 
 		buddies = purple_find_buddies(jdata->account, NULL);
@@ -1259,7 +1303,7 @@ check_if_blocked(PurpleBuddy *pb)
 
 	for(l = acc->deny; l != NULL; l = l->next) {
 		const gchar *name = purple_buddy_get_name(pb);
-		const gchar *username = purple_account_get_username(acc);
+		const gchar *username = bonjour_get_jid(acc);
 
 		if(!purple_utf8_strcasecmp(name, (char *)l->data)) {
 			purple_debug_info("bonjour", "%s has been blocked by %s.\n", name, username);
@@ -1273,7 +1317,6 @@ check_if_blocked(PurpleBuddy *pb)
 static void
 xep_iq_parse(xmlnode *packet, PurpleBuddy *pb)
 {
-	xmlnode *child;
 	PurpleAccount *account;
 	PurpleConnection *gc;
 
@@ -1283,7 +1326,7 @@ xep_iq_parse(xmlnode *packet, PurpleBuddy *pb)
 		account = purple_buddy_get_account(pb);
 		gc = purple_account_get_connection(account);
 
-	if ((child = xmlnode_get_child(packet, "si")) || (child = xmlnode_get_child(packet, "error")))
+	if (xmlnode_get_child(packet, "si") != NULL || xmlnode_get_child(packet, "error") != NULL)
 		xep_si_parse(gc, packet, pb);
 	else
 		xep_bytestreams_parse(gc, packet, pb);

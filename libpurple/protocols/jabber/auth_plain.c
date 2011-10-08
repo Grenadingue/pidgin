@@ -40,11 +40,8 @@ static xmlnode *finish_plaintext_authentication(JabberStream *js)
 	auth = xmlnode_new("auth");
 	xmlnode_set_namespace(auth, NS_XMPP_SASL);
 
-	if (g_str_equal(js->user->domain, "gmail.com") ||
-			g_str_equal(js->user->domain, "googlemail.com")) {
-		xmlnode_set_attrib(auth, "xmlns:ga", "http://www.google.com/talk/protocol/auth");
-		xmlnode_set_attrib(auth, "ga:client-uses-full-bind-result", "true");
-	}
+	xmlnode_set_attrib(auth, "xmlns:ga", "http://www.google.com/talk/protocol/auth");
+	xmlnode_set_attrib(auth, "ga:client-uses-full-bind-result", "true");
 
 	response = g_string_new("");
 	response = g_string_append_c(response, '\0');
@@ -78,7 +75,7 @@ static void allow_plaintext_auth(PurpleAccount *account)
 
 static void disallow_plaintext_auth(PurpleAccount *account)
 {
-	purple_connection_error_reason(purple_account_get_connection(account),
+	purple_connection_error(purple_account_get_connection(account),
 		PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR,
 		_("Server requires plaintext authentication over an unencrypted stream"));
 }

@@ -133,12 +133,6 @@ build_list(PidginPrivacyDialog *dialog, GtkListStore *model,
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *sel;
 
-	sw = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-					GTK_POLICY_AUTOMATIC,
-					GTK_POLICY_AUTOMATIC);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw), GTK_SHADOW_IN);
-
 	treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(model));
 	*ret_treeview = treeview;
 
@@ -150,7 +144,7 @@ build_list(PidginPrivacyDialog *dialog, GtkListStore *model,
 	gtk_tree_view_column_set_clickable(GTK_TREE_VIEW_COLUMN(column), TRUE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
-	gtk_container_add(GTK_CONTAINER(sw), treeview);
+	sw = pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, 200);
 
 	gtk_widget_show(treeview);
 
@@ -158,8 +152,6 @@ build_list(PidginPrivacyDialog *dialog, GtkListStore *model,
 
 	g_signal_connect(G_OBJECT(sel), "changed",
 					 G_CALLBACK(user_selected_cb), dialog);
-
-	gtk_widget_set_size_request(sw, -1, 200);
 
 	return sw;
 }
@@ -219,7 +211,7 @@ select_account_cb(GtkWidget *dropdown, PurpleAccount *account,
 	dialog->account = account;
 
 	for (i = 0; i < menu_entry_count; i++) {
-		if (menu_entries[i].num == account->perm_deny) {
+		if (menu_entries[i].num == purple_account_get_privacy_type(account)) {
 			gtk_combo_box_set_active(GTK_COMBO_BOX(dialog->type_menu), i);
 			break;
 		}
@@ -238,7 +230,7 @@ type_changed_cb(GtkComboBox *combo, PidginPrivacyDialog *dialog)
 {
 	int new_type = menu_entries[gtk_combo_box_get_active(combo)].num;
 
-	dialog->account->perm_deny = new_type;
+	purple_account_set_privacy_type(dialog->account, new_type);
 	serv_set_permit_deny(purple_account_get_connection(dialog->account));
 
 	gtk_widget_hide(dialog->allow_widget);
@@ -379,7 +371,7 @@ privacy_dialog_new(void)
 		gtk_combo_box_append_text(GTK_COMBO_BOX(dialog->type_menu),
 		                          _(menu_entries[i].text));
 
-		if (menu_entries[i].num == dialog->account->perm_deny)
+		if (menu_entries[i].num == purple_account_get_privacy_type(dialog->account))
 			selected = i;
 	}
 
@@ -419,12 +411,12 @@ privacy_dialog_new(void)
 
 	type_changed_cb(GTK_COMBO_BOX(dialog->type_menu), dialog);
 #if 0
-	if (dialog->account->perm_deny == PURPLE_PRIVACY_ALLOW_USERS) {
+	if (purple_account_get_privacy_type(dialog->account) == PURPLE_PRIVACY_ALLOW_USERS) {
 		gtk_widget_show(dialog->allow_widget);
 		gtk_widget_show(dialog->button_box);
 		dialog->in_allow_list = TRUE;
 	}
-	else if (dialog->account->perm_deny == PURPLE_PRIVACY_DENY_USERS) {
+	else if (purple_account_get_privacy_type(dialog->account) == PURPLE_PRIVACY_DENY_USERS) {
 		gtk_widget_show(dialog->block_widget);
 		gtk_widget_show(dialog->button_box);
 		dialog->in_allow_list = FALSE;

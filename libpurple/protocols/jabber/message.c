@@ -30,7 +30,7 @@
 #include "buddy.h"
 #include "chat.h"
 #include "data.h"
-#include "google.h"
+#include "google/google.h"
 #include "message.h"
 #include "xmlnode.h"
 #include "pep.h"
@@ -296,7 +296,6 @@ static void handle_error(JabberMessage *jm)
 }
 
 static void handle_buzz(JabberMessage *jm) {
-	PurpleBuddy *buddy;
 	PurpleAccount *account;
 
 	/* Delayed buzz MUST NOT be accepted */
@@ -309,7 +308,7 @@ static void handle_buzz(JabberMessage *jm) {
 
 	account = purple_connection_get_account(jm->js->gc);
 
-	if ((buddy = purple_find_buddy(account, jm->from)) == NULL)
+	if (purple_find_buddy(account, jm->from) == NULL)
 		return; /* Do not accept buzzes from unknown people */
 
 	/* xmpp only has 1 attention type, so index is 0 */
@@ -587,8 +586,10 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 				jm->thread_id = xmlnode_get_data(child);
 		} else if(!strcmp(child->name, "body") && !strcmp(xmlns, NS_XMPP_CLIENT)) {
 			if(!jm->body) {
-				char *msg = xmlnode_to_str(child, NULL);
-				jm->body = purple_strdup_withhtml(msg);
+				char *msg = xmlnode_get_data(child);
+				char *escaped = purple_markup_escape_text(msg, -1);
+				jm->body = purple_strdup_withhtml(escaped);
+				g_free(escaped);
 				g_free(msg);
 			}
 		} else if(!strcmp(child->name, "html") && !strcmp(xmlns, NS_XHTML_IM)) {
@@ -636,6 +637,8 @@ void jabber_message_parse(JabberStream *js, xmlnode *packet)
 					/* process any newly provided smileys */
 					jabber_message_add_remote_smileys(js, to, packet);
 				}
+
+				xmlnode_strip_prefixes(child);
 
 				/* reformat xhtml so that img tags with a "cid:" src gets
 				  translated to the bare text of the emoticon (the "alt" attrib) */
@@ -944,7 +947,7 @@ jabber_message_smileyfy_xhtml(JabberMessage *jm, const char *xhtml)
 			const GList *iterator;
 			GList *valid_smileys = NULL;
 			gboolean has_too_large_smiley = FALSE;
-			
+
 			for (iterator = found_smileys; iterator ;
 				iterator = g_list_next(iterator)) {
 				PurpleSmiley *smiley = (PurpleSmiley *) iterator->data;
@@ -975,7 +978,7 @@ jabber_message_smileyfy_xhtml(JabberMessage *jm, const char *xhtml)
 							"(too large, max is %d)\n",
 							purple_smiley_get_shortcut(smiley),
 							JABBER_DATA_MAX_SIZE);
-				}				
+				}
 			}
 
 			if (has_too_large_smiley) {
@@ -1139,15 +1142,21 @@ int jabber_message_send_im(PurpleConnection *gc, const char *who, const char *ms
 	if(!who || !msg)
 		return 0;
 
+	if (purple_debug_is_verbose()) {
+		/* TODO: Maybe we need purple_debug_is_really_verbose? :) */
+		purple_debug_misc("jabber", "jabber_message_send_im: who='%s'\n"
+		                            "\tmsg='%s'\n", who, msg);
+	}
+
 	resource = jabber_get_resource(who);
 
-	jb = jabber_buddy_find(gc->proto_data, who, TRUE);
+	jb = jabber_buddy_find(purple_connection_get_protocol_data(gc), who, TRUE);
 	jbr = jabber_buddy_find_resource(jb, resource);
 
 	g_free(resource);
 
 	jm = g_new0(JabberMessage, 1);
-	jm->js = gc->proto_data;
+	jm->js = purple_connection_get_protocol_data(gc);
 	jm->type = JABBER_MESSAGE_CHAT;
 	jm->chat_state = JM_STATE_ACTIVE;
 	jm->to = g_strdup(who);
@@ -1204,14 +1213,14 @@ int jabber_message_send_chat(PurpleConnection *gc, int id, const char *msg, Purp
 	if(!msg || !gc)
 		return 0;
 
-	js = gc->proto_data;
+	js = purple_connection_get_protocol_data(gc);
 	chat = jabber_chat_find_by_id(js, id);
 
 	if(!chat)
 		return 0;
 
 	jm = g_new0(JabberMessage, 1);
-	jm->js = gc->proto_data;
+	jm->js = purple_connection_get_protocol_data(gc);
 	jm->type = JABBER_MESSAGE_GROUPCHAT;
 	jm->to = g_strdup_printf("%s@%s", chat->room, chat->server);
 	jm->id = jabber_get_next_id(jm->js);
@@ -1243,7 +1252,7 @@ unsigned int jabber_send_typing(PurpleConnection *gc, const char *who, PurpleTyp
 	JabberMessage *jm;
 	JabberBuddy *jb;
 	JabberBuddyResource *jbr;
-	char *resource;	
+	char *resource;
 
 	js = purple_connection_get_protocol_data(gc);
 	jb = jabber_buddy_find(js, who, TRUE);

@@ -76,18 +76,6 @@
 
 #include <getopt.h>
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-# define SN_API_NOT_YET_FROZEN
-# include <libsn/sn-launchee.h>
-# include <gdk/gdkx.h>
-#endif
-
-
-
-#ifdef HAVE_STARTUP_NOTIFICATION
-static SnLauncheeContext *sn_context = NULL;
-static SnDisplay *sn_display = NULL;
-#endif
 
 #ifdef HAVE_SIGNAL_H
 
@@ -282,7 +270,7 @@ ui_main(void)
 	/* use the nice PNG icon for all the windows */
 	for(i=0; i<G_N_ELEMENTS(icon_sizes); i++) {
 		icon_path = g_build_filename(DATADIR, "icons", "hicolor", icon_sizes[i].dir, "apps", icon_sizes[i].filename, NULL);
-		icon = gdk_pixbuf_new_from_file(icon_path, NULL);
+		icon = pidgin_pixbuf_new_from_file(icon_path);
 		g_free(icon_path);
 		if (icon) {
 			icons = g_list_append(icons,icon);
@@ -393,8 +381,10 @@ static GHashTable *pidgin_ui_get_info(void)
 		 * account "markdoliner."  Please don't use this key for other
 		 * applications.  You can either not specify a client key, in
 		 * which case the default "libpurple" key will be used, or you
-		 * can register for your own client key at
-		 * http://developer.aim.com/manageKeys.jsp
+		 * can try to register your own at the AIM or ICQ web sites
+		 * (although this functionality was removed at some point, it's
+		 * possible it has been re-added).  AOL's old key management
+		 * page is http://developer.aim.com/manageKeys.jsp
 		 */
 		g_hash_table_insert(ui_info, "prpl-aim-clientkey", "ma1cSASNCKFtrdv9");
 		g_hash_table_insert(ui_info, "prpl-icq-clientkey", "ma1cSASNCKFtrdv9");
@@ -472,42 +462,6 @@ show_usage(const char *name, gboolean terse)
 	g_free(text);
 }
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-static void
-sn_error_trap_push(SnDisplay *display, Display *xdisplay)
-{
-	gdk_error_trap_push();
-}
-
-static void
-sn_error_trap_pop(SnDisplay *display, Display *xdisplay)
-{
-	gdk_error_trap_pop();
-}
-
-static void
-startup_notification_complete(void)
-{
-	Display *xdisplay;
-
-	xdisplay = GDK_DISPLAY();
-	sn_display = sn_display_new(xdisplay,
-								sn_error_trap_push,
-								sn_error_trap_pop);
-	sn_context =
-		sn_launchee_context_new_from_environment(sn_display,
-												 DefaultScreen(xdisplay));
-
-	if (sn_context != NULL)
-	{
-		sn_launchee_context_complete(sn_context);
-		sn_launchee_context_unref(sn_context);
-
-		sn_display_unref(sn_display);
-	}
-}
-#endif /* HAVE_STARTUP_NOTIFICATION */
-
 /* FUCKING GET ME A TOWEL! */
 #ifdef _WIN32
 /* suppress gcc "no previous prototype" warning */
@@ -544,14 +498,13 @@ int main(int argc, char *argv[])
 	int opt;
 	gboolean gui_check;
 	gboolean debug_enabled;
-	gboolean migration_failed = FALSE;
 	GList *active_accounts;
 	struct stat st;
 
 	struct option long_options[] = {
 		{"config",       required_argument, NULL, 'c'},
 		{"debug",        no_argument,       NULL, 'd'},
-		{"force-online", no_argument,       NULL, 'd'},
+		{"force-online", no_argument,       NULL, 'f'},
 		{"help",         no_argument,       NULL, 'h'},
 		{"login",        optional_argument, NULL, 'l'},
 		{"multiple",     no_argument,       NULL, 'm'},
@@ -776,16 +729,6 @@ int main(int argc, char *argv[])
 
 	purple_debug_set_enabled(debug_enabled);
 
-	/* If we're using a custom configuration directory, we
-	 * do NOT want to migrate, or weird things will happen. */
-	if (opt_config_dir_arg == NULL)
-	{
-		if (!purple_core_migrate())
-		{
-			migration_failed = TRUE;
-		}
-	}
-
 	search_path = g_build_filename(purple_user_dir(), "gtkrc-2.0", NULL);
 	gtk_rc_add_default_file(search_path);
 	g_free(search_path);
@@ -810,37 +753,6 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
 	winpidgin_init(hint);
 #endif
-
-	if (migration_failed)
-	{
-		char *old = g_strconcat(purple_home_dir(),
-		                        G_DIR_SEPARATOR_S ".gaim", NULL);
-		const char *text = _(
-			"%s encountered errors migrating your settings "
-			"from %s to %s. Please investigate and complete the "
-			"migration by hand. Please report this error at http://developer.pidgin.im");
-		GtkWidget *dialog;
-
-		dialog = gtk_message_dialog_new(NULL,
-		                                0,
-		                                GTK_MESSAGE_ERROR,
-		                                GTK_BUTTONS_CLOSE,
-		                                text, PIDGIN_NAME,
-		                                old, purple_user_dir());
-		g_free(old);
-
-		g_signal_connect_swapped(dialog, "response",
-		                         G_CALLBACK(gtk_main_quit), NULL);
-
-		gtk_widget_show_all(dialog);
-
-		gtk_main();
-
-#ifdef HAVE_SIGNAL_H
-		g_free(segfault_message);
-#endif
-		return 0;
-	}
 
 	purple_core_set_ui_ops(pidgin_core_get_ui_ops());
 	purple_eventloop_set_ui_ops(pidgin_eventloop_get_ui_ops());
@@ -876,6 +788,7 @@ int main(int argc, char *argv[])
 		dbus_connection_send_with_reply_and_block(conn, message, -1, NULL);
 		dbus_message_unref(message);
 #endif
+		gdk_notify_startup_complete();
 		purple_core_quit();
 		g_printerr(_("Exiting because another libpurple client is already running.\n"));
 #ifdef HAVE_SIGNAL_H
@@ -967,9 +880,10 @@ int main(int argc, char *argv[])
 		g_list_free(active_accounts);
 	}
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-	startup_notification_complete();
-#endif
+	/* GTK clears the notification for us when opening the first window,
+	 * but we may have launched with only a status icon, so clear the it
+	 * just in case. */
+	gdk_notify_startup_complete();
 
 #ifdef _WIN32
 	winpidgin_post_init();

@@ -317,26 +317,26 @@ char* wpurple_strerror(int errornum) {
 	if (errornum > WSABASEERR) {
 		switch(errornum) {
 			case WSAECONNABORTED: /* 10053 */
-				g_snprintf(errbuf, sizeof(errbuf), _("Connection interrupted by other software on your computer."));
+				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Connection interrupted by other software on your computer."));
 				break;
 			case WSAECONNRESET: /* 10054 */
-				g_snprintf(errbuf, sizeof(errbuf), _("Remote host closed connection."));
+				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Remote host closed connection."));
 				break;
 			case WSAETIMEDOUT: /* 10060 */
-				g_snprintf(errbuf, sizeof(errbuf), _("Connection timed out."));
+				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Connection timed out."));
 				break;
 			case WSAECONNREFUSED: /* 10061 */
-				g_snprintf(errbuf, sizeof(errbuf), _("Connection refused."));
+				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Connection refused."));
 				break;
 			case WSAEADDRINUSE: /* 10048 */
-				g_snprintf(errbuf, sizeof(errbuf), _("Address already in use."));
+				g_snprintf(errbuf, sizeof(errbuf), "%s", _("Address already in use."));
 				break;
 			default:
 				g_snprintf(errbuf, sizeof(errbuf), "Windows socket error #%d", errornum);
 		}
 	} else {
 		const char *tmp = g_strerror(errornum);
-		g_snprintf(errbuf, sizeof(errbuf), tmp);
+		g_snprintf(errbuf, sizeof(errbuf), "%s", tmp);
 	}
 	return errbuf;
 }
@@ -465,12 +465,6 @@ int wpurple_gettimeofday(struct timeval *p, struct timezone *z) {
 	}
 
 	return res;
-}
-
-/* stdio.h */
-
-int wpurple_rename (const char *oldname, const char *newname) {
-	return g_rename(oldname, newname);
 }
 
 /* time.h */
@@ -982,7 +976,7 @@ wpurple_get_timezone_abbreviation(const struct tm *tm)
 		if (strcmp(tzname, zonename) == 0)
 		{
 			/* Matched zone */
-			strcpy(localtzname, keyname);
+			g_strlcpy(localtzname, keyname, sizeof(localtzname));
 			RegCloseKey(key);
 			break;
 		}
@@ -997,7 +991,7 @@ wpurple_get_timezone_abbreviation(const struct tm *tm)
 		if (strcmp(tzname, zonename) == 0)
 		{
 			/* Matched DST zone */
-			strcpy(localtzname, keyname);
+			g_strlcpy(localtzname, keyname, sizeof(localtzname));
 			RegCloseKey(key);
 			break;
 		}
@@ -1047,15 +1041,3 @@ wpurple_get_timezone_abbreviation(const struct tm *tm)
 	purple_debug_warning("wpurple", "could not find a match for Windows timezone \"%s\"\n", tzname);
 	return "";
 }
-
-int wpurple_g_access (const gchar *filename, int mode);
-/**
- * @deprecated - remove for 3.0.0
- */
-int
-wpurple_g_access (const gchar *filename, int mode)
-{
-	return g_access(filename, mode);
-}
-
-

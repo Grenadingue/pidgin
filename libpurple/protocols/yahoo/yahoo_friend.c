@@ -46,9 +46,10 @@ YahooFriend *yahoo_friend_find(PurpleConnection *gc, const char *name)
 	const char *norm;
 
 	g_return_val_if_fail(gc != NULL, NULL);
-	g_return_val_if_fail(gc->proto_data != NULL, NULL);
 
-	yd = gc->proto_data;
+	yd = purple_connection_get_protocol_data(gc);
+	g_return_val_if_fail(yd != NULL, NULL);
+
 	norm = purple_normalize(purple_connection_get_account(gc), name);
 
 	return g_hash_table_lookup(yd->friends, norm);
@@ -61,9 +62,10 @@ YahooFriend *yahoo_friend_find_or_new(PurpleConnection *gc, const char *name)
 	const char *norm;
 
 	g_return_val_if_fail(gc != NULL, NULL);
-	g_return_val_if_fail(gc->proto_data != NULL, NULL);
 
-	yd = gc->proto_data;
+	yd = purple_connection_get_protocol_data(gc);
+	g_return_val_if_fail(yd != NULL, NULL);
+
 	norm = purple_normalize(purple_connection_get_account(gc), name);
 
 	f = g_hash_table_lookup(yd->friends, norm);
@@ -152,7 +154,7 @@ void yahoo_process_presence(PurpleConnection *gc, struct yahoo_packet *pkt)
 	char *who = NULL;
 	int value = 0;
 	YahooFederation fed = YAHOO_FEDERATION_NONE;
-	
+
 	while (l) {
 		struct yahoo_pair *pair = l->data;
 
@@ -175,7 +177,7 @@ void yahoo_process_presence(PurpleConnection *gc, struct yahoo_packet *pkt)
 		purple_debug_error("yahoo", "Received unknown value for presence key: %d\n", value);
 		return;
 	}
-	
+
 	switch (fed) {
 		case YAHOO_FEDERATION_MSN:
 			who = g_strconcat("msn/", temp, NULL);
@@ -225,7 +227,7 @@ void yahoo_process_presence(PurpleConnection *gc, struct yahoo_packet *pkt)
 void yahoo_friend_update_presence(PurpleConnection *gc, const char *name,
 		YahooPresenceVisibility presence)
 {
-	YahooData *yd = gc->proto_data;
+	YahooData *yd = purple_connection_get_protocol_data(gc);
 	struct yahoo_packet *pkt = NULL;
 	YahooFriend *f;
 	const char *thirtyone, *thirteen;
@@ -238,12 +240,12 @@ void yahoo_friend_update_presence(PurpleConnection *gc, const char *name,
 	f = yahoo_friend_find(gc, name);
 	if (!f)
 		return;
-	
+
 	if(f->fed != YAHOO_FEDERATION_NONE)
 		temp = name+4;
 	else
 		temp = name;
-    
+
 	/* No need to change the value if it is already correct */
 	if (f->presence == presence) {
 		purple_debug_info("yahoo", "Not setting presence because there are no changes.\n");

@@ -194,15 +194,12 @@ add_pounce_to_treeview(GtkListStore *model, PurplePounce *pounce)
 {
 	GtkTreeIter iter;
 	PurpleAccount *account;
-	PurplePounceEvent events;
 	gboolean recurring;
 	const char *pouncer;
 	const char *pouncee;
 	GdkPixbuf *pixbuf;
 
 	account = purple_pounce_get_pouncer(pounce);
-
-	events = purple_pounce_get_events(pounce);
 
 	pixbuf = pidgin_create_prpl_icon(account, PIDGIN_PRPL_ICON_MEDIUM);
 
@@ -479,7 +476,7 @@ reset_send_msg_entry(PidginPounceDialog *dialog, GtkWidget *dontcare)
 {
 	PurpleAccount *account = pidgin_account_option_menu_get_selected(dialog->account_menu);
 	gtk_imhtml_setup_entry(GTK_IMHTML(dialog->send_msg_entry),
-			(account && account->gc) ? account->gc->flags : PURPLE_CONNECTION_HTML);
+			(account && purple_account_get_connection(account)) ? purple_account_get_connection(account)->flags : PURPLE_CONNECTION_HTML);
 }
 
 void
@@ -1224,20 +1221,10 @@ search_func(GtkTreeModel *model, gint column, const gchar *key, GtkTreeIter *ite
 static GtkWidget *
 create_pounces_list(PouncesManager *dialog)
 {
-	GtkWidget *sw;
 	GtkWidget *treeview;
 	GtkTreeSelection *sel;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
-
-	/* Create the scrolled window */
-	sw = gtk_scrolled_window_new(0, 0);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-					GTK_POLICY_AUTOMATIC,
-					GTK_POLICY_AUTOMATIC);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
-						GTK_SHADOW_IN);
-	gtk_widget_show(sw);
 
 	/* Create the list model */
 	dialog->model = gtk_list_store_new(POUNCES_MANAGER_NUM_COLUMNS,
@@ -1262,7 +1249,6 @@ create_pounces_list(PouncesManager *dialog)
 	/* Handle double-clicking */
 	g_signal_connect(G_OBJECT(treeview), "button_press_event",
 					 G_CALLBACK(pounce_double_click_cb), dialog);
-	gtk_container_add(GTK_CONTAINER(sw), treeview);
 	gtk_widget_show(treeview);
 
 	/* Pouncee Column */
@@ -1322,7 +1308,7 @@ create_pounces_list(PouncesManager *dialog)
 	/* Populate list */
 	populate_pounces_list(dialog);
 
-	return sw;
+	return pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, -1);
 }
 
 void
@@ -1497,7 +1483,7 @@ pounce_cb(PurplePounce *pounce, PurplePounceEvent events, void *data)
 			purple_conversation_write(conv, NULL, message,
 									PURPLE_MESSAGE_SEND, time(NULL));
 
-			serv_send_im(account->gc, (char *)pouncee, (char *)message, 0);
+			serv_send_im(purple_account_get_connection(account), (char *)pouncee, (char *)message, 0);
 		}
 	}
 

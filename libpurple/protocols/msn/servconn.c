@@ -21,7 +21,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#include "msn.h"
+#include "internal.h"
+#include "debug.h"
+
 #include "servconn.h"
 #include "error.h"
 
@@ -419,8 +421,10 @@ read_cb(gpointer data, gint source, PurpleInputCondition cond)
 
 	servconn = data;
 
-	if (servconn->type == MSN_SERVCONN_NS)
-		servconn->session->account->gc->last_received = time(NULL);
+	if (servconn->type == MSN_SERVCONN_NS) {
+		PurpleConnection *gc = purple_account_get_connection(servconn->session->account);
+		gc->last_received = time(NULL);
+	}
 
 	len = read(servconn->fd, buf, sizeof(buf) - 1);
 	if (len < 0 && errno == EAGAIN)

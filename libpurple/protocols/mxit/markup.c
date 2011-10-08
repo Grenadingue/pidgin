@@ -124,10 +124,11 @@ static void hex_dump( const char* buf, int len )
  * Adds a link to a message
  *
  *  @param mx				The Markup message object
- *	@param linkname			This is the what will be returned when the link gets clicked
- *	@param displayname		This is the name for the link which will be displayed in the UI
+ *	@param replydata		This is the what will be returned when the link gets clicked
+ *	@param isStructured		Indicates that the reply is a structured reply
+ *	@param displaytext		This is the text for the link which will be displayed in the UI
  */
-void mxit_add_html_link( struct RXMsgData* mx, const char* linkname, const char* displayname )
+void mxit_add_html_link( struct RXMsgData* mx, const char* replydata, gboolean isStructured, const char* displaytext )
 {
 #ifdef	MXIT_LINK_CLICK
 	char	retstr[256];
@@ -135,15 +136,24 @@ void mxit_add_html_link( struct RXMsgData* mx, const char* linkname, const char*
 	char	link[256];
 	int		len;
 
-	len = g_snprintf( retstr, sizeof( retstr ), "%s|%s|%s|%s|%s", MXIT_LINK_KEY, purple_account_get_username( mx->session->acc ),
-											purple_account_get_protocol_id( mx->session->acc ), mx->from, linkname );
+	/*
+	 * The link content is encoded as follows:
+	 *  MXIT_LINK_KEY | ACCOUNT_USER | ACCOUNT_PROTO | REPLY_TO | REPLY_FORMAT | REPLY_DATA
+	 */
+	len = g_snprintf( retstr, sizeof( retstr ), "%s|%s|%s|%s|%i|%s",
+			MXIT_LINK_KEY,
+			purple_account_get_username( mx->session->acc ),
+			purple_account_get_protocol_id( mx->session->acc ),
+			mx->from,
+			isStructured ? 1 : 0,
+			replydata );
 	retstr64 = purple_base64_encode( (const unsigned char*) retstr, len );
 	g_snprintf( link, sizeof( link ), "%s%s", MXIT_LINK_PREFIX, retstr64 );
 	g_free( retstr64 );
 
-	g_string_append_printf( mx->msg, "<a href=\"%s\">%s</a>", link, displayname );
+	g_string_append_printf( mx->msg, "<a href=\"%s\">%s</a>", link, displaytext );
 #else
-	g_string_append_printf( mx->msg, "<b>%s</b>", linkname );
+	g_string_append_printf( mx->msg, "<b>%s</b>", replydata );
 #endif
 }
 
@@ -235,7 +245,6 @@ static void free_markupdata( struct RXMsgData* mx )
  */
 static void mxit_show_split_message( struct RXMsgData* mx )
 {
-	const char*		cont	= "<font color=\"#999999\">continuing...</font>\n";
 	GString*		msg		= NULL;
 	char*			ch		= NULL;
 	int				pos		= 0;
@@ -245,7 +254,6 @@ static void mxit_show_split_message( struct RXMsgData* mx )
 	int				l_gt	= 0;
 	int				stop	= 0;
 	int				tags	= 0;
-	int				segs	= 0;
 	gboolean		intag	= FALSE;
 
 	/*
@@ -319,21 +327,20 @@ static void mxit_show_split_message( struct RXMsgData* mx )
 				stop--;
 			}
 
-			/* build the string */
-			if ( segs )
-				g_string_prepend( msg, cont );
-
 			/* push message to pidgin */
 			serv_got_im( mx->session->con, mx->from, msg->str, mx->flags, mx->timestamp );
 			g_string_free( msg, TRUE );
 			msg = NULL;
 
-			tags = 0;
-			segs++;
-			start = stop + 1;
-		}
+			/* next part need this flag set */
+			mx->flags |= PURPLE_MESSAGE_RAW;
 
-		pos++;
+			tags = 0;
+			start = stop + 1;
+			pos = start;
+		}
+		else
+			pos++;
 	}
 
 	if ( start != pos ) {
@@ -343,8 +350,6 @@ static void mxit_show_split_message( struct RXMsgData* mx )
 		ch[pos] = '\0';
 		msg = g_string_new( &ch[start] );
 		ch[pos] = '\n';
-		if ( segs )
-			g_string_prepend( msg, cont );
 
 		/* push message to pidgin */
 		serv_got_im( mx->session->con, mx->from, msg->str, mx->flags, mx->timestamp );
@@ -623,7 +628,7 @@ static void emoticon_request( struct RXMsgData* mx, const char* id )
 
 	/* reference: "libpurple/util.h" */
 	url = g_strdup_printf( "%s/res/?type=emo&mlh=%i&sc=%s&ts=%li", wapserver, MXIT_EMOTICON_SIZE, id, time( NULL ) );
-	url_data = purple_util_fetch_url_request( url, TRUE, NULL, TRUE, NULL, FALSE, emoticon_returned, mx );
+	url_data = purple_util_fetch_url( url, TRUE, NULL, TRUE, -1, emoticon_returned, mx );
 	g_free( url );
 }
 
@@ -662,7 +667,7 @@ static int mxit_parse_vibe( struct RXMsgData* mx, const char* message )
  *  @param message			The message text
  *  @return					The length of the message to skip
  */
-static int mxit_extract_chatroom_nick( struct RXMsgData* mx, char* message, int len )
+static int mxit_extract_chatroom_nick( struct RXMsgData* mx, char* message, int len, int msgflags )
 {
 	int		i;
 
@@ -673,7 +678,6 @@ static int mxit_extract_chatroom_nick( struct RXMsgData* mx, char* message, int 
 		 * Search for it....
 		 */
 		gboolean	found	= FALSE;
-		gchar*		nickname;
 
 		for ( i = 1; i < len; i++ ) {
 			if ( ( message[i] == '\n' ) && ( message[i-1] == '>' ) ) {
@@ -685,11 +689,29 @@ static int mxit_extract_chatroom_nick( struct RXMsgData* mx, char* message, int 
 		}
 
 		if ( found ) {
+			gchar*		nickname;
+
 			/*
 			 * The message definitely had an embedded nickname - generate a marked-up
 			 * message to be displayed.
 			 */
 			nickname = g_markup_escape_text( &message[1], -1 );
+
+			/* Remove any MXit escaping from nickname ("\X" --> "X") */
+			if ( msgflags & CP_MSG_MARKUP ) {
+				int	nicklen = strlen( nickname );
+				int	j, k;
+
+				for ( j = 0, k = 0; j < nicklen; j++ ) {
+					if ( nickname[j] == '\\' )
+						j++;
+
+					nickname[k] = nickname[j];
+					k++;
+				}
+
+				nickname[k] = '\0';		/* terminate string */
+			}
 
 			/* add nickname within some BOLD markup to the new converted message */
 			g_string_append_printf( mx->msg, "<b>%s:</b> ", nickname );
@@ -723,6 +745,7 @@ void mxit_parse_markup( struct RXMsgData* mx, char* message, int len, short msgt
 	gboolean	tag_bold	= FALSE;
 	gboolean	tag_under	= FALSE;
 	gboolean	tag_italic	= FALSE;
+	int			font_size	= 0;
 
 #ifdef MXIT_DEBUG_MARKUP
 	purple_debug_info( MXIT_PLUGIN_ID, "Markup RX (original): '%s'\n", message );
@@ -747,7 +770,7 @@ void mxit_parse_markup( struct RXMsgData* mx, char* message, int len, short msgt
 	if ( is_mxit_chatroom_contact( mx->session, mx->from ) ) {
 		/* chatroom message, so we need to extract and skip the sender's nickname
 		 * which is embedded inside the message */
-		i = mxit_extract_chatroom_nick( mx, message, len );
+		i = mxit_extract_chatroom_nick( mx, message, len, msgflags );
 	}
 
 	/* run through the message and check for custom emoticons and markup */
@@ -811,7 +834,7 @@ void mxit_parse_markup( struct RXMsgData* mx, char* message, int len, short msgt
 					if ( ch ) {
 						/* end found */
 						*ch = '\0';
-						mxit_add_html_link( mx, &message[i + 1], &message[i + 1] );
+						mxit_add_html_link( mx, &message[i + 1], FALSE, &message[i + 1] );
 						*ch = '$';
 						i += ( ch - &message[i + 1] ) + 1;
 					}
@@ -850,59 +873,54 @@ void mxit_parse_markup( struct RXMsgData* mx, char* message, int len, short msgt
 					}
 					break;
 			case '.' :
-					if ( !( msgflags & CP_MSG_EMOTICON ) ) {
-						g_string_append_c( mx->msg, message[i] );
-						break;
-					}
-					else if ( i + 1 >= len ) {
+					if ( i + 1 >= len ) {
 						/* message too short */
 						g_string_append_c( mx->msg, '.' );
 						break;
 					}
 
-					switch ( message[i+1] ) {
-						case '+' :
-								/* increment text size */
-								g_string_append( mx->msg, "<font size=\"+1\">" );
-								i++;
-								break;
-						case '-' :
-								/* decrement text size */
-								g_string_append( mx->msg, "<font size=\"-1\">" );
-								i++;
-								break;
-						case '{' :
-								/* custom emoticon */
-								if ( i + 2 >= len ) {
-									/* message too short */
-									g_string_append_c( mx->msg, '.' );
-									break;
-								}
+					if ( ( msgflags & CP_MSG_EMOTICON ) && ( message[i+1] == '{' ) ) {
+						/* custom emoticon */
+						if ( i + 2 >= len ) {
+							/* message too short */
+							g_string_append_c( mx->msg, '.' );
+							break;
+						}
 
-								parse_emoticon_str( &message[i+2], tmpstr1 );
-								if ( tmpstr1[0] != '\0' ) {
-									mx->got_img = TRUE;
+						parse_emoticon_str( &message[i+2], tmpstr1 );
+						if ( tmpstr1[0] != '\0' ) {
+							mx->got_img = TRUE;
 
-									if ( g_hash_table_lookup( mx->session->iimages, tmpstr1 ) ) {
-										/* emoticon found in the cache, so we do not have to request it from the WAPsite */
-									}
-									else {
-										/* request emoticon from the WAPsite */
-										mx->img_count++;
-										emoticon_request( mx, tmpstr1 );
-									}
+							if ( g_hash_table_lookup( mx->session->iimages, tmpstr1 ) ) {
+								/* emoticon found in the cache, so we do not have to request it from the WAPsite */
+							}
+							else {
+								/* request emoticon from the WAPsite */
+								mx->img_count++;
+								emoticon_request( mx, tmpstr1 );
+							}
 
-									g_string_append_printf( mx->msg, MXIT_II_TAG"%s>", tmpstr1 );
-									i += strlen( tmpstr1 ) + 2;
-								}
-								else
-									g_string_append_c( mx->msg, '.' );
-
-								break;
-						default :
-								g_string_append_c( mx->msg, '.' );
-								break;
+							g_string_append_printf( mx->msg, MXIT_II_TAG"%s>", tmpstr1 );
+							i += strlen( tmpstr1 ) + 2;
+						}
+						else
+							g_string_append_c( mx->msg, '.' );
 					}
+					else if ( ( msgflags & CP_MSG_MARKUP ) && ( message[i+1] == '+' ) ) {
+						/* increment text size */
+						font_size++;
+						g_string_append_printf( mx->msg, "<font size=\"%+i\">", font_size );
+						i++;
+					}
+					else if ( ( msgflags & CP_MSG_MARKUP ) && ( message[i+1] == '-' ) ) {
+						/* decrement text size */
+						font_size--;
+						g_string_append_printf( mx->msg, "<font size=\"%+i\">", font_size );
+						i++;
+					}
+					else
+						g_string_append_c( mx->msg, '.' );
+
 					break;
 			case '\\' :
 					if ( i + 1 >= len ) {
@@ -994,7 +1012,7 @@ static void inline_image_add( GString* mx, int id )
 {
 	PurpleStoredImage *image;
 	gconstpointer img_data;
-	gsize img_size;	
+	gsize img_size;
 	gchar* enc;
 
 	image = purple_imgstore_find_by_id( id );
@@ -1078,10 +1096,15 @@ char* mxit_convert_markup_tx( const char* message, int* msgtype )
 				}
 				else if ( purple_str_has_prefix( &message[i], "<font size=" ) ) {
 					/* font size */
+					int fontsize;
+
 					tag = g_new0( struct tag, 1 );
 					tag->type = MXIT_TAG_SIZE;
 					tagstack = g_list_prepend( tagstack, tag );
 					// TODO: implement size control
+					if ( sscanf( &message[i+12], "%i", &fontsize ) ) {
+						purple_debug_info( MXIT_PLUGIN_ID, "Font size set to %i\n", fontsize );
+					}
 				}
 				else if ( purple_str_has_prefix( &message[i], "<font color=" ) ) {
 					/* font colour */
@@ -1121,7 +1144,7 @@ char* mxit_convert_markup_tx( const char* message, int* msgtype )
 
 				/* skip to end of tag ('>') */
 				for ( i++; ( i < len ) && ( message[i] != '>' ) ; i++ );
-			
+
 				break;
 
 			case '*' :	/* MXit bold */
@@ -1132,6 +1155,17 @@ char* mxit_convert_markup_tx( const char* message, int* msgtype )
 			case '\\' :	/* MXit escape backslash */
 				g_string_append( mx, "\\" );				/* escape character */
 				g_string_append_c( mx, message[i] );		/* character to escape */
+				break;
+
+			case '.' : /* might be a MXit font size change, or custom emoticon */
+				if ( i + 1 < len ) {
+					if ( ( message[i+1] == '+' ) || ( message[i+1] == '-' ) )
+						g_string_append( mx, "\\." );		/* escape "." */
+					else
+						g_string_append_c( mx, '.' );
+				}
+				else
+					g_string_append_c( mx, '.' );
 				break;
 
 			default:

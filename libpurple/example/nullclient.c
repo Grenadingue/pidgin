@@ -96,7 +96,7 @@ static guint glib_input_add(gint fd, PurpleInputCondition condition, PurpleInput
 	return closure->result;
 }
 
-static PurpleEventLoopUiOps glib_eventloops = 
+static PurpleEventLoopUiOps glib_eventloops =
 {
 	g_timeout_add,
 	g_source_remove,
@@ -134,7 +134,7 @@ null_write_conv(PurpleConversation *conv, const char *who, const char *alias,
 			name, message);
 }
 
-static PurpleConversationUiOps null_conv_uiops = 
+static PurpleConversationUiOps null_conv_uiops =
 {
 	NULL,                      /* create_conversation  */
 	NULL,                      /* destroy_conversation */
@@ -167,7 +167,7 @@ null_ui_init(void)
 	purple_conversations_set_ui_ops(&null_conv_uiops);
 }
 
-static PurpleCoreUiOps null_core_uiops = 
+static PurpleCoreUiOps null_core_uiops =
 {
 	NULL,
 	NULL,
@@ -237,7 +237,7 @@ static void
 signed_on(PurpleConnection *gc, gpointer null)
 {
 	PurpleAccount *account = purple_connection_get_account(gc);
-	printf("Account connected: %s %s\n", account->username, account->protocol_id);
+	printf("Account connected: %s %s\n", purple_account_get_username(account), purple_account_get_protocol_id(account));
 }
 
 static void

@@ -285,34 +285,36 @@ jabber_caps_load(void)
 					 * work properly, that bug needs to be fixed in
 					 * xmlnode_from_str, not the output version... */
 					value->forms = g_list_append(value->forms, xmlnode_copy(child));
-				} else if (g_str_equal(child->name, "ext") && key->hash != NULL) {
-					purple_debug_warning("jabber", "Ignoring exts when reading new-style caps\n");
 				} else if (g_str_equal(child->name, "ext")) {
-					/* TODO: Do we care about reading in the identities listed here? */
-					const char *identifier = xmlnode_get_attrib(child, "identifier");
-					xmlnode *node;
-					GList *features = NULL;
+					if (key->hash != NULL)
+						purple_debug_warning("jabber", "Ignoring exts when reading new-style caps\n");
+					else {
+						/* TODO: Do we care about reading in the identities listed here? */
+						const char *identifier = xmlnode_get_attrib(child, "identifier");
+						xmlnode *node;
+						GList *features = NULL;
 
-					if (!identifier)
-						continue;
-
-					for (node = child->child; node; node = node->next) {
-						if (node->type != XMLNODE_TYPE_TAG)
+						if (!identifier)
 							continue;
-						if (g_str_equal(node->name, "feature")) {
-							const char *var = xmlnode_get_attrib(node, "var");
-							if (!var)
-								continue;
-							features = g_list_prepend(features, g_strdup(var));
-						}
-					}
 
-					if (features) {
-						g_hash_table_insert(exts->exts, g_strdup(identifier),
-						                    features);
-					} else
-						purple_debug_warning("jabber", "Caps ext %s had no features.\n",
-						                     identifier);
+						for (node = child->child; node; node = node->next) {
+							if (node->type != XMLNODE_TYPE_TAG)
+								continue;
+							if (g_str_equal(node->name, "feature")) {
+								const char *var = xmlnode_get_attrib(node, "var");
+								if (!var)
+									continue;
+								features = g_list_prepend(features, g_strdup(var));
+							}
+						}
+
+						if (features) {
+							g_hash_table_insert(exts->exts, g_strdup(identifier),
+							                    features);
+						} else
+							purple_debug_warning("jabber", "Caps ext %s had no features.\n",
+							                     identifier);
+					}
 				}
 			}
 
@@ -803,7 +805,7 @@ static GList* jabber_caps_xdata_get_fields(const xmlnode *x)
 	return fields;
 }
 
-static void 
+static void
 append_escaped_string(PurpleCipherContext *context, const gchar *str)
 {
 	if (str && *str) {
@@ -956,7 +958,7 @@ void jabber_caps_broadcast_change()
 		const char *prpl_id = purple_account_get_protocol_id(account);
 		if (g_str_equal("prpl-jabber", prpl_id) && purple_account_is_connected(account)) {
 			PurpleConnection *gc = purple_account_get_connection(account);
-			jabber_presence_send(gc->proto_data, TRUE);
+			jabber_presence_send(purple_connection_get_protocol_data(gc), TRUE);
 		}
 	}
 

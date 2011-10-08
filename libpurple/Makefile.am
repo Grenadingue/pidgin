@@ -9,8 +9,8 @@ EXTRA_DIST = \
 		purple-send-async \
 		purple-url-handler \
 		purple.h.in \
-		purple.pc.in \
-		purple-uninstalled.pc.in \
+		purple-3.pc.in \
+		purple-3-uninstalled.pc.in \
 		version.h.in \
 		Makefile.mingw \
 		win32/global.mak \
@@ -30,9 +30,9 @@ GCONF_DIR=gconf
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = purple.pc
+pkgconfig_DATA = purple-3.pc
 
-SUBDIRS = $(GCONF_DIR) plugins protocols . tests example
+SUBDIRS = $(GCONF_DIR) plugins protocols ciphers . tests example
 
 purple_coresources = \
 	account.c \
@@ -117,7 +117,6 @@ purple_coreheaders = \
 	desktopitem.h \
 	eventloop.h \
 	ft.h \
-	gaim-compat.h \
 	idle.h \
 	imgstore.h \
 	log.h \
@@ -156,7 +155,6 @@ purple_coreheaders = \
 	theme-manager.h \
 	upnp.h \
 	util.h \
-	valgrind.h \
 	value.h \
 	xmlnode.h \
 	whiteboard.h
@@ -311,6 +309,7 @@ libpurple_la_LIBADD = \
 	$(GSTREAMER_LIBS) \
 	$(GSTINTERFACES_LIBS) \
 	$(IDN_LIBS) \
+	ciphers/libpurple-ciphers.la \
 	-lm
 
 AM_CPPFLAGS = \

@@ -425,16 +425,6 @@ pidgin_request_input(const char *title, const char *primary,
 	}
 	else {
 		if (multiline) {
-			GtkWidget *sw;
-
-			sw = gtk_scrolled_window_new(NULL, NULL);
-			gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-										   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-			gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
-												GTK_SHADOW_IN);
-
-			gtk_widget_set_size_request(sw, 320, 130);
-
 			/* GtkTextView */
 			entry = gtk_text_view_new();
 			gtk_text_view_set_editable(GTK_TEXT_VIEW(entry), TRUE);
@@ -448,12 +438,12 @@ pidgin_request_input(const char *title, const char *primary,
 
 			gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(entry), GTK_WRAP_WORD_CHAR);
 
-			gtk_box_pack_start(GTK_BOX(vbox), sw, TRUE, TRUE, 0);
-
 			if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/spellcheck"))
 				pidgin_setup_gtkspell(GTK_TEXT_VIEW(entry));
 
-			gtk_container_add(GTK_CONTAINER(sw), entry);
+			gtk_box_pack_start(GTK_BOX(vbox), 
+				pidgin_make_scrollable(entry, GTK_POLICY_NEVER, GTK_POLICY_ALWAYS, GTK_SHADOW_IN, 320, 130),
+				TRUE, TRUE, 0);
 		}
 		else {
 			entry = gtk_entry_new();
@@ -601,7 +591,7 @@ pidgin_request_choice(const char *title, const char *primary,
 static void *
 pidgin_request_action_with_icon(const char *title, const char *primary,
 						const char *secondary, int default_action,
-					    PurpleAccount *account, const char *who, 
+					    PurpleAccount *account, const char *who,
 						PurpleConversation *conv, gconstpointer icon_data,
 						gsize icon_size,
 						void *user_data, size_t action_count, va_list actions)
@@ -669,37 +659,32 @@ pidgin_request_action_with_icon(const char *title, const char *primary,
 
 	/* Dialog icon. */
 	if (icon_data) {
-		GdkPixbufLoader *loader = gdk_pixbuf_loader_new();
-		GdkPixbuf *pixbuf = NULL;
-		if (gdk_pixbuf_loader_write(loader, icon_data, icon_size, NULL)) {
-			pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
-			if (pixbuf) {
-				/* scale the image if it is too large */
-				int width = gdk_pixbuf_get_width(pixbuf);
-				int height = gdk_pixbuf_get_height(pixbuf);
-				if (width > 128 || height > 128) {
-					int scaled_width = width > height ? 128 : (128 * width) / height;
-					int scaled_height = height > width ? 128 : (128 * height) / width;
-					GdkPixbuf *scaled =
-							gdk_pixbuf_scale_simple(pixbuf, scaled_width, scaled_height,
-							    GDK_INTERP_BILINEAR);
+		GdkPixbuf *pixbuf = pidgin_pixbuf_from_data(icon_data, icon_size);
+		if (pixbuf) {
+			/* scale the image if it is too large */
+			int width = gdk_pixbuf_get_width(pixbuf);
+			int height = gdk_pixbuf_get_height(pixbuf);
+			if (width > 128 || height > 128) {
+				int scaled_width = width > height ? 128 : (128 * width) / height;
+				int scaled_height = height > width ? 128 : (128 * height) / width;
+				GdkPixbuf *scaled =
+						gdk_pixbuf_scale_simple(pixbuf, scaled_width, scaled_height,
+						    GDK_INTERP_BILINEAR);
 
-					purple_debug_info("pidgin",
-					    "dialog icon was too large, scale it down\n");
-					if (scaled) {
-						g_object_unref(pixbuf);
-						pixbuf = scaled;
-					}
+				purple_debug_info("pidgin",
+				    "dialog icon was too large, scaled it down\n");
+				if (scaled) {
+					g_object_unref(pixbuf);
+					pixbuf = scaled;
 				}
-				img = gtk_image_new_from_pixbuf(pixbuf);
 			}
+			img = gtk_image_new_from_pixbuf(pixbuf);
+			g_object_unref(pixbuf);
 		} else {
 			purple_debug_info("pidgin", "failed to parse dialog icon\n");
 		}
-		gdk_pixbuf_loader_close(loader, NULL);
-		g_object_unref(loader);
 	}
-	
+
 	if (!img) {
 		img = gtk_image_new_from_stock(PIDGIN_STOCK_DIALOG_QUESTION,
 				       gtk_icon_size_from_name(PIDGIN_ICON_SIZE_TANGO_HUGE));
@@ -770,6 +755,7 @@ static void
 req_entry_field_changed_cb(GtkWidget *entry, PurpleRequestField *field)
 {
 	PurpleRequestFieldGroup *group;
+	PurpleRequestFields *fields;
 	PidginRequestData *req_data;
 
 	if (purple_request_field_string_is_multiline(field))
@@ -792,10 +778,11 @@ req_entry_field_changed_cb(GtkWidget *entry, PurpleRequestField *field)
 	}
 
 	group = purple_request_field_get_group(field);
-	req_data = (PidginRequestData *)group->fields_list->ui_data;
+	fields = purple_request_field_group_get_fields_list(group);
+	req_data = purple_request_fields_get_ui_data(fields);
 
 	gtk_widget_set_sensitive(req_data->ok_button,
-		purple_request_fields_all_required_filled(group->fields_list));
+		purple_request_fields_all_required_filled(fields));
 }
 
 static void
@@ -817,7 +804,7 @@ setup_entry_field(GtkWidget *entry, PurpleRequestField *field)
 		{
 			GtkWidget *optmenu = NULL;
 			PurpleRequestFieldGroup *group = purple_request_field_get_group(field);
-			GList *fields = group->fields;
+			GList *fields = purple_request_field_group_get_fields(group);
 
 			/* Ensure the account option menu is created (if the widget hasn't
 			 * been initialized already) for username auto-completion. */
@@ -858,12 +845,6 @@ create_string_field(PurpleRequestField *field)
 	{
 		GtkWidget *textview;
 
-		widget = gtk_scrolled_window_new(NULL, NULL);
-		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(widget),
-											GTK_SHADOW_IN);
-		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widget),
-									   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-
 		textview = gtk_text_view_new();
 		gtk_text_view_set_editable(GTK_TEXT_VIEW(textview),
 								   TRUE);
@@ -873,10 +854,7 @@ create_string_field(PurpleRequestField *field)
 		if (purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/spellcheck"))
 			pidgin_setup_gtkspell(GTK_TEXT_VIEW(textview));
 
-		gtk_container_add(GTK_CONTAINER(widget), textview);
 		gtk_widget_show(textview);
-
-		gtk_widget_set_size_request(widget, -1, 75);
 
 		if (value != NULL)
 		{
@@ -886,6 +864,10 @@ create_string_field(PurpleRequestField *field)
 
 			gtk_text_buffer_set_text(buffer, value, -1);
 		}
+
+#if GTK_CHECK_VERSION(2,12,0)
+		gtk_widget_set_tooltip_text(textview, purple_request_field_get_tooltip(field));
+#endif
 
 		gtk_text_view_set_editable(GTK_TEXT_VIEW(textview),
 			purple_request_field_string_is_editable(field));
@@ -899,6 +881,8 @@ create_string_field(PurpleRequestField *field)
 			g_signal_connect(G_OBJECT(buffer), "changed",
 							 G_CALLBACK(req_entry_field_changed_cb), field);
 	    }
+
+		widget = pidgin_make_scrollable(textview, GTK_POLICY_NEVER, GTK_POLICY_ALWAYS, GTK_SHADOW_IN, -1, 75);
 	}
 	else
 	{
@@ -908,6 +892,10 @@ create_string_field(PurpleRequestField *field)
 
 		if (value != NULL)
 			gtk_entry_set_text(GTK_ENTRY(widget), value);
+
+#if GTK_CHECK_VERSION(2,12,0)
+		gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
+#endif
 
 		if (purple_request_field_string_is_masked(field))
 		{
@@ -949,6 +937,10 @@ create_int_field(PurpleRequestField *field)
 		gtk_entry_set_text(GTK_ENTRY(widget), buf);
 	}
 
+#if GTK_CHECK_VERSION(2,12,0)
+	gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
+#endif
+
 	g_signal_connect(G_OBJECT(widget), "focus-out-event",
 					 G_CALLBACK(field_int_focus_out_cb), field);
 
@@ -962,6 +954,10 @@ create_bool_field(PurpleRequestField *field)
 
 	widget = gtk_check_button_new_with_label(
 		purple_request_field_get_label(field));
+
+#if GTK_CHECK_VERSION(2,12,0)
+	gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
+#endif
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
 		purple_request_field_bool_get_default_value(field));
@@ -993,6 +989,10 @@ create_choice_field(PurpleRequestField *field)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(widget),
 						purple_request_field_choice_get_default_value(field));
 
+#if GTK_CHECK_VERSION(2,12,0)
+		gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
+#endif
+
 		g_signal_connect(G_OBJECT(widget), "changed",
 						 G_CALLBACK(field_choice_menu_cb), field);
 	}
@@ -1009,6 +1009,10 @@ create_choice_field(PurpleRequestField *field)
 			box = gtk_vbox_new(FALSE, 0);
 
 		widget = box;
+
+#if GTK_CHECK_VERSION(2,12,0)
+		gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
+#endif
 
 		for (l = labels, i = 0; l != NULL; l = l->next, i++)
 		{
@@ -1039,23 +1043,22 @@ create_image_field(PurpleRequestField *field)
 {
 	GtkWidget *widget;
 	GdkPixbuf *buf, *scale;
-	GdkPixbufLoader *loader;
 
-	loader = gdk_pixbuf_loader_new();
-	gdk_pixbuf_loader_write(loader,
-							(const guchar *)purple_request_field_image_get_buffer(field),
-							purple_request_field_image_get_size(field),
-							NULL);
-	gdk_pixbuf_loader_close(loader, NULL);
-	buf = gdk_pixbuf_loader_get_pixbuf(loader);
+	buf = pidgin_pixbuf_from_data(
+			(const guchar *)purple_request_field_image_get_buffer(field),
+			purple_request_field_image_get_size(field));
 
 	scale = gdk_pixbuf_scale_simple(buf,
 			purple_request_field_image_get_scale_x(field) * gdk_pixbuf_get_width(buf),
 			purple_request_field_image_get_scale_y(field) * gdk_pixbuf_get_height(buf),
 			GDK_INTERP_BILINEAR);
 	widget = gtk_image_new_from_pixbuf(scale);
-	g_object_unref(G_OBJECT(loader));
+	g_object_unref(G_OBJECT(buf));
 	g_object_unref(G_OBJECT(scale));
+
+#if GTK_CHECK_VERSION(2,12,0)
+	gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
+#endif
 
 	return widget;
 }
@@ -1071,6 +1074,10 @@ create_account_field(PurpleRequestField *field)
 		G_CALLBACK(field_account_cb),
 		purple_request_field_account_get_filter(field),
 		field);
+
+#if GTK_CHECK_VERSION(2,12,0)
+	gtk_widget_set_tooltip_text(widget, purple_request_field_get_tooltip(field));
+#endif
 
 	return widget;
 }
@@ -1099,7 +1106,6 @@ list_field_select_changed_cb(GtkTreeSelection *sel, PurpleRequestField *field)
 static GtkWidget *
 create_list_field(PurpleRequestField *field)
 {
-	GtkWidget *sw;
 	GtkWidget *treeview;
 	GtkListStore *store;
 	GtkCellRenderer *renderer;
@@ -1111,14 +1117,6 @@ create_list_field(PurpleRequestField *field)
 
 	icons = purple_request_field_list_get_icons(field);
 
-	/* Create the scrolled window */
-	sw = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-				       GTK_POLICY_AUTOMATIC,
-				       GTK_POLICY_AUTOMATIC);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
-										GTK_SHADOW_IN);
-	gtk_widget_show(sw);
 
 	/* Create the list store */
 	if (icons)
@@ -1164,7 +1162,7 @@ create_list_field(PurpleRequestField *field)
 			GdkPixbuf* pixbuf = NULL;
 
 			if (icon_path)
-				pixbuf = gdk_pixbuf_new_from_file(icon_path, NULL);
+				pixbuf = pidgin_pixbuf_new_from_file(icon_path);
 
 			gtk_list_store_set(store, &iter,
 						   0, purple_request_field_list_get_data(field, text),
@@ -1194,10 +1192,9 @@ create_list_field(PurpleRequestField *field)
 	g_signal_connect(G_OBJECT(sel), "changed",
 					 G_CALLBACK(list_field_select_changed_cb), field);
 
-	gtk_container_add(GTK_CONTAINER(sw), treeview);
 	gtk_widget_show(treeview);
 
-	return sw;
+	return pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, -1);
 }
 
 static void *
@@ -1218,7 +1215,6 @@ pidgin_request_fields(const char *title, const char *primary,
 	GtkWidget *table;
 	GtkWidget *button;
 	GtkWidget *img;
-	GtkWidget *sw;
 	GtkSizeGroup *sg;
 	GList *gl, *fl;
 	PurpleRequestFieldGroup *group;
@@ -1232,7 +1228,7 @@ pidgin_request_fields(const char *title, const char *primary,
 	data->user_data = user_data;
 	data->u.multifield.fields = fields;
 
-	fields->ui_data = data;
+	purple_request_fields_set_ui_data(fields, data);
 
 	data->cb_count = 2;
 	data->cbs = g_new0(GCallback, 2);
@@ -1303,18 +1299,10 @@ pidgin_request_fields(const char *title, const char *primary,
 	if(total_fields > 9) {
 		GtkWidget *hbox_for_spacing, *vbox_for_spacing;
 
-		sw = gtk_scrolled_window_new(NULL, NULL);
-		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-				GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
-				GTK_SHADOW_NONE);
-		gtk_widget_set_size_request(sw, -1, 200);
-		gtk_box_pack_start(GTK_BOX(vbox), sw, TRUE, TRUE, 0);
-		gtk_widget_show(sw);
-
 		hbox_for_spacing = gtk_hbox_new(FALSE, PIDGIN_HIG_BORDER);
-		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw),
-				hbox_for_spacing);
+		gtk_box_pack_start(GTK_BOX(vbox), 
+			pidgin_make_scrollable(hbox_for_spacing, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC, GTK_SHADOW_NONE, -1, 200), 
+			TRUE, TRUE, 0);
 		gtk_widget_show(hbox_for_spacing);
 
 		vbox_for_spacing = gtk_vbox_new(FALSE, PIDGIN_HIG_BORDER);

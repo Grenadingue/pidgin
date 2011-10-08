@@ -3,7 +3,7 @@ import string
 import sys
 
 # types translated into "int"
-simpletypes = ["int", "gint", "guint", "gboolean", "gpointer", "size_t", "gssize", "time_t"]
+simpletypes = ["int", "gint", "guint", "gboolean", "size_t", "gssize", "time_t"]
 
 # List "excluded" contains functions that shouldn't be exported via
 # DBus.  If you remove a function from this list, please make sure
@@ -29,7 +29,11 @@ excluded = [\
     # Similar to the above:
     "purple_account_set_register_callback",
     "purple_account_unregister",
-    "purple_connection_new_unregister",
+
+    # Similar to the above, again
+    "purple_menu_action_new",
+    "purple_menu_action_set_callback",
+    "purple_menu_action_get_callback",
 
     # These functions are excluded because they involve setting arbitrary
     # data via pointers for protocols and UIs.  This just won't work.

@@ -96,8 +96,8 @@ chat_nick_matches_name(PurpleConversation *conv, const char *aname)
 	if (chat==NULL)
 		return ret;
 
-	nick = g_strdup(purple_normalize(conv->account, chat->nick));
-	name = g_strdup(purple_normalize(conv->account, aname));
+	nick = g_strdup(purple_normalize(purple_conversation_get_account(conv), purple_conv_chat_get_nick(chat)));
+	name = g_strdup(purple_normalize(purple_conversation_get_account(conv), aname));
 
 	if (g_utf8_collate(nick, name) == 0)
 		ret = TRUE;
@@ -212,7 +212,7 @@ chat_msg_received_cb(PurpleAccount *account, char *sender,
 	if (chat_nick_matches_name(conv, sender))
 		return;
 
-	if (flags & PURPLE_MESSAGE_NICK || purple_utf8_has_word(message, chat->nick))
+	if (flags & PURPLE_MESSAGE_NICK || purple_utf8_has_word(message, purple_conv_chat_get_nick(chat)))
 		/* This isn't quite right; if you have the PURPLE_SOUND_CHAT_NICK event disabled
 		 * and the PURPLE_SOUND_CHAT_SAY event enabled, you won't get a sound at all */
 		play_conv_event(conv, PURPLE_SOUND_CHAT_NICK);
@@ -221,7 +221,7 @@ chat_msg_received_cb(PurpleAccount *account, char *sender,
 }
 
 static void
-got_attention_cb(PurpleAccount *account, const char *who, 
+got_attention_cb(PurpleAccount *account, const char *who,
 	PurpleConversation *conv, guint type, PurpleSoundEventID event)
 {
 	play_conv_event(conv, event);
@@ -362,7 +362,7 @@ pidgin_sound_init(void)
 						  GINT_TO_POINTER(PURPLE_SOUND_GOT_ATTENTION));
 	/* for the time being, don't handle sent-attention here, since playing a
 	 sound would result induplicate sounds. And fixing that would require changing the
-	 conversation signal for msg-recv */	
+	 conversation signal for msg-recv */
 }
 
 static void

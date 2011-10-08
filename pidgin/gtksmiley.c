@@ -47,9 +47,9 @@ struct _PidginSmiley
 	GtkWidget *smiley_image;
 	gchar *filename;
 	GdkPixbuf *custom_pixbuf;
-	gpointer data; /** @since 2.6.0 */
-	gsize datasize; /** @since 2.6.0 */
-	gint entry_len; /** @since 2.6.0 */
+	gpointer data;
+	gsize datasize;
+	gint entry_len;
 };
 
 typedef struct
@@ -332,7 +332,7 @@ static void do_add_file_cb(const char *filename, gpointer data)
 
 	g_free(s->filename);
 	s->filename = g_strdup(filename);
-	pixbuf = gdk_pixbuf_new_from_file_at_scale(filename, 64, 64, FALSE, NULL);
+	pixbuf = pidgin_pixbuf_new_from_file_at_scale(filename, 64, 64, FALSE);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(s->smiley_image), pixbuf);
 	if (pixbuf)
 		g_object_unref(G_OBJECT(pixbuf));
@@ -520,9 +520,6 @@ static void delete_foreach(GtkTreeModel *model, GtkTreePath *path,
 		GtkTreeIter *iter, gpointer data)
 {
 	PurpleSmiley *smiley = NULL;
-	SmileyManager *dialog;
-
-	dialog = (SmileyManager*)data;
 
 	gtk_tree_model_get(model, iter,
 			SMILEY, &smiley,
@@ -693,7 +690,6 @@ smiley_got_url(PurpleUtilFetchUrlData *url_data, gpointer user_data,
 	FILE *f;
 	gchar *path;
 	size_t wc;
-	GError *err = NULL;
 	PidginSmiley *ps;
 	GdkPixbuf *image;
 
@@ -712,13 +708,11 @@ smiley_got_url(PurpleUtilFetchUrlData *url_data, gpointer user_data,
 	}
 	fclose(f);
 
-	image = gdk_pixbuf_new_from_file(path, &err);
+	image = pidgin_pixbuf_new_from_file(path);
 	g_unlink(path);
 	g_free(path);
-	if (err) {
-		g_error_free(err);
+	if (!image)
 		return;
-	}
 
 	ps = pidgin_smiley_edit(dialog->window, NULL);
 	pidgin_smiley_editor_set_image(ps, image);
@@ -756,7 +750,7 @@ smiley_dnd_recv(GtkWidget *widget, GdkDragContext *dc, guint x, guint y,
 		} else if (!g_ascii_strncasecmp(name, "http://", 7)) {
 			/* Oo, a web drag and drop. This is where things
 			 * will start to get interesting */
-			purple_util_fetch_url(name, TRUE, NULL, FALSE, smiley_got_url, dialog);
+			purple_util_fetch_url(name, TRUE, NULL, FALSE, -1, smiley_got_url, dialog);
 		} else if (!g_ascii_strncasecmp(name, "https://", 8)) {
 			/* purple_util_fetch_url() doesn't support HTTPS */
 			char *tmp = g_strdup(name + 1);
@@ -765,7 +759,7 @@ smiley_dnd_recv(GtkWidget *widget, GdkDragContext *dc, guint x, guint y,
 			tmp[2] = 't';
 			tmp[3] = 'p';
 
-			purple_util_fetch_url(tmp, TRUE, NULL, FALSE, smiley_got_url, dialog);
+			purple_util_fetch_url(tmp, TRUE, NULL, FALSE, -1, smiley_got_url, dialog);
 			g_free(tmp);
 		}
 
@@ -777,7 +771,6 @@ smiley_dnd_recv(GtkWidget *widget, GdkDragContext *dc, guint x, guint y,
 
 static GtkWidget *smiley_list_create(SmileyManager *dialog)
 {
-	GtkWidget *sw;
 	GtkWidget *treeview;
 	GtkTreeSelection *sel;
 	GtkTargetEntry te[3] = {
@@ -785,14 +778,6 @@ static GtkWidget *smiley_list_create(SmileyManager *dialog)
 		{"text/uri-list", 0, 1},
 		{"STRING", 0, 2}
 	};
-
-	sw = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-			GTK_POLICY_AUTOMATIC,
-			GTK_POLICY_AUTOMATIC);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
-			GTK_SHADOW_IN);
-	gtk_widget_show(sw);
 
 	/* Create the list model */
 	dialog->model = gtk_list_store_new(N_COL,
@@ -810,7 +795,6 @@ static GtkWidget *smiley_list_create(SmileyManager *dialog)
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_set_mode(sel, GTK_SELECTION_MULTIPLE);
-	gtk_container_add(GTK_CONTAINER(sw), treeview);
 
 	g_signal_connect(G_OBJECT(sel), "changed", G_CALLBACK(smile_selected_cb), dialog);
 	g_signal_connect(G_OBJECT(treeview), "row_activated", G_CALLBACK(smiley_edit_cb), dialog);
@@ -825,7 +809,7 @@ static GtkWidget *smiley_list_create(SmileyManager *dialog)
 	add_columns(treeview, dialog);
 	populate_smiley_list(dialog);
 
-	return sw;
+	return pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, -1);
 }
 
 static void refresh_list()

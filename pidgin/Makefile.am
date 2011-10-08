@@ -3,11 +3,8 @@ EXTRA_DIST = \
 		getopt.h \
 		getopt1.c \
 		Makefile.mingw \
-		pidgin.pc.in \
-		pidgin-uninstalled.pc.in \
-		win32/IdleTracker/Makefile.mingw \
-		win32/IdleTracker/idletrack.c \
-		win32/IdleTracker/idletrack.h \
+		pidgin-3.pc.in \
+		pidgin-3-uninstalled.pc.in \
 		win32/MinimizeToTray.h \
 		win32/MinimizeToTray.c \
 		win32/pidgin_dll_rc.rc.in \
@@ -35,7 +32,7 @@ EXTRA_DIST = \
 if ENABLE_GTK
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = pidgin.pc
+pkgconfig_DATA = pidgin-3.pc
 
 SUBDIRS = pixmaps plugins
 
@@ -51,11 +48,12 @@ pidgin_SOURCES = \
 	gtkcertmgr.c \
 	gtkconn.c \
 	gtkconv.c \
+	gtkconv-theme.c \
+	gtkconv-theme-loader.c \
 	gtkdebug.c \
 	gtkdialogs.c \
 	gtkdnd-hints.c \
 	gtkdocklet.c \
-	gtkdocklet-gtk.c \
 	gtkeventloop.c \
 	gtkft.c \
 	gtkicon-theme.c \
@@ -87,9 +85,11 @@ pidgin_SOURCES = \
 	gtkstatusbox.c \
 	gtkthemes.c \
 	gtkutils.c \
+	gtkwebview.c \
 	gtkwhiteboard.c \
 	minidialog.c \
-	pidgintooltip.c
+	pidgintooltip.c \
+	smileyparser.c
 
 pidgin_headers = \
 	gtkaccount.h \
@@ -101,6 +101,8 @@ pidgin_headers = \
 	gtkconn.h \
 	gtkconv.h \
 	gtkconvwin.h \
+	gtkconv-theme.h \
+	gtkconv-theme-loader.h \
 	gtkdebug.h \
 	gtkdialogs.h \
 	gtkdnd-hints.h \
@@ -110,7 +112,6 @@ pidgin_headers = \
 	gtkicon-theme.h \
 	gtkicon-theme-loader.h \
 	gtkidle.h \
-	gtkgaim-compat.h \
 	gtkimhtml.h \
 	gtkimhtmltoolbar.h \
 	gtklog.h \
@@ -138,10 +139,12 @@ pidgin_headers = \
 	pidginstock.h \
 	gtkthemes.h \
 	gtkutils.h \
+	gtkwebview.h \
 	gtkwhiteboard.h \
 	minidialog.h \
 	pidgintooltip.h \
-	pidgin.h
+	pidgin.h \
+	smileyparser.h
 
 pidginincludedir=$(includedir)/pidgin
 pidgininclude_HEADERS = \
@@ -159,8 +162,8 @@ pidgin_LDADD = \
 	$(SM_LIBS) \
 	$(INTLLIBS) \
 	$(GTKSPELL_LIBS) \
-	$(STARTUP_NOTIFICATION_LIBS) \
 	$(LIBXML_LIBS) \
+	$(WEBKIT_LIBS) \
 	$(GTK_LIBS) \
 	$(top_builddir)/libpurple/libpurple.la
 
@@ -183,7 +186,8 @@ AM_CPPFLAGS = \
 	$(GTK_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(GTKSPELL_CFLAGS) \
-	$(STARTUP_NOTIFICATION_CFLAGS) \
 	$(LIBXML_CFLAGS) \
+	$(WEBKIT_CFLAGS) \
 	$(INTGG_CFLAGS)
 endif  # ENABLE_GTK
+

@@ -220,7 +220,7 @@ purple_xfer_unref(PurpleXfer *xfer)
 		purple_xfer_destroy(xfer);
 }
 
-static void
+void
 purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status)
 {
 	g_return_if_fail(xfer != NULL);
@@ -274,7 +274,7 @@ purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status)
 	}
 }
 
-static void 
+static void
 purple_xfer_conversation_write_internal(PurpleXfer *xfer,
 	const char *message, gboolean is_error, gboolean print_thumbnail)
 {
@@ -302,12 +302,12 @@ purple_xfer_conversation_write_internal(PurpleXfer *xfer,
 
 	if (print_thumbnail && thumbnail_data) {
 		gchar *message_with_img;
-		gpointer data = g_memdup(thumbnail_data, size); 
+		gpointer data = g_memdup(thumbnail_data, size);
 		int id = purple_imgstore_add_with_id(data, size, NULL);
 
-		message_with_img = 
+		message_with_img =
 			g_strdup_printf("<img id='%d'> %s", id, escaped);
-		purple_conversation_write(conv, NULL, message_with_img, flags, 
+		purple_conversation_write(conv, NULL, message_with_img, flags,
 			time(NULL));
 		purple_imgstore_unref_by_id(id);
 		g_free(message_with_img);
@@ -530,7 +530,7 @@ purple_xfer_ask_recv(PurpleXfer *xfer)
 				xfer, G_CALLBACK(purple_xfer_choose_file),
 				G_CALLBACK(cancel_recv_cb));
 		}
-			
+
 		g_free(buf);
 	} else
 		purple_xfer_choose_file(xfer);
@@ -677,7 +677,6 @@ purple_xfer_request_accepted(PurpleXfer *xfer, const char *filename)
 			purple_xfer_set_local_filename(xfer, filename);
 			purple_xfer_set_size(xfer, st.st_size);
 		} else {
-			utf8 = g_strdup(filename);
 			purple_xfer_set_local_filename(xfer, filename);
 		}
 
@@ -721,6 +720,20 @@ purple_xfer_request_denied(PurpleXfer *xfer)
 	purple_xfer_unref(xfer);
 }
 
+int purple_xfer_get_fd(PurpleXfer *xfer)
+{
+	g_return_val_if_fail(xfer != NULL, 0);
+
+	return xfer->fd;
+}
+
+int purple_xfer_get_watcher(PurpleXfer *xfer)
+{
+	g_return_val_if_fail(xfer != NULL, 0);
+
+	return xfer->watcher;
+}
+
 PurpleXferType
 purple_xfer_get_type(const PurpleXfer *xfer)
 {
@@ -753,7 +766,7 @@ purple_xfer_get_status(const PurpleXfer *xfer)
 }
 
 gboolean
-purple_xfer_is_canceled(const PurpleXfer *xfer)
+purple_xfer_is_cancelled(const PurpleXfer *xfer)
 {
 	g_return_val_if_fail(xfer != NULL, TRUE);
 
@@ -864,6 +877,20 @@ purple_xfer_get_end_time(const PurpleXfer *xfer)
 	return xfer->end_time;
 }
 
+void purple_xfer_set_fd(PurpleXfer *xfer, int fd)
+{
+	g_return_if_fail(xfer != NULL);
+
+	xfer->fd = fd;
+}
+
+void purple_xfer_set_watcher(PurpleXfer *xfer, int watcher)
+{
+	g_return_if_fail(xfer != NULL);
+
+	xfer->watcher = watcher;
+}
+
 void
 purple_xfer_set_completed(PurpleXfer *xfer, gboolean completed)
 {
@@ -944,6 +971,14 @@ purple_xfer_set_size(PurpleXfer *xfer, size_t size)
 
 	xfer->size = size;
 	xfer->bytes_remaining = xfer->size - purple_xfer_get_bytes_sent(xfer);
+}
+
+void
+purple_xfer_set_local_port(PurpleXfer *xfer, unsigned int local_port)
+{
+	g_return_if_fail(xfer != NULL);
+
+	xfer->local_port = local_port;
 }
 
 void
@@ -1099,9 +1134,11 @@ purple_xfer_write(PurpleXfer *xfer, const guchar *buffer, gsize size)
 		r = write(xfer->fd, buffer, s);
 		if (r < 0 && errno == EAGAIN)
 			r = 0;
-		if ((purple_xfer_get_bytes_sent(xfer)+r) >= purple_xfer_get_size(xfer))
-			purple_xfer_set_completed(xfer, TRUE);
 	}
+	if (r >= 0 && (purple_xfer_get_bytes_sent(xfer)+r) >= purple_xfer_get_size(xfer) &&
+		!purple_xfer_is_completed(xfer))
+		purple_xfer_set_completed(xfer, TRUE);
+	
 
 	return r;
 }
@@ -1290,6 +1327,11 @@ begin_transfer(PurpleXfer *xfer, PurpleInputCondition cond)
 	PurpleXferType type = purple_xfer_get_type(xfer);
 	PurpleXferUiOps *ui_ops = purple_xfer_get_ui_ops(xfer);
 
+	if (xfer->start_time != 0) {
+		purple_debug_error("xfer", "Transfer is being started multiple times\n");
+		g_return_if_reached();
+	}
+
 	if (ui_ops == NULL || (ui_ops->ui_read == NULL && ui_ops->ui_write == NULL)) {
 		xfer->dest_fp = g_fopen(purple_xfer_get_local_filename(xfer),
 		                        type == PURPLE_XFER_RECEIVE ? "wb" : "rb");
@@ -1397,13 +1439,6 @@ purple_xfer_start(PurpleXfer *xfer, int fd, const char *ip,
 
 	purple_xfer_set_status(xfer, PURPLE_XFER_STATUS_STARTED);
 
-	/*
-	 * FIXME 3.0.0 -- there's too much broken code depending on fd == 0
-	 * meaning "don't use a real fd"
-	 */
-	if (fd == 0)
-		fd = -1;
-
 	if (type == PURPLE_XFER_RECEIVE) {
 		cond = PURPLE_INPUT_READ;
 
@@ -1481,6 +1516,20 @@ purple_xfer_cancel_local(PurpleXfer *xfer)
 	char *msg = NULL;
 
 	g_return_if_fail(xfer != NULL);
+
+	/* TODO: We definitely want to close any open request dialogs associated
+	   with this transfer.  However, in some cases the request dialog might
+	   own a reference on the xfer.  This happens at least with the "%s wants
+	   to send you %s" dialog from purple_xfer_ask_recv().  In these cases
+	   the ref count will not be decremented when the request dialog is
+	   closed, so the ref count will never reach 0 and the xfer will never
+	   be freed.  This is a memleak and should be fixed.  It's not clear what
+	   the correct fix is.  Probably requests should have a destroy function
+	   that is called when the request is destroyed.  But also, ref counting
+	   xfer objects makes this code REALLY complicated.  An alternate fix is
+	   to not ref count and instead just make sure the object still exists
+	   when we try to use it. */
+	purple_request_close_with_handle(xfer);
 
 	purple_xfer_set_status(xfer, PURPLE_XFER_STATUS_CANCEL_LOCAL);
 	xfer->end_time = time(NULL);
@@ -1679,6 +1728,37 @@ purple_xfer_prepare_thumbnail(PurpleXfer *xfer, const gchar *formats)
 		xfer->ui_ops->add_thumbnail(xfer, formats);
 	}
 }
+
+void
+purple_xfer_set_protocol_data(PurpleXfer *xfer, gpointer proto_data)
+{
+	g_return_if_fail(xfer != NULL);
+
+	xfer->proto_data = proto_data;
+}
+
+gpointer
+purple_xfer_get_protocol_data(const PurpleXfer *xfer)
+{
+	g_return_val_if_fail(xfer != NULL, NULL);
+
+	return xfer->proto_data;
+}
+
+void purple_xfer_set_ui_data(PurpleXfer *xfer, gpointer ui_data)
+{
+	g_return_if_fail(xfer != NULL);
+
+	xfer->ui_data = ui_data;
+}
+
+gpointer purple_xfer_get_ui_data(const PurpleXfer *xfer)
+{
+	g_return_val_if_fail(xfer != NULL, NULL);
+
+	return xfer->ui_data;
+}
+
 
 /**************************************************************************
  * File Transfer Subsystem API

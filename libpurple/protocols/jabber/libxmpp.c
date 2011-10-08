@@ -41,7 +41,7 @@
 #include "si.h"
 #include "message.h"
 #include "presence.h"
-#include "google.h"
+#include "google/google.h"
 #include "pep.h"
 #include "usermood.h"
 #include "usertune.h"
@@ -53,6 +53,7 @@ static PurplePlugin *my_protocol = NULL;
 
 static PurplePluginProtocolInfo prpl_info =
 {
+	sizeof(PurplePluginProtocolInfo),       /* struct_size */
 	OPT_PROTO_CHAT_TOPIC | OPT_PROTO_UNIQUE_CHATNAME | OPT_PROTO_MAIL_CHECK |
 #ifdef HAVE_CYRUS_SASL
 	OPT_PROTO_PASSWORD_OPTIONAL |
@@ -97,7 +98,6 @@ static PurplePluginProtocolInfo prpl_info =
 	jabber_keepalive,				/* keepalive */
 	jabber_register_account,		/* register_user */
 	NULL,							/* get_cb_info */
-	NULL,							/* get_cb_away */
 	jabber_roster_alias_change,		/* alias_buddy */
 	jabber_roster_group_change,		/* group_buddy */
 	jabber_roster_group_rename,		/* rename_group */
@@ -122,8 +122,6 @@ static PurplePluginProtocolInfo prpl_info =
 	jabber_unregister_account,		/* unregister_user */
 	jabber_send_attention,			/* send_attention */
 	jabber_attention_types,			/* attention_types */
-
-	sizeof(PurplePluginProtocolInfo),       /* struct_size */
 	NULL, /* get_account_text_table */
 	jabber_initiate_media,          /* initiate_media */
 	jabber_get_media_caps,                  /* get_media_caps */
@@ -253,6 +251,7 @@ init_plugin(PurplePlugin *plugin)
 {
 	PurpleAccountUserSplit *split;
 	PurpleAccountOption *option;
+	GList *encryption_values = NULL;
 
 	/* Translators: 'domain' is used here in the context of Internet domains, e.g. pidgin.im */
 	split = purple_account_user_split_new(_("Domain"), NULL, '@');
@@ -263,13 +262,26 @@ init_plugin(PurplePlugin *plugin)
 	purple_account_user_split_set_reverse(split, FALSE);
 	prpl_info.user_splits = g_list_append(prpl_info.user_splits, split);
 
-	option = purple_account_option_bool_new(_("Require SSL/TLS"), "require_tls", JABBER_DEFAULT_REQUIRE_TLS);
-	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
-											   option);
+#define ADD_VALUE(list, desc, v) { \
+	PurpleKeyValuePair *kvp = g_new0(PurpleKeyValuePair, 1); \
+	kvp->key = g_strdup((desc)); \
+	kvp->value = g_strdup((v)); \
+	list = g_list_prepend(list, kvp); \
+}
 
-	option = purple_account_option_bool_new(_("Force old (port 5223) SSL"), "old_ssl", FALSE);
+	ADD_VALUE(encryption_values, _("Require encryption"), "require_tls");
+	ADD_VALUE(encryption_values, _("Use encryption if available"), "opportunistic_tls");
+	ADD_VALUE(encryption_values, _("Use old-style SSL"), "old_ssl");
+#if 0
+	ADD_VALUE(encryption_values, "None", "none");
+#endif
+	encryption_values = g_list_reverse(encryption_values);
+
+#undef ADD_VALUE
+
+	option = purple_account_option_list_new(_("Connection security"), "connection_security", encryption_values);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options,
-											   option);
+						   option);
 
 	option = purple_account_option_bool_new(
 						_("Allow plaintext auth over unencrypted streams"),

@@ -73,6 +73,14 @@ struct _PurpleUtilFetchUrlData
 	PurpleAccount *account;
 };
 
+struct _PurpleMenuAction
+{
+	char *label;
+	PurpleCallback callback;
+	gpointer data;
+	GList *children;
+};
+
 static char *custom_user_dir = NULL;
 static char *user_dir = NULL;
 
@@ -96,6 +104,62 @@ purple_menu_action_free(PurpleMenuAction *act)
 
 	g_free(act->label);
 	g_free(act);
+}
+
+char * purple_menu_action_get_label(const PurpleMenuAction *act)
+{
+	g_return_val_if_fail(act != NULL, NULL);
+
+	return act->label;
+}
+
+PurpleCallback purple_menu_action_get_callback(const PurpleMenuAction *act)
+{
+	g_return_val_if_fail(act != NULL, NULL);
+
+	return act->callback;
+}
+
+gpointer purple_menu_action_get_data(const PurpleMenuAction *act)
+{
+	g_return_val_if_fail(act != NULL, NULL);
+
+	return act->data;
+}
+
+GList* purple_menu_action_get_children(const PurpleMenuAction *act)
+{
+	g_return_val_if_fail(act != NULL, NULL);
+
+	return act->children;
+}
+
+void purple_menu_action_set_label(PurpleMenuAction *act, char *label)
+{
+	g_return_if_fail(act != NULL);
+
+	act-> label = label;
+}
+
+void purple_menu_action_set_callback(PurpleMenuAction *act, PurpleCallback callback)
+{
+	g_return_if_fail(act != NULL);
+
+	act->callback = callback;
+}
+
+void purple_menu_action_set_data(PurpleMenuAction *act, gpointer data)
+{
+	g_return_if_fail(act != NULL);
+
+	act->data = data;
+}
+
+void purple_menu_action_set_children(PurpleMenuAction *act, GList *children)
+{
+	g_return_if_fail(act != NULL);
+
+	act->children = children;
 }
 
 void
@@ -147,7 +211,7 @@ purple_base16_decode(const char *str, gsize *ret_len)
 
 	len = strlen(str);
 
-	g_return_val_if_fail(strlen(str) > 0, 0);
+	g_return_val_if_fail(*str, 0);
 	g_return_val_if_fail(len % 2 == 0,    0);
 
 	data = g_malloc(len / 2);
@@ -612,7 +676,7 @@ purple_utf8_strftime(const char *format, const struct tm *tm)
 	}
 	else
 	{
-		purple_strlcpy(buf, utf8);
+		g_strlcpy(buf, utf8, sizeof(buf));
 		g_free(utf8);
 	}
 
@@ -664,159 +728,194 @@ purple_time_build(int year, int month, int day, int hour, int min, int sec)
 	return mktime(&tm);
 }
 
+/* originally taken from GLib trunk 1-6-11 */
+/* originally licensed as LGPL 2+ */
+static time_t
+mktime_utc(struct tm *tm)
+{
+	time_t retval;
+
+#ifndef HAVE_TIMEGM
+	static const gint days_before[] =
+	{
+		0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+	};
+#endif
+
+#ifndef HAVE_TIMEGM
+	if (tm->tm_mon < 0 || tm->tm_mon > 11)
+		return (time_t) -1;
+
+	retval = (tm->tm_year - 70) * 365;
+	retval += (tm->tm_year - 68) / 4;
+	retval += days_before[tm->tm_mon] + tm->tm_mday - 1;
+
+	if (tm->tm_year % 4 == 0 && tm->tm_mon < 2)
+		retval -= 1;
+
+	retval = ((((retval * 24) + tm->tm_hour) * 60) + tm->tm_min) * 60 + tm->tm_sec;
+#else
+	retval = timegm (tm);
+#endif /* !HAVE_TIMEGM */
+
+	return retval;
+}
+
 time_t
 purple_str_to_time(const char *timestamp, gboolean utc,
-                 struct tm *tm, long *tz_off, const char **rest)
+	struct tm *tm, long *tz_off, const char **rest)
 {
-	time_t retval = 0;
-	static struct tm t;
-	const char *c = timestamp;
-	int year = 0;
+	struct tm t;
+	const gchar *str;
+	gint year = 0;
 	long tzoff = PURPLE_NO_TZ_OFF;
-
-	time(&retval);
-	localtime_r(&retval, &t);
+	time_t retval;
+	gboolean mktime_with_utc = TRUE;
 
 	if (rest != NULL)
 		*rest = NULL;
 
+	g_return_val_if_fail(timestamp != NULL, 0);
+
+	memset(&t, 0, sizeof(struct tm));
+
+	str = timestamp;
+
+	/* Strip leading whitespace */
+	while (g_ascii_isspace(*str))
+		str++;
+
+	if (*str == '\0') {
+		if (rest != NULL && *str != '\0')
+			*rest = str;
+
+		return 0;
+	}
+
+	if (!g_ascii_isdigit(*str) && *str != '-' && *str != '+') {
+		if (rest != NULL && *str != '\0')
+			*rest = str;
+
+		return 0;
+	}
+
 	/* 4 digit year */
-	if (sscanf(c, "%04d", &year) && year > 1900)
-	{
-		c += 4;
-		if (*c == '-')
-			c++;
+	if (sscanf(str, "%04d", &year) && year >= 1900) {
+		str += 4;
+
+		if (*str == '-' || *str == '/')
+			str++;
+
 		t.tm_year = year - 1900;
 	}
 
 	/* 2 digit month */
-	if (!sscanf(c, "%02d", &t.tm_mon))
-	{
-		if (rest != NULL && *c != '\0')
-			*rest = c;
+	if (!sscanf(str, "%02d", &t.tm_mon)) {
+		if (rest != NULL && *str != '\0')
+			*rest = str;
+
 		return 0;
 	}
-	c += 2;
-	if (*c == '-' || *c == '/')
-		c++;
+
+	str += 2;
 	t.tm_mon -= 1;
 
+	if (*str == '-' || *str == '/')
+		str++;
+
 	/* 2 digit day */
-	if (!sscanf(c, "%02d", &t.tm_mday))
-	{
-		if (rest != NULL && *c != '\0')
-			*rest = c;
+	if (!sscanf(str, "%02d", &t.tm_mday)) {
+		if (rest != NULL && *str != '\0')
+			*rest = str;
+
 		return 0;
 	}
-	c += 2;
-	if (*c == '/')
-	{
-		c++;
 
-		if (!sscanf(c, "%04d", &t.tm_year))
-		{
-			if (rest != NULL && *c != '\0')
-				*rest = c;
+	str += 2;
+
+	/* Grab the year off the end if there's still stuff */
+	if (*str == '/' || *str == '-') {
+		/* But make sure we don't read the year twice */
+		if (year >= 1900) {
+			if (rest != NULL && *str != '\0')
+				*rest = str;
+
 			return 0;
 		}
+
+		str++;
+
+		if (!sscanf(str, "%04d", &t.tm_year)) {
+			if (rest != NULL && *str != '\0')
+				*rest = str;
+
+			return 0;
+		}
+
 		t.tm_year -= 1900;
-	}
-	else if (*c == 'T' || *c == '.')
-	{
-		c++;
-		/* we have more than a date, keep going */
+	} else if (*str == 'T' || *str == '.') {
+		str++;
 
-		/* 2 digit hour */
-		if ((sscanf(c, "%02d:%02d:%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3 && (c = c + 8)) ||
-		    (sscanf(c, "%02d%02d%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3 && (c = c + 6)))
+		/* Continue grabbing the hours/minutes/seconds */
+		if ((sscanf(str, "%02d:%02d:%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3 &&
+				(str += 8)) ||
+		    (sscanf(str, "%02d%02d%02d", &t.tm_hour, &t.tm_min, &t.tm_sec) == 3 &&
+				(str += 6)))
 		{
-			gboolean offset_positive = FALSE;
-			int tzhrs;
-			int tzmins;
+			gint sign, tzhrs, tzmins;
 
-			t.tm_isdst = -1;
-
-			if (*c == '.') {
+			if (*str == '.') {
+				/* Cut off those pesky micro-seconds */
 				do {
-					c++;
-				} while (*c >= '0' && *c <= '9'); /* dealing with precision we don't care about */
+					str++;
+				} while (*str >= '0' && *str <= '9');
 			}
-			if (*c == '+')
-				offset_positive = TRUE;
-			if (((*c == '+' || *c == '-') && (c = c + 1)) &&
-			    ((sscanf(c, "%02d:%02d", &tzhrs, &tzmins) == 2 && (c = c + 5)) ||
-			     (sscanf(c, "%02d%02d", &tzhrs, &tzmins) == 2 && (c = c + 4))))
-			{
-				tzoff = tzhrs*60*60 + tzmins*60;
-				if (offset_positive)
-					tzoff *= -1;
-			}
-			else if ((*c == 'Z') && (c = c + 1))
-			{
+
+			sign = (*str == '+') ? -1 : 1;
+
+			/* Process the timezone */
+			if (*str == '+' || *str == '-') {
+				str++;
+
+				if (((sscanf(str, "%02d:%02d", &tzhrs, &tzmins) == 2 && (str += 5)) ||
+					(sscanf(str, "%02d%02d", &tzhrs, &tzmins) == 2 && (str += 4))))
+				{
+					tzoff = tzhrs * 60 * 60 + tzmins * 60;
+					tzoff *= sign;
+				} else {
+					if (rest != NULL && *str != '\0')
+						*rest = str;
+
+					return 0;
+				}
+			} else if (*str == 'Z') {
 				/* 'Z' = Zulu = UTC */
+				str++;
+				utc = TRUE;
+			} else if (!utc) {
+				/* Local Time */
+				t.tm_isdst = -1;
+				mktime_with_utc = FALSE;
+			}
+
+			if (utc)
 				tzoff = 0;
-			}
-			else if (utc)
-			{
-				static struct tm tmptm;
-				time_t tmp;
-				tmp = mktime(&t);
-				/* we care about whether it *was* dst, and the offset, here on this
-				 * date, not whether we are currently observing dst locally *now*.
-				 * This isn't perfect, because we would need to know in advance the
-				 * offset we are trying to work out in advance to be sure this
-				 * works for times around dst transitions but it'll have to do. */
-				localtime_r(&tmp, &tmptm);
-				t.tm_isdst = tmptm.tm_isdst;
-#ifdef HAVE_TM_GMTOFF
-				t.tm_gmtoff = tmptm.tm_gmtoff;
-#endif
-			}
-
-			if (rest != NULL && *c != '\0')
-			{
-				if (*c == ' ')
-					c++;
-				if (*c != '\0')
-					*rest = c;
-			}
-
-			if (tzoff != PURPLE_NO_TZ_OFF || utc)
-			{
-#if defined(_WIN32)
-				long sys_tzoff;
-#endif
-
-#if defined(_WIN32) || defined(HAVE_TM_GMTOFF) || defined (HAVE_TIMEZONE)
-				if (tzoff == PURPLE_NO_TZ_OFF)
-					tzoff = 0;
-#endif
-
-#ifdef _WIN32
-				if ((sys_tzoff = wpurple_get_tz_offset()) == -1)
-					tzoff = PURPLE_NO_TZ_OFF;
-				else
-					tzoff += sys_tzoff;
-#else
-#ifdef HAVE_TM_GMTOFF
-				tzoff += t.tm_gmtoff;
-#else
-#	ifdef HAVE_TIMEZONE
-				tzset();    /* making sure */
-				tzoff -= timezone;
-#	endif
-#endif
-#endif /* _WIN32 */
-			}
-		}
-		else
-		{
-			if (rest != NULL && *c != '\0')
-				*rest = c;
 		}
 	}
 
-	retval = mktime(&t);
+	if (rest != NULL && *str != '\0') {
+		/* Strip trailing whitespace */
+		while (g_ascii_isspace(*str))
+			str++;
+
+		if (*str != '\0')
+			*rest = str;
+	}
+
+	if (mktime_with_utc)
+		retval = mktime_utc(&t);
+	else
+		retval = mktime(&t);
 
 	if (tm != NULL)
 		*tm = t;
@@ -1286,7 +1385,7 @@ purple_markup_extract_info_field(const char *str, int len, PurpleNotifyUserInfo 
 				g_string_append_len(dest, p, q - p);
 		}
 
-		purple_notify_user_info_add_pair(user_info, display_name, dest->str);
+		purple_notify_user_info_add_pair_html(user_info, display_name, dest->str);
 		g_string_free(dest, TRUE);
 
 		return TRUE;
@@ -2232,7 +2331,7 @@ purple_markup_linkify(const char *text)
 					url_buf = g_string_free(gurl_buf, FALSE);
 
 					/* strip off trailing periods */
-					if (strlen(url_buf) > 0) {
+					if (*url_buf) {
 						for (d = url_buf + strlen(url_buf) - 1; *d == '.'; d--, t--)
 							*d = '\0';
 					}
@@ -2812,6 +2911,10 @@ purple_program_is_valid(const char *program)
 	progname = g_find_program_in_path(argv[0]);
 	is_valid = (progname != NULL);
 
+	if(purple_debug_is_verbose())
+		purple_debug_info("program_is_valid", "Tested program %s.  %s.\n", program,
+				is_valid ? "Valid" : "Invalid");
+
 	g_strfreev(argv);
 	g_free(progname);
 
@@ -3115,7 +3218,7 @@ purple_str_strip_char(char *text, char thechar)
 		if (text[i] != thechar)
 			text[j++] = text[i];
 
-	text[j++] = '\0';
+	text[j] = '\0';
 }
 
 void
@@ -3794,12 +3897,13 @@ url_fetch_recv_cb(gpointer url_data, gint source, PurpleInputCondition cond)
 		gfud->webdata[gfud->len] = '\0';
 
 		if(!gfud->got_headers) {
-			char *tmp;
+			char *end_of_headers;
 
 			/* See if we've reached the end of the headers yet */
-			if((tmp = strstr(gfud->webdata, "\r\n\r\n"))) {
-				char * new_data;
-				guint header_len = (tmp + 4 - gfud->webdata);
+			end_of_headers = strstr(gfud->webdata, "\r\n\r\n");
+			if (end_of_headers) {
+				char *new_data;
+				guint header_len = (end_of_headers + 4 - gfud->webdata);
 				size_t content_len;
 
 				purple_debug_misc("util", "Response headers: '%.*s'\n",
@@ -3815,7 +3919,7 @@ url_fetch_recv_cb(gpointer url_data, gint source, PurpleInputCondition cond)
 				content_len = parse_content_len(gfud->webdata, header_len);
 				gfud->chunked = content_is_chunked(gfud->webdata, header_len);
 
-				if(content_len == 0) {
+				if (content_len == 0) {
 					/* We'll stick with an initial 8192 */
 					content_len = 8192;
 				} else {
@@ -3824,19 +3928,16 @@ url_fetch_recv_cb(gpointer url_data, gint source, PurpleInputCondition cond)
 
 
 				/* If we're returning the headers too, we don't need to clean them out */
-				if(gfud->include_headers) {
+				if (gfud->include_headers) {
 					gfud->data_len = content_len + header_len;
 					gfud->webdata = g_realloc(gfud->webdata, gfud->data_len);
 				} else {
-					size_t body_len = 0;
-
-					if(gfud->len > (header_len + 1))
-						body_len = (gfud->len - header_len);
+					size_t body_len = gfud->len - header_len;
 
 					content_len = MAX(content_len, body_len);
 
 					new_data = g_try_malloc(content_len);
-					if(new_data == NULL) {
+					if (new_data == NULL) {
 						purple_debug_error("util",
 								"Failed to allocate %" G_GSIZE_FORMAT " bytes: %s\n",
 								content_len, g_strerror(errno));
@@ -3850,9 +3951,8 @@ url_fetch_recv_cb(gpointer url_data, gint source, PurpleInputCondition cond)
 					}
 
 					/* We may have read part of the body when reading the headers, don't lose it */
-					if(body_len > 0) {
-						tmp += 4;
-						memcpy(new_data, tmp, body_len);
+					if (body_len > 0) {
+						memcpy(new_data, end_of_headers + 4, body_len);
 					}
 
 					/* Out with the old... */
@@ -3948,27 +4048,27 @@ url_fetch_send_cb(gpointer data, gint source, PurpleInputCondition cond)
 			/* This chunk of code was copied from proxy.c http_start_connect_tunneling()
 			 * This is really a temporary hack - we need a more complete proxy handling solution,
 			 * so I didn't think it was worthwhile to refactor for reuse
-			 */ 
+			 */
 			char *t1, *t2, *ntlm_type1;
 			char hostname[256];
 			int ret;
-	
+
 			ret = gethostname(hostname, sizeof(hostname));
 			hostname[sizeof(hostname) - 1] = '\0';
 			if (ret < 0 || hostname[0] == '\0') {
 				purple_debug_warning("util", "proxy - gethostname() failed -- is your hostname set?");
 				strcpy(hostname, "localhost");
 			}
-	
+
 			t1 = g_strdup_printf("%s:%s",
 				purple_proxy_info_get_username(gpi),
 				purple_proxy_info_get_password(gpi) ?
 					purple_proxy_info_get_password(gpi) : "");
 			t2 = purple_base64_encode((const guchar *)t1, strlen(t1));
 			g_free(t1);
-	
+
 			ntlm_type1 = purple_ntlm_gen_type1(hostname, "");
-	
+
 			g_string_append_printf(request_str,
 				"Proxy-Authorization: Basic %s\r\n"
 				"Proxy-Authorization: NTLM %s\r\n"
@@ -4067,30 +4167,7 @@ static void ssl_url_fetch_error_cb(PurpleSslConnection *ssl_connection, PurpleSs
 }
 
 PurpleUtilFetchUrlData *
-purple_util_fetch_url_request(const char *url, gboolean full,
-		const char *user_agent, gboolean http11,
-		const char *request, gboolean include_headers,
-		PurpleUtilFetchUrlCallback callback, void *user_data)
-{
-	return purple_util_fetch_url_request_len_with_account(NULL, url, full,
-					     user_agent, http11,
-					     request, include_headers, -1,
-					     callback, user_data);
-}
-
-PurpleUtilFetchUrlData *
-purple_util_fetch_url_request_len(const char *url, gboolean full,
-		const char *user_agent, gboolean http11,
-		const char *request, gboolean include_headers, gssize max_len,
-		PurpleUtilFetchUrlCallback callback, void *user_data)
-{
-	return purple_util_fetch_url_request_len_with_account(NULL, url, full,
-			user_agent, http11, request, include_headers, max_len, callback,
-			user_data);
-}
-
-PurpleUtilFetchUrlData *
-purple_util_fetch_url_request_len_with_account(PurpleAccount *account,
+purple_util_fetch_url_request(PurpleAccount *account,
 		const char *url, gboolean full,	const char *user_agent, gboolean http11,
 		const char *request, gboolean include_headers, gssize max_len,
 		PurpleUtilFetchUrlCallback callback, void *user_data)
@@ -4377,11 +4454,10 @@ purple_ipv6_address_is_valid(const gchar *ip)
 	return (double_colon && chunks < 8) || (!double_colon && chunks == 8);
 }
 
-/* TODO 3.0.0: Add ipv6 check, too */
 gboolean
 purple_ip_address_is_valid(const char *ip)
 {
-	return purple_ipv4_address_is_valid(ip);
+	return (purple_ipv4_address_is_valid(ip) || purple_ipv6_address_is_valid(ip));
 }
 
 /* Stolen from gnome_uri_list_extract_uris */
@@ -4905,18 +4981,6 @@ purple_escape_filename(const char *str)
 	buf[j] = '\0';
 
 	return buf;
-}
-
-const char *_purple_oscar_convert(const char *act, const char *protocol)
-{
-	if (act && purple_strequal(protocol, "prpl-oscar")) {
-		int i;
-		for (i = 0; act[i] != '\0'; i++)
-			if (!isdigit(act[i]))
-				return "prpl-aim";
-		return "prpl-icq";
-	}
-	return protocol;
 }
 
 void purple_restore_default_signal_handlers(void)

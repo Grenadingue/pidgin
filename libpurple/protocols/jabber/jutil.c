@@ -501,12 +501,9 @@ void
 jabber_id_free(JabberID *jid)
 {
 	if(jid) {
-		if(jid->node)
-			g_free(jid->node);
-		if(jid->domain)
-			g_free(jid->domain);
-		if(jid->resource)
-			g_free(jid->resource);
+		g_free(jid->node);
+		g_free(jid->domain);
+		g_free(jid->resource);
 		g_free(jid);
 	}
 }
@@ -586,10 +583,15 @@ jabber_id_new(const char *str)
 
 const char *jabber_normalize(const PurpleAccount *account, const char *in)
 {
-	PurpleConnection *gc = account ? account->gc : NULL;
-	JabberStream *js = gc ? gc->proto_data : NULL;
+	PurpleConnection *gc = NULL;
+	JabberStream *js = NULL;
 	static char buf[3072]; /* maximum legal length of a jabber jid */
 	JabberID *jid;
+
+	if (account)
+		gc = purple_account_get_connection(account);
+	if (gc)
+		js = purple_connection_get_protocol_data(gc);
 
 	jid = jabber_id_new_internal(in, TRUE);
 	if(!jid)
@@ -731,7 +733,7 @@ jabber_buddy_state_get_status_id(JabberBuddyState state)
 }
 
 char *
-jabber_calculate_data_hash(gconstpointer data, size_t len, 
+jabber_calculate_data_hash(gconstpointer data, size_t len,
     const gchar *hash_algo)
 {
 	PurpleCipherContext *context;

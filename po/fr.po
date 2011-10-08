@@ -4,7 +4,7 @@
 # Copyright (C) 2002, Stéphane Pontier <stephane.pontier@free.fr>
 # Copyright (C) 2002, Stéphane Wirtel <stephane.wirtel@belgacom.net>
 # Copyright (C) 2002, Loïc Jeannin <loic.jeannin@free.fr>
-# Copyright (C) 2002-2010, Éric Boumaour <zongo_fr@users.sourceforge.net>
+# Copyright (C) 2002-2011, Éric Boumaour <zongo_fr@users.sourceforge.net>
 #
 # This file is distributed under the same license as the Pidgin package.
 #
@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Pidgin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-30 23:15-0400\n"
-"PO-Revision-Date: 2010-02-22 17:08+0200\n"
+"POT-Creation-Date: 2011-08-18 00:02-0700\n"
+"PO-Revision-Date: 2011-05-06 19:16+0200\n"
 "Last-Translator: Éric Boumaour <zongo_fr@users.sourceforge.net>\n"
 "Language-Team: fr <fr@li.org>\n"
 "Language: \n"
@@ -75,11 +75,26 @@ msgstr ""
 msgid "Error"
 msgstr "Erreur"
 
+msgid "Account was not modified"
+msgstr "Le compte n'a pas été modifié."
+
 msgid "Account was not added"
 msgstr "Le compte n'a pas été ajouté."
 
 msgid "Username of an account must be non-empty."
 msgstr "Le nom d'utilisateur d'un compte ne doit pas être vide."
+
+msgid ""
+"The account's protocol cannot be changed while it is connected to the server."
+msgstr ""
+"Le protocole du compte ne peut pas être changé pendant que celui-ci est "
+"connecté."
+
+msgid ""
+"The account's username cannot be changed while it is connected to the server."
+msgstr ""
+"Le nom d'utilisateur du compte ne peut pas être changé pendant que celui-ci "
+"est connecté."
 
 msgid "New mail notifications"
 msgstr "Avertir des nouveaux courriers"
@@ -213,6 +228,9 @@ msgstr "Utilisateur"
 
 msgid "Alias (optional)"
 msgstr "Alias (facultatif)`"
+
+msgid "Invite message (optional)"
+msgstr "Message d'invitation (facultatif)"
 
 msgid "Add in group"
 msgstr "Ajouter au groupe"
@@ -527,7 +545,6 @@ msgstr "Confirmation de suppression de certificat"
 msgid "Certificate Manager"
 msgstr "Gestionnaire de certificats"
 
-#. Creating the user splits
 msgid "Hostname"
 msgstr "Nom d'hôte"
 
@@ -806,7 +823,7 @@ msgstr "Arrêter"
 msgid "Waiting for transfer to begin"
 msgstr "En attente de début de transfert"
 
-msgid "Canceled"
+msgid "Cancelled"
 msgstr "Annulé"
 
 msgid "Failed"
@@ -1275,6 +1292,9 @@ msgstr "Quelqu'un parle dans la discussion"
 msgid "Someone says your username in chat"
 msgstr "Quelqu'un écrit votre nom dans une discussion"
 
+msgid "Attention received"
+msgstr "Demande d'attention reçue"
+
 msgid "GStreamer Failure"
 msgstr "Erreur GStreamer"
 
@@ -1568,7 +1588,7 @@ msgstr ""
 msgid "Online"
 msgstr "En ligne"
 
-#. primative,						no,							id,			name
+#. primitive,						no,							id,			name
 msgid "Offline"
 msgstr "Déconnecté"
 
@@ -1670,6 +1690,7 @@ msgstr "Ce protocole ne permet pas de récupérer un alias public."
 msgid "Unknown"
 msgstr "Inconnu"
 
+#. Changing this string?  Look in add_purple_buddy_to_groups
 msgid "Buddies"
 msgstr "Contacts"
 
@@ -1686,11 +1707,19 @@ msgstr ""
 "Il n'y a pas de confiance dans ce certificat parce qu'il n'y a pas de "
 "confiance dans aucun des certificats qui le vérifient."
 
-msgid "The certificate is not valid yet."
-msgstr "Le certificat n'est pas encore valide."
+msgid ""
+"The certificate is not valid yet.  Check that your computer's date and time "
+"are accurate."
+msgstr ""
+"Ce certificat n'est pas encore valide. Veuillez vérifier que la date et "
+"l'heure sur cette machine sont bien réglées."
 
-msgid "The certificate has expired and should not be considered valid."
-msgstr "Le certificat a expiré et ne devrait pas être considéré valide."
+msgid ""
+"The certificate has expired and should not be considered valid.  Check that "
+"your computer's date and time are accurate."
+msgstr ""
+"Le certificat a expiré ete ne doit pas être considéré valide. Veuillez "
+"vérifier que la date et l'heure sur cette machine sont bien réglées."
 
 #. Translators: "domain" refers to a DNS domain (e.g. talk.google.com)
 msgid "The certificate presented is not issued to this domain."
@@ -1926,6 +1955,9 @@ msgstr "Échec de la création de processus :%s"
 
 msgid "Unknown reason"
 msgstr "Raison inconnue"
+
+msgid "Aborting DNS lookup in Tor Proxy mode."
+msgstr "Annulation de la recherche DNS en mode Proxy Tor."
 
 #, c-format
 msgid ""
@@ -2347,9 +2379,12 @@ msgstr ""
 "Dossier où placer les fichiers\n"
 "(Veuillez fournir le chemin complet)"
 
-msgid "Automatically reject from users not in buddy list"
+msgid ""
+"When a file-transfer request arrives from a user who is\n"
+"*not* on your buddy list:"
 msgstr ""
-"Refuser automatiquement si l'utilisateur n'est pas dans ma liste de contacts"
+"Quand une demande de transfert arrive de quelqu'un qui\n"
+"n'est *pas* dans la liste de contacts :"
 
 msgid ""
 "Notify with a popup when an autoaccepted file transfer is complete\n"
@@ -2361,6 +2396,9 @@ msgstr ""
 
 msgid "Create a new directory for each user"
 msgstr "Créer un nouveau dossier pour chaque contact"
+
+msgid "Escape the filenames"
+msgstr "Encoder les noms des fichiers"
 
 msgid "Notes"
 msgstr "Notes"
@@ -3184,6 +3222,21 @@ msgstr ""
 msgid "Change Gadu-Gadu Password"
 msgstr "Changer le le mot de passe Gadu-Gadu"
 
+msgid "Show status to:"
+msgstr "Montrer l'état à :"
+
+msgid "All people"
+msgstr "Tout le monde"
+
+msgid "Only buddies"
+msgstr "Aux contacts"
+
+msgid "Change status broadcasting"
+msgstr "Changer la diffusion de l'état"
+
+msgid "Please, select who can see your status"
+msgstr "Veuillez choisir qui peut voir votre état"
+
 #, c-format
 msgid "Select a chat for buddy: %s"
 msgstr "Choisissez un salon de discussions pour le contact : %s"
@@ -3216,9 +3269,7 @@ msgid "UIN"
 msgstr "UIN"
 
 #. first name
-#. purple_notify_user_info_add_pair( info, _( "Hidden Number" ), profile->hidden ? _( "Yes" ) : _( "No" ) );
 #. optional information
-#. purple_notify_user_info_add_pair( info, _( "Title" ), profile->title );
 msgid "First Name"
 msgstr "Prénom"
 
@@ -3330,6 +3381,19 @@ msgstr "Utilisateur Gadu-Gadu"
 msgid "GG server"
 msgstr "Serveur GG"
 
+msgid "Don't use encryption"
+msgstr "Ne pas utiliser de chiffrement"
+
+msgid "Use encryption if available"
+msgstr "Utiliser le chiffrement si disponible"
+
+#. TODO
+msgid "Require encryption"
+msgstr "Nécessite chiffrement"
+
+msgid "Connection security"
+msgstr "Sécurité de la connexion"
+
 #, c-format
 msgid "Unknown command: %s"
 msgstr "Commande inconnue : %s"
@@ -3365,7 +3429,6 @@ msgstr "Message du jour pour %s"
 #. * buffer that stores what is "being sent" until the
 #. * PurpleHTTPConnection reports it is fully sent.
 #.
-#. TODO: what to do here - do we really have to disconnect?
 #. TODO: do we really want to disconnect on a failure to write?
 #, c-format
 msgid "Lost connection with server: %s"
@@ -3621,6 +3684,9 @@ msgstr "Wallops de %s"
 msgid "action &lt;action to perform&gt;:  Perform an action."
 msgstr "action &lt;action à faire&gt; : Réaliser une action."
 
+msgid "authserv: Send a command to authserv"
+msgstr "authserv : Envoyer une commande au service authserv."
+
 msgid ""
 "away [message]:  Set an away message, or use no message to return from being "
 "away."
@@ -3834,7 +3900,10 @@ msgstr ""
 "Le serveur demande une authentification en texte non chiffré au travers d'un "
 "flux crypté."
 
-#. This should never happen!
+#. This happens when the server sends back jibberish
+#. * in the "additional data with success" case.
+#. * Seen with Wildfire 3.0.1.
+#.
 msgid "Invalid response from server"
 msgstr "Réponse non valide du serveur"
 
@@ -3862,6 +3931,20 @@ msgstr "Demande d'accès non valide du serveur"
 msgid "Server thinks authentication is complete, but client does not"
 msgstr ""
 "Le serveur pense que l'authentification est terminée, et le client non."
+
+msgid "Server may require plaintext authentication over an unencrypted stream"
+msgstr ""
+"Le serveur peut demander une authentification en texte non chiffré au "
+"travers d'un flux non crypté."
+
+#, c-format
+msgid ""
+"%s may require plaintext authentication over an unencrypted connection.  "
+"Allow this and continue authentication?"
+msgstr ""
+"%s peut demander une authentification en texte clair au travers d'une "
+"connexion non cryptée. Voulez-vous autoriser ceci et continuer "
+"l'authentification ?"
 
 msgid "SASL authentication failed"
 msgstr "Échec de l'authentification SASL"
@@ -3967,7 +4050,6 @@ msgstr "Région"
 msgid "Postal Code"
 msgstr "Code postal"
 
-#. purple_notify_user_info_add_pair( info, _( "Email" ), profile->email );
 msgid "Country"
 msgstr "Pays"
 
@@ -4700,7 +4782,8 @@ msgid "invite &lt;user&gt; [message]:  Invite a user to the room."
 msgstr ""
 "invite &lt;utilisateur&gt; [message] : Inviter un utilisateur dans le salon"
 
-msgid "join: &lt;room&gt; [password]:  Join a chat on this server."
+#, fuzzy
+msgid "join: &lt;room[@server]&gt; [password]:  Join a chat."
 msgstr "join &lt;room&gt; [password] : Rejoindre un salon sur ce serveur"
 
 msgid "kick &lt;user&gt; [reason]:  Kick a user from the room."
@@ -4741,11 +4824,8 @@ msgstr "Plugin pour le protocole XMPP"
 msgid "Domain"
 msgstr "Domaine"
 
-msgid "Require SSL/TLS"
-msgstr "Nécessite SSL/TLS"
-
-msgid "Force old (port 5223) SSL"
-msgstr "Forcer l'ancien SSL (port 5223)"
+msgid "Use old-style SSL"
+msgstr "Utiliser le SSL ancien style"
 
 msgid "Allow plaintext auth over unencrypted streams"
 msgstr "Autoriser l'authentification en clair pour les flux cryptés"
@@ -4852,21 +4932,13 @@ msgstr "Expulsé (%s)"
 msgid "Unknown Error in presence"
 msgstr "Erreur inconnue"
 
-msgid "An error occurred on the in-band bytestream transfer\n"
-msgstr "Erreur lors du transfert dans le flux de données in-band.\n"
-
-msgid "Transfer was closed."
-msgstr "Le transfert a été interrompu."
-
-msgid "Failed to open in-band bytestream"
-msgstr "Impossible d'ouvrir le flux de données in-band"
-
 #, c-format
 msgid "Unable to send file to %s, user does not support file transfers"
 msgstr ""
 "Impossible d'envoyer le fichier à %s, cet utilisateur ne supporte pas le "
 "transfert de fichiers"
 
+#. not success
 msgid "File Send Failed"
 msgstr "Échec d'envoi de fichier"
 
@@ -5181,26 +5253,6 @@ msgstr "Erreur à l'ajout de l'utilisateur"
 msgid "The username specified does not exist."
 msgstr "Le nom d'utilisateur fourni est non valide."
 
-#, c-format
-msgid "Buddy list synchronization issue in %s (%s)"
-msgstr "Problème de synchronisation de la liste de contact avec %s (%s)"
-
-#, c-format
-msgid ""
-"%s on the local list is inside the group \"%s\" but not on the server list. "
-"Do you want this buddy to be added?"
-msgstr ""
-"%s est dans le groupe « %s » sur la liste locale mais pas sur le serveur. "
-"Voulez-vous ajouter ce contact ?"
-
-#, c-format
-msgid ""
-"%s is on the local list but not on the server list. Do you want this buddy "
-"to be added?"
-msgstr ""
-"%s est sur la liste locale mais pas sur le serveur. Voulez-vous ajouter ce "
-"contact ?"
-
 msgid "Unable to parse message"
 msgstr "Impossible d'interpréter le message"
 
@@ -5371,6 +5423,26 @@ msgstr "Code d'erreur inconnu %d"
 msgid "MSN Error: %s\n"
 msgstr "Erreur MSN : %s\n"
 
+#, c-format
+msgid "Buddy list synchronization issue in %s (%s)"
+msgstr "Problème de synchronisation de la liste de contact avec %s (%s)"
+
+#, c-format
+msgid ""
+"%s on the local list is inside the group \"%s\" but not on the server list. "
+"Do you want this buddy to be added?"
+msgstr ""
+"%s est dans le groupe « %s » sur la liste locale mais pas sur le serveur. "
+"Voulez-vous ajouter ce contact ?"
+
+#, c-format
+msgid ""
+"%s is on the local list but not on the server list. Do you want this buddy "
+"to be added?"
+msgstr ""
+"%s est sur la liste locale mais pas sur le serveur. Voulez-vous ajouter ce "
+"contact ?"
+
 msgid "Other Contacts"
 msgstr "Autres contacts"
 
@@ -5423,11 +5495,47 @@ msgstr "Le nouvel alias MSN est trop long"
 msgid "Set friendly name for %s."
 msgstr "Changer l'alias pour %s."
 
-msgid "Set your friendly name."
+msgid "Set Friendly Name"
 msgstr "Changer l'alias"
 
 msgid "This is the name that other MSN buddies will see you as."
 msgstr "Nom sous lequel les utilisateurs MSN vous verront."
+
+msgid "This Location"
+msgstr "Cet emplacement"
+
+msgid "This is the name that identifies this location"
+msgstr "Nom qui dentifie cet emplacement"
+
+msgid "Other Locations"
+msgstr "Autres emplacements"
+
+msgid "You can sign out from other locations here"
+msgstr "Vous vous êtes connecté depuis ces autres endroits."
+
+#. TODO: Due to limitations in our current request field API, the
+#. following string will show up with a trailing colon.  This should
+#. be fixed either by adding an "include_colon" boolean, or creating
+#. a separate purple_request_field_label_new_without_colon function,
+#. or by never automatically adding the colon and requiring that
+#. callers add the colon themselves.
+msgid "You are not signed in from any other locations."
+msgstr "Vous n'êtes connecté depuis aucun autre endroit."
+
+msgid "Allow multiple logins?"
+msgstr "Autoriser les connexions simultanées ?"
+
+msgid ""
+"Do you want to allow or disallow connecting from multiple locations "
+"simultaneously?"
+msgstr ""
+"Voulez-vous autoriser la connexion simultanée depuis différents emplacement ?"
+
+msgid "Allow"
+msgstr "Autoriser"
+
+msgid "Disallow"
+msgstr "Interdire"
 
 msgid "Set your home phone number."
 msgstr "Numéro de téléphone"
@@ -5447,12 +5555,6 @@ msgid ""
 msgstr ""
 "Voulez-vous autorisez les contacts de votre liste à vous envoyer des "
 "messages MSN sur votre téléphone portable ?"
-
-msgid "Allow"
-msgstr "Autoriser"
-
-msgid "Disallow"
-msgstr "Interdire"
 
 #, c-format
 msgid "Blocked Text for %s"
@@ -5516,6 +5618,9 @@ msgstr "Nom du travail"
 msgid "Set Friendly Name..."
 msgstr "Changer l'alias..."
 
+msgid "View Locations..."
+msgstr "Voir les emplacements..."
+
 msgid "Set Home Phone Number..."
 msgstr "Changer le numéro de téléphone..."
 
@@ -5527,6 +5632,9 @@ msgstr "Changer le numéro de téléphone portable..."
 
 msgid "Enable/Disable Mobile Devices..."
 msgstr "Activer le service pour téléphones portables..."
+
+msgid "Allow/Disallow Multiple Logins..."
+msgstr "Autoriser les connexions simultanées..."
 
 msgid "Allow/Disallow Mobile Pages..."
 msgstr "Autoriser les messages sur téléphones portables..."
@@ -5555,18 +5663,6 @@ msgstr ""
 
 msgid "Unable to Add"
 msgstr "Impossible d'ajouter"
-
-msgid "Authorization Request Message:"
-msgstr "Message pour la demande d'autorisation :"
-
-msgid "Please authorize me!"
-msgstr "Autorise moi, s'il te plaît !"
-
-#. *
-#. * A wrapper for purple_request_action() that uses @c OK and @c Cancel buttons.
-#.
-msgid "_OK"
-msgstr "_OK"
 
 msgid "Error retrieving profile"
 msgstr "Erreur à la récupération du profil."
@@ -5746,6 +5842,9 @@ msgstr "Afficher les frimousses personnalisées"
 msgid "Allow direct connections"
 msgstr "Autoriser les connexions directes"
 
+msgid "Allow connecting from multiple locations"
+msgstr "Autoriser les connexions de différents emplacements"
+
 msgid "nudge: nudge a user to get their attention"
 msgstr "nudge : donner un « Nudge » à un contact pour attirer son attention."
 
@@ -5775,6 +5874,9 @@ msgstr "Impossible de supprimer l'utilisateur"
 
 msgid "Mobile message was not sent because it was too long."
 msgstr "Le message mobile n'a pas été envoyé parce qu'il est trop long."
+
+msgid "Mobile message was not sent because an unknown error occurred."
+msgstr "Le message mobile n'a pas été envoyé à cause d'une erreur inconnue."
 
 #, c-format
 msgid ""
@@ -5940,21 +6042,8 @@ msgstr "Voulez-vous aussi supprimer ce contact de votre carnet d'adresses ?"
 msgid "The username specified is invalid."
 msgstr "Le nom d'utilisateur fourni est non valide."
 
-msgid "The PIN you entered is invalid."
-msgstr "Le code d'accès est non valide."
-
-msgid "The PIN you entered has an invalid length [4-10]."
-msgstr "Le code d'accès n'a pas la bonne longueur [4-10]."
-
-msgid "The PIN is invalid. It should only consist of digits [0-9]."
-msgstr ""
-"Le code d'accès est non valide. Il doit être uniquement composé de chiffres."
-
-msgid "The two PINs you entered do not match."
-msgstr "Les nouveaux codes d'accès diffèrent."
-
-msgid "The name you entered is invalid."
-msgstr "Le nom saisi est non valide."
+msgid "The Display Name you entered is invalid."
+msgstr "Le nom à afficher saisi est non valide."
 
 msgid ""
 "The birthday you entered is invalid. The correct format is: 'YYYY-MM-DD'."
@@ -5975,34 +6064,66 @@ msgstr ""
 "Les informations de votre profil n'ont pu être récupérées. Veuillez "
 "réessayer plus tard."
 
-msgid "Your MXitId"
-msgstr "Votre MXitId"
+#. display name
+#. nick name (required)
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. about me
+msgid "About Me"
+msgstr "À propos de moi"
+
+#. where I live
+msgid "Where I Live"
+msgstr "Où je vis"
+
+#. mobile number
+msgid "Mobile Number"
+msgstr "Téléphone portable"
+
+#. is searchable
+msgid "Can be searched"
+msgstr "Peut être recherché"
+
+#. is suggestable
+msgid "Can be suggested"
+msgstr "Peut être suggéré"
+
+msgid "Update your MXit Profile"
+msgstr "Mettre à jour votre profil MXit"
+
+msgid "The PIN you entered is invalid."
+msgstr "Le code d'accès est non valide."
+
+msgid "The PIN you entered has an invalid length [4-10]."
+msgstr "Le code d'accès n'a pas la bonne longueur [4-10]."
+
+msgid "The PIN is invalid. It should only consist of digits [0-9]."
+msgstr ""
+"Le code d'accès est non valide. Il doit être uniquement composé de chiffres."
+
+msgid "The two PINs you entered do not match."
+msgstr "Les nouveaux codes d'accès diffèrent."
+
+#. show error to user
+msgid "PIN Update Error"
+msgstr "Erreur à la mise à jour du code PIN"
 
 #. pin
 #. pin (required)
 msgid "PIN"
 msgstr "Code"
 
+#. verify pin
 msgid "Verify PIN"
 msgstr "Vérification code"
 
-#. display name
-msgid "Display Name"
-msgstr "Nom affiché"
+#. (reference: "libpurple/request.h")
+msgid "Change PIN"
+msgstr "Changer le code PIN"
 
-#. hidden
-msgid "Hide my number"
-msgstr "Cacher mon numéro"
-
-#. mobile number
-msgid "Mobile Number"
-msgstr "Téléphone portable"
-
-msgid "Update your Profile"
-msgstr "Mettre à jour votre profil"
-
-msgid "Here you can update your MXit profile"
-msgstr "Vous pouvez mettre à jour votre profil MXit ici"
+msgid "Change MXit PIN"
+msgstr "Changer le code PIN MXit"
 
 msgid "View Splash"
 msgstr "Voir la bannière"
@@ -6013,9 +6134,33 @@ msgstr "Il n'y a pas de bannière disponible pour l'instant"
 msgid "About"
 msgstr "À propos"
 
+msgid "Search for user"
+msgstr "Rechercher un utilisateur"
+
+msgid "Search for a MXit contact"
+msgstr "Rechercher un contact MXit"
+
+msgid "Type search information"
+msgstr "Saisissez les informations de recherche"
+
+msgid "_Search"
+msgstr "_Recherche"
+
 #. display / change profile
 msgid "Change Profile..."
 msgstr "Changer le profil..."
+
+#. change PIN
+msgid "Change PIN..."
+msgstr "Changer le code PIN..."
+
+#. suggested friends
+msgid "Suggested friends..."
+msgstr "Suggérer des amis..."
+
+#. search for contacts
+msgid "Search for contacts..."
+msgstr "Chercher des contacts..."
 
 #. display splash-screen
 msgid "View Splash..."
@@ -6047,19 +6192,15 @@ msgstr ""
 msgid "Connecting..."
 msgstr "Connexion..."
 
-msgid "The nick name you entered is invalid."
-msgstr "Le pseudo saisi est non valide."
+msgid "The Display Name you entered is too short."
+msgstr "Le nom à afficher saisi est trop court."
 
 msgid "The PIN you entered has an invalid length [7-10]."
 msgstr "Le code d'accès saisi n'a pas la bonne taille [7-10]."
 
 #. mxit login name
-msgid "MXit Login Name"
-msgstr "Nom d'utilisateur MXit"
-
-#. nick name (required)
-msgid "Nick Name"
-msgstr "Pseudonyme"
+msgid "MXit ID"
+msgstr "Identifiant MXit"
 
 #. show the form to the user to complete
 msgid "Register New MXit Account"
@@ -6090,13 +6231,14 @@ msgstr "Votre session a expirée. Veuillez réessayer plus tard."
 msgid "Invalid country selected. Please try again."
 msgstr "Pays choisi non valide. Veuillez réessayer plus tard."
 
-msgid "Username is not registered. Please register first."
+msgid "The MXit ID you entered is not registered. Please register first."
 msgstr ""
-"Le nom d'utilisateur n'est pas enregistré. Veuillez l'enregistrer d'abord."
+"L'identifiant MXit saisi n'est pas enregistré. Veuillez l'enregistrer "
+"d'abord."
 
-msgid "Username is already registered. Please choose another username."
+msgid "The MXit ID you entered is already registered. Please choose another."
 msgstr ""
-"Le nom d'utilisateur est déjà enregistré. Veuillez en choisir un autre."
+"L'identifiant MXit saisi est déjà enregistré. Veuillez en choisir un autre."
 
 msgid "Internal error. Please try again later."
 msgstr "Erreur interne. Veuillez réessayer plus tard."
@@ -6127,6 +6269,19 @@ msgstr "Validation du compte MXit"
 msgid "Retrieving User Information..."
 msgstr "Récupération des informations de l'utilisateur..."
 
+msgid "was kicked"
+msgstr "a été expulsé"
+
+msgid "You have been kicked from this MultiMX."
+msgstr "Vous avez été expulsé de ce MultiMX."
+
+msgid "_Room Name:"
+msgstr "_Salon :"
+
+#. Display system message in chat window
+msgid "You have invited"
+msgstr "Vous avez été invité"
+
 msgid "Loading menu..."
 msgstr "Chargement du menu..."
 
@@ -6140,8 +6295,18 @@ msgstr "Message de refus"
 msgid "Hidden Number"
 msgstr "Numéro caché"
 
-msgid "Your Mobile Number..."
-msgstr "Votre numéro de téléphone portable..."
+msgid "No profile available"
+msgstr "Aucun profil disponible"
+
+msgid "This contact does not have a profile."
+msgstr "Ce contact n'a pas de profil."
+
+msgid "Your MXit ID..."
+msgstr "Votre identifiant MXitId..."
+
+#. contact is in Deleted, Rejected or None state
+msgid "Re-Invite"
+msgstr "Ré-inviter"
 
 #. Configuration options
 #. WAP server (reference: "libpurple/accountopt.h")
@@ -6154,18 +6319,36 @@ msgstr "Connexion par HTTP"
 msgid "Enable splash-screen popup"
 msgstr "Activer l'affichage de la bannière"
 
-#. you were kicked
-#, fuzzy
-msgid "You have been kicked from this MultiMX."
-msgstr "Vous avez été expulsé : (%s)"
+msgid "Last Online"
+msgstr "En ligne dernièrement"
 
-#, fuzzy
-msgid "was kicked"
-msgstr "Mauvais ticket"
+msgid "Invite Message"
+msgstr "Message d'invitation"
 
-#, fuzzy
-msgid "_Room Name:"
-msgstr "_Salon :"
+msgid "No results"
+msgstr "Aucun résultat"
+
+msgid "No contacts found."
+msgstr "Aucun utilisateur trouvé."
+
+#. define columns
+msgid "UserId"
+msgstr "ID d'utilisateur"
+
+msgid "Where I live"
+msgstr "Où je vis"
+
+#, fuzzy, c-format
+msgid "You have %i suggested friend."
+msgid_plural "You have %i suggested friends."
+msgstr[0] "Vous avez %i amis suggérés."
+msgstr[1] "Vous avez %i amis suggérés."
+
+#, fuzzy, c-format
+msgid "We found %i contact that matches your search."
+msgid_plural "We found %i contacts that match your search."
+msgstr[0] "%i contacts correspondent à votre recherche."
+msgstr[1] "%i contacts correspondent à votre recherche."
 
 #. we must have lost the connection, so terminate it so that we can reconnect
 msgid "We have lost the connection to MXit. Please reconnect."
@@ -6897,6 +7080,21 @@ msgstr "Hôte du serveur"
 msgid "Server port"
 msgstr "Port du serveur"
 
+msgid "Please authorize me so I can add you to my buddy list."
+msgstr "Autorise moi pour que je t'ajoute à ma liste de contacts."
+
+msgid "No reason given."
+msgstr "Pas de raison"
+
+msgid "Authorization Denied Message:"
+msgstr "Message de refus d'autorisation :"
+
+#. *
+#. * A wrapper for purple_request_action() that uses @c OK and @c Cancel buttons.
+#.
+msgid "_OK"
+msgstr "_OK"
+
 #, c-format
 msgid "Received unexpected response from %s: %s"
 msgstr "Réception d'une réponse non attendue de %s : %s"
@@ -6913,11 +7111,21 @@ msgstr ""
 "réessayez. Si vous persistez maintenant, il vous faudra attendre encore plus "
 "longtemps."
 
+msgid ""
+"You required encryption in your account settings, but one of the servers "
+"doesn't support it."
+msgstr ""
+"Vous demandez un chiffrement dans les paramètres du compte, mais l'un des "
+"serveurs n'en est pas capable."
+
 #. Note to translators: The first %s is a URL, the second is an
 #. error message.
 #, c-format
 msgid "Error requesting %s: %s"
 msgstr "Erreur à la demande de %s : %s"
+
+msgid "The server returned an empty response"
+msgstr "Le serveur a renvoyé une réponse vide"
 
 msgid ""
 "Server requested that you fill out a CAPTCHA in order to sign in, but this "
@@ -6929,9 +7137,24 @@ msgstr ""
 msgid "AOL does not allow your screen name to authenticate here"
 msgstr "AOL n'autorise pas votre nom d'utilisateur pour authentification ici."
 
+msgid ""
+"(There was an error receiving this message.  The buddy you are speaking with "
+"is probably using a different encoding than expected.  If you know what "
+"encoding he is using, you can specify it in the advanced account options for "
+"your AIM/ICQ account.)"
+msgstr ""
+"(Une erreur s'est produite à la réception de ce message. Votre interlocuteur "
+"utilise peut-être un encodage inattendu. Si vous connaissez l'encodage qu'il "
+"utilise, vous pouvez le renseigner dans les options avancées de votre compte "
+"AIM/ICQ.)"
+
 #, c-format
-msgid "Error requesting %s"
-msgstr "Erreur à la demande de %s"
+msgid ""
+"(There was an error receiving this message.  Either you and %s have "
+"different encodings selected, or %s has a buggy client.)"
+msgstr ""
+"(Une erreur s'est produite à la réception de ce message. %s et vous utilisez "
+"des encodages différents ou le client de %s est défectueux.)"
 
 msgid "Could not join chat room"
 msgstr "Impossible de rejoindre le salon de discussions"
@@ -7148,95 +7371,6 @@ msgid "File %s is %s, which is larger than the maximum size of %s."
 msgstr ""
 "Le fichier %s fait %s, ce qui est plus gros que la taille maximale de %s."
 
-msgid ""
-"(There was an error receiving this message.  The buddy you are speaking with "
-"is probably using a different encoding than expected.  If you know what "
-"encoding he is using, you can specify it in the advanced account options for "
-"your AIM/ICQ account.)"
-msgstr ""
-"(Une erreur s'est produite à la réception de ce message. Votre interlocuteur "
-"utilise peut-être un encodage inattendu. Si vous connaissez l'encodage qu'il "
-"utilise, vous pouvez le renseigner dans les options avancées de votre compte "
-"AIM/ICQ.)"
-
-#, c-format
-msgid ""
-"(There was an error receiving this message.  Either you and %s have "
-"different encodings selected, or %s has a buggy client.)"
-msgstr ""
-"(Une erreur s'est produite à la réception de ce message. %s et vous utilisez "
-"des encodages différents ou le client de %s est défectueux.)"
-
-#. Label
-msgid "Buddy Icon"
-msgstr "Icône du contact"
-
-msgid "Voice"
-msgstr "Voix"
-
-msgid "AIM Direct IM"
-msgstr "Connexion directe AIM"
-
-msgid "Get File"
-msgstr "Recevoir un fichier"
-
-msgid "Games"
-msgstr "Jeux"
-
-msgid "ICQ Xtraz"
-msgstr "ICQ Xtraz"
-
-msgid "Add-Ins"
-msgstr "Modules"
-
-msgid "Send Buddy List"
-msgstr "Envoyer sa liste de contacts"
-
-msgid "ICQ Direct Connect"
-msgstr "Connexion directe ICQ"
-
-msgid "AP User"
-msgstr "Utilisateur AP"
-
-msgid "ICQ RTF"
-msgstr "RTF ICQ"
-
-msgid "Nihilist"
-msgstr "Nihiliste"
-
-msgid "ICQ Server Relay"
-msgstr "Relais de serveur ICQ"
-
-msgid "Old ICQ UTF8"
-msgstr "Ancien ICQ UTF8"
-
-msgid "Trillian Encryption"
-msgstr "Chiffrement Trillian"
-
-msgid "ICQ UTF8"
-msgstr "ICQ UTF8"
-
-msgid "Hiptop"
-msgstr "Hiptop"
-
-msgid "Security Enabled"
-msgstr "Sécurité activée"
-
-msgid "Video Chat"
-msgstr "Visioconférence"
-
-msgid "iChat AV"
-msgstr "Vidéo iChat"
-
-msgid "Live Video"
-msgstr "Live Video"
-
-msgid "Camera"
-msgstr "Caméra"
-
-msgid "Screen Sharing"
-msgstr "Partage d'écran"
-
 msgid "Free For Chat"
 msgstr "Libre pour discuter"
 
@@ -7267,15 +7401,6 @@ msgstr "Au travail"
 msgid "At lunch"
 msgstr "Déjeuner"
 
-msgid "IP Address"
-msgstr "Adresse IP"
-
-msgid "Warning Level"
-msgstr "Niveau d'avertissement"
-
-msgid "Buddy Comment"
-msgstr "Commentaire"
-
 #, c-format
 msgid "Unable to connect to authentication server: %s"
 msgstr "Impossible de se connecter au serveur d'authentification : %s"
@@ -7305,6 +7430,13 @@ msgstr ""
 "lettre et contenir uniquement des lettres, des chiffres et des espaces, soit "
 "contenir uniquement des chiffres."
 
+msgid ""
+"You required encryption in your account settings, but encryption is not "
+"supported by your system."
+msgstr ""
+"Vous demandez le chiffrement dans les paramètres du compte, mais votre "
+"système n'en est pas capable."
+
 #, c-format
 msgid "You may be disconnected shortly.  If so, check %s for updates."
 msgstr ""
@@ -7321,7 +7453,6 @@ msgid "Received authorization"
 msgstr "Autorisation reçue."
 
 #. Unregistered username
-#. uid is not exist
 #. the username does not exist
 msgid "Username does not exist"
 msgstr "Cet utilisateur n'existe pas"
@@ -7375,15 +7506,6 @@ msgstr "Mot de passe envoyé"
 
 msgid "Unable to initialize connection"
 msgstr "Impossible de créer une connexion."
-
-msgid "Please authorize me so I can add you to my buddy list."
-msgstr "Autorise moi pour que je t'ajoute à ma liste de contacts."
-
-msgid "No reason given."
-msgstr "Pas de raison"
-
-msgid "Authorization Denied Message:"
-msgstr "Message de refus d'autorisation :"
 
 #, c-format
 msgid ""
@@ -7506,59 +7628,20 @@ msgid_plural "You missed %hu messages from %s for an unknown reason."
 msgstr[0] "Vous avez raté %hu message de %s pour des raisons inconnues."
 msgstr[1] "Vous avez raté %hu messages de %s pour des raisons inconnues."
 
-#, c-format
-msgid "User information not available: %s"
-msgstr "Les informations ne sont pas disponibles : %s"
-
-msgid "Online Since"
-msgstr "En ligne depuis"
-
-msgid "Member Since"
-msgstr "Inscrit depuis"
-
-msgid "Capabilities"
-msgstr "Possibilités"
-
 msgid "Your AIM connection may be lost."
 msgstr "Votre connexion AIM risque d'être coupée"
-
-#. The conversion failed!
-msgid ""
-"[Unable to display a message from this user because it contained invalid "
-"characters.]"
-msgstr ""
-"[Impossible d'afficher un message de cet utilisateur car il contient des "
-"caractères non valides.]"
 
 #, c-format
 msgid "You have been disconnected from chat room %s."
 msgstr "Vous avez été déconnecté du salon %s"
 
-msgid "Mobile Phone"
-msgstr "Numéro de téléphone portable"
+msgid "The new formatting is invalid."
+msgstr "Le nouvel affichage est non valide"
 
-msgid "Personal Web Page"
-msgstr "Page web perso"
-
-#. aim_userinfo_t
-#. strip_html_tags
-msgid "Additional Information"
-msgstr "Informations supplémentaires"
-
-msgid "Zip Code"
-msgstr "Code postal"
-
-msgid "Work Information"
-msgstr "Informations professionnelles"
-
-msgid "Division"
-msgstr "Division"
-
-msgid "Position"
-msgstr "Poste"
-
-msgid "Web Page"
-msgstr "Page web"
+msgid "Username formatting can change only capitalization and whitespace."
+msgstr ""
+"Le format d'affichage du nom d'utilisateur permet uniquement de changer les "
+"majuscules et les espaces."
 
 msgid "Pop-Up Message"
 msgstr "Message en fenêtre"
@@ -7833,19 +7916,11 @@ msgstr "Sur le web (activer ceci vous fera recevoir du pourriel !)"
 msgid "ICQ Privacy Options"
 msgstr "Options de confidentialité ICQ"
 
-msgid "The new formatting is invalid."
-msgstr "Le nouvel affichage est non valide"
-
-msgid "Username formatting can change only capitalization and whitespace."
-msgstr ""
-"Le format d'affichage du nom d'utilisateur permet uniquement de changer les "
-"majuscules et les espaces."
-
 msgid "Change Address To:"
 msgstr "Nouvelle adresse :"
 
-msgid "<i>you are not waiting for authorization</i>"
-msgstr "<i>Vous n'attendez aucune autorisation</i>"
+msgid "you are not waiting for authorization"
+msgstr "Vous n'attendez aucune autorisation"
 
 msgid "You are awaiting authorization from the following buddies"
 msgstr "Vous attendez une autorisation des contacts suivants"
@@ -7866,9 +7941,6 @@ msgstr "Rechercher par adresse électronique"
 msgid "Type the email address of the buddy you are searching for."
 msgstr "Saisissez l'adresse électronique du contact que vous cherchez"
 
-msgid "_Search"
-msgstr "_Recherche"
-
 msgid "Set User Info (web)..."
 msgstr "Modifier les informations (web)..."
 
@@ -7882,6 +7954,12 @@ msgstr "Configurer le transfert de message (web)"
 #. ICQ actions
 msgid "Set Privacy Options..."
 msgstr "Changer les options de confidentialité..."
+
+msgid "Show Visible List"
+msgstr "Voir la liste visible"
+
+msgid "Show Invisible List"
+msgstr "Voir la liste invisible"
 
 #. AIM actions
 msgid "Confirm Account"
@@ -7898,9 +7976,6 @@ msgstr "Afficher les demandes d'autorisation"
 
 msgid "Search for Buddy by Email Address..."
 msgstr "Chercher un contact par adresse électronique..."
-
-msgid "Search for Buddy by Information"
-msgstr "Chercher d'après les informations..."
 
 msgid "Use clientLogin"
 msgstr "Utiliser clientLogin"
@@ -7941,15 +8016,132 @@ msgstr ""
 "d'images. Votre adresse IP sera révélée et ceci peut être considéré comme "
 "une faille de sécurité."
 
-#, fuzzy
+#. Label
+msgid "Buddy Icon"
+msgstr "Icône du contact"
+
+msgid "Voice"
+msgstr "Voix"
+
+msgid "AIM Direct IM"
+msgstr "Connexion directe AIM"
+
+msgid "Get File"
+msgstr "Recevoir un fichier"
+
+msgid "Games"
+msgstr "Jeux"
+
+msgid "ICQ Xtraz"
+msgstr "ICQ Xtraz"
+
+msgid "Add-Ins"
+msgstr "Modules"
+
+msgid "Send Buddy List"
+msgstr "Envoyer sa liste de contacts"
+
+msgid "ICQ Direct Connect"
+msgstr "Connexion directe ICQ"
+
+msgid "AP User"
+msgstr "Utilisateur AP"
+
+msgid "ICQ RTF"
+msgstr "RTF ICQ"
+
+msgid "Nihilist"
+msgstr "Nihiliste"
+
+msgid "ICQ Server Relay"
+msgstr "Relais de serveur ICQ"
+
+msgid "Old ICQ UTF8"
+msgstr "Ancien ICQ UTF8"
+
+msgid "Trillian Encryption"
+msgstr "Chiffrement Trillian"
+
+msgid "ICQ UTF8"
+msgstr "ICQ UTF8"
+
+msgid "Hiptop"
+msgstr "Hiptop"
+
+msgid "Security Enabled"
+msgstr "Sécurité activée"
+
+msgid "Video Chat"
+msgstr "Visioconférence"
+
+msgid "iChat AV"
+msgstr "Vidéo iChat"
+
+msgid "Live Video"
+msgstr "Live Video"
+
+msgid "Camera"
+msgstr "Caméra"
+
+msgid "Screen Sharing"
+msgstr "Partage d'écran"
+
+msgid "IP Address"
+msgstr "Adresse IP"
+
+msgid "Warning Level"
+msgstr "Niveau d'avertissement"
+
+msgid "Buddy Comment"
+msgstr "Commentaire"
+
+#, c-format
+msgid "User information not available: %s"
+msgstr "Les informations ne sont pas disponibles : %s"
+
+msgid "Mobile Phone"
+msgstr "Numéro de téléphone portable"
+
+msgid "Personal Web Page"
+msgstr "Page web perso"
+
+#. aim_userinfo_t
+#. use_html_status
+msgid "Additional Information"
+msgstr "Informations supplémentaires"
+
+msgid "Zip Code"
+msgstr "Code postal"
+
+msgid "Work Information"
+msgstr "Informations professionnelles"
+
+msgid "Division"
+msgstr "Division"
+
+msgid "Position"
+msgstr "Poste"
+
+msgid "Web Page"
+msgstr "Page web"
+
+msgid "Online Since"
+msgstr "En ligne depuis"
+
+msgid "Member Since"
+msgstr "Inscrit depuis"
+
+msgid "Capabilities"
+msgstr "Possibilités"
+
 msgid "Invalid SNAC"
-msgstr "Identifiant non valide"
+msgstr "SNAC non valide"
 
-msgid "Rate to host"
-msgstr "Fréquence vers l'hôte"
+msgid "Server rate limit exceeded"
+msgstr "Vitesse du serveur dépassée"
 
-msgid "Rate to client"
-msgstr "Fréquence vers le client"
+msgid "Client rate limit exceeded"
+msgstr "Vitesse du client dépassée"
 
 msgid "Service unavailable"
 msgstr "Service non disponible"
@@ -8011,716 +8203,53 @@ msgstr "File d'attente pleine"
 msgid "Not while on AOL"
 msgstr "Impossible sur AOL"
 
-msgid "Aquarius"
-msgstr "Verseau"
-
-msgid "Pisces"
-msgstr "Poissons"
-
-msgid "Aries"
-msgstr "Bélier"
-
-msgid "Taurus"
-msgstr "Taureau"
-
-msgid "Gemini"
-msgstr "Gémeaux"
-
-msgid "Cancer"
-msgstr "Cancer"
-
-msgid "Leo"
-msgstr "Lion"
-
-msgid "Virgo"
-msgstr "Vierge"
-
-msgid "Libra"
-msgstr "Balance"
-
-msgid "Scorpio"
-msgstr "Scorpion"
-
-msgid "Sagittarius"
-msgstr "Sagittaire"
-
-msgid "Capricorn"
-msgstr "Capricorne"
-
-msgid "Rat"
-msgstr "Rat"
-
-msgid "Ox"
-msgstr "Bœuf"
-
-msgid "Tiger"
-msgstr "Tigre"
-
-msgid "Rabbit"
-msgstr "Lièvre"
-
-msgid "Dragon"
-msgstr "Dragon"
-
-msgid "Snake"
-msgstr "Serpent"
-
-msgid "Horse"
-msgstr "Cheval"
-
-msgid "Goat"
-msgstr "Chèvre"
-
-msgid "Monkey"
-msgstr "Singe"
-
-msgid "Rooster"
-msgstr "Coq"
-
-msgid "Dog"
-msgstr "Chien"
-
-msgid "Pig"
-msgstr "Cochon"
-
-msgid "Other"
-msgstr "Autre"
-
-msgid "Visible"
-msgstr "Visible"
-
-msgid "Friend Only"
-msgstr "Amis seulement"
-
-msgid "Private"
-msgstr "Privé"
-
-msgid "QQ Number"
-msgstr "Numéro QQ"
-
-msgid "Country/Region"
-msgstr "Pays/région"
-
-msgid "Province/State"
-msgstr "Province/État"
-
-msgid "Zipcode"
-msgstr "Code postal"
-
-msgid "Phone Number"
-msgstr "Téléphone fixe"
-
-msgid "Authorize adding"
-msgstr "Autoriser l'ajout"
-
-msgid "Cellphone Number"
-msgstr "Téléphone portable"
-
-msgid "Personal Introduction"
-msgstr "Informations personnelles"
-
-msgid "City/Area"
-msgstr "Ville/Localité"
-
-msgid "Publish Mobile"
-msgstr "Publier le téléphone portable"
-
-msgid "Publish Contact"
-msgstr "Publier les informations de contact"
-
-msgid "College"
-msgstr "Éducation"
-
-msgid "Horoscope"
-msgstr "Signe du zodiaque"
-
-msgid "Zodiac"
-msgstr "Signe du zodiaque chinois"
-
-msgid "Blood"
-msgstr "Groupe sanguin"
-
-msgid "True"
-msgstr "Vrai"
-
-msgid "False"
-msgstr "Faux"
-
-msgid "Modify Contact"
-msgstr "Modifier les infos de contact"
-
-msgid "Modify Address"
-msgstr "Modifier l'adresse"
-
-msgid "Modify Extended Information"
-msgstr "Modifier mes infos étendues"
-
-msgid "Modify Information"
-msgstr "Modifier mes informations"
-
-msgid "Update"
-msgstr "Mettre à jour"
-
-msgid "Could not change buddy information."
-msgstr "Impossible de changer les informations du contact."
-
-msgid "Note"
-msgstr "Commentaire"
-
-#. callback
-msgid "Buddy Memo"
-msgstr "Mémo du contact"
-
-msgid "Change his/her memo as you like"
-msgstr "Vous pouvez changer son mémo à votre convenance"
-
-msgid "_Modify"
-msgstr "_Modifier"
-
-msgid "Memo Modify"
-msgstr "Changer mémo"
-
-msgid "Server says:"
-msgstr "Message du serveur :"
-
-msgid "Your request was accepted."
-msgstr "Votre requête a été acceptée."
-
-msgid "Your request was rejected."
-msgstr "Votre requête a été rejetée."
-
-#, c-format
-msgid "%u requires verification"
-msgstr "%u demande une vérification"
-
-msgid "Add buddy question"
-msgstr "Ajouter une question pour les nouveaux contacts"
-
-msgid "Enter answer here"
-msgstr "Saisissez la réponse ici"
-
-msgid "Send"
-msgstr "Envoyer"
-
-msgid "Invalid answer."
-msgstr "Réponse non valide."
-
-msgid "Authorization denied message:"
-msgstr "Message de refus d'autorisation :"
-
-msgid "Sorry, you're not my style."
-msgstr "Désolé, tu n'es pas mon genre."
-
-#, c-format
-msgid "%u needs authorization"
-msgstr "%u demande une autorisation"
-
-msgid "Add buddy authorize"
-msgstr "Ajouter une autorisation de contact"
-
-msgid "Enter request here"
-msgstr "Saisissez votre demande"
-
-msgid "Would you be my friend?"
-msgstr "Veux-tu être mon ami ?"
-
-msgid "QQ Buddy"
-msgstr "Contact QQ"
-
-msgid "Add buddy"
-msgstr "Ajouter un contact"
-
-msgid "Invalid QQ Number"
-msgstr "Numéro QQ non valide"
-
-msgid "Failed sending authorize"
-msgstr "Échec à l'envoi de l'autorisation"
-
-#, c-format
-msgid "Failed removing buddy %u"
-msgstr "Échec lors de la suppression du contact %u"
-
-#, c-format
-msgid "Failed removing me from %d's buddy list"
-msgstr "Échec lors de ma suppression de la liste de %d"
-
-msgid "No reason given"
-msgstr "Pas de raison donnée"
-
-#. only need to get value
-#, c-format
-msgid "You have been added by %s"
-msgstr "Vous avez été ajouté par %s."
-
-msgid "Would you like to add him?"
-msgstr "Voulez-vous l'ajouter ?"
-
-#, c-format
-msgid "Rejected by %s"
-msgstr "Refusé par %s"
-
-#, c-format
-msgid "Message: %s"
-msgstr "Message : %s"
-
-msgid "ID: "
-msgstr "ID : "
-
-msgid "Group ID"
-msgstr "ID du groupe"
-
-msgid "QQ Qun"
-msgstr "QQ Qun"
-
-msgid "Please enter Qun number"
-msgstr "Saisissez le numéro Qun"
-
-msgid "You can only search for permanent Qun\n"
-msgstr "Vous ne pouvez chercher que les Qun permanents.\n"
-
-msgid "(Invalid UTF-8 string)"
-msgstr "(Chaine de caractères UTF-8 non valide)"
-
-msgid "Not member"
-msgstr "Non membre"
-
-msgid "Member"
-msgstr "Membre"
-
-msgid "Requesting"
-msgstr "Demande en cours"
-
-msgid "Admin"
-msgstr "Admin"
-
-#. XXX: Should this be "Topic"?
-msgid "Room Title"
-msgstr "Titre du salon"
-
-msgid "Notice"
-msgstr "Envoi d'infos"
-
-msgid "Detail"
-msgstr "Détail"
-
-msgid "Creator"
-msgstr "Créateur"
-
-msgid "About me"
-msgstr "À mon propos"
-
-msgid "Category"
-msgstr "Catégorie"
-
-msgid "The Qun does not allow others to join"
-msgstr "Ce Qun est fermé aux inscriptions"
-
-msgid "Join QQ Qun"
-msgstr "Rejoindre un Qun QQ"
-
-msgid "Input request here"
-msgstr "Saisissez votre demande"
-
-#, c-format
-msgid "Successfully joined Qun %s (%u)"
-msgstr "Entrée réussie dans le Qun %s (%u)"
-
-msgid "Successfully joined Qun"
-msgstr "Entrée réussie dans le Qun"
-
-#, c-format
-msgid "Qun %u denied from joining"
-msgstr "L'entrée dans le Qun %u a été refusée"
-
-msgid "QQ Qun Operation"
-msgstr "Opération QQ Qun"
-
-msgid "Failed:"
-msgstr "Échec :"
-
-msgid "Join Qun, Unknown Reply"
-msgstr "Joindre un Qun, réponse inconnue"
-
-msgid "Quit Qun"
-msgstr "Parir du Qun"
-
-msgid ""
-"Note, if you are the creator, \n"
-"this operation will eventually remove this Qun."
-msgstr ""
-"Note : si vous en êtes le créateur, \n"
-"cette opération peut supprimer ce Qun."
-
-msgid "Sorry, you are not our style"
-msgstr "Désolés, tu n'es pas notre genre."
-
-msgid "Successfully changed Qun members"
-msgstr "Vous avez modifié la liste des membres du Qun."
-
-msgid "Successfully changed Qun information"
-msgstr "Vous avez modifié les informations du Qun."
-
-msgid "You have successfully created a Qun"
-msgstr "Vous avez créé un Qun."
-
-msgid "Would you like to set up detailed information now?"
-msgstr "Voulez-vous modifier les infos détaillées maintenant ?"
-
-msgid "Setup"
-msgstr "Options"
-
-#, c-format
-msgid "%u requested to join Qun %u for %s"
-msgstr "L'utilisateur %u demande à rejoindre le Qun %u pour %s"
-
-#, c-format
-msgid "%u request to join Qun %u"
-msgstr "L'utilisateur %u demande à rejoindre le Qun %u"
-
-#, c-format
-msgid "Failed to join Qun %u, operated by admin %u"
-msgstr "Échec pour rejoindre le Qun %u, administré par %u"
-
-#, c-format
-msgid "<b>Joining Qun %u is approved by admin %u for %s</b>"
-msgstr "<b>L'entrée dans le Qun %u a été approuvée par l'admin %u pour %s</b>"
-
-#, c-format
-msgid "<b>Removed buddy %u.</b>"
-msgstr "<b>Contact supprimé %u.</b>"
-
-#, c-format
-msgid "<b>New buddy %u joined.</b>"
-msgstr "<b>Nouveau contact %u entré.</b>"
-
-#, c-format
-msgid "Unknown-%d"
-msgstr "Inconnu-%d"
-
-msgid "Level"
-msgstr "Niveau"
-
-msgid " VIP"
-msgstr " VIP"
-
-msgid " TCP"
-msgstr " TCP"
-
-msgid " FromMobile"
-msgstr " FromMobile"
-
-msgid " BindMobile"
-msgstr " BindMobile"
-
-msgid " Video"
-msgstr " Vidéo"
-
-msgid " Zone"
-msgstr " Zone"
-
-msgid "Flag"
-msgstr "Drapeau"
-
-msgid "Ver"
-msgstr "Ver"
-
-msgid "Invalid name"
-msgstr "Nom d'utilisateur non valide"
-
-msgid "Select icon..."
-msgstr "Choisir une icône..."
-
-#, c-format
-msgid "<b>Login time</b>: %d-%d-%d, %d:%d:%d<br>\n"
-msgstr "<b>Heure de connexion :</b> %d-%d-%d, %d:%d:%d<br>\n"
-
-#, c-format
-msgid "<b>Total Online Buddies</b>: %d<br>\n"
-msgstr "<b>Contacts connectés :</b> %d<br>\n"
-
-#, c-format
-msgid "<b>Last Refresh</b>: %d-%d-%d, %d:%d:%d<br>\n"
-msgstr "<b>Dernière mise à jour :</b> %d-%d-%d, %d:%d:%d<br>\n"
-
-#, c-format
-msgid "<b>Server</b>: %s<br>\n"
-msgstr "<b>Serveur :</b> %s<br>\n"
-
-#, c-format
-msgid "<b>Client Tag</b>: %s<br>\n"
-msgstr "<b>Étiquette du client :</b> %s<br>\n"
-
-#, c-format
-msgid "<b>Connection Mode</b>: %s<br>\n"
-msgstr "<b>Type de connexion :</b> %s<br>\n"
-
-#, c-format
-msgid "<b>My Internet IP</b>: %s:%d<br>\n"
-msgstr "<b>Adresse internet IP :</b> %s:%d<br>\n"
-
-#, c-format
-msgid "<b>Sent</b>: %lu<br>\n"
-msgstr "<b>Envoyés :</b> %lu<br>\n"
-
-#, c-format
-msgid "<b>Resend</b>: %lu<br>\n"
-msgstr "<b>Ré-envoyés :</b> %lu<br>\n"
-
-#, c-format
-msgid "<b>Lost</b>: %lu<br>\n"
-msgstr "<b>Perdus :</b> %lu<br>\n"
-
-#, c-format
-msgid "<b>Received</b>: %lu<br>\n"
-msgstr "<b>Reçus :</b> %lu<br>\n"
-
-#, c-format
-msgid "<b>Received Duplicate</b>: %lu<br>\n"
-msgstr "<b>Doubles reçus :</b> %lu<br>\n"
-
-#, c-format
-msgid "<b>Time</b>: %d-%d-%d, %d:%d:%d<br>\n"
-msgstr "<b>Heure :</b> %d-%d-%d, %d:%d:%d<br>\n"
-
-#, c-format
-msgid "<b>IP</b>: %s<br>\n"
-msgstr "<b>IP :</b> %s<br>\n"
-
-msgid "Login Information"
-msgstr "Informations de connexion"
-
-msgid "<p><b>Original Author</b>:<br>\n"
-msgstr "<p><b>Auteur original :</b><br>\n"
-
-msgid "<p><b>Code Contributors</b>:<br>\n"
-msgstr "<p><b>Contributeurs au code :</b><br>\n"
-
-msgid "<p><b>Lovely Patch Writers</b>:<br>\n"
-msgstr "<p><b>Charmants contributeurs de patchs :</b><br>\n"
-
-msgid "<p><b>Acknowledgement</b>:<br>\n"
-msgstr "<p><b>Remerciements :</b><br>\n"
-
-msgid "<p><b>Scrupulous Testers</b>:<br>\n"
-msgstr "<p><b>Testeurs scrupuleux :</b><br>\n"
-
-msgid "and more, please let me know... thank you!))"
-msgstr "et d'autres, faites-nous le savoir... merci !"
-
-msgid "<p><i>And, all the boys in the backroom...</i><br>\n"
-msgstr "<p><i>et toutes les personnes dans les coulisses...</i><br>\n"
-
-msgid "<i>Feel free to join us!</i> :)"
-msgstr "<i>N'hésitez pas à nous rejoindre !</i> :)"
-
-#, c-format
-msgid "About OpenQ %s"
-msgstr "À propos de OpenQ %s"
-
-msgid "Change Icon"
-msgstr "Changer l'icône"
-
-msgid "Change Password"
-msgstr "Changer de mot de passe"
-
-msgid "Account Information"
-msgstr "Informations du compte"
-
-msgid "Update all QQ Quns"
-msgstr "Mettre à jour tous les Quns QQ"
-
-msgid "About OpenQ"
-msgstr "À propos de OpenQ"
-
-msgid "Modify Buddy Memo"
-msgstr "Changer le mémo de l'utilisateur"
-
-#. *< type
-#. *< ui_requirement
-#. *< flags
-#. *< dependencies
-#. *< priority
-#. *< id
-#. *< name
-#. *< version
-#. *  summary
-#. *  description
-msgid "QQ Protocol Plugin"
-msgstr "Plugin pour le protocole QQ"
-
-msgid "Auto"
-msgstr "Auto"
-
-msgid "Select Server"
-msgstr "Choisir le serveur"
-
-msgid "QQ2005"
-msgstr "QQ2005"
-
-msgid "QQ2007"
-msgstr "QQ2007"
-
-msgid "QQ2008"
-msgstr "QQ2008"
-
-msgid "Connect by TCP"
-msgstr "Connexion par TCP"
-
-msgid "Show server notice"
-msgstr "Afficher les infos du serveur"
-
-msgid "Show server news"
-msgstr "Afficher les nouveautés du serveur"
-
-msgid "Show chat room when msg comes"
-msgstr "Afficher le salon de discussions quand un message arrive"
-
-msgid "Keep alive interval (seconds)"
-msgstr "Délai de Keep alive (en secondes)"
-
-msgid "Update interval (seconds)"
-msgstr "Délai de mise à jour (en secondes)"
-
-msgid "Unable to decrypt server reply"
-msgstr "Impossible de déchiffrer la réponse du serveur"
-
-#, c-format
-msgid "Failed requesting token, 0x%02X"
-msgstr "Échec lors de la demande du token, 0x%02X"
-
-#, c-format
-msgid "Invalid token len, %d"
-msgstr "Taille de token non valide : %d"
-
-#. extend redirect used in QQ2006
-msgid "Redirect_EX is not currently supported"
-msgstr "Redirect_EX n'est pas supportée pour l'instant"
-
-#. need activation
-#. need activation
-#. need activation
-msgid "Activation required"
-msgstr "Activation nécessaire"
-
-#, c-format
-msgid "Unknown reply code when logging in (0x%02X)"
-msgstr "Réponse inconnue à la connexion (0x%02X)"
-
-msgid "Requesting captcha"
-msgstr "Demande de captcha"
-
-msgid "Checking captcha"
-msgstr "Vérification du code du captcha"
-
-msgid "Failed captcha verification"
-msgstr "Échec à la vérification du captcha"
-
-msgid "Captcha Image"
-msgstr "Image captcha"
-
-msgid "Enter code"
-msgstr "Saisissez le code"
-
-msgid "QQ Captcha Verification"
-msgstr "Vérification du captcha QQ"
-
-msgid "Enter the text from the image"
-msgstr "Saisissez le texte de l'image"
-
-#, c-format
-msgid "Unknown reply when checking password (0x%02X)"
-msgstr "Réponse inconnue à la vérification du mot de passe (0x%02X)"
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear online to the chosen user even when your status is set to
+#. Invisible.
+msgid "Appear Online"
+msgstr "Apparaître connecté"
+
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear offline to the chosen user when your status is set to
+#. Invisible (this is the default).
+msgid "Don't Appear Online"
+msgstr "Ne pas apparaître connecté"
+
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to always appear offline to the chosen user (even when your status
+#. isn't Invisible).
+msgid "Appear Offline"
+msgstr "Invisible"
+
+#. Translators: This string is a menu option that, if selected, will cause
+#. you to appear offline to the chosen user if you are invisible, and
+#. appear online to the chosen user if you are not invisible (this is the
+#. default).
+msgid "Don't Appear Offline"
+msgstr "Ne pas apparaître déconnecté"
+
+msgid "you have no buddies on this list"
+msgstr "Vous n'avez aucun contact sur cette liste"
 
 #, c-format
 msgid ""
-"Unknown reply code when logging in (0x%02X):\n"
-"%s"
+"You can add a buddy to this list by right-clicking on them and selecting \"%s"
+"\""
 msgstr ""
-"Réponse inconnue à la connexion (0x%02X) :\n"
-"%s"
+"Vous pouvez ajouter un contact à cette liste en cliquant avec le bouton "
+"droit sur lui et en choisissant « %s »"
 
-msgid "Socket error"
-msgstr "Erreur de socket."
+msgid "Visible List"
+msgstr "Liste visible"
 
-msgid "Getting server"
-msgstr "Récupération du serveur"
+msgid "These buddies will see your status when you switch to \"Invisible\""
+msgstr "Ces contacts vous verront quand vous passerez « Invisible »"
 
-msgid "Requesting token"
-msgstr "Requête d'un token"
+msgid "Invisible List"
+msgstr "Liste invisible"
 
-msgid "Unable to resolve hostname"
-msgstr "Impossible de résoudre l'adresse internet."
-
-msgid "Invalid server or port"
-msgstr "Serveur ou port non valide"
-
-msgid "Connecting to server"
-msgstr "Connexion au serveur"
-
-msgid "QQ Error"
-msgstr "Erreur QQ"
-
-#, c-format
-msgid ""
-"Server News:\n"
-"%s\n"
-"%s\n"
-"%s"
-msgstr ""
-"Nouveautés du serveur :\n"
-"%s\n"
-"%s\n"
-"%s"
-
-#, c-format
-msgid "%s:%s"
-msgstr "%s : %s"
-
-#, c-format
-msgid "From %s:"
-msgstr "De %s :"
-
-#, c-format
-msgid ""
-"Server notice From %s: \n"
-"%s"
-msgstr ""
-"Info du serveur de %s : \n"
-"%s"
-
-msgid "Unknown SERVER CMD"
-msgstr "Commande SERVER inconnue"
-
-#, c-format
-msgid ""
-"Error reply of %s(0x%02X)\n"
-"Room %u, reply 0x%02X"
-msgstr ""
-"Erreur à la réponse %s(0x%02X)\n"
-"Salon %u, réponse 0x%02X"
-
-msgid "QQ Qun Command"
-msgstr "Commande Qun QQ"
-
-msgid "Unable to decrypt login reply"
-msgstr "Impossible de déchiffrer la réponse de connexion"
-
-msgid "Unknown LOGIN CMD"
-msgstr "Commande LOGIN inconnue"
-
-msgid "Unknown CLIENT CMD"
-msgstr "Commande CLIENT inconnue"
-
-#, c-format
-msgid "%d has declined the file %s"
-msgstr "%d a refusé le fichier %s"
-
-msgid "File Send"
-msgstr "Envoi de fichier"
-
-#, c-format
-msgid "%d cancelled the transfer of %s"
-msgstr "%d a annulé le transfert de %s"
+msgid "These buddies will always see you as offline"
+msgstr "Ces contacts ne vous verront jamais connectés"
 
 #, c-format
 msgid "<b>Group Title:</b> %s<br>"
@@ -9489,6 +9018,9 @@ msgstr "Organisation"
 msgid "Unit"
 msgstr "Groupe"
 
+msgid "Note"
+msgstr "Commentaire"
+
 msgid "Join Chat"
 msgstr "Rejoindre une discussion"
 
@@ -10138,6 +9670,9 @@ msgstr "Réponse du serveur inconnue"
 msgid "Unable to create listen socket"
 msgstr "Impossible de se mettre en écoute sur la connexion"
 
+msgid "Unable to resolve hostname"
+msgstr "Impossible de résoudre l'adresse internet."
+
 msgid "SIP usernames may not contain whitespaces or @ symbols"
 msgstr ""
 "Les noms d'utilisateur SIP ne peuvent pas avoir d'espace ou de symbole @."
@@ -10218,8 +9753,8 @@ msgstr "Langue du salon de discussions"
 msgid "Ignore conference and chatroom invitations"
 msgstr "Ignorer les invitations aux conférences et salons de discussions"
 
-msgid "Use account proxy for SSL connections"
-msgstr "Utiliser le proxy du compte pour les connexions SSL"
+msgid "Use account proxy for HTTP and HTTPS connections"
+msgstr "Utiliser le proxy du compte pour les connexions HTTP et HTTPS"
 
 msgid "Chat room list URL"
 msgstr "URL de liste des salons de discussions"
@@ -10254,6 +9789,9 @@ msgstr "Votre message Yahoo! n'a pas été envoyé"
 #, c-format
 msgid "Yahoo! system message for %s:"
 msgstr "Message système Yahoo! pour %s :"
+
+msgid "Authorization denied message:"
+msgstr "Message de refus d'autorisation :"
 
 #, c-format
 msgid ""
@@ -10410,17 +9948,11 @@ msgstr "De sortie"
 msgid "Not on server list"
 msgstr "Pas dans la liste du serveur"
 
-msgid "Appear Online"
-msgstr "Apparaître connecté"
-
 msgid "Appear Permanently Offline"
 msgstr "Apparaître toujours déconnecté"
 
 msgid "Presence"
 msgstr "Présence"
-
-msgid "Appear Offline"
-msgstr "Invisible"
 
 msgid "Don't Appear Permanently Offline"
 msgstr "Ne pas apparaître toujours déconnecté"
@@ -10973,27 +10505,22 @@ msgid " (%s)"
 msgstr " (%s)"
 
 #. 10053
-#, c-format
 msgid "Connection interrupted by other software on your computer."
 msgstr "Connexion interrompue par une autre application de votre ordinateur."
 
 #. 10054
-#, c-format
 msgid "Remote host closed connection."
 msgstr "L'interlocuteur a fermé la connexion."
 
 #. 10060
-#, c-format
 msgid "Connection timed out."
 msgstr "Délai de connexion dépassé."
 
 #. 10061
-#, c-format
 msgid "Connection refused."
 msgstr "Connexion refusée."
 
 #. 10048
-#, c-format
 msgid "Address already in use."
 msgstr "Cette adresse est déjà utilisée."
 
@@ -11060,14 +10587,17 @@ msgstr "Utiliser les paramètres proxy globaux"
 msgid "No Proxy"
 msgstr "Pas de proxy"
 
-msgid "HTTP"
-msgstr "HTTP"
-
 msgid "SOCKS 4"
 msgstr "SOCKS 4"
 
 msgid "SOCKS 5"
 msgstr "SOCKS 5"
+
+msgid "Tor/Privacy (SOCKS5)"
+msgstr "Tor/Privacy (SOCKS5)"
+
+msgid "HTTP"
+msgstr "HTTP"
 
 msgid "Use Environmental Settings"
 msgstr "Utiliser les paramètres d'environnement"
@@ -11095,6 +10625,12 @@ msgstr "_Port :"
 
 msgid "Pa_ssword:"
 msgstr "_Mot de passe :"
+
+msgid "Use _silence suppression"
+msgstr "Utiliser la suppression de_ silences"
+
+msgid "_Voice and Video"
+msgstr "_Voix et vidéo"
 
 msgid "Unable to save new account"
 msgstr "Impossible d'enregistrer le nouveau compte."
@@ -11142,6 +10678,21 @@ msgstr ""
 "Pour retrouver cette fenêtre afin d'ajouter, modifier ou supprimer des "
 "comptes, choisissez <b>Comptes->Gérer les comptes</b> dans la fenêtre de la "
 "liste de contacts."
+
+#, c-format
+msgid ""
+"<a href=\"viewinfo\">%s</a>%s%s%s wants to add you (%s) to his or her buddy "
+"list%s%s"
+msgstr ""
+"<a href=\"viewinfo\">%s</a>%s%s%s veut vous (%s) ajouter à sa liste de "
+"contacts%s%s"
+
+#, c-format
+msgid "%s%s%s%s wants to add you (%s) to his or her buddy list%s%s"
+msgstr "%s%s%s%s veut vous (%s) ajouter à sa liste de contacts%s%s"
+
+msgid "Send Instant Message"
+msgstr "Envoyer un message"
 
 #. Buddy List
 msgid "Background Color"
@@ -11398,6 +10949,8 @@ msgstr "message (facultatif)`"
 msgid "Edit User Mood"
 msgstr "Modifier l'humeur"
 
+#. NOTE: Do not set any accelerator to Control+O. It is mapped by
+#. gtk_blist_key_press_cb to "Get User Info" on the selected buddy.
 #. Buddies menu
 msgid "/_Buddies"
 msgstr "/_Contacts"
@@ -11506,6 +11059,10 @@ msgstr "/Aide/Fenêtre de _debug"
 
 msgid "/Help/De_veloper Information"
 msgstr "/Aide/Liste des _développeurs"
+
+#, fuzzy
+msgid "/Help/_Plugin Information"
+msgstr "/Aide/_Informations sur le programme"
 
 msgid "/Help/_Translator Information"
 msgstr "/Aide/Liste des _traducteurs"
@@ -11693,6 +11250,9 @@ msgstr "_Nom d'utilisateur du contact :"
 
 msgid "(Optional) A_lias:"
 msgstr "A_lias (facultatif) :"
+
+msgid "(Optional) _Invite message:"
+msgstr "Message d'_invitation (facultatif) :"
 
 msgid "Add buddy to _group:"
 msgstr "Ajouter ce contact au _groupe :"
@@ -12130,15 +11690,8 @@ msgstr "Erreur "
 msgid "Fatal Error"
 msgstr "Erreur critique"
 
-msgid "bug master"
-msgstr "maitre des bogues"
-
 msgid "artist"
 msgstr "artiste"
-
-#. feel free to not translate this
-msgid "Ka-Hing Cheung"
-msgstr "Ka-Hing Cheung"
 
 msgid "voice and video"
 msgstr "voix et vidéo"
@@ -12149,11 +11702,12 @@ msgstr "support"
 msgid "webmaster"
 msgstr "webmestre"
 
-msgid "Senior Contributor/QA"
-msgstr "contribuant senior/QA"
-
 msgid "win32 port"
 msgstr "portage win32"
+
+#. feel free to not translate this
+msgid "Ka-Hing Cheung"
+msgstr "Ka-Hing Cheung"
 
 msgid "maintainer"
 msgstr "mainteneur"
@@ -12176,6 +11730,9 @@ msgstr "auteur original"
 
 msgid "lead developer"
 msgstr "codeur principal"
+
+msgid "Senior Contributor/QA"
+msgstr "contribuant senior/QA"
 
 msgid "Afrikaans"
 msgstr "Afrikaans"
@@ -12225,11 +11782,11 @@ msgstr "Grec"
 msgid "Australian English"
 msgstr "Anglais australien"
 
-msgid "Canadian English"
-msgstr "Anglais canadien"
-
 msgid "British English"
 msgstr "Anglais britannique"
+
+msgid "Canadian English"
+msgstr "Anglais canadien"
 
 msgid "Esperanto"
 msgstr "Espéranto"
@@ -12270,6 +11827,9 @@ msgstr "Hébreu"
 msgid "Hindi"
 msgstr "Hindi"
 
+msgid "Croatian"
+msgstr ""
+
 msgid "Hungarian"
 msgstr "Hongrois"
 
@@ -12308,6 +11868,12 @@ msgstr "Kurde"
 
 msgid "Lao"
 msgstr "Lao"
+
+msgid "Maithili"
+msgstr "Maïhili"
+
+msgid "Meadow Mari"
+msgstr "Mari des prairies"
 
 msgid "Macedonian"
 msgstr "Macédonien"
@@ -12506,6 +12072,14 @@ msgstr "Anciens traducteurs"
 #, c-format
 msgid "%s Translator Information"
 msgstr "Liste des traducteurs de %s"
+
+#, fuzzy, c-format
+msgid "%s Plugin Information"
+msgstr "Informations sur le programme %s"
+
+#, fuzzy
+msgid "Plugin Information"
+msgstr "Informations de debug"
 
 msgid "_Name"
 msgstr "_Nom"
@@ -13100,11 +12674,11 @@ msgstr ""
 msgid "Exiting because another libpurple client is already running.\n"
 msgstr "Arrêt à cause d'un autre client libpurple existant.\n"
 
-msgid "/_Media"
-msgstr "/_Média"
+msgid "_Media"
+msgstr "_Média"
 
-msgid "/Media/_Hangup"
-msgstr "/Média/_Raccrocher"
+msgid "_Hangup"
+msgstr "_Raccrocher"
 
 #, c-format
 msgid "%s wishes to start an audio/video session with you."
@@ -13161,8 +12735,15 @@ msgstr "<span weight=\"bold\" size=\"larger\">Vous avez du courrier !</span>"
 msgid "New Pounces"
 msgstr "Nouvelles alertes"
 
+#. Translators: Make sure you translate "Dismiss" differently than
+#. "close"!  This string is used in the "You have pounced" dialog
+#. that appears when one of your Buddy Pounces is triggered.  In
+#. this context "Dismiss" means "I acknowledge that I've seen that
+#. this pounce was triggered--remove it from this list."  Translating
+#. it as "Remove" is acceptable if you can't think of a more precise
+#. word.
 msgid "Dismiss"
-msgstr "Fermer"
+msgstr "Disposer"
 
 msgid "<span weight=\"bold\" size=\"larger\">You have pounced!</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Vous avez des alertes !</span>"
@@ -13459,6 +13040,14 @@ msgstr "Utiliser le défilement progressif"
 msgid "F_lash window when IMs are received"
 msgstr "_Faire clignoter la fenêtre sur la réception de messages"
 
+#, fuzzy
+msgid "Resize incoming custom smileys"
+msgstr "_Gérer les frimousses personnalisées"
+
+#, fuzzy
+msgid "Maximum size:"
+msgstr "Temps d'attente de réponse maximum :"
+
 msgid "Minimum input area height in lines:"
 msgstr "Nombre minimum de lignes dans la zone de saisie :"
 
@@ -13525,6 +13114,13 @@ msgstr "Serveur relai (TURN)"
 msgid "_TURN server:"
 msgstr "Serveur _TURN :"
 
+msgid "_UDP Port:"
+msgstr "Port _UDP :"
+
+#, fuzzy
+msgid "T_CP Port:"
+msgstr "Port _UDP :"
+
 msgid "Use_rname:"
 msgstr "Utilisateu_r :"
 
@@ -13546,6 +13142,11 @@ msgstr "Mozilla"
 msgid "Konqueror"
 msgstr "Konqueror"
 
+msgid "Google Chrome"
+msgstr "Google Chrome"
+
+#. Do not move the line below.  Code below expects gnome-open to be in
+#. * this list immediately after xdg-open!
 msgid "Desktop Default"
 msgstr "Paramètres par défaut du bureau"
 
@@ -13563,6 +13164,14 @@ msgstr "Firebird"
 
 msgid "Epiphany"
 msgstr "Epiphany"
+
+#. Translators: please do not translate "chromium-browser" here!
+msgid "Chromium (chromium-browser)"
+msgstr "Chromium (chromium-browser)"
+
+#. Translators: please do not translate "chrome" here!
+msgid "Chromium (chrome)"
+msgstr "Chromium (chrome)"
 
 msgid "Manual"
 msgstr "Manuel"
@@ -13905,9 +13514,6 @@ msgstr "Texte de raccourci"
 msgid "Custom Smiley Manager"
 msgstr "Gestionnaire de frimousses personnalisées"
 
-msgid "Attention received"
-msgstr "Demande d'attention reçue"
-
 msgid "Select Buddy Icon"
 msgstr "Choisir l'icône de contact"
 
@@ -13931,6 +13537,9 @@ msgstr "Choix de l'état"
 
 msgid "Google Talk"
 msgstr "Google Talk"
+
+msgid "Facebook (XMPP)"
+msgstr "Facebook (XMPP)"
 
 #, c-format
 msgid "The following error has occurred loading %s: %s"
@@ -14101,8 +13710,8 @@ msgstr "aucun"
 msgid "Small"
 msgstr "Petits"
 
-msgid "Smaller versions of the default smilies"
-msgstr "Versions de taille inférieure des frimousses par défaut"
+msgid "Smaller versions of the default smileys"
+msgstr "Versions plus petites des frimousses par défaut"
 
 msgid "Response Probability:"
 msgstr "Probabilité de réponse :"
@@ -14264,6 +13873,9 @@ msgstr "Ensemble PubSub"
 
 msgid "PubSub Leaf"
 msgstr "Feuillet PubSub"
+
+msgid "Other"
+msgstr "Autre"
 
 msgid ""
 "\n"
@@ -15132,6 +14744,21 @@ msgstr "P_lugins"
 msgid "D_evice"
 msgstr "Appa_reil"
 
+msgid "DROP"
+msgstr "Couper"
+
+msgid "Volume:"
+msgstr "Volume :"
+
+msgid "Silence threshold:"
+msgstr "Seuil du silence :"
+
+msgid "Input and Output Settings"
+msgstr "Configuration d'entrée/sortie"
+
+msgid "Microphone Test"
+msgstr "Test du microphone"
+
 #. *< magic
 #. *< major version
 #. *< minor version
@@ -15271,7 +14898,7 @@ msgstr "Envoyer et recevoir des blocs XMPP."
 msgid "This plugin is useful for debugging XMPP servers or clients."
 msgstr "Ce plugin est utile pour débugger les clients ou serveurs XMPP."
 
-#. $(^Name) is the current Version name (e.g. Pidgin 2.7.0).  $_CLICK will become a translated version of "Click Next to continue."
+#. $(^Name) is the current Version name (e.g. Pidgin 2.7.0).  $_CLICK will become a translated version of "Click Next to continue."  DO NOT translate the CLICK in $_CLICK.  It will break the installer.
 msgid ""
 "$(^Name) is released under the GNU General Public License (GPL). The license "
 "is provided here for information purposes only. $_CLICK"
@@ -15421,6 +15048,237 @@ msgstr "Visitez la page web de Pidgin"
 msgid "You do not have permission to uninstall this application."
 msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 
+#~ msgid "Authorization Request Message:"
+#~ msgstr "Message pour la demande d'autorisation :"
+
+#~ msgid "Please authorize me!"
+#~ msgstr "Autorise moi, s'il te plaît !"
+
+#~ msgid "Your UID"
+#~ msgstr "Votre UID"
+
+#~ msgid "Hide my number"
+#~ msgstr "Cacher mon numéro"
+
+#~ msgid "Aquarius"
+#~ msgstr "Verseau"
+
+#~ msgid "Pisces"
+#~ msgstr "Poissons"
+
+#~ msgid "Aries"
+#~ msgstr "Bélier"
+
+#~ msgid "Taurus"
+#~ msgstr "Taureau"
+
+#~ msgid "Gemini"
+#~ msgstr "Gémeaux"
+
+#~ msgid "Cancer"
+#~ msgstr "Cancer"
+
+#~ msgid "Leo"
+#~ msgstr "Lion"
+
+#~ msgid "Virgo"
+#~ msgstr "Vierge"
+
+#~ msgid "Libra"
+#~ msgstr "Balance"
+
+#~ msgid "Scorpio"
+#~ msgstr "Scorpion"
+
+#~ msgid "Sagittarius"
+#~ msgstr "Sagittaire"
+
+#~ msgid "Capricorn"
+#~ msgstr "Capricorne"
+
+#~ msgid "Rat"
+#~ msgstr "Rat"
+
+#~ msgid "Ox"
+#~ msgstr "Bœuf"
+
+#~ msgid "Tiger"
+#~ msgstr "Tigre"
+
+#~ msgid "Rabbit"
+#~ msgstr "Lièvre"
+
+#~ msgid "Dragon"
+#~ msgstr "Dragon"
+
+#~ msgid "Snake"
+#~ msgstr "Serpent"
+
+#~ msgid "Horse"
+#~ msgstr "Cheval"
+
+#~ msgid "Goat"
+#~ msgstr "Chèvre"
+
+#~ msgid "Monkey"
+#~ msgstr "Singe"
+
+#~ msgid "Rooster"
+#~ msgstr "Coq"
+
+#~ msgid "Dog"
+#~ msgstr "Chien"
+
+#~ msgid "Pig"
+#~ msgstr "Cochon"
+
+#~ msgid "Visible"
+#~ msgstr "Visible"
+
+#~ msgid "Friend Only"
+#~ msgstr "Amis seulement"
+
+#~ msgid "Private"
+#~ msgstr "Privé"
+
+#~ msgid "Country/Region"
+#~ msgstr "Pays/région"
+
+#~ msgid "Province/State"
+#~ msgstr "Province/État"
+
+#~ msgid "Zipcode"
+#~ msgstr "Code postal"
+
+#~ msgid "Phone Number"
+#~ msgstr "Téléphone fixe"
+
+#~ msgid "Authorize adding"
+#~ msgstr "Autoriser l'ajout"
+
+#~ msgid "Cellphone Number"
+#~ msgstr "Téléphone portable"
+
+#~ msgid "Personal Introduction"
+#~ msgstr "Informations personnelles"
+
+#~ msgid "City/Area"
+#~ msgstr "Ville/Localité"
+
+#~ msgid "Publish Mobile"
+#~ msgstr "Publier le téléphone portable"
+
+#~ msgid "Publish Contact"
+#~ msgstr "Publier les informations de contact"
+
+#~ msgid "College"
+#~ msgstr "Éducation"
+
+#~ msgid "Horoscope"
+#~ msgstr "Signe du zodiaque"
+
+#~ msgid "Zodiac"
+#~ msgstr "Signe du zodiaque chinois"
+
+#~ msgid "Blood"
+#~ msgstr "Groupe sanguin"
+
+#~ msgid "True"
+#~ msgstr "Vrai"
+
+#~ msgid "False"
+#~ msgstr "Faux"
+
+#~ msgid "Modify Contact"
+#~ msgstr "Modifier les infos de contact"
+
+#~ msgid "Modify Address"
+#~ msgstr "Modifier l'adresse"
+
+#~ msgid "Modify Extended Information"
+#~ msgstr "Modifier mes infos étendues"
+
+#~ msgid "Modify Information"
+#~ msgstr "Modifier mes informations"
+
+#~ msgid "Update"
+#~ msgstr "Mettre à jour"
+
+#~ msgid "Could not change buddy information."
+#~ msgstr "Impossible de changer les informations du contact."
+
+#~ msgid "Buddy Memo"
+#~ msgstr "Mémo du contact"
+
+#~ msgid "Change his/her memo as you like"
+#~ msgstr "Vous pouvez changer son mémo à votre convenance"
+
+#~ msgid "_Modify"
+#~ msgstr "_Modifier"
+
+#~ msgid "Memo Modify"
+#~ msgstr "Changer mémo"
+
+#~ msgid "Server says:"
+#~ msgstr "Message du serveur :"
+
+#~ msgid "Your request was accepted."
+#~ msgstr "Votre requête a été acceptée."
+
+#~ msgid "Your request was rejected."
+#~ msgstr "Votre requête a été rejetée."
+
+#~ msgid "%u requires verification: %s"
+#~ msgstr "%u demande une vérification : %s"
+
+#~ msgid "Add buddy question"
+#~ msgstr "Ajouter une question pour les nouveaux contacts"
+
+#~ msgid "Enter answer here"
+#~ msgstr "Saisissez la réponse ici"
+
+#~ msgid "Send"
+#~ msgstr "Envoyer"
+
+#~ msgid "Transfer was closed."
+#~ msgstr "Le transfert a été interrompu."
+
+#~ msgid "Failed to open in-band bytestream"
+#~ msgstr "Impossible d'ouvrir le flux de données in-band"
+
+#~ msgid "Set your friendly name."
+#~ msgstr "Changer l'alias"
+
+#~ msgid "Error requesting %s"
+#~ msgstr "Erreur à la demande de %s"
+
+#~ msgid "The certificate has expired and should not be considered valid."
+#~ msgstr "Le certificat a expiré et ne devrait pas être considéré valide."
+
+#~ msgid "The name you entered is invalid."
+#~ msgstr "Le nom saisi est non valide."
+
+#~ msgid "The certificate is not valid yet."
+#~ msgstr "Le certificat n'est pas encore valide."
+
+#~ msgid "The nick name you entered is invalid."
+#~ msgstr "Le pseudo saisi est non valide."
+
+#~ msgid "Nick Name"
+#~ msgstr "Pseudonyme"
+
+#~ msgid "Your Mobile Number..."
+#~ msgstr "Votre numéro de téléphone portable..."
+
+#~ msgid "Rate to host"
+#~ msgstr "Fréquence vers l'hôte"
+
+#~ msgid "Rate to client"
+#~ msgstr "Fréquence vers le client"
+
+#~ msgid "/Media/_Hangup"
+#~ msgstr "/Média/_Raccrocher"
+
 #~ msgid "Unknown reason."
 #~ msgstr "Erreur inconnue"
 
@@ -15475,9 +15333,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 #~ msgid "Unknown error."
 #~ msgstr "Erreur inconnue"
 
-#~ msgid "%s on %s (%s)"
-#~ msgstr "%s pour %s (%s)"
-
 #~ msgid "Unable to add user on %s (%s)"
 #~ msgstr "Impossible d'ajouter l'utilisateur à la liste de %s (%s)"
 
@@ -15507,36 +15362,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 
 #~ msgid "%s has removed you from his or her buddy list."
 #~ msgstr "L'utilisateur %s vous a supprimé de sa liste de contacts."
-
-#~ msgid "Debugging Information"
-#~ msgstr "Informations de debug"
-
-#~ msgid ""
-#~ "Unrecognized file type\n"
-#~ "\n"
-#~ "Defaulting to PNG."
-#~ msgstr ""
-#~ "Type de fichier non reconnu.\n"
-#~ "\n"
-#~ "Le type PNG est utilisé par défaut."
-
-#~ msgid ""
-#~ "Error saving image\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Erreur à l'enregistrement de l'image\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid "Failed to open file '%s': %s"
-#~ msgstr "Impossible d'ouvrir le fichier « %s » : %s"
-
-#~ msgid ""
-#~ "Failed to load image '%s': reason not known, probably a corrupt image file"
-#~ msgstr ""
-#~ "Impossible de charger l'image « %s » : la raison est inconnue, le fichier "
-#~ "est peut-être endommagé."
 
 #~ msgid "Insert an <iq/> stanza."
 #~ msgstr "Insérer un bloc <iq/>."
@@ -15569,9 +15394,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 
 #~ msgid "Auto-away"
 #~ msgstr "Absence automatique"
-
-#~ msgid "Change _status to:"
-#~ msgstr "_Changer l'état en :"
 
 #~ msgid "Send instant messages over multiple protocols"
 #~ msgstr "Envoie des messages instantanés en utilisant divers protocoles"
@@ -15645,24 +15467,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 #~ msgid "Multi-User Chat Extended Presence Information"
 #~ msgstr "Informations de présence des discussions multi-utilisateurs"
 
-#~ msgid "In-Band Bytestreams"
-#~ msgstr "Flux de données intrabandes"
-
-#~ msgid "Ad-Hoc Commands"
-#~ msgstr "Commandes ad-hoc"
-
-#~ msgid "SOCKS5 Bytestreams"
-#~ msgstr "Flux de données SOCKS5"
-
-#~ msgid "Out of Band Data"
-#~ msgstr "Données hors de la bande passante"
-
-#~ msgid "In-Band Registration"
-#~ msgstr "Enregistrement intrabande"
-
-#~ msgid "User Location"
-#~ msgstr "Position de l'utilisateur"
-
 #~ msgid "User Avatar"
 #~ msgstr "Avatar de l'utilisateur"
 
@@ -15671,9 +15475,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 
 #~ msgid "Software Version"
 #~ msgstr "Version du logiciel"
-
-#~ msgid "Stream Initiation"
-#~ msgstr "Initialisation de flux"
 
 #~ msgid "User Activity"
 #~ msgstr "Activité de l'utilisateur"
@@ -15729,15 +15530,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 #~ msgid "File Repository and Sharing"
 #~ msgstr "Répertoire de fichier et partage"
 
-#~ msgid "STUN Service Discovery for Jingle"
-#~ msgstr "Service de découverte STUN pour Jingle"
-
-#~ msgid "Simplified Encrypted Session Negotiation"
-#~ msgstr "Négociation de session chiffré simplifiée"
-
-#~ msgid "Hop Check"
-#~ msgstr "Vérifications des bonds"
-
 #~ msgid "Read Error"
 #~ msgstr "Erreur de lecture"
 
@@ -15777,9 +15569,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 #~ msgid "Connection closed (writing)"
 #~ msgstr "Connexion terminée (en écriture)"
 
-#~ msgid "Connection reset"
-#~ msgstr "Connexion remise à zéro"
-
 #~ msgid "Error reading from socket: %s"
 #~ msgstr "Erreur à la lecture du socket : %s"
 
@@ -15807,13 +15596,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 #~ msgid "Could not resolve host name"
 #~ msgstr "Impossible de résoudre le nom de l'hôte."
 
-#~ msgid ""
-#~ "Unable to connect to %s: Server requires TLS/SSL, but no TLS/SSL support "
-#~ "was found."
-#~ msgstr ""
-#~ "Impossible de se connecter à %s : TLS/SSL est nécessaire mais aucun "
-#~ "support n'est disponible."
-
 #~ msgid "_Proxy"
 #~ msgstr "Serveur _mandataire"
 
@@ -15826,9 +15608,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 #~ msgid "Please provide a shortcut to associate with the smiley."
 #~ msgstr "Veuillez fournir un raccourci correspondant à cette frimousse."
 
-#~ msgid "Please select an image for the smiley."
-#~ msgstr "Veuillez choisir une image pour cette frimousse."
-
 #~ msgid "Cursor Color"
 #~ msgstr "Couleur du curseur"
 
@@ -15840,9 +15619,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 
 #~ msgid "Widget Sizes"
 #~ msgstr "Tailles des éléments"
-
-#~ msgid "Invite message"
-#~ msgstr "Message d'invitation"
 
 #~ msgid ""
 #~ "Please enter the name of the user you wish to invite,\n"
@@ -15952,7 +15728,7 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 #~ msgid "Could not open %s for writing!"
 #~ msgstr "Impossible d'ouvrir %s pour l'écriture"
 
-#~ msgid "File transfer failed; other side probably canceled."
+#~ msgid "File transfer failed; other side probably cancelled."
 #~ msgstr ""
 #~ "Échec du transfert de fichier. Annulation probable du correspondant."
 
@@ -15995,9 +15771,6 @@ msgstr "Vous n'avez pas les permissions pour supprimer cette application."
 
 #~ msgid "Failed to send IM."
 #~ msgstr "Impossible d'envoyer le message."
-
-#~ msgid "User information for %s unavailable"
-#~ msgstr "Les informations sur %s ne sont pas disponibles"
 
 #~ msgid "Someone says your screen name in chat"
 #~ msgstr "Quelqu'un dit votre nom d'utilisateur dans la discussion"

@@ -61,15 +61,12 @@ typedef enum
 
 #define MSN_LOGIN_FQY_TIMEOUT 30
 
-#include "group.h"
-#include "httpconn.h"
+#define MSN_LOGIN_FQY_TIMEOUT 30
+
 #include "nexus.h"
 #include "notification.h"
 #include "oim.h"
-#include "slpcall.h"
-#include "sslconn.h"
 #include "switchboard.h"
-#include "sync.h"
 #include "user.h"
 #include "userlist.h"
 
@@ -82,17 +79,17 @@ struct _MsnSession
 
 	MsnLoginStep login_step; /**< The current step in the login process. */
 
-	gboolean connected;
-	gboolean logged_in; /**< A temporal flag to ignore local buddy list adds. */
+	gboolean connected:1;
+	gboolean logged_in:1; /**< A temporal flag to ignore local buddy list adds. */
+	gboolean destroying:1; /**< A flag that states if the session is being destroyed. */
+	gboolean http_method:1;
+	gboolean enable_mpop:1; /**< Use Multiple Points of Presence? */
 	int      adl_fqy; /**< A count of ADL/FQY so status is only changed once. */
 	guint    login_timeout; /**< Timeout to force status change if ADL/FQY fail. */
-	gboolean destroying; /**< A flag that states if the session is being destroyed. */
-	gboolean http_method;
 
 	MsnNotification *notification;
 	MsnNexus        *nexus;
 	MsnOim          *oim;
-	MsnSync         *sync;
 	MsnUserList     *userlist;
 	char            *abch_cachekey;
 
@@ -109,7 +106,6 @@ struct _MsnSession
 
 	struct
 	{
-		char *kv;
 		char *sid;
 		char *mspauth;
 		unsigned long sl;
@@ -122,6 +118,9 @@ struct _MsnSession
 
 	GHashTable *soap_table;
 	guint soap_cleanup_handle;
+	char *guid;
+
+	GSList *url_datas; /**< PurpleUtilFetchUrlData to be cancelled on exit */
 };
 
 /**

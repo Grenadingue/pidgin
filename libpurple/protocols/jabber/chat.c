@@ -70,7 +70,7 @@ GList *jabber_chat_info(PurpleConnection *gc)
 GHashTable *jabber_chat_info_defaults(PurpleConnection *gc, const char *chat_name)
 {
 	GHashTable *defaults;
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
 
 	defaults = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
 
@@ -146,7 +146,7 @@ JabberChat *jabber_chat_find_by_conv(PurpleConversation *conv)
 	int id;
 	if (!gc)
 		return NULL;
-	js = gc->proto_data;
+	js = purple_connection_get_protocol_data(gc);
 	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
 	return jabber_chat_find_by_id(js, id);
 }
@@ -154,7 +154,7 @@ JabberChat *jabber_chat_find_by_conv(PurpleConversation *conv)
 void jabber_chat_invite(PurpleConnection *gc, int id, const char *msg,
 		const char *name)
 {
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberChat *chat;
 	xmlnode *message, *body, *x, *invite;
 	char *room_jid;
@@ -173,8 +173,10 @@ void jabber_chat_invite(PurpleConnection *gc, int id, const char *msg,
 		xmlnode_set_namespace(x, "http://jabber.org/protocol/muc#user");
 		invite = xmlnode_new_child(x, "invite");
 		xmlnode_set_attrib(invite, "to", name);
-		body = xmlnode_new_child(invite, "reason");
-		xmlnode_insert_data(body, msg, -1);
+		if (msg) {
+			body = xmlnode_new_child(invite, "reason");
+			xmlnode_insert_data(body, msg, -1);
+		}
 	} else {
 		xmlnode_set_attrib(message, "to", name);
 		/*
@@ -184,14 +186,17 @@ void jabber_chat_invite(PurpleConnection *gc, int id, const char *msg,
 		 *
 		 * Left here for compatibility.
 		 */
-		body = xmlnode_new_child(message, "body");
-		xmlnode_insert_data(body, msg, -1);
+		if (msg) {
+			body = xmlnode_new_child(message, "body");
+			xmlnode_insert_data(body, msg, -1);
+		}
 
 		x = xmlnode_new_child(message, "x");
 		xmlnode_set_attrib(x, "jid", room_jid);
 
 		/* The better place for it! XEP-0249 style. */
-		xmlnode_set_attrib(x, "reason", msg);
+		if (msg)
+			xmlnode_set_attrib(x, "reason", msg);
 		xmlnode_set_namespace(x, "jabber:x:conference");
 	}
 
@@ -232,6 +237,7 @@ static JabberChat *jabber_chat_new(JabberStream *js, const char *room,
 
 	chat = g_new0(JabberChat, 1);
 	chat->js = js;
+	chat->joined = 0;
 
 	chat->room = g_strdup(room);
 	chat->server = g_strdup(server);
@@ -275,6 +281,14 @@ JabberChat *jabber_join_chat(JabberStream *js, const char *room,
 
 	char *jid;
 
+	char *history_maxchars;
+	char *history_maxstanzas;
+	char *history_seconds;
+	char *history_since;
+
+	struct tm history_since_datetime;
+	const char *history_since_string = NULL;
+
 	chat = jabber_chat_new(js, room, server, handle, password, data);
 	if (chat == NULL)
 		return NULL;
@@ -291,12 +305,49 @@ JabberChat *jabber_join_chat(JabberStream *js, const char *room,
 	xmlnode_set_attrib(presence, "to", jid);
 	g_free(jid);
 
+	history_maxchars   = g_hash_table_lookup(data, "history_maxchars");
+	history_maxstanzas = g_hash_table_lookup(data, "history_maxstanzas");
+	history_seconds    = g_hash_table_lookup(data, "history_seconds");
+	history_since      = g_hash_table_lookup(data, "history_since");
+
+	if (history_since) {
+		if (purple_str_to_time(history_since, TRUE, &history_since_datetime, NULL, NULL) != 0) {
+			history_since_string = purple_utf8_strftime("%Y-%m-%dT%H:%M:%SZ", &history_since_datetime);
+		} else {
+			history_since_string = NULL;
+
+			purple_debug_error("jabber", "Invalid date format for history_since"
+			                             " while requesting history: %s", history_since);
+		}
+	}
+
 	x = xmlnode_new_child(presence, "x");
 	xmlnode_set_namespace(x, "http://jabber.org/protocol/muc");
 
 	if (password && *password) {
 		xmlnode *p = xmlnode_new_child(x, "password");
 		xmlnode_insert_data(p, password, -1);
+	}
+
+	if ((history_maxchars && *history_maxchars)
+	    || (history_maxstanzas && *history_maxstanzas)
+	    || (history_seconds && *history_seconds)
+	    || (history_since_string && *history_since_string)) {
+
+		xmlnode *history = xmlnode_new_child(x, "history");
+
+		if (history_maxchars && *history_maxchars) {
+			xmlnode_set_attrib(history, "maxchars", history_maxchars);
+		}
+		if (history_maxstanzas && *history_maxstanzas) {
+			xmlnode_set_attrib(history, "maxstanzas", history_maxstanzas);
+		}
+		if (history_seconds && *history_seconds) {
+			xmlnode_set_attrib(history, "seconds", history_seconds);
+		}
+		if (history_since_string && *history_since_string) {
+			xmlnode_set_attrib(history, "since", history_since_string);
+		}
 	}
 
 	jabber_send(js, presence);
@@ -309,7 +360,7 @@ void jabber_chat_join(PurpleConnection *gc, GHashTable *data)
 {
 	char *room, *server, *handle, *passwd;
 	JabberID *jid;
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
 	char *tmp;
 
 	room = g_hash_table_lookup(data, "room");
@@ -367,9 +418,8 @@ void jabber_chat_join(PurpleConnection *gc, GHashTable *data)
 
 void jabber_chat_leave(PurpleConnection *gc, int id)
 {
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberChat *chat = jabber_chat_find_by_id(js, id);
-
 
 	if(!chat)
 		return;
@@ -408,7 +458,7 @@ gboolean jabber_chat_find_buddy(PurpleConversation *conv, const char *name)
 
 char *jabber_chat_buddy_real_name(PurpleConnection *gc, int id, const char *who)
 {
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
 	JabberChat *chat;
 	JabberChatMember *jcm;
 
@@ -836,13 +886,13 @@ static void roomlist_ok_cb(JabberStream *js, const char *server)
 
 char *jabber_roomlist_room_serialize(PurpleRoomlistRoom *room)
 {
-
-	return g_strdup_printf("%s@%s", (char*)room->fields->data, (char*)room->fields->next->data);
+	GList *fields = purple_roomlist_room_get_fields(room);
+	return g_strdup_printf("%s@%s", (char*)fields->data, (char*)fields->next->data);
 }
 
 PurpleRoomlist *jabber_roomlist_get_list(PurpleConnection *gc)
 {
-	JabberStream *js = gc->proto_data;
+	JabberStream *js = purple_connection_get_protocol_data(gc);
 	GList *fields = NULL;
 	PurpleRoomlistField *f;
 
@@ -877,11 +927,13 @@ PurpleRoomlist *jabber_roomlist_get_list(PurpleConnection *gc)
 
 void jabber_roomlist_cancel(PurpleRoomlist *list)
 {
+	PurpleAccount *account;
 	PurpleConnection *gc;
 	JabberStream *js;
 
-	gc = purple_account_get_connection(list->account);
-	js = gc->proto_data;
+	account = purple_roomlist_get_account(list);
+	gc = purple_account_get_connection(account);
+	js = purple_connection_get_protocol_data(gc);
 
 	purple_roomlist_set_in_progress(list, FALSE);
 

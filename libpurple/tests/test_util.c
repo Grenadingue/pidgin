@@ -90,7 +90,9 @@ const char *valid_emails[] = {
 	"a@singleLetterLocal.org",
 	"singleLetterDomain@x.org",
 	"&*=?^+{}'~@validCharsInLocal.net",
-	"foor@bar.newTLD"
+	"foor@bar.newTLD",
+	"HenryTheGreatWhiteCricket@live.ca",
+	"HenryThe__WhiteCricket@hotmail.com"
 };
 
 const char *invalid_emails[] = {
@@ -156,6 +158,8 @@ START_TEST(test_util_str_to_time)
 {
 	fail_unless(377182200 == purple_str_to_time("19811214T12:50:00", TRUE, NULL, NULL, NULL));
 	fail_unless(1175919261 == purple_str_to_time("20070407T04:14:21", TRUE, NULL, NULL, NULL));
+	fail_unless(1282941722 == purple_str_to_time("2010-08-27.204202", TRUE, NULL, NULL, NULL));
+	fail_unless(1282941722 == purple_str_to_time("2010-08-27.134202-0700PDT", FALSE, NULL, NULL, NULL));
 }
 END_TEST
 
@@ -212,6 +216,13 @@ START_TEST(test_mime_decode_field)
 }
 END_TEST
 
+START_TEST(test_strdup_withhtml)
+{
+	gchar *result = purple_strdup_withhtml("hi\r\nthere\n");
+	assert_string_equal_free("hi<BR>there<BR>", result);
+}
+END_TEST
+
 Suite *
 util_suite(void)
 {
@@ -258,6 +269,10 @@ util_suite(void)
 
 	tc = tcase_create("MIME");
 	tcase_add_test(tc, test_mime_decode_field);
+	suite_add_tcase(s, tc);
+
+	tc = tcase_create("strdup_withhtml");
+	tcase_add_test(tc, test_strdup_withhtml);
 	suite_add_tcase(s, tc);
 
 	return s;
