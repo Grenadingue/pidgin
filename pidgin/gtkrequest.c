@@ -775,6 +775,7 @@ static void
 req_entry_field_changed_cb(GtkWidget *entry, PurpleRequestField *field)
 {
 	PurpleRequestFieldGroup *group;
+	PurpleRequestFields *fields;
 	PidginRequestData *req_data;
 
 	if (purple_request_field_string_is_multiline(field))
@@ -797,10 +798,11 @@ req_entry_field_changed_cb(GtkWidget *entry, PurpleRequestField *field)
 	}
 
 	group = purple_request_field_get_group(field);
-	req_data = (PidginRequestData *)group->fields_list->ui_data;
+	fields = purple_request_field_group_get_fields_list(group);
+	req_data = purple_request_fields_get_ui_data(fields);
 
 	gtk_widget_set_sensitive(req_data->ok_button,
-		purple_request_fields_all_required_filled(group->fields_list));
+		purple_request_fields_all_required_filled(fields));
 }
 
 static void
@@ -822,7 +824,7 @@ setup_entry_field(GtkWidget *entry, PurpleRequestField *field)
 		{
 			GtkWidget *optmenu = NULL;
 			PurpleRequestFieldGroup *group = purple_request_field_get_group(field);
-			GList *fields = group->fields;
+			GList *fields = purple_request_field_group_get_fields(group);
 
 			/* Ensure the account option menu is created (if the widget hasn't
 			 * been initialized already) for username auto-completion. */
@@ -1246,7 +1248,7 @@ pidgin_request_fields(const char *title, const char *primary,
 	data->user_data = user_data;
 	data->u.multifield.fields = fields;
 
-	fields->ui_data = data;
+	purple_request_fields_set_ui_data(fields, data);
 
 	data->cb_count = 2;
 	data->cbs = g_new0(GCallback, 2);
