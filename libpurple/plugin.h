@@ -240,9 +240,7 @@ struct _PurplePluginAction {
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+G_BEGIN_DECLS
 
 /**************************************************************************/
 /** @name Plugin API                                                      */
@@ -664,8 +662,6 @@ PurplePluginAction *purple_plugin_action_new(const char* label, void (*callback)
  */
 void purple_plugin_action_free(PurplePluginAction *action);
 
-#ifdef __cplusplus
-}
-#endif
+G_END_DECLS
 
 #endif /* _PURPLE_PLUGIN_H_ */

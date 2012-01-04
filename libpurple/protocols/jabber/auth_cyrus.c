@@ -165,7 +165,6 @@ static void
 auth_no_pass_cb(PurpleConnection *gc, PurpleRequestFields *fields)
 {
 	PurpleAccount *account;
-	JabberStream *js;
 
 	/* The password prompt dialog doesn't get disposed if the account disconnects */
 	if (!PURPLE_CONNECTION_IS_VALID(gc))
@@ -358,29 +357,29 @@ jabber_sasl_build_callbacks(JabberStream *js)
 
 	id = 0;
 	js->sasl_cb[id].id = SASL_CB_GETREALM;
-	js->sasl_cb[id].proc = jabber_sasl_cb_realm;
+	js->sasl_cb[id].proc = (void *)jabber_sasl_cb_realm;
 	js->sasl_cb[id].context = (void *)js;
 	id++;
 
 	js->sasl_cb[id].id = SASL_CB_AUTHNAME;
-	js->sasl_cb[id].proc = jabber_sasl_cb_simple;
+	js->sasl_cb[id].proc = (void *)jabber_sasl_cb_simple;
 	js->sasl_cb[id].context = (void *)js;
 	id++;
 
 	js->sasl_cb[id].id = SASL_CB_USER;
-	js->sasl_cb[id].proc = jabber_sasl_cb_simple;
+	js->sasl_cb[id].proc = (void *)jabber_sasl_cb_simple;
 	js->sasl_cb[id].context = (void *)js;
 	id++;
 
 	if (purple_connection_get_password(js->gc) != NULL) {
 		js->sasl_cb[id].id = SASL_CB_PASS;
-		js->sasl_cb[id].proc = jabber_sasl_cb_secret;
+		js->sasl_cb[id].proc = (void *)jabber_sasl_cb_secret;
 		js->sasl_cb[id].context = (void *)js;
 		id++;
 	}
 
 	js->sasl_cb[id].id = SASL_CB_LOG;
-	js->sasl_cb[id].proc = jabber_sasl_cb_log;
+	js->sasl_cb[id].proc = (void *)jabber_sasl_cb_log;
 	js->sasl_cb[id].context = (void*)js;
 	id++;
 

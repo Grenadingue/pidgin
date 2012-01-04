@@ -172,9 +172,7 @@ struct _PurpleAccount
 	PurpleConnectionErrorInfo *current_error;	/**< Errors */
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+G_BEGIN_DECLS
 
 /**************************************************************************/
 /** @name Account API                                                     */
@@ -1209,8 +1207,6 @@ void purple_accounts_uninit(void);
 
 /*@}*/
 
-#ifdef __cplusplus
-}
-#endif
+G_END_DECLS
 
 #endif /* _PURPLE_ACCOUNT_H_ */
