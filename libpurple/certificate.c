@@ -275,7 +275,7 @@ purple_certificate_signed_by(PurpleCertificate *crt, PurpleCertificate *issuer)
 }
 
 gboolean
-purple_certificate_check_signature_chain_with_failing(GList *chain,
+purple_certificate_check_signature_chain(GList *chain,
                                                       PurpleCertificate **failing)
 {
 	GList *cur;
@@ -361,12 +361,6 @@ purple_certificate_check_signature_chain_with_failing(GList *chain,
 	/* If control reaches this point, the chain is valid */
 	purple_debug_info("certificate", "Chain is VALID\n");
 	return TRUE;
-}
-
-gboolean
-purple_certificate_check_signature_chain(GList *chain)
-{
-	return purple_certificate_check_signature_chain_with_failing(chain, NULL);
 }
 
 PurpleCertificate *
@@ -503,6 +497,24 @@ purple_certificate_get_times(PurpleCertificate *crt, time_t *activation, time_t 
 
 	/* Throw the request on down to the certscheme */
 	return (scheme->get_times)(crt, activation, expiration);
+}
+
+GByteArray *
+purple_certificate_get_der_data(PurpleCertificate *crt)
+{
+	PurpleCertificateScheme *scheme;
+	GByteArray *data;
+
+	g_return_val_if_fail(crt, NULL);
+	g_return_val_if_fail(crt->scheme, NULL);
+
+	scheme = crt->scheme;
+
+	g_return_val_if_fail(scheme->get_der_data, NULL);
+
+	data = (scheme->get_der_data)(crt);
+
+	return data;
 }
 
 gchar *
@@ -1622,7 +1634,7 @@ x509_tls_cached_unknown_peer(PurpleCertificateVerificationRequest *vrq,
 	ca = purple_certificate_find_pool(x509_tls_cached.scheme_name, "ca");
 
 	/* Next, check that the certificate chain is valid */
-	if (!purple_certificate_check_signature_chain_with_failing(chain,
+	if (!purple_certificate_check_signature_chain(chain,
 				&failing_crt))
 	{
 		gboolean chain_validated = FALSE;
@@ -1704,7 +1716,7 @@ x509_tls_cached_unknown_peer(PurpleCertificateVerificationRequest *vrq,
 		flags |= PURPLE_CERTIFICATE_CA_UNKNOWN;
 
 		purple_debug_warning("certificate/x509/tls_cached",
-				  "No Certificate Authorities with either DN found "
+				  "No Certificate Authorities with either DN "
 				  "found. I'll prompt the user, I guess.\n");
 
 		x509_tls_cached_check_subject_name(vrq, flags);

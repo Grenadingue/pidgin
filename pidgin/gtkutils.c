@@ -67,6 +67,8 @@
 #include "pidginstock.h"
 #include "gtkthemes.h"
 #include "gtkutils.h"
+#include "gtkwebview.h"
+#include "gtkwebviewtoolbar.h"
 #include "pidgin/minidialog.h"
 
 typedef struct {
@@ -124,6 +126,32 @@ pidgin_setup_imhtml(GtkWidget *imhtml)
 	}
 #endif
 
+}
+
+void
+pidgin_setup_webview(GtkWidget *webview)
+{
+	g_return_if_fail(webview != NULL);
+	g_return_if_fail(GTK_IS_WEBVIEW(webview));
+
+#if 0
+/* TODO: WebKit this stuff... */
+	pidgin_themes_smiley_themeize(webview);
+#endif
+
+#ifdef _WIN32
+	if (!purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/use_theme_font")) {
+		WebKitWebSettings *settings = webkit_web_settings_new();
+		g_object_set(G_OBJECT(settings), "default-font-size",
+		             purple_prefs_get_int(PIDGIN_PREFS_ROOT "/conversations/font_size"),
+		             NULL);
+		g_object_set(G_OBJECT(settings), "default-font-family",
+		             purple_prefs_get_string(PIDGIN_PREFS_ROOT "/conversations/custom_font"),
+		             NULL);
+
+		webkit_web_view_set_settings(WEBKIT_WEB_VIEW(webview), settings);
+	}
+#endif
 }
 
 static
@@ -266,6 +294,67 @@ pidgin_create_imhtml(gboolean editable, GtkWidget **imhtml_ret, GtkWidget **tool
 
 	if (imhtml_ret != NULL)
 		*imhtml_ret = imhtml;
+
+	if (editable && (toolbar_ret != NULL))
+		*toolbar_ret = toolbar;
+
+	if (sw_ret != NULL)
+		*sw_ret = sw;
+
+	return frame;
+}
+
+GtkWidget *
+pidgin_create_webview(gboolean editable, GtkWidget **webview_ret, GtkWidget **toolbar_ret, GtkWidget **sw_ret)
+{
+	GtkWidget *frame;
+	GtkWidget *webview;
+	GtkWidget *sep;
+	GtkWidget *sw;
+	GtkWidget *toolbar = NULL;
+	GtkWidget *vbox;
+
+	frame = gtk_frame_new(NULL);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_IN);
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), vbox);
+	gtk_widget_show(vbox);
+
+	if (editable) {
+		toolbar = gtk_webviewtoolbar_new();
+		gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
+		gtk_widget_show(toolbar);
+
+		sep = gtk_hseparator_new();
+		gtk_box_pack_start(GTK_BOX(vbox), sep, FALSE, FALSE, 0);
+		g_signal_connect_swapped(G_OBJECT(toolbar), "show", G_CALLBACK(gtk_widget_show), sep);
+		g_signal_connect_swapped(G_OBJECT(toolbar), "hide", G_CALLBACK(gtk_widget_hide), sep);
+		gtk_widget_show(sep);
+	}
+
+	webview = gtk_webview_new();
+	gtk_webview_set_editable(GTK_WEBVIEW(webview), editable);
+#ifdef USE_GTKSPELL
+	if (editable && purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/spellcheck"))
+		pidgin_setup_gtkspell(GTK_TEXT_VIEW(webview));
+#endif
+	gtk_widget_show(webview);
+
+	if (editable) {
+		gtk_webviewtoolbar_attach(GTK_WEBVIEWTOOLBAR(toolbar), webview);
+		gtk_webviewtoolbar_associate_smileys(GTK_WEBVIEWTOOLBAR(toolbar), "default");
+	}
+	pidgin_setup_webview(webview);
+
+	sw = pidgin_make_scrollable(webview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_NONE, -1, -1);
+	gtk_box_pack_start(GTK_BOX(vbox), sw, TRUE, TRUE, 0);
+
+	gtk_webview_set_vadjustment(GTK_WEBVIEW(webview),
+			gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(sw)));
+
+	if (webview_ret != NULL)
+		*webview_ret = webview;
 
 	if (editable && (toolbar_ret != NULL))
 		*toolbar_ret = toolbar;
@@ -922,24 +1011,6 @@ pidgin_account_option_menu_new(PurpleAccount *default_account,
 	return optmenu;
 }
 
-gboolean
-pidgin_check_if_dir(const char *path, GtkFileSelection *filesel)
-{
-	char *dirname = NULL;
-
-	if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
-		/* append a / if needed */
-		if (path[strlen(path) - 1] != G_DIR_SEPARATOR) {
-			dirname = g_strconcat(path, G_DIR_SEPARATOR_S, NULL);
-		}
-		gtk_file_selection_set_filename(filesel, (dirname != NULL) ? dirname : path);
-		g_free(dirname);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 void
 pidgin_setup_gtkspell(GtkTextView *textview)
 {
@@ -1002,7 +1073,7 @@ static void
 show_retrieveing_info(PurpleConnection *conn, const char *name)
 {
 	PurpleNotifyUserInfo *info = purple_notify_user_info_new();
-	purple_notify_user_info_add_pair(info, _("Information"), _("Retrieving..."));
+	purple_notify_user_info_add_pair_plaintext(info, _("Information"), _("Retrieving..."));
 	purple_notify_userinfo(conn, name, info, NULL, NULL);
 	purple_notify_user_info_destroy(info);
 }
@@ -1023,7 +1094,7 @@ void pidgin_retrieve_user_info_in_chat(PurpleConnection *conn, const char *name,
 		return;
 	}
 
-	prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(conn->prpl);
+	prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(conn));
 	if (prpl_info != NULL && prpl_info->get_cb_real_name)
 		who = prpl_info->get_cb_real_name(conn, chat, name);
 	if (prpl_info == NULL || prpl_info->get_cb_info == NULL) {
@@ -1149,7 +1220,7 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 					gc = (PurpleConnection *)l->data;
 					account = purple_connection_get_account(gc);
 
-					prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(gc->prpl);
+					prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(gc));
 				}
 
 				protoname = prpl_info->list_icon(account, NULL);
@@ -1191,7 +1262,7 @@ pidgin_parse_x_im_contact(const char *msg, gboolean all_accounts,
 						gc = (PurpleConnection *)l->data;
 						account = purple_connection_get_account(gc);
 
-						prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(gc->prpl);
+						prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(gc));
 					}
 
 					protoname = prpl_info->list_icon(account, NULL);
@@ -1308,7 +1379,7 @@ pidgin_menu_position_func_helper(GtkMenu *menu,
 
 	monitor_num = gdk_screen_get_monitor_at_point (screen, *x, *y);
 
-	push_in = FALSE;
+	*push_in = FALSE;
 
 	/*
 	 * The placement of popup menus horizontally works like this (with
@@ -1603,7 +1674,7 @@ pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char 
 			data->account = account;
 
 			if (gc)
-				prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(gc->prpl);
+				prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(gc));
 
 			if (prpl_info && prpl_info->options & OPT_PROTO_IM_IMAGE)
 				im = TRUE;
@@ -1834,21 +1905,27 @@ pidgin_append_menu_action(GtkWidget *menu, PurpleMenuAction *act,
                             gpointer object)
 {
 	GtkWidget *menuitem;
+	GList *list;
 
 	if (act == NULL) {
 		return pidgin_separator(menu);
 	}
 
-	if (act->children == NULL) {
-		menuitem = gtk_menu_item_new_with_mnemonic(act->label);
+	list = purple_menu_action_get_children(act);
+	menuitem = gtk_menu_item_new_with_mnemonic(purple_menu_action_get_label(act));
 
-		if (act->callback != NULL) {
+	if (list == NULL) {
+		PurpleCallback callback;
+
+		callback = purple_menu_action_get_callback(act);
+
+		if (callback != NULL) {
 			g_object_set_data(G_OBJECT(menuitem),
 							  "purplecallback",
-							  act->callback);
+							  callback);
 			g_object_set_data(G_OBJECT(menuitem),
 							  "purplecallbackdata",
-							  act->data);
+							  purple_menu_action_get_data(act));
 			g_signal_connect(G_OBJECT(menuitem), "activate",
 							 G_CALLBACK(menu_action_cb),
 							 object);
@@ -1862,7 +1939,6 @@ pidgin_append_menu_action(GtkWidget *menu, PurpleMenuAction *act,
 		GtkWidget *submenu = NULL;
 		GtkAccelGroup *group;
 
-		menuitem = gtk_menu_item_new_with_mnemonic(act->label);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
 		submenu = gtk_menu_new();
@@ -1870,19 +1946,20 @@ pidgin_append_menu_action(GtkWidget *menu, PurpleMenuAction *act,
 
 		group = gtk_menu_get_accel_group(GTK_MENU(menu));
 		if (group) {
-			char *path = g_strdup_printf("%s/%s", GTK_MENU_ITEM(menuitem)->accel_path, act->label);
+			char *path = g_strdup_printf("%s/%s", GTK_MENU_ITEM(menuitem)->accel_path,
+					purple_menu_action_get_label(act));
 			gtk_menu_set_accel_path(GTK_MENU(submenu), path);
 			g_free(path);
 			gtk_menu_set_accel_group(GTK_MENU(submenu), group);
 		}
 
-		for (l = act->children; l; l = l->next) {
+		for (l = list; l; l = l->next) {
 			PurpleMenuAction *act = (PurpleMenuAction *)l->data;
 
 			pidgin_append_menu_action(submenu, act, object);
 		}
-		g_list_free(act->children);
-		act->children = NULL;
+		g_list_free(list);
+		purple_menu_action_set_children(act, NULL);
 	}
 	purple_menu_action_free(act);
 	return menuitem;
@@ -2082,8 +2159,8 @@ add_completion_list(PidginCompletionData *data)
 					add_buddyname_autocomplete_entry(data->store,
 														((PurpleContact *)cnode)->alias,
 														purple_buddy_get_contact_alias(entry.entry.buddy),
-														entry.entry.buddy->account,
-														entry.entry.buddy->name
+														purple_buddy_get_account(entry.entry.buddy),
+														purple_buddy_get_name(entry.entry.buddy)
 													 );
 				}
 			}
@@ -2175,18 +2252,11 @@ pidgin_screenname_autocomplete_default_filter(const PidginBuddyCompletionEntry *
 	gboolean all = GPOINTER_TO_INT(all_accounts);
 
 	if (completion_entry->is_buddy) {
-		return all || purple_account_is_connected(completion_entry->entry.buddy->account);
+		return all || purple_account_is_connected(purple_buddy_get_account(completion_entry->entry.buddy));
 	} else {
 		return all || (completion_entry->entry.logged_buddy->account != NULL && purple_account_is_connected(completion_entry->entry.logged_buddy->account));
 	}
 }
-
-void
-pidgin_setup_screenname_autocomplete(GtkWidget *entry, GtkWidget *accountopt, gboolean all) {
-	pidgin_setup_screenname_autocomplete_with_filter(entry, accountopt, pidgin_screenname_autocomplete_default_filter, GINT_TO_POINTER(all));
-}
-
-
 
 void pidgin_set_cursor(GtkWidget *widget, GdkCursorType cursor_type)
 {
@@ -2488,9 +2558,9 @@ pidgin_convert_buddy_icon(PurplePlugin *plugin, const char *path, size_t *len)
 					   the image. */
 					purple_debug_info("buddyicon", "Converted image from "
 							"%dx%d to %dx%d, format=%s, quality=%u, "
-							"filesize=%zu\n", orig_width, orig_height,
-							new_width, new_height, prpl_formats[i], quality,
-							length);
+							"filesize=%" G_GSIZE_FORMAT "\n",
+							orig_width, orig_height, new_width, new_height,
+							prpl_formats[i], quality, length);
 					if (len)
 						*len = length;
 					g_strfreev(prpl_formats);
@@ -2531,21 +2601,6 @@ pidgin_convert_buddy_icon(PurplePlugin *plugin, const char *path, size_t *len)
 	g_free(tmp);
 
 	return NULL;
-}
-
-void pidgin_set_custom_buddy_icon(PurpleAccount *account, const char *who, const char *filename)
-{
-	PurpleBuddy *buddy;
-	PurpleContact *contact;
-
-	buddy = purple_find_buddy(account, who);
-	if (!buddy) {
-		purple_debug_info("custom-icon", "You can only set custom icon for someone in your buddylist.\n");
-		return;
-	}
-
-	contact = purple_buddy_get_contact(buddy);
-	purple_buddy_icons_node_set_custom_icon_from_file((PurpleBlistNode*)contact, filename);
 }
 
 char *pidgin_make_pretty_arrows(const char *str)
@@ -3096,7 +3151,7 @@ static GObject *pidgin_pixbuf_from_data_helper(const guchar *buf, gsize count, g
 
 	if (!gdk_pixbuf_loader_write(loader, buf, count, &error) || error) {
 		purple_debug_warning("gtkutils", "gdk_pixbuf_loader_write() "
-				"failed with size=%zu: %s\n", count,
+				"failed with size=%" G_GSIZE_FORMAT ": %s\n", count,
 				error ? error->message : "(no error message)");
 		if (error)
 			g_error_free(error);
@@ -3106,7 +3161,7 @@ static GObject *pidgin_pixbuf_from_data_helper(const guchar *buf, gsize count, g
 
 	if (!gdk_pixbuf_loader_close(loader, &error) || error) {
 		purple_debug_warning("gtkutils", "gdk_pixbuf_loader_close() "
-				"failed for image of size %zu: %s\n", count,
+				"failed for image of size %" G_GSIZE_FORMAT ": %s\n", count,
 				error ? error->message : "(no error message)");
 		if (error)
 			g_error_free(error);
@@ -3120,7 +3175,7 @@ static GObject *pidgin_pixbuf_from_data_helper(const guchar *buf, gsize count, g
 		pixbuf = G_OBJECT(gdk_pixbuf_loader_get_pixbuf(loader));
 	if (!pixbuf) {
 		purple_debug_warning("gtkutils", "%s() returned NULL for image "
-				"of size %zu\n",
+				"of size %" G_GSIZE_FORMAT "\n",
 				animated ? "gdk_pixbuf_loader_get_animation"
 					: "gdk_pixbuf_loader_get_pixbuf", count);
 		g_object_unref(G_OBJECT(loader));
@@ -3450,7 +3505,7 @@ save_file_cb(GtkWidget *item, const char *url)
 		return TRUE;
 	purple_request_file(conv->active_conv, _("Save File"), NULL, TRUE,
 	                    G_CALLBACK(savefile_write_cb), NULL,
-	                    conv->active_conv->account, NULL, conv->active_conv,
+	                    purple_conversation_get_account(conv->active_conv), NULL, conv->active_conv,
 	                    (void *)url);
 	return TRUE;
 }
