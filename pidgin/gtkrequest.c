@@ -39,6 +39,12 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#ifdef ENABLE_GCR
+#define GCR_API_SUBJECT_TO_CHANGE
+#include <gcr/gcr.h>
+#include <gcr/gcr-simple-certificate.h>
+#endif
+
 #if !GTK_CHECK_VERSION(2,18,0)
 #define gtk_widget_set_can_default(x,y) do {\
 	if (y) \
@@ -1222,6 +1228,51 @@ create_list_field(PurpleRequestField *field)
 	return pidgin_make_scrollable(treeview, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC, GTK_SHADOW_IN, -1, -1);
 }
 
+static GtkWidget *
+create_certificate_field(PurpleRequestField *field)
+{
+	PurpleCertificate *cert;
+#ifdef ENABLE_GCR
+	GcrCertificateBasicsWidget *cert_widget;
+	GByteArray *der;
+	GcrCertificate *gcrt;
+#else
+	GtkWidget *cert_label;
+	char *str;
+	char *escaped;
+#endif
+
+	cert = purple_request_field_certificate_get_value(field);
+
+#ifdef ENABLE_GCR
+	der = purple_certificate_get_der_data(cert);
+	g_return_val_if_fail(der, NULL);
+
+	gcrt = gcr_simple_certificate_new(der->data, der->len);
+	g_return_val_if_fail(gcrt, NULL);
+
+	cert_widget = gcr_certificate_basics_widget_new(gcrt);
+
+	g_byte_array_free(der, TRUE);
+	g_object_unref(G_OBJECT(gcrt));
+
+	return GTK_WIDGET(cert_widget);
+#else
+	str = purple_certificate_get_display_string(cert);
+	escaped = g_markup_escape_text(str, -1);
+
+	cert_label = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(cert_label), escaped);
+	gtk_label_set_line_wrap(GTK_LABEL(cert_label), TRUE);
+	gtk_misc_set_alignment(GTK_MISC(cert_label), 0, 0);
+
+	g_free(str);
+	g_free(escaped);
+
+	return cert_label;
+#endif
+}
+
 static void *
 pidgin_request_fields(const char *title, const char *primary,
 						const char *secondary, PurpleRequestFields *fields,
@@ -1509,6 +1560,8 @@ pidgin_request_fields(const char *title, const char *primary,
 						widget = create_image_field(field);
 					else if (type == PURPLE_REQUEST_FIELD_ACCOUNT)
 						widget = create_account_field(field);
+					else if (type == PURPLE_REQUEST_FIELD_CERTIFICATE)
+						widget = create_certificate_field(field);
 					else
 						continue;
 				}
