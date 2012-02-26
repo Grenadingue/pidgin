@@ -5905,7 +5905,7 @@ private_gtkconv_new(PurpleConversation *conv, gboolean hidden)
 	if (convnode == NULL || !purple_blist_node_get_bool(convnode, "gtk-mute-sound"))
 		gtkconv->make_sound = TRUE;
 
-	if (convnode != NULL) {
+	if (convnode != NULL && purple_blist_node_has_setting(convnode, "enable-logging")) {
 		gboolean logging = purple_blist_node_get_bool(convnode, "enable-logging");
 		purple_conversation_set_logging(conv, logging);
 	}
@@ -6288,8 +6288,19 @@ replace_message_tokens(
 			replace = message;
 
 		} else if (g_str_has_prefix(cur, "%messageClasses%")) {
-			replace = flags & PURPLE_MESSAGE_SEND ? "outgoing" :
-				  flags & PURPLE_MESSAGE_RECV ? "incoming" : "event";
+			GString *classes = g_string_new(NULL);
+#define ADD_CLASS(f, class) \
+			if (flags & f) \
+				g_string_append(classes, class);
+			ADD_CLASS(PURPLE_MESSAGE_SEND, "outgoing ");
+			ADD_CLASS(PURPLE_MESSAGE_RECV, "incoming ");
+			ADD_CLASS(PURPLE_MESSAGE_SYSTEM, "event ");
+			ADD_CLASS(PURPLE_MESSAGE_AUTO_RESP, "autoreply ");
+			ADD_CLASS(PURPLE_MESSAGE_DELAYED, "history ");
+			ADD_CLASS(PURPLE_MESSAGE_NICK, "mention ");
+#undef ADD_CLASS
+
+			replace = freeval = g_string_free(classes, FALSE);
 
 		} else if (g_str_has_prefix(cur, "%time")) {
 			const char *tmp = cur + strlen("%time");
@@ -8367,6 +8378,7 @@ static gboolean
 add_message_history_to_gtkconv(gpointer data)
 {
 	PidginConversation *gtkconv = data;
+	GtkWebView *webview = GTK_WEBVIEW(gtkconv->webview);
 	int count = 0;
 	int timer = gtkconv->attach.timer;
 	time_t when = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(gtkconv->entry), "attach-start-time"));
@@ -8376,7 +8388,8 @@ add_message_history_to_gtkconv(gpointer data)
 	while (gtkconv->attach.current && count < 100) {  /* XXX: 100 is a random value here */
 		PurpleConvMessage *msg = gtkconv->attach.current->data;
 		if (!im && when && when < purple_conversation_message_get_timestamp(msg)) {
-			gtk_webview_append_html(GTK_WEBVIEW(gtkconv->webview), "<BR><HR>");
+			gtk_webview_append_html(webview, "<BR><HR>");
+			gtk_webview_scroll_to_end(webview, TRUE);
 			g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time", NULL);
 		}
 		pidgin_conv_write_conv(
@@ -8423,7 +8436,8 @@ add_message_history_to_gtkconv(gpointer data)
 					purple_conversation_message_get_flags(msg),
 					purple_conversation_message_get_timestamp(msg));
 		}
-		gtk_webview_append_html(GTK_WEBVIEW(gtkconv->webview), "<BR><HR>");
+		gtk_webview_append_html(webview, "<BR><HR>");
+		gtk_webview_scroll_to_end(webview, TRUE);
 		g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time", NULL);
 	}
 
@@ -8536,6 +8550,7 @@ pidgin_conversations_init(void)
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_bold", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_italic", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_underline", FALSE);
+	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/send_strike", FALSE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/spellcheck", TRUE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/show_incoming_formatting", TRUE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/resize_custom_smileys", TRUE);
