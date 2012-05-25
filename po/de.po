@@ -2,7 +2,7 @@
 # Pidgin German translation
 # Copyright (C) 2001, Daniel Seifert <Pidgin-translation@dseifert.de>
 # Copyright (C) 2002, Karsten Weiss <knweiss@gmx.de>
-# Copyright (C) 2002-2011, Björn Voigt <bjoern@cs.tu-berlin.de>,
+# Copyright (C) 2002-2012, Björn Voigt <bjoern@cs.tu-berlin.de>,
 #                     Jochen Kemnade <jochenkemnade@web.de>
 #
 # This file is distributed under the same license as the Pidgin package.
@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-11 10:41+0100\n"
-"PO-Revision-Date: 2011-12-11 10:40+0100\n"
-"Last-Translator: Jochen Kemnade <jochenkemnade@web.de>\n"
+"POT-Creation-Date: 2012-04-20 10:02+0200\n"
+"PO-Revision-Date: 2012-04-20 10:02+0200\n"
+"Last-Translator: Björn Voigt <bjoern@cs.tu-berlin.de>\n"
 "Language-Team: German <de@li.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -49,6 +49,17 @@ msgstr ""
 "  -h, --help          zeigt diese Hilfe und beendet das Programm\n"
 "  -n, --nologin       nicht automatisch anmelden\n"
 "  -v, --version       zeigt aktuelle Version und beendet das Programm\n"
+
+#, c-format
+msgid ""
+"%s encountered errors migrating your settings from %s to %s. Please "
+"investigate and complete the migration by hand. Please report this error at "
+"http://developer.pidgin.im"
+msgstr ""
+"%s ist beim Übertragen Ihrer Einstellungen von %s nach %s auf Fehler "
+"gestoßen. Bitte untersuchen Sie das Problem und vervollständigen Sie die "
+"Migration per Hand. Bitte melden Sie diesen Fehler auf http://developer."
+"pidgin.im"
 
 #. the user did not fill in the captcha
 msgid "Error"
@@ -202,8 +213,6 @@ msgstr "Das gewählte Konto ist nicht online."
 msgid "Error adding buddy"
 msgstr "Fehler beim Hinzufügen des Buddys"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Username"
 msgstr "Benutzer"
 
@@ -337,11 +346,7 @@ msgstr "Markierung umkehren"
 msgid "View Log"
 msgstr "Mitschnitt anzeigen"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 #. General
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Nickname"
 msgstr "Spitzname"
 
@@ -795,11 +800,7 @@ msgid "Remaining"
 msgstr "Verbleibend"
 
 #. XXX: Use of ggp_str_to_uin() is an ugly hack!
-#. TODO: Check whether it's correct to call prepend_pair_html,
-#. or if we should be using prepend_pair_plaintext
 #. presence
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Status"
 msgstr "Status"
 
@@ -913,7 +914,7 @@ msgid "Reject"
 msgstr "Ablehnen"
 
 msgid "Call in progress."
-msgstr "Anruf im Gange."
+msgstr "Verbindungsaufbau."
 
 msgid "The call has been terminated."
 msgstr "Der Anruf wurde beendet."
@@ -1388,8 +1389,6 @@ msgstr "Titel"
 msgid "Type"
 msgstr "Typ"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 #. Statuses are almost all the same. Define a macro to reduce code repetition.
 #. PurpleStatusPrimitive
 #. id - use default
@@ -1398,8 +1397,6 @@ msgstr "Typ"
 #. user_settable
 #. not independent
 #. Attributes - each status can have a message.
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Message"
 msgstr "Nachricht"
 
@@ -2277,6 +2274,9 @@ msgstr ""
 msgid "A non-recoverable Farsight2 error has occurred."
 msgstr "Ein nicht behebbarer Farsight2-Fehler ist aufgetreten."
 
+msgid "A non-recoverable Farstream error has occurred."
+msgstr "Ein nicht behebbarer Farstream-Fehler ist aufgetreten."
+
 msgid "Error with your microphone"
 msgstr "Fehler mit Ihrem Mikrofon"
 
@@ -3028,29 +3028,19 @@ msgid ""
 msgstr "Keine Verbindung zum lokalen mDNS-Server. Ist er aktiviert?"
 
 # old strings
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "First name"
 msgstr "Vorname"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Last name"
 msgstr "Nachname"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 #. email
 msgid "Email"
 msgstr "E-Mail"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "AIM Account"
 msgstr "AIM-Konto"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "XMPP Account"
 msgstr "XMPP-Konto"
 
@@ -3165,8 +3155,6 @@ msgstr "Registrierung eines neuen Gadu-Gadu-Kontos"
 msgid "Please, fill in the following fields"
 msgstr "Bitte füllen Sie die folgenden Felder aus"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "City"
 msgstr "Stadt"
 
@@ -3174,8 +3162,6 @@ msgid "Year of birth"
 msgstr "Geburtsjahr"
 
 #. gender
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Gender"
 msgstr "Geschlecht"
 
@@ -3198,35 +3184,26 @@ msgstr "Suche Buddys"
 msgid "Please, enter your search criteria below"
 msgstr "Bitte geben Sie Ihre Suchkriterien unten ein"
 
+msgid "Fill in the fields."
+msgstr "Füllen Sie die Felder aus."
+
+msgid "Your current password is different from the one that you specified."
+msgstr "Ihr aktuelles Passwort ist anders als das angegebene."
+
+msgid "Unable to change password. Error occurred.\n"
+msgstr "Konnte das Passwort nicht ändern. Es trat ein Fehler auf.\n"
+
 msgid "Change password for the Gadu-Gadu account"
 msgstr "Ändern des Passworts für dieses Gadu-Gadu-Konto"
 
 msgid "Password was changed successfully!"
 msgstr "Das Passwort wurde erfolgreich geändert!"
 
-msgid "Unable to change password. Error occurred.\n"
-msgstr "Konnte das Passwort nicht ändern. Es trat ein Fehler auf.\n"
-
-msgid "Fill in the fields."
-msgstr "Füllen Sie die Felder aus."
-
-msgid "New password should be at most 15 characters long."
-msgstr "Das neue Passwort darf maximal 15 Zeichen lang sein."
-
-msgid "Your current password is different from the one that you specified."
-msgstr "Ihr aktuelles Passwort ist anders als das angegebene."
-
-msgid "Invalid email address"
-msgstr "Ungültige E-Mail-Adresse"
-
 msgid "Current password"
 msgstr "Aktuelles Passwort"
 
 msgid "Password (retype)"
 msgstr "Passwort (nochmal)"
-
-msgid "Email Address"
-msgstr "E-Mail-Adresse"
 
 msgid "Enter current token"
 msgstr "Geben Sie das aktuelle Token ein"
@@ -3283,20 +3260,14 @@ msgstr "Nicht stören"
 msgid "Away"
 msgstr "Abwesend"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "UIN"
 msgstr "UIN"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 #. first name
 #. optional information
 msgid "First Name"
 msgstr "Vorname"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Birth Year"
 msgstr "Geburtsjahr"
 
@@ -3336,30 +3307,6 @@ msgstr "Ihre Buddy-Liste wurde auf dem Server gespeichert."
 msgid "Connected"
 msgstr "Verbunden"
 
-msgid "Unable to resolve hostname"
-msgstr "Hostname konnte nicht aufgelöst werden"
-
-msgid "Incorrect password"
-msgstr "Falsches Passwort"
-
-msgid "SSL Connection Failed"
-msgstr "SSL-Verbindung gescheitert"
-
-msgid ""
-"Your account has been disabled because too many incorrect passwords were "
-"entered"
-msgstr ""
-"Ihr Konto wurde wegen zu vielen falsch eingegebenen Passworten gesperrt"
-
-msgid "Service temporarily unavailable"
-msgstr "Dienst momentan nicht verfügbar"
-
-msgid "Error connecting to proxy server"
-msgstr "Fehler beim Verbinden mit dem Proxy-Server"
-
-msgid "Error connecting to master server"
-msgstr "Fehler beim Verbinden mit dem Master-Server"
-
 msgid "Connection failed"
 msgstr "Verbindung fehlgeschlagen"
 
@@ -3368,12 +3315,6 @@ msgstr "Zum Chat hinzufügen"
 
 msgid "Chat _name:"
 msgstr "Chat_name:"
-
-msgid "The username specified is invalid."
-msgstr "Der angegebene Benutzername ist ungültig."
-
-msgid "SSL support unavailable"
-msgstr "SSL-Unterstützung nicht verfügbar"
 
 #, c-format
 msgid "Unable to resolve hostname '%s': %s"
@@ -3393,11 +3334,11 @@ msgstr "Dieser Chatname existiert bereits"
 msgid "Not connected to the server"
 msgstr "Nicht mit dem Server verbunden"
 
-msgid "Change password..."
-msgstr "Passwort ändern..."
-
 msgid "Find buddies..."
 msgstr "Finde Buddys..."
+
+msgid "Change password..."
+msgstr "Passwort ändern..."
 
 msgid "Upload buddylist to Server"
 msgstr "Buddy-Liste zum Server hochladen"
@@ -3429,23 +3370,24 @@ msgstr "Gadu-Gadu-Protokoll-Plugin"
 msgid "Polish popular IM"
 msgstr "Beliebter polnischer IM-Dienst"
 
+msgid "Gadu-Gadu User"
+msgstr "Gadu-Gadu-Benutzer"
+
 msgid "GG server"
 msgstr "GG-Server"
-
-msgid "Use encryption if available"
-msgstr "Verschlüsselung benutzen, wenn verfügbar"
-
-msgid "Require encryption"
-msgstr "Verschlüsselung fordern"
 
 msgid "Don't use encryption"
 msgstr "Keine Verschlüsselung benutzen"
 
+msgid "Use encryption if available"
+msgstr "Verschlüsselung benutzen, wenn verfügbar"
+
+#. TODO
+msgid "Require encryption"
+msgstr "Verschlüsselung fordern"
+
 msgid "Connection security"
 msgstr "Verbindungssicherheit"
-
-msgid "Show links from strangers"
-msgstr "Links von Fremden anzeigen"
 
 #, c-format
 msgid "Unknown command: %s"
@@ -3499,6 +3441,9 @@ msgstr "_Passwort:"
 msgid "IRC nick and server may not contain whitespace"
 msgstr "IRC-Server und -Spitzname dürfen keinen Leerraum enthalten"
 
+msgid "SSL support unavailable"
+msgstr "SSL-Unterstützung nicht verfügbar"
+
 msgid "Unable to connect"
 msgstr "Verbindung nicht möglich"
 
@@ -3533,8 +3478,6 @@ msgid "The IRC Protocol Plugin that Sucks Less"
 msgstr "Das IRC-Protokoll-Plugin mit weniger Problemen"
 
 #. set up account ID as user:server
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Server"
 msgstr "Server"
 
@@ -4073,8 +4016,6 @@ msgstr "Die Verbindung mit dem Server konnte nicht hergestellt werden: %s"
 msgid "Unable to establish SSL connection"
 msgstr "Kann SSL-Verbindung nicht erstellen"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Full Name"
 msgstr "Vollständiger Name"
 
@@ -4145,13 +4086,9 @@ msgstr ""
 "Die folgenden Punkte sind optional. Geben Sie nur die Informationen an, die "
 "Sie angeben möchten."
 
-#. TODO: Check whether it's correct to call prepend_pair_html,
-#. or if we should be using prepend_pair_plaintext
 msgid "Client"
 msgstr "Client"
 
-#. TODO: Check whether it's correct to call prepend_pair_html,
-#. or if we should be using prepend_pair_plaintext
 msgid "Operating System"
 msgstr "Betriebssystem"
 
@@ -4161,8 +4098,6 @@ msgstr "Lokale Zeit"
 msgid "Priority"
 msgstr "Priorität"
 
-#. TODO: Check whether it's correct to call prepend_pair_html,
-#. or if we should be using prepend_pair_plaintext
 msgid "Resource"
 msgstr "Ressource"
 
@@ -4258,6 +4193,9 @@ msgid "Fill in one or more fields to search for any matching XMPP users."
 msgstr ""
 "Füllen Sie ein oder mehrere Felder aus, um nach entsprechenden XMPP-"
 "Benutzern zu suchen."
+
+msgid "Email Address"
+msgstr "E-Mail-Adresse"
 
 msgid "Search for XMPP users"
 msgstr "Suche nach XMPP-Benutzern"
@@ -4469,8 +4407,6 @@ msgstr "Server unterstützt kein Blockieren"
 msgid "Not Authorized"
 msgstr "Nicht autorisiert"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Mood"
 msgstr "Stimmung"
 
@@ -5320,6 +5256,9 @@ msgstr "Kann die Nachricht nicht parsen"
 msgid "Syntax Error (probably a client bug)"
 msgstr "Syntaxfehler (wahrscheinlich ein Client-Bug)"
 
+msgid "Invalid email address"
+msgstr "Ungültige E-Mail-Adresse"
+
 msgid "User does not exist"
 msgstr "Benutzer existiert nicht"
 
@@ -5386,6 +5325,9 @@ msgstr "Zu viele Treffer zu einem FND"
 
 msgid "Not logged in"
 msgstr "Nicht angemeldet"
+
+msgid "Service temporarily unavailable"
+msgstr "Dienst momentan nicht verfügbar"
 
 msgid "Database server error"
 msgstr "Fehler des Datenbank-Servers"
@@ -5734,8 +5676,6 @@ msgstr "Alter"
 msgid "Occupation"
 msgstr "Beruf"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Location"
 msgstr "Ort"
 
@@ -5993,6 +5933,30 @@ msgstr ""
 "Nachricht konnte nicht gesendet werden, da ein unbekannter Fehler "
 "aufgetreten ist."
 
+#, c-format
+msgid ""
+"%s (There was an error receiving this message. Converting the encoding from "
+"%s to UTF-8 failed.)"
+msgstr ""
+"%s (Es gab einen Fehler beim Konvertieren dieser Nachricht. Die "
+"Konvertierung von %s zu UTF-8 ist gescheitert.)"
+
+#, c-format
+msgid ""
+"%s (There was an error receiving this message. The charset was %s, but it "
+"was not valid UTF-8.)"
+msgstr ""
+"%s (Es gab einen Fehler beim Empfang dieser Nachricht. Der Zeichensatz war "
+"%s, aber es war kein gültiges UTF-8.)"
+
+#, c-format
+msgid ""
+"%s (There was an error receiving this message. The charset was missing, but "
+"it was not valid UTF-8.)"
+msgstr ""
+"%s (Es gab einen Fehler beim Konvertieren dieser Nachricht. Der Zeichensatz "
+"fehlte und es war kein gültiges UTF-8.)"
+
 msgid "Writing error"
 msgstr "Schreibfehler"
 
@@ -6119,6 +6083,9 @@ msgstr "Buddy aus dem Adressbuch löschen?"
 msgid "Do you want to delete this buddy from your address book as well?"
 msgstr "Möchten Sie diesen Buddy außerdem aus Ihrem Adressbuch löschen?"
 
+msgid "The username specified is invalid."
+msgstr "Der angegebene Benutzername ist ungültig."
+
 msgid "The Display Name you entered is invalid."
 msgstr "Der eingegebene Anzeigename ist ungültig."
 
@@ -6134,8 +6101,6 @@ msgstr "Profil-Aktualisierungsfehler"
 
 #. no profile information yet, so we cannot update
 #. (reference: "libpurple/request.h")
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Profile"
 msgstr "Profil"
 
@@ -6249,8 +6214,6 @@ msgstr "Startbildschirm anzeigen..."
 msgid "About..."
 msgstr "Über..."
 
-#. we are trying to send a file to MXit
-#. need to reserve some space for packet headers
 #. the file is too big
 msgid "The file you are trying to send is too large!"
 msgstr "Die Datei, die Sie senden möchten ist zu groß!"
@@ -6371,13 +6334,15 @@ msgstr "Sie haben eingeladen"
 msgid "Loading menu..."
 msgstr "Lade das Menü..."
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Status Message"
 msgstr "Status-Nachricht"
 
 msgid "Rejection Message"
 msgstr "Ablehnungsnachricht"
+
+#. hidden number
+msgid "Hidden Number"
+msgstr "Versteckte Nummer"
 
 msgid "No profile available"
 msgstr "Kein Profil verfügbar"
@@ -6461,12 +6426,6 @@ msgstr ""
 
 msgid "Message Error"
 msgstr "Nachrichtenfehler"
-
-#. could not be decrypted
-msgid "An encrypted message was received which could not be decrypted."
-msgstr ""
-"Eine verschlüsselte Nachricht wurde empfangen und konnte nicht entschlüsselt "
-"werden."
 
 msgid "Cannot perform redirect using the specified protocol"
 msgstr "Kann die Umleitung nicht mit dem angegebenen Protokoll durchführen"
@@ -6732,26 +6691,18 @@ msgstr "Bildschirmauflösung (dpi)"
 msgid "Base font size (points)"
 msgstr "Basis-Schriftgröße (Punkt)"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "User"
 msgstr "Benutzer"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Headline"
 msgstr "Überschrift"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Song"
 msgstr "Lied"
 
 msgid "Total Friends"
 msgstr "Freunde insgesamt"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Client Version"
 msgstr "Client-Version"
 
@@ -6955,6 +6906,9 @@ msgstr "Nicht unterstützt"
 msgid "Password has expired"
 msgstr "Passwort ist abgelaufen"
 
+msgid "Incorrect password"
+msgstr "Falsches Passwort"
+
 msgid "Account has been disabled"
 msgstr "Konto wurde deaktiviert"
 
@@ -6980,6 +6934,12 @@ msgid "Could not recognize the host of the username you entered"
 msgstr ""
 "Konnte den Rechnernamen des Benutzers, den Sie eingegeben haben, nicht "
 "erkennen"
+
+msgid ""
+"Your account has been disabled because too many incorrect passwords were "
+"entered"
+msgstr ""
+"Ihr Konto wurde wegen zu vielen falsch eingegebenen Passworten gesperrt"
 
 msgid "You cannot add the same person twice to a conversation"
 msgstr "Sie können die selbe Person nicht zweimal zu einem Gespräch hinzufügen"
@@ -7106,9 +7066,12 @@ msgstr "Hauspostcode"
 msgid "User ID"
 msgstr "Benutzer-ID"
 
-msgid "DN"
-msgstr "DN"
-
+#. tag = _("DN");
+#. value = nm_user_record_get_dn(user_record);
+#. if (value) {
+#. purple_notify_user_info_add_pair(user_info, tag, value);
+#. }
+#.
 msgid "Full name"
 msgstr "Vollständiger Name"
 
@@ -8211,7 +8174,6 @@ msgstr "Benutzerinformation nicht verfügbar: %s"
 msgid "Mobile Phone"
 msgstr "Handynummer"
 
-#. TODO: Is it correct to pass info->email here...?
 msgid "Personal Web Page"
 msgstr "Persönliche Webseite"
 
@@ -8232,7 +8194,6 @@ msgstr "Abteilung"
 msgid "Position"
 msgstr "Position"
 
-#. TODO: Is it correct to pass info->email here...?
 msgid "Web Page"
 msgstr "Webseite"
 
@@ -8500,14 +8461,14 @@ msgid "Topic:"
 msgstr "Thema:"
 
 msgid "A server is required to connect this account"
-msgstr "Es wird ein Server benötigt um dieses Konto zu verbinden."
-
-msgid "Last Known Client"
-msgstr "Letzter bekannter Client"
+msgstr "Es wird ein Server benötigt um dieses Konto zu verbinden"
 
 #, c-format
 msgid "Unknown (0x%04x)<br>"
 msgstr "Unbekannt (0x%04x)<br>"
+
+msgid "Last Known Client"
+msgstr "Letzter bekannter Client"
 
 msgid "User Name"
 msgstr "Benutzername"
@@ -8831,33 +8792,21 @@ msgstr "Hyperaktiv"
 msgid "Robot"
 msgstr "Robot"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "User Modes"
 msgstr "Benutzermodi"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Preferred Contact"
 msgstr "Bevorzugter Kontakt"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Preferred Language"
 msgstr "Bevorzugte Sprache"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Device"
 msgstr "Gerät"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Timezone"
 msgstr "Zeitzone"
 
-#. TODO: Check whether it's correct to call add_pair_html,
-#. or if we should be using add_pair_plaintext
 msgid "Geolocation"
 msgstr "Geographische Koordinaten"
 
@@ -9727,11 +9676,77 @@ msgstr ""
 msgid "Whiteboard"
 msgstr "Whiteboard"
 
+msgid "No server statistics available"
+msgstr "Keine Serverstatistik verfügbar"
+
+msgid "Error during connecting to SILC Server"
+msgstr "Fehler beim Verbinden mit dem SILC-Server"
+
+#, c-format
+msgid "Failure: Version mismatch, upgrade your client"
+msgstr "Fehler: Unterschiedliche Version, aktualisieren Sie Ihren Client"
+
+#, c-format
+msgid "Failure: Remote does not trust/support your public key"
+msgstr ""
+"Fehler: Die entfernte Seite vertraut Ihrem öffentlichen Schlüssel nicht"
+
+#, c-format
+msgid "Failure: Remote does not support proposed KE group"
+msgstr ""
+"Fehler: Entferntes Programm unterstützt nicht die vorgeschlagen KE-Gruppe"
+
+#, c-format
+msgid "Failure: Remote does not support proposed cipher"
+msgstr ""
+"Fehler: Entferntes Programm unterstützt die vorgeschlagene Chiffre nicht"
+
+#, c-format
+msgid "Failure: Remote does not support proposed PKCS"
+msgstr "Fehler: Entferntes Programm unterstützt die vorgeschlagene PKCS nicht"
+
+#, c-format
+msgid "Failure: Remote does not support proposed hash function"
+msgstr ""
+"Fehler: Entferntes Programm unterstützt die vorgeschlagen Hashfunktion nicht"
+
+#, c-format
+msgid "Failure: Remote does not support proposed HMAC"
+msgstr "Fehler: Entferntes Programm unterstützt das vorgeschlagene HMAC nicht"
+
+#, c-format
+msgid "Failure: Incorrect signature"
+msgstr "Fehler: Falsche Signatur"
+
+#, c-format
+msgid "Failure: Invalid cookie"
+msgstr "Fehler: Ungültiger Cookie"
+
+#, c-format
+msgid "Failure: Authentication failed"
+msgstr "Fehler: Authentifizierung fehlgeschlagen"
+
+msgid "Unable to initialize SILC Client connection"
+msgstr "SILC-Client-Verbindung konnte nicht hergestellt werden"
+
+msgid "John Noname"
+msgstr "Max Mustermann"
+
+#, c-format
+msgid "Unable to load SILC key pair: %s"
+msgstr "SILC-Schlüsselpaar konnte nicht geladen werden: %s"
+
+msgid "Unable to create connection"
+msgstr "Kann Verbindung nicht erstellen"
+
 msgid "Unknown server response"
 msgstr "Unbekannte Serverantwort"
 
 msgid "Unable to create listen socket"
 msgstr "Lauschender Socket konnte nicht erstellt werden"
+
+msgid "Unable to resolve hostname"
+msgstr "Hostname konnte nicht aufgelöst werden"
 
 msgid "SIP usernames may not contain whitespaces or @ symbols"
 msgstr "SIP-Benutzernamen dürfen keine Leerzeichen oder @-Symbole enthalten"
@@ -10213,8 +10228,6 @@ msgstr "Kann nicht an den Chat %s,%s,%s senden"
 msgid "Hidden or not logged-in"
 msgstr "Versteckt oder nicht angemeldet"
 
-#. TODO: Need to escape locs.host and locs.time?
-#. TODO: Need to escape the two strings that make up tmp?
 #, c-format
 msgid "<br>At %s since %s"
 msgstr "<br>Bei %s seit %s"
@@ -10422,6 +10435,9 @@ msgstr "Gespeichertes Bild"
 
 msgid "Stored Image. (that'll have to do for now)"
 msgstr "Gespeichertes Bild. (Das muss erstmal reichen)"
+
+msgid "SSL Connection Failed"
+msgstr "SSL-Verbindung gescheitert"
 
 msgid "SSL Handshake Failed"
 msgstr "SSL-Verhandlung gescheitert"
@@ -11388,21 +11404,6 @@ msgstr "Geben Sie einen Hostnamen für dieses Zertifikat an."
 msgid "SSL Servers"
 msgstr "SSL-Server"
 
-msgid "Unsafe debugging is now disabled."
-msgstr "Unsicheres Debugging ist nun deaktiviert."
-
-msgid "Unsafe debugging is now enabled."
-msgstr "Unsicheres Debugging ist nun aktiviert."
-
-msgid "Verbose debugging is now disabled."
-msgstr "Ausführliches Debugging ist nun deaktiviert."
-
-msgid "Verbose debugging is now enabled."
-msgstr "Ausführliches Debugging ist nun aktiviert."
-
-msgid "Supported debug options are: plugins version unsafe verbose"
-msgstr "Unterstützte Debug-Optionen sind: plugins version unsafe verbose"
-
 msgid "Unknown command."
 msgstr "Unbekanntes Kommando."
 
@@ -11436,6 +11437,9 @@ msgstr "Nicht Ignorieren"
 
 msgid "Ignore"
 msgstr "Ignorieren"
+
+msgid "Get Away Message"
+msgstr "Neue Abwesenheitsnachricht abholen"
 
 msgid "Last Said"
 msgstr "Zuletzt gesagt"
@@ -12048,9 +12052,6 @@ msgstr "Urdu"
 msgid "Vietnamese"
 msgstr "Vietnamesisch"
 
-msgid "T.M.Thanh and the Gnome-Vi Team"
-msgstr "T.M.Thanh und das Gnome-Vi Team"
-
 msgid "Simplified Chinese"
 msgstr "Vereinfachtes Chinesisch"
 
@@ -12065,6 +12066,9 @@ msgstr "Amharisch"
 
 msgid "Lithuanian"
 msgstr "Litauisch"
+
+msgid "T.M.Thanh and the Gnome-Vi Team"
+msgstr "T.M.Thanh und das Gnome-Vi Team"
 
 #, c-format
 msgid ""
@@ -12183,6 +12187,12 @@ msgstr ""
 
 msgid "View User Log"
 msgstr "Benutzer-Mitschnitt anzeigen"
+
+msgid "Alias Contact"
+msgstr "Kontakt-Alias"
+
+msgid "Enter an alias for this contact."
+msgstr "Geben Sie einen Alias für diesen Kontakt ein."
 
 #, c-format
 msgid "Enter an alias for %s."
@@ -12788,9 +12798,6 @@ msgstr "_Pause"
 msgid "_Mute"
 msgstr "Stu_mmschalten"
 
-msgid "Call in progress"
-msgstr "Anruf im Gange"
-
 #, c-format
 msgid "%s has %d new message."
 msgid_plural "%s has %d new messages."
@@ -13013,9 +13020,6 @@ msgstr "Das Standard-Klangthema für Pidgin"
 msgid "The default Pidgin buddy list theme"
 msgstr "Das Standard-Buddy-Listen-Thema für Pidgin"
 
-msgid "The default Pidgin conversation theme"
-msgstr "Das Standard-Thema für Pidgin-Unterhaltungen"
-
 msgid "The default Pidgin status icon theme"
 msgstr "Das Standard-Status-Icon-Thema für Pidgin"
 
@@ -13042,13 +13046,6 @@ msgstr ""
 
 msgid "Buddy List Theme:"
 msgstr "Buddy-Listen-Thema:"
-
-msgid "Conversation Theme:"
-msgstr "Unterhaltungs-Thema:"
-
-#, fuzzy
-msgid "\tVariant:"
-msgstr "\tVariante:"
 
 msgid "Status Icon Theme:"
 msgstr "Status-Icon-Thema:"
@@ -15154,3 +15151,22 @@ msgstr "Besuchen Sie die Pidgin-Webseite"
 
 msgid "You do not have permission to uninstall this application."
 msgstr "Sie haben keine Berechtigung, diese Anwendung zu deinstallieren."
+
+#~ msgid "No Sametime Community Server specified"
+#~ msgstr "Kein Sametime-Community Server angegeben"
+
+#~ msgid ""
+#~ "No host or IP address has been configured for the Meanwhile account %s. "
+#~ "Please enter one below to continue logging in."
+#~ msgstr ""
+#~ "Es wurde kein Rechner für das Meanwhile-Konto %s angegeben. Bitte geben "
+#~ "Sie einen Rechner an, um die Anmeldung fortzusetzen."
+
+#~ msgid "Meanwhile Connection Setup"
+#~ msgstr "Meanwhile-Verbindungseinstellungen"
+
+#~ msgid "No Sametime Community Server Specified"
+#~ msgstr "Kein Sametime-Community Server angegeben"
+
+#~ msgid "Connect"
+#~ msgstr "Verbinden"
