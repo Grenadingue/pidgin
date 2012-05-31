@@ -1508,13 +1508,6 @@ menu_sounds_cb(GtkAction *action, gpointer data)
 }
 
 static void
-menu_timestamps_cb(GtkAction *action, gpointer data)
-{
-	purple_prefs_set_bool(PIDGIN_PREFS_ROOT "/conversations/show_timestamps",
-		gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
-}
-
-static void
 chat_do_im(PidginConversation *gtkconv, const char *who)
 {
 	PurpleConversation *conv = gtkconv->active_conv;
@@ -3168,7 +3161,6 @@ static const GtkToggleActionEntry menu_toggle_entries[] = {
 	{ "EnableLogging", NULL, N_("Enable _Logging"), NULL, NULL, G_CALLBACK(menu_logging_cb), FALSE },
 	{ "EnableSounds", NULL, N_("Enable _Sounds"), NULL, NULL, G_CALLBACK(menu_sounds_cb), FALSE },
 	{ "ShowFormattingToolbars", NULL, N_("Show Formatting _Toolbars"), NULL, NULL, G_CALLBACK(menu_toolbar_cb), FALSE },
-	{ "ShowTimestamps", NULL, N_("Show Ti_mestamps"), NULL, NULL, G_CALLBACK(menu_timestamps_cb), FALSE },
 };
 
 static const char *conversation_menu =
@@ -3213,7 +3205,6 @@ static const char *conversation_menu =
 			"<menuitem action='EnableSounds'/>"
 			"<separator/>"
 			"<menuitem action='ShowFormattingToolbars'/>"
-			"<menuitem action='ShowTimestamps'/>"
 		"</menu>"
 	"</menubar>"
 "</ui>";
@@ -3702,9 +3693,6 @@ setup_menubar(PidginWindow *win)
 	win->menu.show_formatting_toolbar =
 		gtk_ui_manager_get_action(win->menu.ui,
 		                          "/Conversation/OptionsMenu/ShowFormattingToolbars");
-	win->menu.show_timestamps =
-		gtk_ui_manager_get_action(win->menu.ui,
-		                          "/Conversation/OptionsMenu/ShowTimestamps");
 
 	win->menu.tray = pidgin_menu_tray_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(win->menu.menubar),
@@ -6654,10 +6642,13 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 
 static gboolean get_iter_from_chatbuddy(PurpleConvChatBuddy *cb, GtkTreeIter *iter)
 {
-	GtkTreeRowReference *ref = purple_conv_chat_cb_get_ui_data(cb);
+	GtkTreeRowReference *ref;
 	GtkTreePath *path;
 	GtkTreeModel *model;
 
+	g_return_val_if_fail(cb != NULL, FALSE);
+
+	ref = purple_conv_chat_cb_get_ui_data(cb);
 	if (!ref)
 		return FALSE;
 
@@ -6837,6 +6828,9 @@ pidgin_conv_chat_update_user(PurpleConversation *conv, const char *user)
 		return;
 
 	cbuddy = purple_conv_chat_cb_find(chat, user);
+	if (!cbuddy)
+		return;
+
 	if (get_iter_from_chatbuddy(cbuddy, &iter)) {
 		GtkTreeRowReference *ref = purple_conv_chat_cb_get_ui_data(cbuddy);
 		gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
@@ -7856,37 +7850,6 @@ tab_side_pref_cb(const char *name, PurplePrefType type,
 }
 
 static void
-show_timestamps_pref_cb(const char *name, PurplePrefType type,
-						gconstpointer value, gpointer data)
-{
-	GList *l;
-	PurpleConversation *conv;
-	PidginConversation *gtkconv;
-	PidginWindow *win;
-
-	for (l = purple_get_conversations(); l != NULL; l = l->next)
-	{
-		conv = (PurpleConversation *)l->data;
-
-		if (!PIDGIN_IS_PIDGIN_CONVERSATION(conv))
-			continue;
-
-		gtkconv = PIDGIN_CONVERSATION(conv);
-		win     = gtkconv->win;
-
-		gtk_toggle_action_set_active(
-		        GTK_TOGGLE_ACTION(win->menu.show_timestamps),
-		        (gboolean)GPOINTER_TO_INT(value));
-
-/* TODO WEBKIT: Use WebKit version of this. */
-#if 0
-		gtk_imhtml_show_comments(GTK_IMHTML(gtkconv->imhtml),
-			(gboolean)GPOINTER_TO_INT(value));
-#endif /* if 0 */
-	}
-}
-
-static void
 show_formatting_toolbar_pref_cb(const char *name, PurplePrefType type,
 								gconstpointer value, gpointer data)
 {
@@ -8426,6 +8389,12 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 	return TRUE;
 }
 
+PurpleTheme *
+pidgin_conversations_get_default_theme(void)
+{
+	return default_conv_theme;
+}
+
 void *
 pidgin_conversations_get_handle(void)
 {
@@ -8456,7 +8425,6 @@ pidgin_conversations_init(void)
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/custom_smileys_size", 96);
 	purple_prefs_add_int(PIDGIN_PREFS_ROOT "/conversations/minimum_entry_lines", 2);
 
-	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/show_timestamps", TRUE);
 	purple_prefs_add_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar", TRUE);
 
 	purple_prefs_add_string(PIDGIN_PREFS_ROOT "/conversations/placement", "last");
@@ -8505,8 +8473,6 @@ pidgin_conversations_init(void)
 	/* Connect callbacks. */
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/close_on_tabs",
 								close_on_tabs_pref_cb, NULL);
-	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/show_timestamps",
-								show_timestamps_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar",
 								show_formatting_toolbar_pref_cb, NULL);
 	purple_prefs_connect_callback(handle, PIDGIN_PREFS_ROOT "/conversations/spellcheck",
@@ -9717,9 +9683,6 @@ switch_conv_cb(GtkNotebook *notebook, GtkWidget *page, gint page_num,
 
 	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu.show_formatting_toolbar),
 	                             purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/show_formatting_toolbar"));
-
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(win->menu.show_timestamps),
-	                             purple_prefs_get_bool(PIDGIN_PREFS_ROOT "/conversations/show_timestamps"));
 
 	/*
 	 * We pause icons when they are not visible.  If this icon should
