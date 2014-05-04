@@ -1,6 +1,10 @@
 Pidgin and Finch: The Pimpin' Penguin IM Clients That're Good for the Soul
 
 version 2.10.10 (?/?/?):
+	libpurple3 compatibility:
+	* Encrypted account passwords are preserved until the new one is set.
+	* Fix loading Google Talk and Facebook XMPP accounts.
+
 	Windows-Specific Changes:
 	* Don't allow overwriting arbitrary files on the file system when the
 	  user installs a smiley theme via drag-and-drop. (Discovered by Yves
@@ -18,6 +22,10 @@ version 2.10.10 (?/?/?):
 	* Fix potential remote crash parsing server message that indicates that
 	  a large amount of memory should be allocated. (Discovered by Yves Younan
 	  and Richard Johnson of Sourcefire VRT) (CVE-2014-NNNN)
+
+	IRC:
+	* Fix a possible leak of unencrypted data when using /me command
+	  with OTR. (Thijs Alkemade) (#15750)
 
 	MXit:
 	* Fix potential remote crash parsing a malformed emoticon response.
