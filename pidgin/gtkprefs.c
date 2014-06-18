@@ -995,7 +995,10 @@ theme_install_theme(char *path, struct theme_info *info)
 			}
 
 			g_free(theme_dest);
-			g_remove(destdir);
+			if (g_remove(destdir) != 0) {
+				purple_debug_error("gtkprefs",
+					"couldn't remove temp (dest) path\n");
+			}
 			g_object_unref(theme);
 
 			prefs_themes_refresh();
@@ -1047,9 +1050,9 @@ theme_install_theme(char *path, struct theme_info *info)
 
 				prefs_themes_refresh();
 			} else {
-				if (g_remove(temp_path)) {
-					purple_debug_error("gtkprefs", "Error removing %s: %s\n",
-							temp_path, g_strerror(errno));
+				if (g_remove(temp_path) != 0) {
+					purple_debug_error("gtkprefs",
+						"couldn't remove temp path");
 				}
 				purple_notify_error(NULL, NULL, _("Theme failed to load."), NULL, NULL);
 			}

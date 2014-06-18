@@ -46,7 +46,7 @@ icq_get_max_message_size(PurpleConversation *conv)
 static PurplePluginProtocolInfo prpl_info =
 {
 	sizeof(PurplePluginProtocolInfo),       /* struct_size */
-	OPT_PROTO_MAIL_CHECK | OPT_PROTO_IM_IMAGE | OPT_PROTO_INVITE_MESSAGE | OPT_PROTO_AUTHORIZATION_DENIED_MESSAGE,
+	OPT_PROTO_MAIL_CHECK | OPT_PROTO_INVITE_MESSAGE | OPT_PROTO_AUTHORIZATION_DENIED_MESSAGE,
 	NULL,					/* user_splits */
 	NULL,					/* protocol_options */
 	{"gif,jpeg,bmp,ico", 0, 0, 64, 64, 7168, PURPLE_ICON_SCALE_SEND | PURPLE_ICON_SCALE_DISPLAY}, /* icon_spec */
@@ -81,7 +81,6 @@ static PurplePluginProtocolInfo prpl_info =
 	oscar_get_chat_name,	/* get_chat_name */
 	oscar_chat_invite,		/* chat_invite */
 	oscar_chat_leave,		/* chat_leave */
-	NULL,					/* chat_whisper */
 	oscar_send_chat,		/* chat_send */
 	oscar_keepalive,		/* keepalive */
 	NULL,					/* register_user */

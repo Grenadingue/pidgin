@@ -268,12 +268,12 @@ purple_xfer_conversation_write_internal(PurpleXfer *xfer,
 
 		message_with_img = g_strdup_printf("<img src=\""
 			PURPLE_IMAGE_STORE_PROTOCOL "%u\"> %s", id, escaped);
-		purple_conversation_write(PURPLE_CONVERSATION(im), NULL,
-			message_with_img, flags, time(NULL));
+		purple_conversation_write_system_message(
+			PURPLE_CONVERSATION(im), message_with_img, flags);
 		g_free(message_with_img);
 	} else {
-		purple_conversation_write(PURPLE_CONVERSATION(im), NULL, escaped, flags,
-			time(NULL));
+		purple_conversation_write_system_message(
+			PURPLE_CONVERSATION(im), escaped, flags);
 	}
 	g_free(escaped);
 }
@@ -958,9 +958,10 @@ purple_xfer_set_completed(PurpleXfer *xfer, gboolean completed)
 		im = purple_conversations_find_im_with_account(priv->who,
 		                                             purple_xfer_get_account(xfer));
 
-		if (im != NULL)
-			purple_conversation_write(PURPLE_CONVERSATION(im), NULL, msg,
-					PURPLE_MESSAGE_SYSTEM, time(NULL));
+		if (im != NULL) {
+			purple_conversation_write_system_message(
+				PURPLE_CONVERSATION(im), msg, 0);
+		}
 		g_free(msg);
 	}
 
@@ -1511,7 +1512,12 @@ begin_transfer(PurpleXfer *xfer, PurpleInputCondition cond)
 			return;
 		}
 
-		fseek(priv->dest_fp, priv->bytes_sent, SEEK_SET);
+		if (fseek(priv->dest_fp, priv->bytes_sent, SEEK_SET) != 0) {
+			purple_debug_error("xfer", "couldn't seek\n");
+			purple_xfer_show_file_error(xfer, purple_xfer_get_local_filename(xfer));
+			purple_xfer_cancel_local(xfer);
+			return;
+		}
 	}
 
 	if (priv->fd != -1)

@@ -213,18 +213,18 @@ static char *zephyr_strip_local_realm(zephyr_account* zephyr,const char* user){
  * wouldn't do this. but it is so i will. */
 
 /* just for debugging */
-static void handle_unknown(ZNotice_t notice)
+static void handle_unknown(ZNotice_t *notice)
 {
-	purple_debug_error("zephyr","z_packet: %s\n", notice.z_packet);
-	purple_debug_error("zephyr","z_version: %s\n", notice.z_version);
-	purple_debug_error("zephyr","z_kind: %d\n", (int)(notice.z_kind));
-	purple_debug_error("zephyr","z_class: %s\n", notice.z_class);
-	purple_debug_error("zephyr","z_class_inst: %s\n", notice.z_class_inst);
-	purple_debug_error("zephyr","z_opcode: %s\n", notice.z_opcode);
-	purple_debug_error("zephyr","z_sender: %s\n", notice.z_sender);
-	purple_debug_error("zephyr","z_recipient: %s\n", notice.z_recipient);
-	purple_debug_error("zephyr","z_message: %s\n", notice.z_message);
-	purple_debug_error("zephyr","z_message_len: %d\n", notice.z_message_len);
+	purple_debug_error("zephyr","z_packet: %s\n", notice->z_packet);
+	purple_debug_error("zephyr","z_version: %s\n", notice->z_version);
+	purple_debug_error("zephyr","z_kind: %d\n", (int)(notice->z_kind));
+	purple_debug_error("zephyr","z_class: %s\n", notice->z_class);
+	purple_debug_error("zephyr","z_class_inst: %s\n", notice->z_class_inst);
+	purple_debug_error("zephyr","z_opcode: %s\n", notice->z_opcode);
+	purple_debug_error("zephyr","z_sender: %s\n", notice->z_sender);
+	purple_debug_error("zephyr","z_recipient: %s\n", notice->z_recipient);
+	purple_debug_error("zephyr","z_message: %s\n", notice->z_message);
+	purple_debug_error("zephyr","z_message_len: %d\n", notice->z_message_len);
 }
 
 
@@ -696,7 +696,7 @@ static char *zephyr_to_html(const char *message)
 			gboolean last_had_closer;
 
 			message += strlen(frames->closer);
-			if (frames && frames->enclosing) {
+			if (frames->enclosing) {
 				do {
 					popped = frames;
 					frames = frames->enclosing;
@@ -705,7 +705,7 @@ static char *zephyr_to_html(const char *message)
 					g_string_free(popped->text, TRUE);
 					last_had_closer = popped->has_closer;
 					g_free(popped);
-				} while (frames && frames->enclosing && !last_had_closer);
+				} while (frames->enclosing && !last_had_closer);
 			} else {
 				g_string_append_c(frames->text, *message);
 			}
@@ -748,23 +748,29 @@ static gboolean pending_zloc(zephyr_account *zephyr, const char *who)
 
 /* Called when the server notifies us a message couldn't get sent */
 
-static void message_failed(PurpleConnection *gc, ZNotice_t notice, struct sockaddr_in from)
+static void message_failed(PurpleConnection *gc, ZNotice_t *notice, struct sockaddr_in from)
 {
-	if (g_ascii_strcasecmp(notice.z_class, "message")) {
-		gchar* chat_failed = g_strdup_printf(_("Unable to send to chat %s,%s,%s"),notice.z_class,notice.z_class_inst,notice.z_recipient);
+	if (g_ascii_strcasecmp(notice->z_class, "message")) {
+		gchar* chat_failed = g_strdup_printf(
+			_("Unable to send to chat %s,%s,%s"),
+			notice->z_class, notice->z_class_inst,
+			notice->z_recipient);
 		purple_notify_error(gc,"",chat_failed,NULL,
 			purple_request_cpar_from_connection(gc));
 		g_free(chat_failed);
 	} else {
-		purple_notify_error(gc, notice.z_recipient,
+		purple_notify_error(gc, notice->z_recipient,
 			_("User is offline"), NULL,
 			purple_request_cpar_from_connection(gc));
 	}
 }
 
-static void handle_message(PurpleConnection *gc,ZNotice_t notice)
+static void handle_message(PurpleConnection *gc, ZNotice_t *notice_p)
 {
+	ZNotice_t notice;
 	zephyr_account* zephyr = purple_connection_get_protocol_data(gc);
+
+	memcpy(&notice, notice_p, sizeof(notice)); /* TODO - use pointer? */
 
 	if (!g_ascii_strcasecmp(notice.z_class, LOGIN_CLASS)) {
 		/* well, we'll be updating in 20 seconds anyway, might as well ignore this. */
@@ -912,7 +918,8 @@ static void handle_message(PurpleConnection *gc,ZNotice_t notice)
 #endif
 				purple_chat_conversation_add_user(gcc, stripped_sender, ipaddr, PURPLE_CHAT_USER_NONE, TRUE);
 			}
-			purple_serv_got_chat_in(gc, zt2->id, send_inst_utf8, 0, buf3, time(NULL));
+			purple_serv_got_chat_in(gc, zt2->id, send_inst_utf8,
+				PURPLE_MESSAGE_RECV, buf3, time(NULL));
 			g_free(send_inst_utf8);
 
 			free_triple(zt1);
@@ -1135,7 +1142,7 @@ static gint check_notify_tzc(gpointer data)
 				notice.z_default_format = "Class $class, Instance $instance:\n" "To: @bold($recipient) at $time $date\n" "From: @bold($1) <$sender>\n\n$2";
 				notice.z_message_len = strlen(msg) + 3;
 				notice.z_message = buf;
-				handle_message(gc, notice);
+				handle_message(gc, &notice);
 				g_free(msg);
 				/*				  g_free(zsig); */
 				g_free(buf);
@@ -1237,18 +1244,20 @@ static gint check_notify_zeph02(gpointer data)
 		case UNSAFE:
 		case UNACKED:
 		case ACKED:
-			handle_message(gc,notice);
+			handle_message(gc, &notice);
 			break;
 		case SERVACK:
 			if (!(g_ascii_strcasecmp(notice.z_message, ZSRVACK_NOTSENT))) {
-				message_failed(gc,notice, from);
+				message_failed(gc, &notice, from);
 			}
 			break;
 		case CLIENTACK:
 			purple_debug_error("zephyr", "Client ack received\n");
+			handle_unknown(&notice); /* XXX: is it really unknown? */
+			break;
 		default:
 			/* we'll just ignore things for now */
-			handle_unknown(notice);
+			handle_unknown(&notice);
 			purple_debug_error("zephyr", "Unhandled notice.\n");
 			break;
 		}
@@ -1571,7 +1580,9 @@ static void zephyr_login(PurpleAccount * account)
 #ifdef WIN32
 	username = purple_account_get_username(account);
 #endif
-	purple_connection_set_flags(gc, PURPLE_CONNECTION_FLAG_AUTO_RESP | PURPLE_CONNECTION_FLAG_HTML | PURPLE_CONNECTION_FLAG_NO_BGCOLOR | PURPLE_CONNECTION_FLAG_NO_URLDESC);
+	purple_connection_set_flags(gc, PURPLE_CONNECTION_FLAG_AUTO_RESP |
+		PURPLE_CONNECTION_FLAG_HTML | PURPLE_CONNECTION_FLAG_NO_BGCOLOR |
+		PURPLE_CONNECTION_FLAG_NO_URLDESC | PURPLE_CONNECTION_FLAG_NO_IMAGES);
 	zephyr = g_new0(zephyr_account, 1);
 	purple_connection_set_protocol_data(gc, zephyr);
 
@@ -2035,7 +2046,7 @@ static const char * zephyr_get_signature(void)
 	return sig;
 }
 
-static int zephyr_chat_send(PurpleConnection * gc, int id, const char *im, PurpleMessageFlags flags)
+static int zephyr_chat_send(PurpleConnection * gc, int id, PurpleMessage *msg)
 {
 	zephyr_triple *zt;
 	const char *sig;
@@ -2062,21 +2073,25 @@ static int zephyr_chat_send(PurpleConnection * gc, int id, const char *im, Purpl
 	else
 		recipient = local_zephyr_normalize(zephyr,zt->recipient);
 
-	zephyr_send_message(zephyr,zt->class,inst,recipient,im,sig,"");
+	zephyr_send_message(zephyr, zt->class, inst, recipient,
+		purple_message_get_contents(msg), sig, "");
 	return 0;
 }
 
 
-static int zephyr_send_im(PurpleConnection * gc, const char *who, const char *im, PurpleMessageFlags flags)
+static int zephyr_send_im(PurpleConnection *gc, PurpleMessage *msg)
 {
 	const char *sig;
 	zephyr_account *zephyr = purple_connection_get_protocol_data(gc);
-	if (flags & PURPLE_MESSAGE_AUTO_RESP)
+
+	if (purple_message_get_flags(msg) & PURPLE_MESSAGE_AUTO_RESP) {
 		sig = "Automated reply:";
-	else {
+	} else {
 		sig = zephyr_get_signature();
 	}
-	zephyr_send_message(zephyr,"MESSAGE","PERSONAL",local_zephyr_normalize(zephyr,who),im,sig,"");
+	zephyr_send_message(zephyr, "MESSAGE", "PERSONAL",
+		local_zephyr_normalize(zephyr, purple_message_get_recipient(msg)),
+		purple_message_get_contents(msg), sig, "");
 
 	return 1;
 }
@@ -2909,7 +2924,6 @@ static PurplePluginProtocolInfo prpl_info = {
 	zephyr_get_chat_name,	/* get_chat_name */
 	NULL,					/* chat_invite -- No chat invites*/
 	zephyr_chat_leave,		/* chat_leave */
-	NULL,					/* chat_whisper -- No "whispering"*/
 	zephyr_chat_send,		/* chat_send */
 	NULL,					/* keepalive -- Not necessary*/
 	NULL,					/* register_user -- Not supported*/

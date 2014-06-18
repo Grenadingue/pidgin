@@ -810,16 +810,9 @@ bonjour_sock5_request_cb(gpointer data, gint source, PurpleInputCondition cond)
 			purple_xfer_cancel_remote(xfer);
 			return;
 		} else {
-			int flags;
-
 			purple_debug_info("bonjour", "Accepted SOCKS5 ft connection - fd=%d\n", acceptfd);
 
-			flags = fcntl(acceptfd, F_GETFL);
-			fcntl(acceptfd, F_SETFL, flags | O_NONBLOCK);
-#ifndef _WIN32
-			fcntl(acceptfd, F_SETFD, FD_CLOEXEC);
-#endif
-
+			_purple_network_set_common_socket_flags(acceptfd);
 			purple_input_remove(purple_xfer_get_watcher(xfer));
 			close(source);
 			purple_xfer_set_watcher(xfer, purple_input_add(acceptfd, PURPLE_INPUT_READ,

@@ -70,6 +70,8 @@
 #define GTK_TOOLTIPS_VAR gtkconv->tooltips
 #include "gtk3compat.h"
 
+#define ADD_MESSAGE_HISTORY_AT_ONCE 100
+
 /*
  * A GTK+ Instant Message pane.
  */
@@ -223,6 +225,11 @@ static const GdkColor *
 get_nick_color(PidginConversation *gtkconv, const gchar *name)
 {
 	static GdkColor col;
+
+	if (name == NULL) {
+		col.red = col.green = col.blue = 0;
+		return &col;
+	}
 
 	col = g_array_index(gtkconv->nick_colors, GdkColor,
 		g_str_hash(name) % gtkconv->nick_colors->len);
@@ -385,30 +392,35 @@ debug_command_cb(PurpleConversation *conv,
 	} else if (!g_ascii_strcasecmp(args[0], "unsafe")) {
 		if (purple_debug_is_unsafe()) {
 			purple_debug_set_unsafe(FALSE);
-			purple_conversation_write(conv, NULL, _("Unsafe debugging is now disabled."),
-			                          PURPLE_MESSAGE_NO_LOG|PURPLE_MESSAGE_SYSTEM, time(NULL));
+			purple_conversation_write_system_message(conv,
+				_("Unsafe debugging is now disabled."),
+				PURPLE_MESSAGE_NO_LOG);
 		} else {
 			purple_debug_set_unsafe(TRUE);
-			purple_conversation_write(conv, NULL, _("Unsafe debugging is now enabled."),
-			                          PURPLE_MESSAGE_NO_LOG|PURPLE_MESSAGE_SYSTEM, time(NULL));
+			purple_conversation_write_system_message(conv,
+				_("Unsafe debugging is now enabled."),
+				PURPLE_MESSAGE_NO_LOG);
 		}
 
 		return PURPLE_CMD_RET_OK;
 	} else if (!g_ascii_strcasecmp(args[0], "verbose")) {
 		if (purple_debug_is_verbose()) {
 			purple_debug_set_verbose(FALSE);
-			purple_conversation_write(conv, NULL, _("Verbose debugging is now disabled."),
-			                          PURPLE_MESSAGE_NO_LOG|PURPLE_MESSAGE_SYSTEM, time(NULL));
+			purple_conversation_write_system_message(conv,
+				_("Verbose debugging is now disabled."),
+				PURPLE_MESSAGE_NO_LOG);
 		} else {
 			purple_debug_set_verbose(TRUE);
-			purple_conversation_write(conv, NULL, _("Verbose debugging is now enabled."),
-			                          PURPLE_MESSAGE_NO_LOG|PURPLE_MESSAGE_SYSTEM, time(NULL));
+			purple_conversation_write_system_message(conv,
+				_("Verbose debugging is now enabled."),
+				PURPLE_MESSAGE_NO_LOG);
 		}
 
 		return PURPLE_CMD_RET_OK;
 	} else {
-		purple_conversation_write(conv, NULL, _("Supported debug options are: plugins version unsafe verbose"),
-		                        PURPLE_MESSAGE_NO_LOG|PURPLE_MESSAGE_ERROR, time(NULL));
+		purple_conversation_write_system_message(conv,
+			_("Supported debug options are: plugins version unsafe verbose"),
+			PURPLE_MESSAGE_NO_LOG);
 		return PURPLE_CMD_RET_OK;
 	}
 
@@ -483,7 +495,7 @@ help_command_cb(PurpleConversation *conv,
 		g_list_free(text);
 	}
 
-	purple_conversation_write(conv, NULL, s->str, PURPLE_MESSAGE_NO_LOG, time(NULL));
+	purple_conversation_write_system_message(conv, s->str, PURPLE_MESSAGE_NO_LOG);
 	g_string_free(s, TRUE);
 
 	return PURPLE_CMD_RET_OK;
@@ -524,8 +536,8 @@ check_for_and_do_command(PurpleConversation *conv)
 		cmdline = cmd + strlen(prefix);
 
 		if (strcmp(cmdline, "xyzzy") == 0) {
-			purple_conversation_write(conv, "", "Nothing happens",
-					PURPLE_MESSAGE_NO_LOG, time(NULL));
+			purple_conversation_write_system_message(conv,
+				"Nothing happens", PURPLE_MESSAGE_NO_LOG);
 			g_free(cmd);
 			return TRUE;
 		}
@@ -557,36 +569,42 @@ check_for_and_do_command(PurpleConversation *conv)
 							spaceslash++;
 
 						if (*spaceslash != '/') {
-							purple_conversation_write(conv, "", _("Unknown command."), PURPLE_MESSAGE_NO_LOG, time(NULL));
+							purple_conversation_write_system_message(conv,
+								_("Unknown command."), PURPLE_MESSAGE_NO_LOG);
 							retval = TRUE;
 						}
 					}
 					break;
 				}
 			case PURPLE_CMD_STATUS_WRONG_ARGS:
-				purple_conversation_write(conv, "", _("Syntax Error:  You typed the wrong number of arguments "
-								    "to that command."),
-						PURPLE_MESSAGE_NO_LOG, time(NULL));
+				purple_conversation_write_system_message(conv,
+					_("Syntax Error:  You typed the wrong "
+					"number of arguments to that command."),
+					PURPLE_MESSAGE_NO_LOG);
 				retval = TRUE;
 				break;
 			case PURPLE_CMD_STATUS_FAILED:
-				purple_conversation_write(conv, "", error ? error : _("Your command failed for an unknown reason."),
-						PURPLE_MESSAGE_NO_LOG, time(NULL));
+				purple_conversation_write_system_message(conv,
+					error ? error : _("Your command failed for an unknown reason."),
+					PURPLE_MESSAGE_NO_LOG);
 				g_free(error);
 				retval = TRUE;
 				break;
 			case PURPLE_CMD_STATUS_WRONG_TYPE:
 				if(PURPLE_IS_IM_CONVERSATION(conv))
-					purple_conversation_write(conv, "", _("That command only works in chats, not IMs."),
-							PURPLE_MESSAGE_NO_LOG, time(NULL));
+					purple_conversation_write_system_message(conv,
+						_("That command only works in chats, not IMs."),
+						PURPLE_MESSAGE_NO_LOG);
 				else
-					purple_conversation_write(conv, "", _("That command only works in IMs, not chats."),
-							PURPLE_MESSAGE_NO_LOG, time(NULL));
+					purple_conversation_write_system_message(conv,
+						_("That command only works in IMs, not chats."),
+						PURPLE_MESSAGE_NO_LOG);
 				retval = TRUE;
 				break;
 			case PURPLE_CMD_STATUS_WRONG_PRPL:
-				purple_conversation_write(conv, "", _("That command doesn't work on this protocol."),
-						PURPLE_MESSAGE_NO_LOG, time(NULL));
+				purple_conversation_write_system_message(conv,
+					_("That command doesn't work on this protocol."),
+					PURPLE_MESSAGE_NO_LOG);
 				retval = TRUE;
 				break;
 		}
@@ -602,7 +620,9 @@ send_cb(GtkWidget *widget, PidginConversation *gtkconv)
 {
 	PurpleConversation *conv = gtkconv->active_conv;
 	PurpleAccount *account;
+#if 0
 	PurpleConnection *gc;
+#endif
 	PurpleMessageFlags flags = 0;
 	char *buf;
 
@@ -634,9 +654,9 @@ send_cb(GtkWidget *widget, PidginConversation *gtkconv)
 	if (strstr(buf, "<img ") != NULL)
 		flags |= PURPLE_MESSAGE_IMAGES;
 
-	gc = NULL/*purple_account_get_connection(account)*/;
-	if (gc && (purple_conversation_get_features(conv) & PURPLE_CONNECTION_FLAG_NO_NEWLINES)) {
 #if 0
+	gc = purple_account_get_connection(account);
+	if (gc && (purple_conversation_get_features(conv) & PURPLE_CONNECTION_FLAG_NO_NEWLINES)) {
 		/* TODO WebKit */
 		char **bufs;
 		int i;
@@ -648,9 +668,9 @@ send_cb(GtkWidget *widget, PidginConversation *gtkconv)
 		}
 
 		g_strfreev(bufs);
+	} else
 #endif
-
-	} else {
+	{
 		send_history_add(gtkconv, buf);
 		purple_conversation_send_with_flags(conv, buf, flags);
 	}
@@ -1401,17 +1421,13 @@ menu_logging_cb(GtkAction *action, gpointer data)
 		/* Enable logging first so the message below can be logged. */
 		purple_conversation_set_logging(conv, TRUE);
 
-		purple_conversation_write(conv, NULL,
-								_("Logging started. Future messages in this conversation will be logged."),
-								PURPLE_MESSAGE_SYSTEM,
-								time(NULL));
+		purple_conversation_write_system_message(conv,
+			_("Logging started. Future messages in this conversation will be logged."), 0);
 	}
 	else
 	{
-		purple_conversation_write(conv, NULL,
-								_("Logging stopped. Future messages in this conversation will not be logged."),
-								PURPLE_MESSAGE_SYSTEM,
-								time(NULL));
+		purple_conversation_write_system_message(conv,
+			_("Logging stopped. Future messages in this conversation will not be logged."), 0);
 
 		/* Disable the logging second, so that the above message can be logged. */
 		purple_conversation_set_logging(conv, FALSE);
@@ -4340,8 +4356,10 @@ add_chat_user_common(PurpleChatConversation *chat, PurpleChatUser *cb, const cha
 	purple_chat_user_set_ui_data(cb, gtk_tree_row_reference_new(tm, newpath));
 	gtk_tree_path_free(newpath);
 
+#if 0
 	if (is_me && color)
 		gdk_color_free(color);
+#endif
 	g_free(alias_key);
 }
 
@@ -4611,8 +4629,7 @@ tab_complete(PurpleConversation *conv)
 			matches = g_list_remove(matches, matches->data);
 		}
 
-		purple_conversation_write(conv, NULL, addthis, PURPLE_MESSAGE_NO_LOG,
-								time(NULL));
+		purple_conversation_write_system_message(conv, addthis, PURPLE_MESSAGE_NO_LOG);
 
 		modified = g_strdup_printf("%s%s%s", sub1, partial, sub2);
 		webkit_dom_node_set_node_value(container, modified, NULL);
@@ -6192,31 +6209,6 @@ pidgin_conv_destroy(PurpleConversation *conv)
 	g_free(gtkconv);
 }
 
-
-static void
-pidgin_conv_write_im(PurpleIMConversation *im, const char *who,
-					  const char *message, PurpleMessageFlags flags,
-					  time_t mtime)
-{
-	PidginConversation *gtkconv;
-	PurpleConversation *conv = PURPLE_CONVERSATION(im);
-
-	gtkconv = PIDGIN_CONVERSATION(conv);
-
-	if (conv != gtkconv->active_conv &&
-	    flags & PURPLE_MESSAGE_ACTIVE_ONLY)
-	{
-		/* Plugins that want these messages suppressed should be
-		 * calling purple_im_conversation_write_message(), so they get suppressed here,
-		 * before being written to the log. */
-		purple_debug_info("gtkconv",
-		                "Suppressing message for an inactive conversation in pidgin_conv_write_im()\n");
-		return;
-	}
-
-	purple_conversation_write(conv, who, message, flags, mtime);
-}
-
 #if 0
 static const char *
 get_text_tag_color(GtkTextTag *tag)
@@ -6402,8 +6394,8 @@ static char *
 replace_message_tokens(
 	const char *text,
 	PurpleConversation *conv,
-	const char *name,
-	const char *alias,
+	const char *name, /* author */
+	const char *alias, /* author's alias */
 	const char *message,
 	PurpleMessageFlags flags,
 	time_t mtime)
@@ -6664,10 +6656,31 @@ box_remote_images(PurpleConversation *conv, const gchar *msg)
 		box_remote_image_cb, conv, NULL);
 }
 
+static gboolean
+writing_msg(PurpleConversation *conv, PurpleMessage *msg, gpointer _unused)
+{
+	PidginConversation *gtkconv;
+
+	g_return_val_if_fail(msg != NULL, FALSE);
+
+	if (!(purple_message_get_flags(msg) & PURPLE_MESSAGE_ACTIVE_ONLY))
+		return FALSE;
+
+	g_return_val_if_fail(conv != NULL, FALSE);
+	gtkconv = PIDGIN_CONVERSATION(conv);
+	g_return_val_if_fail(gtkconv != NULL, FALSE);
+
+	if (conv == gtkconv->active_conv)
+		return FALSE;
+
+	purple_debug_info("gtkconv",
+		"Suppressing message for an inactive conversation");
+
+	return TRUE;
+}
+
 static void
-pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *alias,
-						const char *message, PurpleMessageFlags flags,
-						time_t mtime)
+pidgin_conv_write_conv(PurpleConversation *conv, PurpleMessage *pmsg)
 {
 	PidginConversation *gtkconv;
 	PurpleConnection *gc;
@@ -6690,17 +6703,18 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 #endif
 
 	const char *message_html;
-	char *msg;
+	char *msg_tokenized;
 	char *escape;
 	char *script;
 	char *smileyed;
 	gchar *imgized;
-	PurpleMessageFlags old_flags;
+	PurpleMessageFlags flags, old_flags;
 	const char *func = "appendMessage";
 
 	g_return_if_fail(conv != NULL);
 	gtkconv = PIDGIN_CONVERSATION(conv);
 	g_return_if_fail(gtkconv != NULL);
+	flags = purple_message_get_flags(pmsg);
 
 	if (gtkconv->attach_timer) {
 		/* We are currently in the process of filling up the buffer with the message
@@ -6713,17 +6727,6 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 
 	if (conv != gtkconv->active_conv)
 	{
-		if (flags & PURPLE_MESSAGE_ACTIVE_ONLY)
-		{
-			/* Unless this had PURPLE_MESSAGE_NO_LOG, this message
-			 * was logged.  Plugin writers: if this isn't what
-			 * you wanted, call purple_im_conversation_write_message() instead of
-			 * purple_conversation_write(). */
-			purple_debug_info("gtkconv",
-			                "Suppressing message for an inactive conversation in pidgin_conv_write_conv()\n");
-			return;
-		}
-
 		/* Set the active conversation to the one that just messaged us. */
 		/* TODO: consider not doing this if the account is offline or something */
 		if (flags & (PURPLE_MESSAGE_SEND | PURPLE_MESSAGE_RECV))
@@ -6737,14 +6740,14 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 
 	/* Make sure URLs are clickable */
 	if(flags & PURPLE_MESSAGE_NO_LINKIFY)
-		displaying = g_strdup(message);
+		displaying = g_strdup(purple_message_get_contents(pmsg));
 	else
-		displaying = purple_markup_linkify(message);
+		displaying = purple_markup_linkify(purple_message_get_contents(pmsg));
 
 	plugin_return = GPOINTER_TO_INT(purple_signal_emit_return_1(
-							pidgin_conversations_get_handle(), (PURPLE_IS_IM_CONVERSATION(conv) ?
-							"displaying-im-msg" : "displaying-chat-msg"),
-							account, name, &displaying, conv, flags));
+		pidgin_conversations_get_handle(),
+		(PURPLE_IS_IM_CONVERSATION(conv) ? "displaying-im-msg" : "displaying-chat-msg"),
+		conv, pmsg));
 	if (plugin_return)
 	{
 		g_free(displaying);
@@ -6766,13 +6769,13 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 
 	} else if ((flags & PURPLE_MESSAGE_RECV) && (old_flags & PURPLE_MESSAGE_RECV)) {
 		GList *history = purple_conversation_get_message_history(gtkconv->last_conversed);
-		PurpleConversationMessage *last_msg = history ? (PurpleConversationMessage *)history->data : NULL;
+		PurpleMessage *last_msg = history ? history->data : NULL;
 
 		g_assert(history != NULL);
 		g_assert(last_msg != NULL);
 
 		/* If the senders are the same, use appendNextMessage */
-		if (purple_strequal(purple_conversation_message_get_sender(last_msg), name)) {
+		if (purple_strequal(purple_message_get_author(last_msg), purple_message_get_author(pmsg))) {
 			message_html = pidgin_conversation_theme_get_template(gtkconv->theme,
 				PIDGIN_CONVERSATION_THEME_TEMPLATE_INCOMING_NEXT_CONTENT);
 			func = "appendNextMessage";
@@ -6795,8 +6798,13 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 		(flags & PURPLE_MESSAGE_RECV), pidgin_conv_write_smiley,
 		(gpointer)purple_account_get_protocol_name(account));
 	imgized = box_remote_images(conv, smileyed);
-	msg = replace_message_tokens(message_html, conv, name, alias, imgized, flags, mtime);
-	escape = pidgin_webview_quote_js_string(msg ? msg : "");
+	msg_tokenized = replace_message_tokens(message_html, conv,
+		purple_message_get_author(pmsg),
+		purple_message_get_author_alias(pmsg),
+		imgized,
+		purple_message_get_flags(pmsg),
+		purple_message_get_time(pmsg));
+	escape = pidgin_webview_quote_js_string(msg_tokenized ? msg_tokenized : "");
 	script = g_strdup_printf("%s(%s)", func, escape);
 
 	purple_debug_info("webkit", "JS: %s\n", script);
@@ -6805,7 +6813,7 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 	g_free(script);
 	g_free(smileyed);
 	g_free(imgized);
-	g_free(msg);
+	g_free(msg_tokenized);
 	g_free(escape);
 
 #if 0
@@ -6888,7 +6896,6 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 		/* The initial offset is to deal with
 		 * escaped entities making the string longer */
 		int tag_start_offset = 0;
-		int tag_end_offset = 0;
 		const char *tagname = NULL;
 
 		/* Enforce direction on alias */
@@ -6896,20 +6903,7 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 			str_embed_direction_chars(&alias_escaped);
 
 		str = g_malloc(1024);
-		if (flags & PURPLE_MESSAGE_WHISPER) {
-			/* If we're whispering, it's not an autoresponse. */
-			if (purple_message_meify(new_message, -1 )) {
-				g_snprintf(str, 1024, "***%s", alias_escaped);
-				tag_start_offset += 3;
-				tagname = "whisper-action-name";
-			}
-			else {
-				g_snprintf(str, 1024, "*%s*:", alias_escaped);
-				tag_start_offset += 1;
-				tag_end_offset = 2;
-				tagname = "whisper-name";
-			}
-		} else {
+		if (TRUE) { /* XXX: reduce numer of indentations */
 			if (purple_message_meify(new_message, -1)) {
 				if (flags & PURPLE_MESSAGE_AUTO_RESP) {
 					g_snprintf(str, 1024, "%s ***%s", AUTO_RESPONSE, alias_escaped);
@@ -6929,7 +6923,9 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 					tag_start_offset += strlen(AUTO_RESPONSE) - 6 + 1;
 				} else {
 					g_snprintf(str, 1024, "%s:", alias_escaped);
+#if 0
 					tag_end_offset = 1;
+#endif
 				}
 
 				if (flags & PURPLE_MESSAGE_NICK) {
@@ -7026,7 +7022,7 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 			struct tm *history_since_tm;
 			const char *history_since_s, *prev_history_since_s;
 
-			history_since = mtime + 1;
+			history_since = purple_message_get_time(pmsg) + 1;
 
 			prev_history_since_s = g_hash_table_lookup(comps,
 				"history_since");
@@ -7056,7 +7052,7 @@ pidgin_conv_write_conv(PurpleConversation *conv, const char *name, const char *a
 
 	purple_signal_emit(pidgin_conversations_get_handle(),
 		(PURPLE_IS_IM_CONVERSATION(conv) ? "displayed-im-msg" : "displayed-chat-msg"),
-		account, name, displaying, conv, flags);
+		conv, pmsg);
 	g_free(displaying);
 	update_typing_message(gtkconv, NULL);
 }
@@ -7398,12 +7394,6 @@ gray_stuff_out(PidginConversation *gtkconv)
 			buttons = PIDGIN_WEBVIEW_SMILEY | PIDGIN_WEBVIEW_IMAGE;
 		}
 
-		if (!(prpl_info->options & OPT_PROTO_IM_IMAGE)
-		 && !(features & PURPLE_CONNECTION_FLAG_NO_IMAGES)) {
-			features |= PURPLE_CONNECTION_FLAG_NO_IMAGES;
-			purple_conversation_set_features(conv, features);
-		}
-
 		if (features & PURPLE_CONNECTION_FLAG_NO_IMAGES)
 			buttons &= ~PIDGIN_WEBVIEW_IMAGE;
 
@@ -7724,12 +7714,14 @@ pidgin_conv_updated(PurpleConversation *conv, PurpleConversationUpdateType type)
 }
 
 static void
-wrote_msg_update_unseen_cb(PurpleAccount *account, const char *who, const char *message,
-		PurpleConversation *conv, PurpleMessageFlags flags, gpointer null)
+wrote_msg_update_unseen_cb(PurpleConversation *conv, PurpleMessage *msg,
+	gpointer _unused)
 {
 	PidginConversation *gtkconv = conv ? PIDGIN_CONVERSATION(conv) : NULL;
+	PurpleMessageFlags flags;
 	if (conv == NULL || (gtkconv && gtkconv->win != hidden_convwin))
 		return;
+	flags = purple_message_get_flags(msg);
 	if (flags & (PURPLE_MESSAGE_SEND | PURPLE_MESSAGE_RECV)) {
 		PidginUnseenState unseen = PIDGIN_UNSEEN_NONE;
 
@@ -7752,7 +7744,7 @@ static PurpleConversationUiOps conversation_ui_ops =
 	pidgin_conv_new,
 	pidgin_conv_destroy,              /* destroy_conversation */
 	NULL,                              /* write_chat           */
-	pidgin_conv_write_im,             /* write_im             */
+	NULL,                             /* write_im             */
 	pidgin_conv_write_conv,           /* write_conv           */
 	pidgin_conv_chat_add_users,       /* chat_add_users       */
 	pidgin_conv_chat_rename_user,     /* chat_rename_user     */
@@ -8375,10 +8367,11 @@ account_signing_off(PurpleConnection *gc)
 		if (!purple_chat_conversation_has_left(PURPLE_CHAT_CONVERSATION(conv)) &&
 				purple_conversation_get_account(conv) == account) {
 			g_object_set_data(G_OBJECT(conv), "want-to-rejoin", GINT_TO_POINTER(TRUE));
-			purple_conversation_write(conv, NULL, _("The account has disconnected and you are no "
-						"longer in this chat. You will automatically rejoin the chat when "
-						"the account reconnects."),
-					PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
+			purple_conversation_write_system_message(conv,
+				_("The account has disconnected and you are no "
+				"longer in this chat. You will automatically "
+				"rejoin the chat when the account reconnects."),
+				PURPLE_MESSAGE_NO_LOG);
 		}
 		list = list->next;
 	}
@@ -8491,12 +8484,12 @@ update_chat_topic(PurpleChatConversation *chat, const char *old, const char *new
 
 /* Message history stuff */
 
-/* Compare two PurpleConversationMessage's, according to time in ascending order. */
+/* Compare two PurpleMessages, according to time in ascending order. */
 static int
 message_compare(gconstpointer p1, gconstpointer p2)
 {
-	const PurpleConversationMessage *m1 = p1, *m2 = p2;
-	return (purple_conversation_message_get_timestamp(m1) > purple_conversation_message_get_timestamp(m2));
+	const PurpleMessage *m1 = p1, *m2 = p2;
+	return (purple_message_get_time(m1) > purple_message_get_time(m2));
 }
 
 /* Adds some message history to the gtkconv. This happens in a idle-callback. */
@@ -8511,20 +8504,15 @@ add_message_history_to_gtkconv(gpointer data)
 	gboolean im = (PURPLE_IS_IM_CONVERSATION(gtkconv->active_conv));
 
 	gtkconv->attach_timer = 0;
-	while (gtkconv->attach_current && count < 100) {  /* XXX: 100 is a random value here */
-		PurpleConversationMessage *msg = gtkconv->attach_current->data;
-		if (!im && when && when < purple_conversation_message_get_timestamp(msg)) {
+	while (gtkconv->attach_current && count < ADD_MESSAGE_HISTORY_AT_ONCE) {
+		PurpleMessage *msg = gtkconv->attach_current->data;
+		if (!im && when && (guint64)when < purple_message_get_time(msg)) {
 			pidgin_webview_append_html(webview, "<BR><HR>");
 			pidgin_webview_scroll_to_end(webview, TRUE);
 			g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time", NULL);
 		}
-		pidgin_conv_write_conv(
-				purple_conversation_message_get_conversation(msg),
-				purple_conversation_message_get_sender(msg),
-				purple_conversation_message_get_alias(msg),
-				purple_conversation_message_get_message(msg),
-				purple_conversation_message_get_flags(msg),
-				purple_conversation_message_get_timestamp(msg));
+		/* XXX: should it be gtkconv->active_conv? */
+		pidgin_conv_write_conv(gtkconv->active_conv, msg);
 		if (im) {
 			gtkconv->attach_current = g_list_delete_link(gtkconv->attach_current, gtkconv->attach_current);
 		} else {
@@ -8546,21 +8534,16 @@ add_message_history_to_gtkconv(gpointer data)
 			PurpleConversation *conv = iter->data;
 			GList *history = purple_conversation_get_message_history(conv);
 			for (; history; history = history->next) {
-				PurpleConversationMessage *msg = history->data;
-				if (purple_conversation_message_get_timestamp(msg) > when)
+				PurpleMessage *msg = history->data;
+				if (purple_message_get_time(msg) > (guint64)when)
 					msgs = g_list_prepend(msgs, msg);
 			}
 		}
 		msgs = g_list_sort(msgs, message_compare);
 		for (; msgs; msgs = g_list_delete_link(msgs, msgs)) {
-			PurpleConversationMessage *msg = msgs->data;
-			pidgin_conv_write_conv(
-					purple_conversation_message_get_conversation(msg),
-					purple_conversation_message_get_sender(msg),
-					purple_conversation_message_get_alias(msg),
-					purple_conversation_message_get_message(msg),
-					purple_conversation_message_get_flags(msg),
-					purple_conversation_message_get_timestamp(msg));
+			PurpleMessage *msg = msgs->data;
+			/* XXX: see above - should it be active_conv? */
+			pidgin_conv_write_conv(gtkconv->active_conv, msg);
 		}
 		pidgin_webview_append_html(webview, "<BR><HR>");
 		pidgin_webview_scroll_to_end(webview, TRUE);
@@ -8631,9 +8614,9 @@ gboolean pidgin_conv_attach_to_conversation(PurpleConversation *conv)
 		} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
 			gtkconv->attach_current = g_list_last(list);
 		}
-	
+
 		g_object_set_data(G_OBJECT(gtkconv->entry), "attach-start-time",
-				GINT_TO_POINTER(purple_conversation_message_get_timestamp((PurpleConversationMessage*)(list->data))));
+			GINT_TO_POINTER(purple_message_get_time(list->data)));
 		gtkconv->attach_timer = g_idle_add(add_message_history_to_gtkconv, gtkconv);
 	} else {
 		purple_signal_emit(pidgin_conversations_get_handle(),
@@ -8801,26 +8784,20 @@ pidgin_conversations_init(void)
 	                     G_TYPE_BOOLEAN);
 
 	purple_signal_register(handle, "displaying-im-msg",
-						 purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER,
-						 G_TYPE_BOOLEAN, 5, PURPLE_TYPE_ACCOUNT, G_TYPE_STRING,
-						 G_TYPE_POINTER, /* pointer to a string */
-						 PURPLE_TYPE_CONVERSATION, G_TYPE_INT);
+		purple_marshal_BOOLEAN__POINTER_POINTER,
+		G_TYPE_BOOLEAN, 2, PURPLE_TYPE_CONVERSATION, PURPLE_TYPE_MESSAGE);
 
 	purple_signal_register(handle, "displayed-im-msg",
-						 purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT,
-						 G_TYPE_NONE, 5, PURPLE_TYPE_ACCOUNT, G_TYPE_STRING,
-						 G_TYPE_STRING, PURPLE_TYPE_CONVERSATION, G_TYPE_INT);
+		purple_marshal_VOID__POINTER_POINTER, G_TYPE_NONE, 2,
+		PURPLE_TYPE_CONVERSATION, PURPLE_TYPE_MESSAGE);
 
 	purple_signal_register(handle, "displaying-chat-msg",
-						 purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER,
-						 G_TYPE_BOOLEAN, 5, PURPLE_TYPE_ACCOUNT, G_TYPE_STRING,
-						 G_TYPE_POINTER, /* pointer to a string */
-						 PURPLE_TYPE_CONVERSATION, G_TYPE_INT);
+		purple_marshal_BOOLEAN__POINTER_POINTER,
+		G_TYPE_BOOLEAN, 2, PURPLE_TYPE_CONVERSATION, PURPLE_TYPE_MESSAGE);
 
 	purple_signal_register(handle, "displayed-chat-msg",
-						 purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT,
-						 G_TYPE_NONE, 5, PURPLE_TYPE_ACCOUNT, G_TYPE_STRING,
-						 G_TYPE_STRING, PURPLE_TYPE_CONVERSATION, G_TYPE_INT);
+		purple_marshal_VOID__POINTER_POINTER, G_TYPE_NONE, 2,
+		PURPLE_TYPE_CONVERSATION, PURPLE_TYPE_MESSAGE);
 
 	purple_signal_register(handle, "conversation-switched",
 						 purple_marshal_VOID__POINTER, G_TYPE_NONE, 1,
@@ -8883,6 +8860,10 @@ pidgin_conversations_init(void)
 	purple_signal_connect(purple_connections_get_handle(), "signing-off", handle,
 						G_CALLBACK(account_signing_off), NULL);
 
+	purple_signal_connect(purple_conversations_get_handle(), "writing-im-msg",
+		handle, G_CALLBACK(writing_msg), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "writing-chat-msg",
+		handle, G_CALLBACK(writing_msg), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "received-im-msg",
 						handle, G_CALLBACK(received_im_msg_cb), NULL);
 	purple_signal_connect(purple_conversations_get_handle(), "cleared-message-history",

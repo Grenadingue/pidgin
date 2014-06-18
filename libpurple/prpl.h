@@ -84,6 +84,7 @@ typedef struct _PurpleThumbnailSpec PurpleThumbnailSpec;
 #include "xfer.h"
 #include "image.h"
 #include "media.h"
+#include "message.h"
 #include "notify.h"
 #include "proxy.h"
 #include "plugin.h"
@@ -157,8 +158,6 @@ struct proto_chat_entry {
  *           password prompt.
  * @OPT_PROTO_MAIL_CHECK: Notify on new mail.<sbr/>
  *           MSN and Yahoo notify you when you have new mail.
- * @OPT_PROTO_IM_IMAGE: Images in IMs.<sbr/>
- *           Oscar lets you send images in direct IMs.
  * @OPT_PROTO_PASSWORD_OPTIONAL: Allow passwords to be optional.<sbr/>
  *           Passwords in IRC are optional, and are needed for certain
  *           functionality.
@@ -192,7 +191,6 @@ typedef enum  /*< flags >*/
 	OPT_PROTO_CHAT_TOPIC                    = 0x00000008,
 	OPT_PROTO_NO_PASSWORD                   = 0x00000010,
 	OPT_PROTO_MAIL_CHECK                    = 0x00000020,
-	OPT_PROTO_IM_IMAGE                      = 0x00000040,
 	OPT_PROTO_PASSWORD_OPTIONAL             = 0x00000080,
 	OPT_PROTO_USE_POINTSIZE                 = 0x00000100,
 	OPT_PROTO_REGISTER_NOSCREENNAME         = 0x00000200,
@@ -320,9 +318,7 @@ struct _PurplePluginProtocolInfo
 	 * errno values, or just big something.  If the message should
 	 * not be echoed to the conversation window, return 0.
 	 */
-	int  (*send_im)(PurpleConnection *, const char *who,
-					const char *message,
-					PurpleMessageFlags flags);
+	int  (*send_im)(PurpleConnection *, PurpleMessage *msg);
 
 	void (*set_info)(PurpleConnection *, const char *info);
 
@@ -413,16 +409,6 @@ struct _PurplePluginProtocolInfo
 	void (*chat_leave)(PurpleConnection *, int id);
 
 	/*
-	 * Send a whisper to a user in a chat.
-	 *
-	 * @id:      The id of the chat.
-	 * @who:     The name of the user to send the whisper to.
-	 * @message: The message of the whisper.
-	 */
-	void (*chat_whisper)(PurpleConnection *, int id,
-						 const char *who, const char *message);
-
-	/*
 	 * Send a message to a chat.
 	 * This PRPL function should return a positive value on success.
 	 * If the message is too big to be sent, return -E2BIG.  If
@@ -432,14 +418,12 @@ struct _PurplePluginProtocolInfo
 	 * errno values, or just big something.
 	 *
 	 * @id:      The id of the chat to send the message to.
-	 * @message: The message to send to the chat.
-	 * @flags:   A bitwise OR of #PurpleMessageFlags representing
-	 *           message flags.
+	 * @msg:     The message to send to the chat.
 	 *
 	 * Returns:  A positive number or 0 in case of success,
 	 *           a negative error number in case of failure.
 	 */
-	int  (*chat_send)(PurpleConnection *, int id, const char *message, PurpleMessageFlags flags);
+	int  (*chat_send)(PurpleConnection *, int id, PurpleMessage *msg);
 
 	/* If implemented, this will be called regularly for this prpl's
 	 * active connections.  You'd want to do this if you need to repeatedly
@@ -1030,5 +1014,10 @@ purple_prpl_get_max_message_size(PurplePlugin *prpl);
 PurplePlugin *purple_find_prpl(const char *id);
 
 G_END_DECLS
+
+#ifdef __COVERITY__
+#undef PURPLE_PROTOCOL_PLUGIN_HAS_FUNC
+#define PURPLE_PROTOCOL_PLUGIN_HAS_FUNC(prpl, member) (prpl->member != NULL)
+#endif
 
 #endif /* _PRPL_H_ */

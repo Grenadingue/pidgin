@@ -93,9 +93,8 @@ auth_old_pass_cb(PurpleConnection *gc, PurpleRequestFields *fields)
 	const char *entry;
 	gboolean remember;
 
-	/* The password prompt dialog doesn't get disposed if the account disconnects */
-	if (!PURPLE_CONNECTION_IS_VALID(gc))
-		return;
+	/* TODO: the password prompt dialog doesn't get disposed if the account disconnects */
+	PURPLE_ASSERT_CONNECTION_IS_VALID(gc);
 
 	account = purple_connection_get_account(gc);
 	js = purple_connection_get_protocol_data(gc);
@@ -123,9 +122,8 @@ auth_old_pass_cb(PurpleConnection *gc, PurpleRequestFields *fields)
 static void
 auth_no_pass_cb(PurpleConnection *gc, PurpleRequestFields *fields)
 {
-	/* The password prompt dialog doesn't get disposed if the account disconnects */
-	if (!PURPLE_CONNECTION_IS_VALID(gc))
-		return;
+	/* TODO: the password prompt dialog doesn't get disposed if the account disconnects */
+	PURPLE_ASSERT_CONNECTION_IS_VALID(gc);
 
 	/* Disable the account as the user has cancelled connecting */
 	purple_account_set_enabled(purple_connection_get_account(gc), purple_core_get_ui(), FALSE);
@@ -282,6 +280,7 @@ static void auth_old_cb(JabberStream *js, const char *from,
 			gchar digest[33];
 			PurpleCipher *hmac;
 			PurpleHash *md5;
+			gssize diglen;
 
 			/* Calculate the MHAC-MD5 digest */
 			md5 = purple_md5_hash_new();
@@ -289,9 +288,11 @@ static void auth_old_cb(JabberStream *js, const char *from,
 			challenge = purple_xmlnode_get_attrib(x, "challenge");
 			purple_cipher_set_key(hmac, (guchar *)pw, strlen(pw));
 			purple_cipher_append(hmac, (guchar *)challenge, strlen(challenge));
-			purple_cipher_digest_to_str(hmac, digest, 33);
+			diglen = purple_cipher_digest_to_str(hmac, digest, 33);
 			g_object_unref(hmac);
 			g_object_unref(md5);
+
+			g_return_if_fail(diglen > 0);
 
 			/* Create the response query */
 			iq = jabber_iq_new_query(js, JABBER_IQ_SET, "jabber:iq:auth");

@@ -353,25 +353,20 @@ purple_im_conversation_update_typing(PurpleIMConversation *im)
 }
 
 static void
-im_conversation_write_message(PurpleConversation *conv, const char *who, const char *message,
-			  PurpleMessageFlags flags, time_t mtime)
+im_conversation_write_message(PurpleConversation *conv, PurpleMessage *msg)
 {
-	PurpleConversationUiOps *ops;
 	PurpleIMConversation *im = PURPLE_IM_CONVERSATION(conv);
+	gboolean is_recv;
 
 	g_return_if_fail(im != NULL);
-	g_return_if_fail(message != NULL);
+	g_return_if_fail(msg != NULL);
 
-	ops = purple_conversation_get_ui_ops(conv);
+	is_recv = (purple_message_get_flags(msg) & PURPLE_MESSAGE_RECV);
 
-	if ((flags & PURPLE_MESSAGE_RECV) == PURPLE_MESSAGE_RECV)
+	if (is_recv)
 		purple_im_conversation_set_typing_state(im, PURPLE_IM_NOT_TYPING);
 
-	/* Pass this on to either the ops structure or the default write func. */
-	if (ops != NULL && ops->write_im != NULL)
-		ops->write_im(im, who, message, flags, mtime);
-	else
-		purple_conversation_write(conv, who, message, flags, mtime);
+	_purple_conversation_write_common(conv, msg);
 }
 
 /**************************************************************************
@@ -797,53 +792,38 @@ purple_chat_conversation_get_id(const PurpleChatConversation *chat)
 }
 
 static void
-chat_conversation_write_message(PurpleConversation *conv, const char *who, const char *message,
-				PurpleMessageFlags flags, time_t mtime)
+chat_conversation_write_message(PurpleConversation *conv, PurpleMessage *msg)
 {
-	PurpleAccount *account;
-	PurpleConversationUiOps *ops;
 	PurpleChatConversationPrivate *priv = PURPLE_CHAT_CONVERSATION_GET_PRIVATE(conv);
+	PurpleMessageFlags flags;
 
 	g_return_if_fail(priv != NULL);
-	g_return_if_fail(who != NULL);
-	g_return_if_fail(message != NULL);
-
-	account = purple_conversation_get_account(conv);
+	g_return_if_fail(msg != NULL);
 
 	/* Don't display this if the person who wrote it is ignored. */
-	if (purple_chat_conversation_is_ignored_user(PURPLE_CHAT_CONVERSATION(conv), who))
+	if (purple_message_get_author(msg) && purple_chat_conversation_is_ignored_user(
+		PURPLE_CHAT_CONVERSATION(conv), purple_message_get_author(msg)))
+	{
 		return;
-
-	if (mtime < 0) {
-		purple_debug_error("conversation",
-				"purple_conv_chat_write ignoring negative timestamp\n");
-		/* TODO: Would be more appropriate to use a value that indicates
-		   that the timestamp is unknown, and surface that in the UI. */
-		mtime = time(NULL);
 	}
 
-	if (!(flags & PURPLE_MESSAGE_WHISPER)) {
-		const char *str;
+#if 0
+	PurpleAccount *account = purple_conversation_get_account(conv);
+	/* XXX: this should not be necessary */
+	if (purple_strequal(purple_normalize(account, who), priv->nick)) {
+		flags |= PURPLE_MESSAGE_SEND;
+	}
+#endif
 
-		str = purple_normalize(account, who);
-
-		if (purple_strequal(str, priv->nick)) {
-			flags |= PURPLE_MESSAGE_SEND;
-		} else {
-			flags |= PURPLE_MESSAGE_RECV;
-
-			if (purple_utf8_has_word(message, priv->nick))
-				flags |= PURPLE_MESSAGE_NICK;
+	flags = purple_message_get_flags(msg);
+	if (flags & PURPLE_MESSAGE_RECV) {
+		if (purple_utf8_has_word(purple_message_get_contents(msg), priv->nick)) {
+			flags |= PURPLE_MESSAGE_NICK;
+			purple_message_set_flags(msg, flags);
 		}
 	}
 
-	ops = purple_conversation_get_ui_ops(conv);
-
-	/* Pass this on to either the ops structure or the default write func. */
-	if (ops != NULL && ops->write_chat != NULL)
-		ops->write_chat(PURPLE_CHAT_CONVERSATION(conv), who, message, flags, mtime);
-	else
-		purple_conversation_write(conv, who, message, flags, mtime);
+	_purple_conversation_write_common(conv, msg);
 }
 
 void
@@ -943,9 +923,8 @@ purple_chat_conversation_add_users(PurpleChatConversation *chat, GList *users, G
 			}
 			g_free(alias_esc);
 
-			purple_conversation_write(conv, NULL, tmp,
-					PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LINKIFY,
-					time(NULL));
+			purple_conversation_write_system_message(
+				conv, tmp, PURPLE_MESSAGE_NO_LINKIFY);
 			g_free(tmp);
 		}
 
@@ -1074,9 +1053,8 @@ purple_chat_conversation_rename_user(PurpleChatConversation *chat, const char *o
 			g_free(escaped2);
 		}
 
-		purple_conversation_write(conv, NULL, tmp,
-				PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LINKIFY,
-				time(NULL));
+		purple_conversation_write_system_message(conv,
+			tmp, PURPLE_MESSAGE_NO_LINKIFY);
 	}
 }
 
@@ -1155,9 +1133,8 @@ purple_chat_conversation_remove_users(PurpleChatConversation *chat, GList *users
 			}
 			g_free(alias_esc);
 
-			purple_conversation_write(conv, NULL, tmp,
-					PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LINKIFY,
-					time(NULL));
+			purple_conversation_write_system_message(conv,
+				tmp, PURPLE_MESSAGE_NO_LINKIFY);
 			g_free(tmp);
 		}
 
@@ -1299,7 +1276,8 @@ purple_chat_conversation_leave(PurpleChatConversation *chat)
 
 	priv->left = TRUE;
 
-	g_object_notify_by_pspec(G_OBJECT(chat), chat_properties[CHAT_PROP_LEFT]);
+	if (!g_object_get_data(G_OBJECT(chat), "is-finalizing"))
+		g_object_notify_by_pspec(G_OBJECT(chat), chat_properties[CHAT_PROP_LEFT]);
 
 	purple_conversation_update(PURPLE_CONVERSATION(chat), PURPLE_CONVERSATION_UPDATE_CHATLEFT);
 }

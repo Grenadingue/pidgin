@@ -103,7 +103,8 @@ bonjour_login(PurpleAccount *account)
 	}
 #endif /* _WIN32 */
 
-	purple_connection_set_flags(gc, PURPLE_CONNECTION_FLAG_HTML);
+	purple_connection_set_flags(gc, PURPLE_CONNECTION_FLAG_HTML |
+		PURPLE_CONNECTION_FLAG_NO_IMAGES);
 	bd = g_new0(BonjourData, 1);
 	purple_connection_set_protocol_data(gc, bd);
 
@@ -204,14 +205,16 @@ bonjour_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 }
 
 static int
-bonjour_send_im(PurpleConnection *connection, const char *to, const char *msg, PurpleMessageFlags flags)
+bonjour_send_im(PurpleConnection *connection, PurpleMessage *msg)
 {
 	BonjourData *bd = purple_connection_get_protocol_data(connection);
 
-	if(!to || !msg)
+	if (purple_message_is_empty(msg) || !purple_message_get_recipient(msg))
 		return 0;
 
-	return bonjour_jabber_send_message(bd->jabber_data, to, msg);
+	return bonjour_jabber_send_message(bd->jabber_data,
+		purple_message_get_recipient(msg),
+		purple_message_get_contents(msg));
 }
 
 static void
@@ -525,7 +528,6 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,                                                    /* get_chat_name */
 	NULL,                                                    /* chat_invite */
 	NULL,                                                    /* chat_leave */
-	NULL,                                                    /* chat_whisper */
 	NULL,                                                    /* chat_send */
 	NULL,                                                    /* keepalive */
 	NULL,                                                    /* register_user */

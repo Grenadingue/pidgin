@@ -420,7 +420,7 @@ void ggp_async_login_handler(gpointer _gc, gint fd, PurpleInputCondition cond)
 	GGPInfo *info;
 	struct gg_event *ev;
 
-	g_return_if_fail(PURPLE_CONNECTION_IS_VALID(gc));
+	PURPLE_ASSERT_CONNECTION_IS_VALID(gc);
 
 	info = purple_connection_get_protocol_data(gc);
 
@@ -672,8 +672,12 @@ static void ggp_login(PurpleAccount *account)
 	if (!ggp_deprecated_setup_proxy(gc))
 		return;
 
-	purple_connection_set_flags(gc, PURPLE_CONNECTION_FLAG_HTML |
-			PURPLE_CONNECTION_FLAG_NO_URLDESC);
+	purple_connection_set_flags(gc,
+#if ! GGP_ENABLE_GG11
+		PURPLE_CONNECTION_FLAG_NO_IMAGES |
+#endif
+		PURPLE_CONNECTION_FLAG_HTML |
+		PURPLE_CONNECTION_FLAG_NO_URLDESC);
 
 	glp = g_new0(struct gg_login_params, 1);
 #if GGP_ENABLE_GG11
@@ -975,7 +979,7 @@ ggp_get_max_message_size(PurpleConversation *conv)
 static PurplePluginProtocolInfo prpl_info =
 {
 	sizeof(PurplePluginProtocolInfo),       /* struct_size */
-	OPT_PROTO_IM_IMAGE,
+	0,
 	NULL,				/* user_splits */
 	NULL,				/* protocol_options */
 	{"png", 1, 1, 200, 200, 0, PURPLE_ICON_SCALE_DISPLAY | PURPLE_ICON_SCALE_SEND},	/* icon_spec */
@@ -1015,10 +1019,9 @@ static PurplePluginProtocolInfo prpl_info =
 	ggp_chat_get_name,		/* get_chat_name */
 	ggp_chat_invite,		/* chat_invite */
 	ggp_chat_leave,			/* chat_leave */
-	NULL,				/* chat_whisper */
 	ggp_chat_send,			/* chat_send */
 #else
-	NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL, NULL, NULL,
 #endif
 	ggp_keepalive,			/* keepalive */
 	NULL,				/* register_user */

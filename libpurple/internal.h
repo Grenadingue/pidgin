@@ -149,6 +149,10 @@
 	[(condition) ? 1 : -1]; static_assertion_failed_ ## message dummy; \
 	(void)dummy; }
 
+/* This is meant to track use-after-free errors.
+ * TODO: it should be disabled in released code. */
+#define PURPLE_ASSERT_CONNECTION_IS_VALID(gc) \
+	_purple_assert_connection_is_valid(gc, __FILE__, __LINE__)
 
 #ifdef __clang__
 
@@ -167,6 +171,14 @@
 #endif /* __clang__ */
 
 #include <glib-object.h>
+
+#ifdef __COVERITY__
+
+/* avoid TAINTED_SCALAR warning */
+#undef g_utf8_next_char
+#define g_utf8_next_char(p) (char *)((p) + 1)
+
+#endif
 
 typedef union
 {
@@ -336,5 +348,89 @@ int *_purple_statuses_get_primitive_scores(void);
  */
 const gchar *
 _purple_blist_get_localized_default_group_name(void);
+
+/**
+ * Sets most commonly used socket flags: O_NONBLOCK and FD_CLOEXEC.
+ *
+ * @param fd The file descriptor for the socket.
+ *
+ * @return TRUE if succeeded, FALSE otherwise.
+ */
+gboolean
+_purple_network_set_common_socket_flags(int fd);
+
+/**
+ * A fstat alternative, like g_stat for stat.
+ *
+ * @param fd The file descriptor.
+ * @param st The stat buffer.
+ *
+ * @return the result just like for fstat.
+ */
+int
+_purple_fstat(int fd, GStatBuf *st);
+
+/**
+ * _purple_socket_cancel_with_connection:
+ * @gc The connection.
+ *
+ * Cancels all #PurpleSocket instances bound with @gc.
+ */
+void
+_purple_socket_cancel_with_connection(PurpleConnection *gc);
+
+/**
+ * _purple_socket_init: (skip)
+ *
+ * Initializes the #PurpleSocket subsystem.
+ */
+void
+_purple_socket_init(void);
+
+/**
+ * _purple_socket_uninit: (skip)
+ *
+ * Uninitializes the #PurpleSocket subsystem.
+ */
+void
+_purple_socket_uninit(void);
+
+/**
+ * _purple_message_init: (skip)
+ *
+ * Initializes the #PurpleMessage subsystem.
+ */
+void
+_purple_message_init(void);
+
+/**
+ * _purple_message_uninit: (skip)
+ *
+ * Uninitializes the #PurpleMessage subsystem.
+ */
+void
+_purple_message_uninit(void);
+
+void
+_purple_assert_connection_is_valid(PurpleConnection *gc,
+	const gchar *file, int line);
+
+/**
+ * _purple_conversation_write_common:
+ * @conv:    The conversation.
+ * @msg:     The message.
+ *
+ * Writes to a conversation window.
+ *
+ * This function should not be used to write IM or chat messages. Use
+ * purple_conversation_write_message() instead. This function will
+ * most likely call this anyway, but it may do it's own formatting,
+ * sound playback, etc. depending on whether the conversation is a chat or an
+ * IM.
+ *
+ * See purple_conversation_write_message().
+ */
+void
+_purple_conversation_write_common(PurpleConversation *conv, PurpleMessage *msg);
 
 #endif /* _PURPLE_INTERNAL_H_ */

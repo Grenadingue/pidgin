@@ -1557,6 +1557,7 @@ purple_markup_find_tag(const char *needle, const char *haystack,
 				case '"':
 				case '\'':
 					in_quotes = close;
+					/* fall through */
 				case '=':
 					{
 						size_t len = close - cur;
@@ -1569,11 +1570,12 @@ purple_markup_find_tag(const char *needle, const char *haystack,
 
 						in_attr = FALSE;
 						cur = close + 1;
-						break;
 					}
+					break;
 				case ' ':
 				case '>':
 					in_attr = FALSE;
+					/* fall through */
 				default:
 					cur = close;
 					break;
@@ -1592,6 +1594,7 @@ purple_markup_find_tag(const char *needle, const char *haystack,
 				case '"':
 				case '\'':
 					in_quotes = cur;
+					/* fall through */
 				default:
 					cur++;
 					break;
@@ -2982,7 +2985,7 @@ purple_util_write_data_to_file_absolute(const char *filename_full, const char *d
 {
 	gchar *filename_temp;
 	FILE *file;
-	size_t real_size, byteswritten;
+	gsize real_size, byteswritten;
 	GStatBuf st;
 #ifndef HAVE_FILENO
 	int fd;
@@ -3017,20 +3020,19 @@ purple_util_write_data_to_file_absolute(const char *filename_full, const char *d
 		return FALSE;
 	}
 
-#ifndef _WIN32
-	/* Set file permissions */
-	if (fchmod(fileno(file), S_IRUSR | S_IWUSR) == -1)
-	{
-		purple_debug_error("util", "Error setting permissions of %s: %s\n",
-				filename_temp, g_strerror(errno));
-	}
-#endif
-
 	/* Write to file */
 	real_size = (size == -1) ? strlen(data) : (size_t) size;
 	byteswritten = fwrite(data, 1, real_size, file);
 
 #ifdef HAVE_FILENO
+#ifndef _WIN32
+	/* Set file permissions */
+	if (fchmod(fileno(file), S_IRUSR | S_IWUSR) == -1) {
+		purple_debug_error("util", "Error setting permissions of "
+			"file %s: %s\n", filename_temp, g_strerror(errno));
+	}
+#endif
+
 	/* Apparently XFS (and possibly other filesystems) do not
 	 * guarantee that file data is flushed before file metadata,
 	 * so this procedure is insufficient without some flushage. */
@@ -3068,6 +3070,15 @@ purple_util_write_data_to_file_absolute(const char *filename_full, const char *d
 		g_free(filename_temp);
 		return FALSE;
 	}
+
+#ifndef _WIN32
+	/* copy-pasta! */
+	if (fchmod(fd, S_IRUSR | S_IWUSR) == -1) {
+		purple_debug_error("util", "Error setting permissions of "
+			"file %s: %s\n", filename_temp, g_strerror(errno));
+	}
+#endif
+
 	if (fsync(fd) < 0) {
 		purple_debug_error("util", "Error syncing %s: %s\n",
 				   filename_temp, g_strerror(errno));
@@ -3094,21 +3105,18 @@ purple_util_write_data_to_file_absolute(const char *filename_full, const char *d
 		g_free(filename_temp);
 		return FALSE;
 	}
-	/* Use stat to be absolutely sure. */
-	if (g_stat(filename_temp, &st) == -1) {
+#ifndef __COVERITY__
+	/* Use stat to be absolutely sure.
+	 * It causes TOCTOU coverity warning (against g_rename below),
+	 * but it's not a threat for us.
+	 */
+	if ((g_stat(filename_temp, &st) == -1) || ((gsize)st.st_size != real_size)) {
 		purple_debug_error("util", "Error writing data to file %s: "
 			"couldn't g_stat file", filename_temp);
 		g_free(filename_temp);
 		return FALSE;
 	}
-	if (st.st_size != (off_t)real_size) {
-		purple_debug_error("util", "Error writing data to file %s: "
-			"Incomplete file written (%" G_GSIZE_FORMAT " != %"
-			G_GSIZE_FORMAT "); is your disk full?",
-			filename_temp, (gsize)st.st_size, real_size);
-		g_free(filename_temp);
-		return FALSE;
-	}
+#endif /* __COVERITY__ */
 
 	/* Rename to the REAL name */
 	if (g_rename(filename_temp, filename_full) == -1)
@@ -3926,8 +3934,7 @@ purple_url_encode(const char *str)
 	const char *iter;
 	static char buf[BUF_LEN];
 	char utf_char[6];
-	int i;
-	guint j = 0;
+	guint i, j = 0;
 
 	g_return_val_if_fail(str != NULL, NULL);
 	g_return_val_if_fail(g_utf8_validate(str, -1, NULL), NULL);
@@ -3941,9 +3948,13 @@ purple_url_encode(const char *str)
 			buf[j++] = c;
 		} else {
 			int bytes = g_unichar_to_utf8(c, utf_char);
-			for (i = 0; i < bytes; i++) {
+			for (i = 0; (int)i < bytes; i++) {
 				if (j > (BUF_LEN - 4))
 					break;
+				if (i >= sizeof(utf_char)) {
+					g_warn_if_reached();
+					break;
+				}
 				sprintf(buf + j, "%%%02X", utf_char[i] & 0xff);
 				j += 3;
 			}
@@ -4197,7 +4208,7 @@ purple_utf8_salvage(const char *str)
 	workstr = g_string_sized_new(strlen(str));
 
 	do {
-		g_utf8_validate(str, -1, &end);
+		(void)g_utf8_validate(str, -1, &end);
 		workstr = g_string_append_len(workstr, str, end - str);
 		str = end;
 		if (*str == '\0')
@@ -4580,8 +4591,7 @@ purple_escape_filename(const char *str)
 	const char *iter;
 	static char buf[BUF_LEN];
 	char utf_char[6];
-	int i;
-	guint j = 0;
+	guint i, j = 0;
 
 	g_return_val_if_fail(str != NULL, NULL);
 	g_return_val_if_fail(g_utf8_validate(str, -1, NULL), NULL);
@@ -4596,9 +4606,13 @@ purple_escape_filename(const char *str)
 			buf[j++] = c;
 		} else {
 			int bytes = g_unichar_to_utf8(c, utf_char);
-			for (i = 0; i < bytes; i++) {
+			for (i = 0; (int)i < bytes; i++) {
 				if (j > (BUF_LEN - 4))
 					break;
+				if (i >= sizeof(utf_char)) {
+					g_warn_if_reached();
+					break;
+				}
 				sprintf(buf + j, "%%%02x", utf_char[i] & 0xff);
 				j += 3;
 			}
@@ -4805,6 +4819,7 @@ gchar *purple_http_digest_calculate_session_key(
 {
 	PurpleHash *hasher;
 	gchar hash[33]; /* We only support MD5. */
+	gboolean digest_ok;
 
 	g_return_val_if_fail(username != NULL, NULL);
 	g_return_val_if_fail(realm    != NULL, NULL);
@@ -4847,8 +4862,10 @@ gchar *purple_http_digest_calculate_session_key(
 		purple_hash_append(hasher, (guchar *)client_nonce, strlen(client_nonce));
 	}
 
-	purple_hash_digest_to_str(hasher, hash, sizeof(hash));
+	digest_ok = purple_hash_digest_to_str(hasher, hash, sizeof(hash));
 	g_object_unref(hasher);
+
+	g_return_val_if_fail(digest_ok, NULL);
 
 	return g_strdup(hash);
 }
@@ -4866,6 +4883,7 @@ gchar *purple_http_digest_calculate_response(
 {
 	PurpleHash *hash;
 	static gchar hash2[33]; /* We only support MD5. */
+	gboolean digest_ok;
 
 	g_return_val_if_fail(method      != NULL, NULL);
 	g_return_val_if_fail(digest_uri  != NULL, NULL);
@@ -4905,15 +4923,25 @@ gchar *purple_http_digest_calculate_response(
 
 		hash2 = purple_md5_hash_new();
 		purple_hash_append(hash2, (guchar *)entity, strlen(entity));
-		purple_hash_digest_to_str(hash2, entity_hash, sizeof(entity_hash));
+		digest_ok = purple_hash_digest_to_str(hash2, entity_hash, sizeof(entity_hash));
 		g_object_unref(hash2);
+
+		if (!digest_ok) {
+			g_object_unref(hash);
+			g_return_val_if_reached(NULL);
+		}
 
 		purple_hash_append(hash, (guchar *)":", 1);
 		purple_hash_append(hash, (guchar *)entity_hash, strlen(entity_hash));
 	}
 
-	purple_hash_digest_to_str(hash, hash2, sizeof(hash2));
+	digest_ok = purple_hash_digest_to_str(hash, hash2, sizeof(hash2));
 	purple_hash_reset(hash);
+
+	if (!digest_ok) {
+		g_object_unref(hash);
+		g_return_val_if_reached(NULL);
+	}
 
 	purple_hash_append(hash, (guchar *)session_key, strlen(session_key));
 	purple_hash_append(hash, (guchar *)":", 1);
@@ -4947,10 +4975,28 @@ gchar *purple_http_digest_calculate_response(
 	}
 
 	purple_hash_append(hash, (guchar *)hash2, strlen(hash2));
-	purple_hash_digest_to_str(hash, hash2, sizeof(hash2));
+	digest_ok = purple_hash_digest_to_str(hash, hash2, sizeof(hash2));
 	g_object_unref(hash);
 
+	g_return_val_if_fail(digest_ok, NULL);
+
 	return g_strdup(hash2);
+}
+
+int
+_purple_fstat(int fd, GStatBuf *st)
+{
+	int ret;
+
+	g_return_val_if_fail(st != NULL, -1);
+
+#ifdef _WIN32
+	ret = _fstat(fd, st);
+#else
+	ret = fstat(fd, st);
+#endif
+
+	return ret;
 }
 
 #if 0
@@ -4967,7 +5013,7 @@ purple_key_file_load_from_ini(GKeyFile *key_file, const gchar *file,
 	const gchar *header = "[default]\n\n";
 	int header_len = strlen(header);
 	int fd;
-	struct stat st;
+	GStatBuf st;
 	gsize file_size, buff_size;
 	gchar *buff;
 	GError *error = NULL;
@@ -4985,7 +5031,7 @@ purple_key_file_load_from_ini(GKeyFile *key_file, const gchar *file,
 		return FALSE;
 	}
 
-	if (fstat(fd, &st) != 0) {
+	if (_purple_fstat(fd, &st) != 0) {
 		purple_debug_error("util", "Failed to fstat ini file %s", file);
 		return FALSE;
 	}

@@ -401,11 +401,11 @@ static void mxit_close( PurpleConnection* gc )
 					Zero (success, no echo)
 					Negative value (error)
  */
-static int mxit_send_im( PurpleConnection* gc, const char* who, const char* message, PurpleMessageFlags flags )
+static int mxit_send_im(PurpleConnection* gc, PurpleMessage *msg)
 {
-	purple_debug_info( MXIT_PLUGIN_ID, "Sending message '%s' to buddy '%s'\n", message, who );
-
-	mxit_send_message( purple_connection_get_protocol_data( gc ), who, message, TRUE, FALSE );
+	mxit_send_message(purple_connection_get_protocol_data(gc),
+		purple_message_get_recipient(msg), purple_message_get_contents(msg),
+		TRUE, FALSE);
 
 	return 1;		/* echo to conversation window */
 }
@@ -723,7 +723,8 @@ static unsigned int mxit_send_typing( PurpleConnection *gc, const char *name, Pu
 
 static PurplePluginProtocolInfo proto_info = {
 	sizeof( PurplePluginProtocolInfo ),		/* struct_size */
-	OPT_PROTO_REGISTER_NOSCREENNAME | OPT_PROTO_UNIQUE_CHATNAME | OPT_PROTO_IM_IMAGE | OPT_PROTO_INVITE_MESSAGE | OPT_PROTO_AUTHORIZATION_DENIED_MESSAGE,	/* options */
+	OPT_PROTO_REGISTER_NOSCREENNAME | OPT_PROTO_UNIQUE_CHATNAME |
+	OPT_PROTO_INVITE_MESSAGE | OPT_PROTO_AUTHORIZATION_DENIED_MESSAGE, /* options */
 	NULL,					/* user_splits */
 	NULL,					/* protocol_options */
 	{						/* icon_spec */
@@ -764,7 +765,6 @@ static PurplePluginProtocolInfo proto_info = {
 	mxit_chat_name,			/* get_chat_name			[multimx.c] */
 	mxit_chat_invite,		/* chat_invite				[multimx.c] */
 	mxit_chat_leave,		/* chat_leave				[multimx.c] */
-	NULL,					/* chat_whisper */
 	mxit_chat_send,			/* chat_send				[multimx.c] */
 	mxit_keepalive,			/* keepalive */
 	mxit_register,			/* register_user */

@@ -1522,7 +1522,7 @@ pidgin_dnd_file_manage(GtkSelectionData *sd, PurpleAccount *account, const char 
 			if (gc)
 				prpl_info = PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(gc));
 
-			if (prpl_info && prpl_info->options & OPT_PROTO_IM_IMAGE)
+			if (!(purple_connection_get_flags(gc) & PURPLE_CONNECTION_FLAG_NO_IMAGES))
 				im = TRUE;
 
 			if (prpl_info && prpl_info->can_receive_file)
@@ -3086,6 +3086,9 @@ GdkPixbuf *pidgin_pixbuf_new_from_file(const gchar *filename)
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
 
+	g_return_val_if_fail(filename != NULL, NULL);
+	g_return_val_if_fail(filename[0] != '\0', NULL);
+
 	pixbuf = gdk_pixbuf_new_from_file(filename, &error);
 	if (!pixbuf || error) {
 		purple_debug_warning("gtkutils", "gdk_pixbuf_new_from_file() "
@@ -3107,6 +3110,9 @@ GdkPixbuf *pidgin_pixbuf_new_from_file_at_size(const char *filename, int width, 
 {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
+
+	g_return_val_if_fail(filename != NULL, NULL);
+	g_return_val_if_fail(filename[0] != '\0', NULL);
 
 	pixbuf = gdk_pixbuf_new_from_file_at_size(filename,
 			width, height, &error);
@@ -3130,6 +3136,9 @@ GdkPixbuf *pidgin_pixbuf_new_from_file_at_scale(const char *filename, int width,
 {
 	GdkPixbuf *pixbuf;
 	GError *error = NULL;
+
+	g_return_val_if_fail(filename != NULL, NULL);
+	g_return_val_if_fail(filename[0] != '\0', NULL);
 
 	pixbuf = gdk_pixbuf_new_from_file_at_scale(filename,
 			width, height, preserve_aspect_ratio, &error);

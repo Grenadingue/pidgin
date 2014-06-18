@@ -71,7 +71,12 @@ static void simple_keep_alive(PurpleConnection *gc) {
 			 remain in the NAT table */
 		gchar buf[2] = {0, 0};
 		purple_debug_info("simple", "sending keep alive\n");
-		sendto(sip->fd, buf, 1, 0, (struct sockaddr*)&sip->serveraddr, sizeof(struct sockaddr_in));
+		if (sendto(sip->fd, buf, 1, 0,
+			(struct sockaddr*)&sip->serveraddr,
+			sizeof(struct sockaddr_in)) != 1)
+		{
+			purple_debug_error("simple", "failed sending keep alive\n");
+		}
 	}
 	return;
 }
@@ -1025,10 +1030,10 @@ static void simple_send_message(struct simple_account_data *sip, const char *to,
 	g_free(fullto);
 }
 
-static int simple_im_send(PurpleConnection *gc, const char *who, const char *what, PurpleMessageFlags flags) {
+static int simple_im_send(PurpleConnection *gc, PurpleMessage *msg) {
 	struct simple_account_data *sip = purple_connection_get_protocol_data(gc);
-	char *to = g_strdup(who);
-	char *text = purple_unescape_html(what);
+	char *to = g_strdup(purple_message_get_recipient(msg));
+	char *text = purple_unescape_html(purple_message_get_contents(msg));
 	simple_send_message(sip, to, text, NULL);
 	g_free(to);
 	g_free(text);
@@ -1716,15 +1721,12 @@ static void simple_newconn_cb(gpointer data, gint source, PurpleInputCondition c
 	PurpleConnection *gc = data;
 	struct simple_account_data *sip = purple_connection_get_protocol_data(gc);
 	struct sip_connection *conn;
-	int newfd, flags;
+	int newfd;
 
 	newfd = accept(source, NULL, NULL);
+	g_return_if_fail(newfd >= 0);
 
-	flags = fcntl(newfd, F_GETFL);
-	fcntl(newfd, F_SETFL, flags | O_NONBLOCK);
-#ifndef _WIN32
-	fcntl(newfd, F_SETFD, FD_CLOEXEC);
-#endif
+	_purple_network_set_common_socket_flags(newfd);
 
 	conn = connection_create(sip, newfd);
 
@@ -1923,6 +1925,8 @@ static void simple_login(PurpleAccount *account)
 	const char *username = purple_account_get_username(account);
 	gc = purple_account_get_connection(account);
 
+	purple_connection_set_flags(gc, PURPLE_CONNECTION_FLAG_NO_IMAGES);
+
 	if (strpbrk(username, " \t\v\r\n") != NULL) {
 		purple_connection_error(gc,
 			PURPLE_CONNECTION_ERROR_INVALID_SETTINGS,
@@ -2081,7 +2085,6 @@ static PurplePluginProtocolInfo prpl_info =
 	NULL,					/* get_chat_name */
 	NULL,					/* chat_invite */
 	NULL,					/* chat_leave */
-	NULL,					/* chat_whisper */
 	NULL,					/* chat_send */
 	simple_keep_alive,		/* keepalive */
 	NULL,					/* register_user */

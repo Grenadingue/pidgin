@@ -266,7 +266,8 @@ purple_connection_set_flags(PurpleConnection *gc, PurpleConnectionFlags flags)
 
 	priv->flags = flags;
 
-	g_object_notify_by_pspec(G_OBJECT(gc), properties[PROP_FLAGS]);
+	if (!priv->is_finalizing)
+		g_object_notify_by_pspec(G_OBJECT(gc), properties[PROP_FLAGS]);
 }
 
 void
@@ -310,6 +311,16 @@ purple_connection_get_flags(const PurpleConnection *gc)
 	g_return_val_if_fail(priv != NULL, 0);
 
 	return priv->flags;
+}
+
+gboolean
+purple_connection_is_disconnecting(const PurpleConnection *gc)
+{
+	PurpleConnectionPrivate *priv = PURPLE_CONNECTION_GET_PRIVATE(gc);
+
+	g_return_val_if_fail(priv != NULL, TRUE);
+
+	return priv->is_finalizing;
 }
 
 PurpleAccount *
@@ -794,6 +805,7 @@ purple_connection_finalize(GObject *object)
 	}
 
 	purple_http_conn_cancel_all(gc);
+	_purple_socket_cancel_with_connection(gc);
 	purple_proxy_connect_cancel_with_handle(gc);
 
 	connections = g_list_remove(connections, gc);
@@ -1025,6 +1037,19 @@ _purple_connection_new_unregister(PurpleAccount *account, const char *password,
 /**************************************************************************
  * Connections API
  **************************************************************************/
+
+void
+_purple_assert_connection_is_valid(PurpleConnection *gc,
+	const gchar *file, int line)
+{
+	if (gc && g_list_find(purple_connections_get_all(), gc))
+		return;
+
+	purple_debug_fatal("connection", "PURPLE_ASSERT_CONNECTION_IS_VALID(%p)"
+		" failed at %s:%d", gc, file, line);
+	exit(-1);
+}
+
 void
 purple_connections_disconnect_all(void)
 {

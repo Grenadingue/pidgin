@@ -603,7 +603,6 @@ peer_connection_listen_cb(gpointer data, gint source, PurpleInputCondition cond)
 	PeerConnection *conn;
 	struct sockaddr addr;
 	socklen_t addrlen = sizeof(addr);
-	int flags;
 
 	conn = data;
 
@@ -628,11 +627,7 @@ peer_connection_listen_cb(gpointer data, gint source, PurpleInputCondition cond)
 		return;
 	}
 
-	flags = fcntl(conn->fd, F_GETFL);
-	fcntl(conn->fd, F_SETFL, flags | O_NONBLOCK);
-#ifndef _WIN32
-	fcntl(conn->fd, F_SETFD, FD_CLOEXEC);
-#endif
+	_purple_network_set_common_socket_flags(conn->fd);
 
 	purple_input_remove(conn->watcher_incoming);
 
@@ -751,8 +746,8 @@ peer_connection_establish_listener_cb(int listenerfd, gpointer data)
 		im = purple_im_conversation_new(account, conn->bn);
 		tmp = g_strdup_printf(_("Asking %s to connect to us at %s:%hu for "
 				"Direct IM."), conn->bn, listener_ip, listener_port);
-		purple_conversation_write(PURPLE_CONVERSATION(im), NULL, tmp,
-				PURPLE_MESSAGE_SYSTEM, time(NULL));
+		purple_conversation_write_system_message(
+			PURPLE_CONVERSATION(im), tmp, 0);
 		g_free(tmp);
 	}
 	else if (conn->type == OSCAR_CAPABILITY_SENDFILE)
@@ -838,8 +833,8 @@ peer_connection_trynext(PeerConnection *conn)
 			tmp = g_strdup_printf(_("Attempting to connect to %s:%hu."),
 					conn->verifiedip, conn->port);
 			im = purple_im_conversation_new(account, conn->bn);
-			purple_conversation_write(PURPLE_CONVERSATION(im), NULL, tmp,
-					PURPLE_MESSAGE_SYSTEM, time(NULL));
+			purple_conversation_write_system_message(
+				PURPLE_CONVERSATION(im), tmp, 0);
 			g_free(tmp);
 		}
 
@@ -911,8 +906,8 @@ peer_connection_trynext(PeerConnection *conn)
 			PurpleIMConversation *im;
 			tmp = g_strdup(_("Attempting to connect via proxy server."));
 			im = purple_im_conversation_new(account, conn->bn);
-			purple_conversation_write(PURPLE_CONVERSATION(im), NULL, tmp,
-					PURPLE_MESSAGE_SYSTEM, time(NULL));
+			purple_conversation_write_system_message(
+				PURPLE_CONVERSATION(im), tmp, 0);
 			g_free(tmp);
 		}
 

@@ -258,9 +258,10 @@ unnotify_cb(GtkWidget *widget, gpointer data, PurpleConversation *conv)
 }
 
 static gboolean
-message_displayed_cb(PurpleAccount *account, const char *who, char *message,
-                     PurpleConversation *conv, PurpleMessageFlags flags)
+message_displayed_cb(PurpleConversation *conv, PurpleMessage *msg, gpointer _unused)
 {
+	PurpleMessageFlags flags = purple_message_get_flags(msg);
+
 	if ((PURPLE_IS_CHAT_CONVERSATION(conv) &&
 	     purple_prefs_get_bool("/plugins/gtk/X11/notify/type_chat_nick") &&
 	     !(flags & PURPLE_MESSAGE_NICK)))
@@ -273,18 +274,19 @@ message_displayed_cb(PurpleAccount *account, const char *who, char *message,
 }
 
 static void
-im_sent_im(PurpleAccount *account, const char *receiver, const char *message)
+im_sent_im(PurpleAccount *account, PurpleMessage *msg, gpointer _unused)
 {
 	PurpleIMConversation *im = NULL;
 
 	if (purple_prefs_get_bool("/plugins/gtk/X11/notify/notify_send")) {
-		im = purple_conversations_find_im_with_account(receiver, account);
+		im = purple_conversations_find_im_with_account(
+			purple_message_get_recipient(msg), account);
 		unnotify(PURPLE_CONVERSATION(im), TRUE);
 	}
 }
 
 static void
-chat_sent_im(PurpleAccount *account, const char *message, int id)
+chat_sent_im(PurpleAccount *account, PurpleMessage *msg, int id)
 {
 	PurpleChatConversation *chat = NULL;
 

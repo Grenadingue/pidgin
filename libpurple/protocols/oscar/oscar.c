@@ -1663,8 +1663,8 @@ incomingim_chan4(OscarData *od, FlapConnection *conn, aim_userinfo_t *userinfo, 
 		return 1;
 
 	purple_debug_info("oscar",
-					"Received a channel 4 message of type 0x%02hx.\n",
-					(guint16)args->type);
+		"Received a channel 4 message of type 0x%02hx.",
+		(guint16)args->type);
 
 	/*
 	 * Split up the message at the delimeter character, then convert each
@@ -2409,7 +2409,8 @@ static int purple_chat_conversation_incoming_msg(OscarData *od, FlapConnection *
 	va_end(ap);
 
 	utf8 = oscar_encoding_to_utf8(charset, msg, len);
-	purple_serv_got_chat_in(gc, ccon->id, info->bn, 0, utf8, time(NULL));
+	purple_serv_got_chat_in(gc, ccon->id, info->bn,
+		PURPLE_MESSAGE_RECV, utf8, time(NULL));
 	g_free(utf8);
 
 	return 1;
@@ -2461,7 +2462,7 @@ static int purple_icon_parseicon(OscarData *od, FlapConnection *conn, FlapFrame 
 
 	va_start(ap, fr);
 	bn = va_arg(ap, char *);
-	va_arg(ap, int); /* iconcsumtype */
+	va_arg(ap, int); /* iconsumtype */
 	iconcsum = va_arg(ap, guint8 *);
 	iconcsumlen = va_arg(ap, int);
 	icon = va_arg(ap, guint8 *);
@@ -2574,8 +2575,9 @@ static int purple_connerr(OscarData *od, FlapConnection *conn, FlapFrame *fr, ..
 				gchar *buf;
 				buf = g_strdup_printf(_("You have been disconnected from chat "
 										"room %s."), cc->name);
-				purple_conversation_write(PURPLE_CONVERSATION(chat), NULL, buf,
-						PURPLE_MESSAGE_ERROR, time(NULL));
+				purple_conversation_write_system_message(
+					PURPLE_CONVERSATION(chat), buf,
+					PURPLE_MESSAGE_ERROR);
 				g_free(buf);
 			}
 			oscar_chat_kill(gc, cc);
@@ -3074,7 +3076,7 @@ purple_odc_send_im(PeerConnection *conn, const char *message, PurpleMessageFlags
 }
 
 int
-oscar_send_im(PurpleConnection *gc, const char *name, const char *message, PurpleMessageFlags imflags)
+oscar_send_im(PurpleConnection *gc, PurpleMessage *msg)
 {
 	OscarData *od;
 	PurpleAccount *account;
@@ -3082,7 +3084,12 @@ oscar_send_im(PurpleConnection *gc, const char *name, const char *message, Purpl
 	int ret;
 	char *tmp1, *tmp2;
 	gboolean is_sms, is_html;
+	const gchar *name, *message;
+	PurpleMessageFlags imflags;
 
+	name = purple_message_get_recipient(msg);
+	message = purple_message_get_contents(msg);
+	imflags = purple_message_get_flags(msg);
 	od = purple_connection_get_protocol_data(gc);
 	account = purple_connection_get_account(gc);
 	ret = 0;
@@ -3121,10 +3128,10 @@ oscar_send_im(PurpleConnection *gc, const char *name, const char *message, Purpl
 		im = purple_conversations_find_im_with_account(name, account);
 
 		if (strstr(tmp1, "<img "))
-			purple_conversation_write(PURPLE_CONVERSATION(im), "",
-			                        _("Your IM Image was not sent. "
-			                        "You must be Direct Connected to send IM Images."),
-			                        PURPLE_MESSAGE_ERROR, time(NULL));
+			purple_conversation_write_system_message(PURPLE_CONVERSATION(im),
+				_("Your IM Image was not sent. "
+				"You must be Direct Connected to send IM Images."),
+				PURPLE_MESSAGE_ERROR);
 
 		buddy = purple_blist_find_buddy(account, name);
 
@@ -4317,7 +4324,7 @@ oscar_chat_leave(PurpleConnection *gc, int id)
 	oscar_chat_kill(gc, cc);
 }
 
-int oscar_send_chat(PurpleConnection *gc, int id, const char *message, PurpleMessageFlags flags)
+int oscar_send_chat(PurpleConnection *gc, int id, PurpleMessage *msg)
 {
 	OscarData *od = purple_connection_get_protocol_data(gc);
 	PurpleChatConversation *conv = NULL;
@@ -4326,6 +4333,7 @@ int oscar_send_chat(PurpleConnection *gc, int id, const char *message, PurpleMes
 	guint16 charset;
 	char *charsetstr;
 	gsize len;
+	const gchar *message = purple_message_get_contents(msg);
 
 	if (!(conv = purple_conversations_find_chat(gc, id)))
 		return -EINVAL;
@@ -4335,11 +4343,12 @@ int oscar_send_chat(PurpleConnection *gc, int id, const char *message, PurpleMes
 
 	buf = purple_strdup_withhtml(message);
 
-	if (strstr(buf, "<img "))
-		purple_conversation_write(PURPLE_CONVERSATION(conv), "",
+	if (strstr(buf, "<img ")) {
+		purple_conversation_write_system_message(PURPLE_CONVERSATION(conv),
 			_("Your IM Image was not sent. "
 			  "You cannot send IM Images in AIM chats."),
-			PURPLE_MESSAGE_ERROR, time(NULL));
+			PURPLE_MESSAGE_ERROR);
+	}
 
 	buf2 = oscar_encode_im(buf, &len, &charset, &charsetstr);
 	/*
@@ -4840,8 +4849,8 @@ oscar_close_directim(gpointer object, gpointer ignored)
 		/* OSCAR_DISCONNECT_LOCAL_CLOSED doesn't write anything to the convo
 		 * window. Let the user know that we cancelled the Direct IM. */
 		im = purple_im_conversation_new(account, name);
-		purple_conversation_write(PURPLE_CONVERSATION(im), NULL, _("You closed the connection."),
-				PURPLE_MESSAGE_SYSTEM, time(NULL));
+		purple_conversation_write_system_message(
+			PURPLE_CONVERSATION(im), _("You closed the connection."), 0);
 	}
 }
 
