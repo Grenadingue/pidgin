@@ -103,6 +103,9 @@ version 2.10.10 (?/?/?):
 	XMPP:
 	* Fix Facebook XMPP roster quirks. (#15041, #15957)
 
+	Yahoo:
+	* Fix login when using the GnuTLS library for TLS connections. (#16172)
+
 version 2.10.9 (2/2/2014):
 	XMPP:
 	* Fix problems logging into some servers including jabber.org and
@@ -1523,7 +1526,7 @@ version 2.6.4 (11/29/2009):
 	Finch:
 	* The TinyURL plugin now creates shorter URLs for long non-conversation
 	  URLs, e.g. URLs to open Inbox in Yahoo/MSN protocols, or the Yahoo
-	  Captcha when joining chat rooms.
+	  CAPTCHA when joining chat rooms.
 	* Fix displaying umlauts etc. in non-utf8 locale (fix in libgnt).
 
 	Pidgin:
