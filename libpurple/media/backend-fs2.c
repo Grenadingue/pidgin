@@ -1,8 +1,3 @@
-/**
- * @file backend-fs2.c Farstream backend for media API
- * @ingroup core
- */
-
 /* purple
  *
  * Purple is the legal property of its developers, whose names are too numerous
@@ -25,6 +20,7 @@
  */
 
 #include "internal.h"
+#include "glibcompat.h"
 
 #include "backend-fs2.h"
 
@@ -87,8 +83,8 @@ static GList *purple_media_backend_fs2_get_local_candidates(
 		const gchar *sess_id, const gchar *participant);
 #if GST_CHECK_VERSION(1,0,0)
 static gboolean purple_media_backend_fs2_set_encryption_parameters (
-	PurpleMediaBackend *self, const gchar *sess_id, const gchar *cipher,
-	const gchar *auth, const gchar *key, gsize key_len);
+		PurpleMediaBackend *self, const gchar *sess_id, const gchar *cipher,
+		const gchar *auth, const gchar *key, gsize key_len);
 static gboolean purple_media_backend_fs2_set_decryption_parameters(
 		PurpleMediaBackend *self, const gchar *sess_id,
 		const gchar *participant, const gchar *cipher,
@@ -194,7 +190,12 @@ enum {
 
 static void
 purple_media_backend_fs2_init(PurpleMediaBackendFs2 *self)
-{}
+{
+#if GLIB_CHECK_VERSION(2, 37, 3)
+	/* silence a warning */
+	(void)purple_media_backend_fs2_get_instance_private;
+#endif
+}
 
 static FsCandidateType
 purple_media_candidate_type_to_fs(PurpleMediaCandidateType type)
