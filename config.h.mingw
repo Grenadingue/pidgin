@@ -53,6 +53,7 @@
 /* #undef HAVE_CONNECT */
 
 /* Define to 1 if Cyrus SASL is present */
+/* It's defined in global.mak. */
 /* #undef HAVE_CYRUS_SASL */
 
 /* Define if you have the external 'daylight' variable. */
@@ -71,12 +72,6 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef HAVE_DLFCN_H */
 
-/* whether or not we have dot */
-/* #undef HAVE_DOT */
-
-/* whether or not we have doxygen */
-/* #undef HAVE_DOXYGEN */
-
 /* Define if we're using evolution addressbook. */
 /* #undef HAVE_EVOLUTION_ADDRESSBOOK */
 
@@ -92,7 +87,7 @@
 /* Define to 1 if your stdio has int fileno(FILE *). */
 #define HAVE_FILENO 1
 
-/* Define to 1 if you have the getaddrinfo function. */
+/* Define to 1 if you have the getaddrinfo function (since WinXP). */
 #define HAVE_GETADDRINFO 1
 
 /* Define to 1 if you have the `gethostid' function. */
@@ -107,20 +102,11 @@
 /* Define if the GNU gettext() function is already present or preinstalled. */
 /* #define HAVE_GETTEXT 1 */
 
-/* Define if you have GnuTLS */
-/* #undef HAVE_GNUTLS */
-
-/* Defined if GnuTLS >= 2.10.0 is available. */
-/* #undef HAVE_GNUTLS_2_10 */
-
-/* gnutls contains the gnutls_certificate_set_x509_system_trust function */
-/* #undef HAVE_GNUTLS_CERTIFICATE_SET_X509_SYSTEM_TRUST */
-
-/* Define if your gnutls has the GNUTLS_CERT_INSECURE_ALGORITHM flag */
-/* #undef HAVE_GNUTLS_CERT_INSECURE_ALGORITHM */
+/* Define if you have GNUTLS */
+#define HAVE_GNUTLS 1
 
 /* Define to 1 if you have the <gnutls/gnutls.h> header file. */
-/* #undef HAVE_GNUTLS_GNUTLS_H */
+#define HAVE_GNUTLS_GNUTLS_H 1
 
 /* Define if your gnutls has gnutls_priority_set_direct and friends */
 /* #undef HAVE_GNUTLS_PRIORITY_FUNCS */
@@ -201,13 +187,13 @@
 /* #undef HAVE_NETWORKMANAGER */
 
 /* Define to 1 if you have the <nspr.h> header file. */
-/* #undef HAVE_NSPR_H */
+#define HAVE_NSPR_H 1
 
 /* Define if you have Mozilla NSS */
 #define HAVE_NSS 1
 
 /* Define to 1 if you have the <nss.h> header file. */
-/* #undef HAVE_NSS_H */
+#define HAVE_NSS_H 1
 
 /* Define if we have Pango 1.4 or newer. */
 #define HAVE_PANGO14 1
@@ -232,9 +218,6 @@
 
 /* Define to 1 if you have the `random' function. */
 /* #define HAVE_RANDOM 1 */
-
-/* Define to 1 if you have the <regex.h> header file. */
-/* #define HAVE_REGEX_H 1 */
 
 /* Define to 1 if you have the `setlocale' function. */
 #define HAVE_SETLOCALE 1
@@ -447,20 +430,13 @@
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 /* #undef TM_IN_SYS_TIME */
 
-/* Use GStreamer Video Overlay support */
-/* #undef USE_GSTAPP */
+/* Use GStreamer for playing sounds */
+/* It's defined in global.mak. */
+/* #undef USE_GSTREAMER */
 
-/* Use GStreamer 0.10 interfaces for X overlay support */
-/* #define USE_GSTINTERFACES 1 */
-
-/* Use GStreamer 0.10 for playing sounds */
-/* #define USE_GSTREAMER 1 */
-
-/* Use GStreamer Video Overlay support */
-/* #undef USE_GSTVIDEO */
-
-/* Define if we're using GtkSpell */
-#define USE_GTKSPELL 1
+/* Use voice and video */
+/* It's defined in global.mak. */
+/* #undef USE_VV */
 
 /* Use GNU Libidn for stringprep and IDN */
 /* #define USE_IDN 1 */
@@ -516,4 +492,18 @@
  * Following are added for Win32 version of Pidgin
  */
 #define HAVE_VSNPRINTF 1
+
+#define FINCH_LIBDIR wpurple_lib_dir(NULL)
+#define PIDGIN_LIBDIR wpurple_lib_dir(NULL)
+#define PURPLE_DATADIR wpurple_bin_dir()
+#define PURPLE_LIBDIR wpurple_lib_dir(NULL)
+#define PURPLE_LOCALEDIR wpurple_locale_dir()
+#define PURPLE_SYSCONFDIR wpurple_sysconf_dir()
+
+#define HAVE_FILENO 1
+
+#ifndef _WIN32_WINNT
+/* _WIN32_WINNT_WINXP = 0x0501 */
+#define _WIN32_WINNT 0x0501
+#endif
 

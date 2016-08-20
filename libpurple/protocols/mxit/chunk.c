@@ -26,7 +26,7 @@
 #include	"internal.h"
 #include	"debug.h"
 
-#include	"protocol.h"
+#include	"client.h"
 #include	"mxit.h"
 #include	"chunk.h"
 #include	"filexfer.h"
@@ -180,7 +180,11 @@ static int get_int16( const char* chunkdata, size_t chunklen, unsigned short* va
 
 	*value = ntohs( *( (const short*) chunkdata ) );	/* host byte-order */
 
-	return sizeof( short );
+	memcpy(&value_v, chunkdata, sizeof(value_v));
+
+	*value = ntohs(value_v); /* host byte-order */
+
+	return sizeof(value_v);
 }
 
 /*------------------------------------------------------------------------
@@ -198,7 +202,11 @@ static int get_int32( const char* chunkdata, size_t chunklen, unsigned int* valu
 
 	*value = ntohl( *( (const int*) chunkdata ) );	/* host byte-order */
 
-	return sizeof( int );
+	memcpy(&value_v, chunkdata, sizeof(value_v));
+
+	*value = ntohl(value_v); /* host byte-order */
+
+	return sizeof(value_v);
 }
 
 #if	0
@@ -499,6 +507,9 @@ gboolean mxit_chunk_parse_offer( char* chunkdata, size_t datalen, struct offerfi
 
 	/* mime type [UTF-8] */
 	pos += get_utf8_string( &chunkdata[pos], datalen - pos, offer->mimetype, sizeof( offer->mimetype ) );
+
+	if (pos > datalen)
+		purple_debug_warning(MXIT_PLUGIN_ID, "pos > datalen");
 
 	/* timestamp [8 bytes] */
 	/* not used by libPurple */
