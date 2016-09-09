@@ -30,11 +30,7 @@ EXTRA_DIST = \
 		win32/giowin32.c \
 		win32/win32dep.h
 
-if USE_GCONFTOOL
-GCONF_DIR=data/gconf
-endif
-
-SUBDIRS = $(GCONF_DIR) . plugins protocols tests example
+SUBDIRS = . plugins protocols tests example
 
 purple_coresources = \
 	account.c \
@@ -97,6 +93,7 @@ purple_coresources = \
 	proxy.c \
 	protocol.c \
 	protocols.c \
+	purple-gio.c \
 	purple-socket.c \
 	queuedoutputstream.c \
 	request.c \
@@ -181,6 +178,7 @@ purple_coreheaders = \
 	proxy.h \
 	protocol.h \
 	protocols.h \
+	purple-gio.h \
 	purple-socket.h \
 	queuedoutputstream.h \
 	request.h \
@@ -501,7 +499,7 @@ introspection_sources = \
 	$(addprefix media/, $(purple_mediaheaders))
 
 Purple-$(PURPLE_MAJOR_VERSION).$(PURPLE_MINOR_VERSION).gir: $(builddir)/libpurple.la
-Purple_3_0_gir_INCLUDES = GObject-2.0
+Purple_3_0_gir_INCLUDES = Gio-2.0 GObject-2.0
 if PLUGINS
 Purple_3_0_gir_INCLUDES += GPlugin-0.0
 endif

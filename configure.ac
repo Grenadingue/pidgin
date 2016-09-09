@@ -470,13 +470,13 @@ fi #enable_i18n
 AM_CONDITIONAL(INSTALL_I18N, test "x$enable_i18n" = "xyes")
 
 dnl #######################################################################
-dnl # Check for GLib 2.34 (required)
+dnl # Check for GLib 2.36 (required)
 dnl #######################################################################
-PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.34.0 gio-2.0 gobject-2.0 gthread-2.0], , [
+PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.36.0 gio-2.0 gobject-2.0 gthread-2.0], , [
 	AC_MSG_RESULT(no)
 	AC_MSG_ERROR([
 
-You must have GLib 2.34.0 or newer development headers installed to build.
+You must have GLib 2.36.0 or newer development headers installed to build.
 
 If you have these installed already you may need to install pkg-config so
 I can find them.
@@ -572,10 +572,10 @@ dnl #######################################################################
 dnl Check Pidgin dependencies
 dnl #######################################################################
 if test "x$enable_gtkui" = "xyes" ; then
-	PKG_CHECK_MODULES(GTK, [gtk+-3.0 >= 3.0.0], , [
+	PKG_CHECK_MODULES(GTK, [gtk+-3.0 >= 3.4.2], , [
 		AC_MSG_RESULT(no)
 		AC_MSG_ERROR([
-You must have GTK+ 3.0.0 or newer development headers installed to compile
+You must have GTK+ 3.4.2 or newer development headers installed to compile
 Pidgin.  If you want to build only Finch then specify --disable-gtkui when
 running configure.
 ])])
@@ -936,13 +936,6 @@ PKG_CHECK_MODULES(ZLIB, [zlib >= 1.2.0], , [
 
 AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)
-
-dnl #######################################################################
-dnl # GConf schemas
-dnl #######################################################################
-AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
-AM_CONDITIONAL(USE_GCONFTOOL, test "x$GCONFTOOL" != "xno")
-AM_GCONF_SOURCE_2
 
 dnl #######################################################################
 dnl # Check for GStreamer
@@ -2193,7 +2186,6 @@ AC_CONFIG_FILES([Makefile
 		   pidgin/themes/Makefile
 		   pidgin/win32/pidgin_dll_rc.rc
 		   pidgin/win32/pidgin_exe_rc.rc
-		   libpurple/data/gconf/Makefile
 		   libpurple/data/purple-url-handler.desktop.in
 		   libpurple/data/purple-3.pc
 		   libpurple/data/purple-3-uninstalled.pc
